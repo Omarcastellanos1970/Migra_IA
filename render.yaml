@@ -1,0 +1,21 @@
+# Despliegue de MIGRA-IA en Render (https://render.com) como servicio web.
+# Uso: en Render -> New + -> Blueprint -> selecciona este repositorio.
+# Render leera este archivo y creara el servicio automaticamente.
+#
+# Nota tecnica: 1 worker (las sesiones viven en memoria del proceso) con varios
+# hilos y timeout amplio, porque el razonamiento del modelo puede tardar.
+services:
+  - type: web
+    name: migra-ia
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 1 --threads 4 --timeout 180 -b 0.0.0.0:$PORT webapp.app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      # La clave NO se guarda en el repositorio: Render la pedira al desplegar.
+      #   - Dejala VACIA  -> demo publica gratis (solo "Modo demo", sin costo).
+      #   - Ponla         -> habilita el agente IA real (consume API por visitante).
+      - key: ANTHROPIC_API_KEY
+        sync: false
