@@ -9,8 +9,8 @@ abstract: >-
   riesgo de obsolescencia, un expediente trazable con registro de auditoría,
   reglas de seguridad obligatorias y validación humana. Incluye un modo de
   demostración reproducible que funciona sin clave de API.
-version: "0.1.0"
-date-released: "2026-07-20"
+version: "0.2.0"
+date-released: "2026-07-21"
 license: MIT
 type: software
 keywords:
