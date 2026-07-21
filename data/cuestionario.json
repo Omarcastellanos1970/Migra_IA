@@ -1,6 +1,6 @@
 {
   "agente": "MIGRA-IA",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "idioma": "es",
   "descripcion": "Cuestionario maestro adaptativo para diagnostico de obsolescencia y migracion de sistemas de automatizacion industrial. El agente NO debe leerlo de forma rigida: las respuestas activan, ocultan o modifican las preguntas siguientes (principio de cuestionario adaptativo).",
   "secciones": [
@@ -42,7 +42,9 @@
         {"codigo": "C07", "texto": "Estado actual", "tipo": "seleccion", "opciones": ["Operando normalmente", "Operando con fallas", "Operacion intermitente", "Fuera de servicio", "Desmontada", "En modernizacion"]},
         {"codigo": "C08", "texto": "Criticidad de la maquina", "tipo": "seleccion", "opciones": ["Baja: puede detenerse varios dias", "Media: afecta parcialmente la produccion", "Alta: afecta una linea importante", "Critica: detiene la planta o presenta riesgo de seguridad"]},
         {"codigo": "C09", "texto": "Horas de operacion", "tipo": "seleccion", "opciones": ["Menos de 8 horas diarias", "Entre 8 y 16 horas", "Entre 16 y 24 horas", "Operacion continua"]},
-        {"codigo": "C10", "texto": "Tiempo maximo permitido de parada", "tipo": "seleccion", "opciones": ["Menos de 1 hora", "1 a 4 horas", "4 a 12 horas", "12 a 24 horas", "Mas de 24 horas"]}
+        {"codigo": "C10", "texto": "Tiempo maximo permitido de parada", "tipo": "seleccion", "opciones": ["Menos de 1 hora", "1 a 4 horas", "4 a 12 horas", "12 a 24 horas", "Mas de 24 horas"]},
+        {"codigo": "C11", "texto": "Se conoce con exactitud la logica de control programada en el PLC (como decide el sistema cada accion, condiciones e interbloqueos)?", "tipo": "seleccion", "opciones": ["Si, documentada y comprendida", "Si, parcialmente", "Solo se conoce el comportamiento externo", "No se conoce"], "regla_adaptativa": "Si la respuesta no es 'Si, documentada y comprendida', registrar dato faltante: sin conocer la logica de control, una migracion exige recuperar y analizar el programa (ingenieria inversa) antes de reconstruirlo, lo que aumenta el riesgo y el tiempo."},
+        {"codigo": "C12", "texto": "Se conoce con exactitud la secuencia de operacion de la maquina (orden de pasos, condiciones de arranque, paro y emergencia, tiempos y enclavamientos)?", "tipo": "seleccion", "opciones": ["Si, documentada", "Si, por experiencia del personal", "Parcialmente", "No se conoce"], "regla_adaptativa": "Si no se conoce, priorizar el levantamiento de la secuencia (entrevistas al operador, observacion del ciclo y analisis del programa) antes de migrar; marcarla como dato faltante critico para las pruebas SAT."}
       ]
     },
     {
@@ -60,7 +62,11 @@
         {"codigo": "D09", "texto": "La CPU posee indicadores de error?", "tipo": "seleccion", "opciones": ["Si", "No", "No verificado"], "regla_adaptativa": "Si responde 'Si', solicitar fotografia e identificacion de los LED activos."},
         {"codigo": "D10", "texto": "La CPU esta protegida con contrasena?", "tipo": "seleccion", "opciones": ["Si", "No", "No se conoce"]},
         {"codigo": "D11", "texto": "Existe una CPU de repuesto?", "tipo": "seleccion", "opciones": ["Si, nueva", "Si, usada", "No", "No se conoce"]},
-        {"codigo": "D12", "texto": "Existen modulos de repuesto?", "tipo": "seleccion", "opciones": ["Si", "Parcialmente", "No", "No se conoce"]}
+        {"codigo": "D12", "texto": "Existen modulos de repuesto?", "tipo": "seleccion", "opciones": ["Si", "Parcialmente", "No", "No se conoce"]},
+        {"codigo": "D13", "texto": "Cantidad total de entradas digitales (DI) del sistema", "tipo": "numero", "regla_adaptativa": "Conteo global usado para dimensionar la CPU y la periferia destino (Regla 6). Complementa el inventario detallado por modulo de la Seccion E. Si no se conoce con exactitud, pedir una estimacion y marcar dato faltante."},
+        {"codigo": "D14", "texto": "Cantidad total de salidas digitales (DO) del sistema", "tipo": "numero", "regla_adaptativa": "Idem D13: dimensiona las salidas digitales de la plataforma destino y ayuda a estimar consumo y tipo de salida (rele, transistor, triac)."},
+        {"codigo": "D15", "texto": "Cantidad total de entradas analogicas (AI) del sistema", "tipo": "numero", "regla_adaptativa": "Dimensiona los canales analogicos de entrada; anotar el tipo de senal (0-10 V, +-10 V, 4-20 mA, RTD/PT100, termopar) junto al conteo cuando se conozca."},
+        {"codigo": "D16", "texto": "Cantidad total de salidas analogicas (AO) del sistema", "tipo": "numero", "regla_adaptativa": "Dimensiona los canales analogicos de salida; anotar el tipo de senal (0-10 V, +-10 V, 4-20 mA) cuando se conozca."}
       ]
     },
     {
