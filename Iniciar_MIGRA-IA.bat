@@ -1,6 +1,6 @@
 @echo off
 title MIGRA-IA - Servidor (no cerrar esta ventana mientras lo usas)
-cd /d "%USERPROFILE%\Desktop\MIGRA_IA_Cuestionario_y_Diseno_del_Agente"
+cd /d "%~dp0"
 
 echo ============================================================
 echo   MIGRA-IA - Iniciando el agente...
