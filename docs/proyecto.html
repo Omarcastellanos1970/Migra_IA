@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="MIGRA-IA: agente de IA para diagnostico de obsolescencia y migracion de hardware de automatizacion industrial. Prototipo v0.1.0.">
+<title>MIGRA-IA — Artefacto de software</title>
+<style>
+  :root {
+    --bg: #e9edf1;
+    --surface: #ffffff;
+    --surface-2: #f3f6f8;
+    --surface-3: #eaeff3;
+    --ink: #15202b;
+    --ink-soft: #53616d;
+    --ink-faint: #8593a0;
+    --line: #d4dbe2;
+    --line-strong: #bcc7d0;
+    --accent: #0b8f88;
+    --accent-ink: #06726c;
+    --accent-soft: rgba(11, 143, 136, 0.10);
+    --accent-line: rgba(11, 143, 136, 0.30);
+    --r-bajo: #16a34a;
+    --r-moderado: #7f9c0c;
+    --r-importante: #c69402;
+    --r-alto: #df6410;
+    --r-critico: #d22f2f;
+    --shadow: 0 1px 2px rgba(21, 32, 43, 0.04), 0 8px 24px rgba(21, 32, 43, 0.06);
+    --font-sans: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Cascadia Code", "Cascadia Mono", ui-monospace, "Consolas", "SFMono-Regular", Menlo, monospace;
+    --maxw: 1080px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1119;
+      --surface: #131d27;
+      --surface-2: #0f1822;
+      --surface-3: #172431;
+      --ink: #e3ebf1;
+      --ink-soft: #9fb0bd;
+      --ink-faint: #66788a;
+      --line: #223140;
+      --line-strong: #33475a;
+      --accent: #2ed3c5;
+      --accent-ink: #63e2d6;
+      --accent-soft: rgba(46, 211, 197, 0.12);
+      --accent-line: rgba(46, 211, 197, 0.28);
+      --r-bajo: #2fce7d;
+      --r-moderado: #a6cf2b;
+      --r-importante: #efb52e;
+      --r-alto: #fb8b3c;
+      --r-critico: #f2564e;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #e9edf1; --surface: #ffffff; --surface-2: #f3f6f8; --surface-3: #eaeff3;
+    --ink: #15202b; --ink-soft: #53616d; --ink-faint: #8593a0;
+    --line: #d4dbe2; --line-strong: #bcc7d0;
+    --accent: #0b8f88; --accent-ink: #06726c; --accent-soft: rgba(11,143,136,0.10); --accent-line: rgba(11,143,136,0.30);
+    --r-bajo: #16a34a; --r-moderado: #7f9c0c; --r-importante: #c69402; --r-alto: #df6410; --r-critico: #d22f2f;
+    --shadow: 0 1px 2px rgba(21,32,43,0.04), 0 8px 24px rgba(21,32,43,0.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1119; --surface: #131d27; --surface-2: #0f1822; --surface-3: #172431;
+    --ink: #e3ebf1; --ink-soft: #9fb0bd; --ink-faint: #66788a;
+    --line: #223140; --line-strong: #33475a;
+    --accent: #2ed3c5; --accent-ink: #63e2d6; --accent-soft: rgba(46,211,197,0.12); --accent-line: rgba(46,211,197,0.28);
+    --r-bajo: #2fce7d; --r-moderado: #a6cf2b; --r-importante: #efb52e; --r-alto: #fb8b3c; --r-critico: #f2564e;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+  /* ---- eyebrow / labels ---- */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 16px; height: 1.5px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  a { color: var(--accent-ink); text-decoration-color: var(--accent-line); text-underline-offset: 2px; }
+
+  /* ---- nameplate header ---- */
+  .nameplate {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nameplate-in {
+    max-width: var(--maxw); margin: 0 auto; padding: 11px 22px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .np-led {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--r-importante);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--r-importante) 22%, transparent);
+    flex: none;
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .np-code { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.03em; font-size: 15px; }
+  .np-code span { color: var(--ink-faint); font-weight: 500; }
+  .np-tag {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft); border: 1px solid var(--line-strong); border-radius: 4px; padding: 2px 7px;
+  }
+  .np-spacer { flex: 1; }
+  .theme-btn {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+    background: var(--surface-2); color: var(--ink-soft);
+    border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 10px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--accent); }
+
+  /* ---- hero ---- */
+  .hero { padding: 62px 0 34px; }
+  .hero h1 {
+    font-size: clamp(30px, 5.4vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    margin: 18px 0 0;
+    text-wrap: balance;
+    max-width: 17ch;
+  }
+  .hero h1 .hl { color: var(--accent-ink); }
+  .lede {
+    margin: 20px 0 0; max-width: 60ch; font-size: 18px; color: var(--ink-soft); line-height: 1.58;
+  }
+  .authorline {
+    margin-top: 22px; font-size: 14.5px; color: var(--ink); display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline;
+  }
+  .authorline b { font-weight: 600; }
+  .authorline .role { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); letter-spacing: 0.04em; }
+
+  .chips { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+    color: var(--ink-soft); display: inline-flex; align-items: center; gap: 7px;
+  }
+  .chip b { color: var(--ink); font-weight: 600; }
+  .chip.free { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent-ink); }
+  .chip.free b { color: var(--accent-ink); }
+  .dotk { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+  /* ---- section scaffolding ---- */
+  section { padding: 30px 0; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .sec-head h2 {
+    font-size: clamp(21px, 3vw, 27px); font-weight: 700; letter-spacing: -0.015em; margin: 0; text-wrap: balance;
+  }
+  .sec-note { color: var(--ink-soft); font-size: 14.5px; max-width: 62ch; margin: 0 0 4px; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+  .panel-pad { padding: clamp(20px, 3vw, 30px); }
+
+  /* ---- risk engine ---- */
+  .engine-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 20px; }
+  .engine-title { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+  .readout { display: flex; align-items: baseline; gap: 14px; margin-top: 8px; }
+  .score {
+    font-family: var(--font-mono); font-weight: 700; font-size: clamp(46px, 9vw, 66px);
+    line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+    color: var(--score-color, var(--ink)); transition: color .35s ease;
+  }
+  .score small { font-size: 0.34em; color: var(--ink-faint); font-weight: 600; letter-spacing: 0.02em; }
+  .clasif-pill {
+    align-self: center;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 7px 14px; border-radius: 999px;
+    color: #fff; background: var(--score-color, var(--ink)); white-space: nowrap;
+    transition: background .35s ease;
+  }
+  :root[data-theme="dark"] .clasif-pill, @media (prefers-color-scheme: dark) { }
+  .gauge { margin-top: 24px; }
+  .gauge-track {
+    position: relative; height: 16px; border-radius: 8px;
+    background: var(--surface-3); border: 1px solid var(--line); overflow: hidden;
+  }
+  .gauge-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    background: var(--score-color, var(--accent));
+    border-radius: 8px 0 0 8px;
+    transition: width .4s cubic-bezier(.4,0,.2,1), background .35s ease;
+  }
+  .gauge-ticks { position: relative; height: 0; }
+  .gauge-tick { position: absolute; top: -16px; width: 1px; height: 16px; background: var(--line-strong); }
+  .gauge-scale {
+    display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 9px;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .gauge-scale span { text-align: center; transition: color .3s ease; position: relative; }
+  .gauge-scale span.on { color: var(--score-color); font-weight: 700; }
+  .gauge-scale span::before {
+    content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 5px; height: 5px; border-radius: 50%; background: var(--zc); opacity: .55;
+  }
+
+  .factors { margin-top: 30px; display: grid; gap: 2px; }
+  .factor {
+    display: grid; grid-template-columns: minmax(0,1.5fr) 1.6fr auto auto; align-items: center; gap: 14px;
+    padding: 11px 12px; border-radius: 8px;
+  }
+  .factor:hover { background: var(--surface-2); }
+  .factor.off { opacity: 0.42; }
+  .f-name { font-size: 13.5px; line-height: 1.25; }
+  .f-name .w { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.03em; display: block; margin-top: 2px; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 4px;
+    background: linear-gradient(to right, var(--accent) var(--pct,50%), var(--line-strong) var(--pct,50%));
+    outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer; border-color: var(--accent);
+  }
+  input[type="range"]:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft); }
+  .f-val { font-family: var(--font-mono); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; width: 3ch; text-align: right; color: var(--ink); }
+  .f-nd {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.05em; color: var(--ink-faint);
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer; user-select: none;
+  }
+  .f-nd input { accent-color: var(--accent); cursor: pointer; }
+  .engine-foot {
+    margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--line-strong);
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
+  }
+  .engine-foot p { margin: 0; font-size: 12.5px; color: var(--ink-soft); max-width: 62ch; }
+  .btn-reset {
+    font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.05em;
+    background: var(--surface-2); color: var(--ink-soft); border: 1px solid var(--line-strong);
+    border-radius: 6px; padding: 7px 13px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-reset:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* ---- feature grid ---- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card .k {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--accent-ink); font-weight: 600;
+    display: block; margin-bottom: 9px;
+  }
+  .card h3 { margin: 0 0 7px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .card p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* ---- diagnostic readout (demo case) ---- */
+  .diag { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .diag-row { display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 13px 0; border-top: 1px solid var(--line); }
+  .diag-row:first-child { border-top: none; }
+  .diag-k { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); padding-top: 2px; }
+  .diag-v { font-size: 14.5px; color: var(--ink); }
+  .diag-v .muted { color: var(--ink-soft); }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+  .tg { font-family: var(--font-mono); font-size: 11.5px; padding: 3px 9px; border-radius: 5px; border: 1px solid var(--line-strong); color: var(--ink-soft); }
+  .tg.warn { border-color: color-mix(in srgb, var(--r-importante) 55%, var(--line)); color: var(--r-importante); background: color-mix(in srgb, var(--r-importante) 10%, transparent); }
+  .tg.crit { border-color: color-mix(in srgb, var(--r-critico) 55%, var(--line)); color: var(--r-critico); background: color-mix(in srgb, var(--r-critico) 10%, transparent); }
+  .flag {
+    display: flex; gap: 11px; align-items: flex-start; padding: 13px 15px; border-radius: 9px;
+    background: color-mix(in srgb, var(--r-critico) 8%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--r-critico) 35%, var(--line));
+    margin-top: 16px;
+  }
+  .flag .ic { color: var(--r-critico); font-family: var(--font-mono); font-weight: 700; flex: none; }
+  .flag p { margin: 0; font-size: 13px; color: var(--ink); }
+  .flag b { color: var(--r-critico); }
+
+  /* ---- code / run ---- */
+  .run-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .run-grid { grid-template-columns: 1fr; } }
+  pre {
+    margin: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.65; color: var(--ink);
+  }
+  pre .c { color: var(--ink-faint); }
+  pre .p { color: var(--accent-ink); }
+  .steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: start; font-size: 14px; color: var(--ink-soft); }
+  .steps li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--accent-ink);
+    background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: 6px;
+    width: 26px; height: 26px; display: grid; place-items: center;
+  }
+  .steps li b { color: var(--ink); font-weight: 600; }
+  kbd {
+    font-family: var(--font-mono); font-size: 12.5px; background: var(--surface-3); border: 1px solid var(--line-strong);
+    border-bottom-width: 2px; border-radius: 5px; padding: 1px 7px; color: var(--ink);
+  }
+
+  /* ---- cite ---- */
+  .cite-note { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 14px; max-width: 64ch; }
+
+  /* ---- status banner ---- */
+  .status {
+    display: flex; gap: 15px; align-items: flex-start;
+    border: 1px solid var(--line-strong); border-left: 3px solid var(--accent);
+    background: var(--surface); border-radius: 12px; padding: 20px 22px;
+  }
+  .status .ic { font-family: var(--font-mono); color: var(--accent-ink); font-weight: 700; font-size: 18px; flex: none; }
+  .status h3 { margin: 0 0 6px; font-size: 15px; font-weight: 700; }
+  .status p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* ---- footer ---- */
+  footer { border-top: 1px solid var(--line); margin-top: 24px; padding: 34px 0 60px; }
+  .foot-grid { display: flex; flex-wrap: wrap; gap: 22px 40px; justify-content: space-between; }
+  .foot-brand { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.03em; }
+  .foot-brand span { color: var(--ink-faint); font-weight: 500; }
+  .foot-meta { font-size: 12.5px; color: var(--ink-faint); max-width: 52ch; line-height: 1.6; }
+  .disclaimer {
+    margin-top: 22px; font-size: 12px; color: var(--ink-faint); line-height: 1.55;
+    border-top: 1px dashed var(--line); padding-top: 16px; max-width: 78ch;
+  }
+
+  @media (max-width: 620px) {
+    .factor { grid-template-columns: 1fr auto; grid-template-areas: "name val" "slider slider" "nd nd"; row-gap: 8px; }
+    .f-name { grid-area: name; } .f-val { grid-area: val; } .factor > input[type=range] { grid-area: slider; } .f-nd { grid-area: nd; justify-self: start; }
+    .diag-row { grid-template-columns: 1fr; gap: 4px; }
+    .hero { padding: 40px 0 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<header class="nameplate">
+  <div class="nameplate-in">
+    <span class="np-led" aria-hidden="true"></span>
+    <span class="np-code">MIGRA-IA <span>· MIGRA-AI-001</span></span>
+    <span class="np-tag">v0.1.0 · prototipo</span>
+    <span class="np-spacer"></span>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">
+      <span id="themeIco">◐</span><span id="themeTxt">Tema</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section class="hero">
+      <span class="eyebrow">Artefacto de software · Automatización industrial</span>
+      <h1>Diagnóstico de <span class="hl">obsolescencia</span> y migración de hardware, guiado por IA.</h1>
+      <p class="lede">
+        MIGRA-IA es un agente conversacional <b>asistido</b> que guía paso a paso al personal técnico
+        para diagnosticar la obsolescencia de PLCs, módulos de E/S, HMI, redes industriales y variadores,
+        y para planificar su migración — con trazabilidad, niveles de confianza y validación humana obligatoria.
+      </p>
+      <div class="authorline">
+        <span><b>Carlos Omar Castellanos</b> · <b>Julio Noé Castillo</b> · <b>Isidoro Emilio Medina</b></span>
+        <span class="role">Tesis de maestría · Automatización industrial</span>
+      </div>
+      <div class="chips">
+        <span class="chip free"><span class="dotk"></span> Modo demo <b>sin clave · sin costo</b></span>
+        <span class="chip">Licencia <b>MIT</b></span>
+        <span class="chip">Motor <b>claude-opus-4-8</b></span>
+        <span class="chip">Python <b>3.10+</b></span>
+        <span class="chip">DOI <b>por asignar (Zenodo)</b></span>
+      </div>
+    </section>
+
+    <!-- ================= RISK ENGINE ================= -->
+    <section id="motor">
+      <div class="sec-head">
+        <span class="eyebrow">Sección 6 · en vivo</span>
+      </div>
+      <div class="panel panel-pad">
+        <div class="engine-top">
+          <div>
+            <div class="engine-title">Motor de riesgo de obsolescencia</div>
+            <div class="readout">
+              <div class="score" id="score">75.2<small>/100</small></div>
+              <div class="clasif-pill" id="pill">Riesgo alto</div>
+            </div>
+          </div>
+          <button class="btn-reset" id="resetBtn" type="button">↺ Caso demo (S7-300)</button>
+        </div>
+
+        <div class="gauge">
+          <div class="gauge-ticks">
+            <div class="gauge-tick" style="left:20%"></div>
+            <div class="gauge-tick" style="left:40%"></div>
+            <div class="gauge-tick" style="left:60%"></div>
+            <div class="gauge-tick" style="left:80%"></div>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill" id="fill"></div></div>
+          <div class="gauge-scale" id="scale">
+            <span style="--zc:var(--r-bajo)" data-z="0">Bajo</span>
+            <span style="--zc:var(--r-moderado)" data-z="1">Moderado</span>
+            <span style="--zc:var(--r-importante)" data-z="2">Importante</span>
+            <span style="--zc:var(--r-alto)" data-z="3">Alto</span>
+            <span style="--zc:var(--r-critico)" data-z="4">Crítico</span>
+          </div>
+        </div>
+
+        <div class="factors" id="factors"></div>
+
+        <div class="engine-foot">
+          <p>
+            Es el <b>mismo motor determinista</b> del artefacto (<span style="font-family:var(--font-mono)">migra_ia/scoring.py</span>),
+            portado a tu navegador: ocho factores ponderados, renormalizados cuando marcas un factor como <b>N/D</b>
+            (sin datos), con el redondeo <i>half-to-even</i> de Python. Mismo caso → misma puntuación.
+          </p>
+          <button class="btn-reset" id="resetBtn2" type="button">Restablecer</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= WHAT IT DEMONSTRATES ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>Qué demuestra el artefacto</h2>
+        <p class="sec-note">Afirmaciones verificables con el modo demo, sin clave de API y en ~10–15 minutos.</p>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <span class="k">A–K</span>
+          <h3>Cuestionario adaptativo</h3>
+          <p>Captura la información del equipo por secciones; las respuestas activan, ocultan o modifican las preguntas siguientes, con un nivel de confianza por dato.</p>
+        </div>
+        <div class="card">
+          <span class="k">0–100</span>
+          <h3>Riesgo de obsolescencia</h3>
+          <p>Ocho factores ponderados producen una puntuación determinista y su clasificación. Mismo caso, misma puntuación — auditable.</p>
+        </div>
+        <div class="card">
+          <span class="k">ID + auditoría</span>
+          <h3>Expediente trazable</h3>
+          <p>Cada activo, evidencia y decisión recibe un identificador único y queda en un registro de auditoría reconstruible.</p>
+        </div>
+        <div class="card">
+          <span class="k">Sección 8</span>
+          <h3>Reglas de seguridad</h3>
+          <p>No inventa números de catálogo, no asume compatibilidad ni respaldos, marca datos faltantes y exige aprobación humana antes de intervenir.</p>
+        </div>
+        <div class="card">
+          <span class="k">Consultoría</span>
+          <h3>Orienta la solución</h3>
+          <p>Alternativas comparadas, equivalencias sugeridas por criterio técnico (a verificar con el fabricante) y procedimiento de migración por etapas.</p>
+        </div>
+        <div class="card">
+          <span class="k">Sección 9</span>
+          <h3>Informe técnico</h3>
+          <p>Genera automáticamente un informe trazable que separa hechos confirmados, inferencias y recomendaciones, con sus fuentes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO CASE ================= -->
+    <section>
+      <div class="sec-head">
+        <span class="eyebrow">Caso de demostración</span>
+      </div>
+      <div class="panel panel-pad">
+        <div class="engine-title" style="margin-bottom:6px">Lectura de diagnóstico · CAS-2026-904335</div>
+        <div class="diag">
+          <div class="diag-row">
+            <div class="diag-k">Equipo</div>
+            <div class="diag-v">CPU Siemens <b>S7-300 315-2 DP</b> — operando con fallas intermitentes</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Redes</div>
+            <div class="diag-v">Profibus DP · MPI</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Confianza global</div>
+            <div class="diag-v"><span class="muted">confianza media</span> — evidencias pendientes (placa, respaldo, lista de E/S)</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Recomendación</div>
+            <div class="diag-v"><b>Prioridad 1:</b> recuperar el respaldo del programa. Luego <b>migrar a S7-1500</b> conservando Profibus DP.</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Alternativas</div>
+            <div class="diag-v">
+              <div class="tags">
+                <span class="tg">Operación temporal</span>
+                <span class="tg">Repuesto directo</span>
+                <span class="tg">Hardware equivalente</span>
+                <span class="tg">Migración S7-1500</span>
+                <span class="tg">Reconstrucción</span>
+              </div>
+            </div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Equivalencias <span style="text-transform:none;letter-spacing:0">(a verificar)</span></div>
+            <div class="diag-v">
+              S7-300 315-2 DP → familia <b>S7-1500</b> con Profibus DP · módulos → ET 200MP / ET 200SP · STEP 7 Classic → TIA Portal.
+              <span class="muted">No se confirman números de catálogo: deben verificarse con la herramienta oficial del fabricante.</span>
+            </div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Banderas</div>
+            <div class="diag-v">
+              <div class="tags">
+                <span class="tg crit">Seguridad funcional: revisión obligatoria</span>
+                <span class="tg warn">Aprobación humana pendiente</span>
+                <span class="tg warn">Dato faltante: respaldo sin verificar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flag">
+          <span class="ic" aria-hidden="true">▲</span>
+          <p>Si la migración puede afectar funciones de seguridad (paros de emergencia, cortinas, PLC/relés de seguridad, PL/SIL), MIGRA-IA marca <b>«revisión obligatoria por especialista en seguridad funcional»</b> y detiene toda instrucción de intervención hasta la validación de personal competente.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RUN ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>Ejecútalo sin clave y sin costo</h2>
+        <p class="sec-note">La vía recomendada para revisores: ejercita el motor real (cuestionario, riesgo, expediente e informe) con un caso de ejemplo. El razonamiento en lenguaje natural con la API es opcional.</p>
+      </div>
+      <div class="run-grid">
+        <div class="panel panel-pad">
+          <div class="engine-title" style="margin-bottom:12px">Modo demostración</div>
+          <pre><span class="c"># En la carpeta del proyecto</span>
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+<span class="c"># Levantar la app web</span>
+python -m webapp.app</pre>
+          <ol class="steps" style="margin-top:18px">
+            <li>Abre <b>http://127.0.0.1:5000</b> en tu navegador.</li>
+            <li>Pulsa <kbd>Modo demo (sin clave)</kbd> y avanza por el diagnóstico.</li>
+            <li>El panel derecho muestra riesgo, activos, datos faltantes y banderas en vivo.</li>
+          </ol>
+        </div>
+        <div class="panel panel-pad">
+          <div class="engine-title" style="margin-bottom:12px">Salidas deterministas esperadas</div>
+          <div class="diag">
+            <div class="diag-row"><div class="diag-k">Riesgo</div><div class="diag-v"><b>75.2 / 100</b> → Riesgo alto</div></div>
+            <div class="diag-row"><div class="diag-k">Activos</div><div class="diag-v">1 · CPU S7-300 315-2 DP</div></div>
+            <div class="diag-row"><div class="diag-k">Datos faltantes</div><div class="diag-v">1 · respaldo sin verificar</div></div>
+            <div class="diag-row"><div class="diag-k">Bandera</div><div class="diag-v">Revisión por especialista</div></div>
+            <div class="diag-row"><div class="diag-k">Informe</div><div class="diag-v">1 archivo Markdown en <span style="font-family:var(--font-mono)">casos/</span></div></div>
+          </div>
+          <div class="engine-title" style="margin:20px 0 10px">Solo el motor (sin navegador)</div>
+          <pre><span class="p">python</span> -c "from migra_ia.scoring
+  import calcular_riesgo; ..."</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CITE ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>Cómo citar</h2>
+      </div>
+      <div class="panel panel-pad">
+        <p class="cite-note">
+          Metadatos completos en <span style="font-family:var(--font-mono)">CITATION.cff</span>. Tras el depósito en Zenodo,
+          reemplaza el DOI y cita el artefacto en el artículo. Hoy el DOI está <b>por asignar</b> — no se muestra uno provisional para no inducir a error.
+        </p>
+        <pre>@software{migra_ia_2026,
+  author  = {Castellanos, Carlos Omar and Castillo, Julio Noé
+             and Medina, Isidoro Emilio},
+  title   = {{MIGRA-IA: Agente de IA para la migración y
+             reacondicionamiento de hardware obsoleto en
+             sistemas de automatización industrial}},
+  version = {0.1.0},
+  year    = {2026},
+  license = {MIT},
+  note    = {DOI por asignar (Zenodo)}
+}</pre>
+      </div>
+    </section>
+
+    <!-- ================= STATUS ================= -->
+    <section>
+      <div class="status">
+        <span class="ic" aria-hidden="true">i</span>
+        <div>
+          <h3>Estado del proyecto — honesto y verificable</h3>
+          <p>
+            MIGRA-IA es un <b>prototipo (MVP v0.1.0)</b>. El código y su documentación son públicos y reproducibles;
+            para <b>archivarlo con DOI</b> se sigue <span style="font-family:var(--font-mono)">docs/GUIA_ZENODO.md</span>.
+            Publicar el artefacto <b>no requiere clave de API</b>; la clave solo habilita el razonamiento en lenguaje natural sobre
+            datos arbitrarios (servicio de pago de Anthropic, cada usuario aporta la suya). Alcance del MVP: origen Siemens S7-300/400,
+            destino S7-1500, STEP 7 Classic y TIA Portal, redes MPI/Profibus DP/Profinet/Ethernet.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MIGRA-IA <span>· MIGRA-AI-001 · v0.1.0</span></div>
+        <p class="foot-meta" style="margin-top:8px">
+          Carlos Omar Castellanos · Julio Noé Castillo · Isidoro Emilio Medina.<br>
+          Aporte a la comunidad científica — tesis de maestría en Automatización Industrial. Licencia MIT.
+        </p>
+      </div>
+      <div class="foot-meta">
+        <b style="color:var(--ink-soft)">Aviso.</b> Sistema de asistencia técnica. No sustituye las evaluaciones
+        de seguridad funcional, los procedimientos de bloqueo y etiquetado, las normas de planta ni la autorización
+        de personal competente. Verifica siempre las recomendaciones antes de intervenir equipos reales.
+      </div>
+    </div>
+    <p class="disclaimer">
+      Las equivalencias y familias de hardware mencionadas son orientativas y deben verificarse con la herramienta oficial
+      de selección/migración del fabricante. MIGRA-IA nunca confirma números de catálogo, referencias ni datos de placa.
+    </p>
+  </div>
+</footer>
+
+<script>
+  // ---- Theme toggle ----
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('themeBtn');
+    var txt = document.getElementById('themeTxt'), ico = document.getElementById('themeIco');
+    function apply(mode) {
+      root.setAttribute('data-theme', mode);
+      txt.textContent = mode === 'dark' ? 'Oscuro' : 'Claro';
+      ico.textContent = mode === 'dark' ? '☾' : '☀';
+    }
+    var start = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    apply(start);
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
+
+  // ---- Risk engine (faithful port of migra_ia/scoring.py) ----
+  (function () {
+    var FACTORS = [
+      { key: 'estado_ciclo_vida',        label: 'Estado del ciclo de vida',        w: 0.20, v: 90 },
+      { key: 'disponibilidad_repuestos', label: 'Disponibilidad de repuestos',     w: 0.15, v: 70 },
+      { key: 'soporte_fabricante',       label: 'Soporte del fabricante',          w: 0.15, v: 75 },
+      { key: 'disponibilidad_software',  label: 'Disponibilidad del software',     w: 0.10, v: 40 },
+      { key: 'disponibilidad_respaldo',  label: 'Disponibilidad de respaldo',      w: 0.15, v: 100 },
+      { key: 'compatibilidad_sistemas',  label: 'Compatibilidad con sistemas',     w: 0.10, v: 50 },
+      { key: 'historial_fallas',         label: 'Historial de fallas',             w: 0.05, v: 70 },
+      { key: 'criticidad_productiva',    label: 'Criticidad productiva',           w: 0.10, v: 80 }
+    ];
+    var DEFAULTS = FACTORS.map(function (f) { return { v: f.v, off: false }; });
+    var state = DEFAULTS.map(function (d) { return { v: d.v, off: d.off }; });
+
+    // Python round-half-to-even at 1 decimal.
+    function roundHalfEven1(x) {
+      var n = x * 10;
+      var r = Math.round(n);
+      if (Math.abs(n - (Math.floor(n) + 0.5)) < 1e-9) {
+        var fl = Math.floor(n);
+        r = (fl % 2 === 0) ? fl : fl + 1;
+      }
+      return r / 10;
+    }
+    function clasificar(p) {
+      if (p <= 20) return { t: 'Riesgo bajo', z: 0, c: 'var(--r-bajo)' };
+      if (p <= 40) return { t: 'Riesgo moderado', z: 1, c: 'var(--r-moderado)' };
+      if (p <= 60) return { t: 'Riesgo importante', z: 2, c: 'var(--r-importante)' };
+      if (p <= 80) return { t: 'Riesgo alto', z: 3, c: 'var(--r-alto)' };
+      return { t: 'Riesgo crítico', z: 4, c: 'var(--r-critico)' };
+    }
+    function compute() {
+      var sw = 0, swv = 0;
+      for (var i = 0; i < FACTORS.length; i++) {
+        if (state[i].off) continue;
+        sw += FACTORS[i].w;
+        swv += FACTORS[i].w * state[i].v;
+      }
+      return sw === 0 ? 0 : roundHalfEven1(swv / sw);
+    }
+
+    var elFactors = document.getElementById('factors');
+    var elScore = document.getElementById('score');
+    var elPill = document.getElementById('pill');
+    var elFill = document.getElementById('fill');
+    var elScale = document.getElementById('scale');
+    var panel = document.getElementById('motor');
+    var rows = [];
+
+    FACTORS.forEach(function (f, i) {
+      var row = document.createElement('div');
+      row.className = 'factor';
+      row.innerHTML =
+        '<div class="f-name">' + f.label + '<span class="w">peso ' + f.w.toFixed(2) + '</span></div>' +
+        '<input type="range" min="0" max="100" step="1" value="' + f.v + '" aria-label="' + f.label + '">' +
+        '<div class="f-val">' + f.v + '</div>' +
+        '<label class="f-nd"><input type="checkbox"> N/D</label>';
+      elFactors.appendChild(row);
+      var range = row.querySelector('input[type=range]');
+      var val = row.querySelector('.f-val');
+      var nd = row.querySelector('input[type=checkbox]');
+      range.style.setProperty('--pct', f.v + '%');
+      range.addEventListener('input', function () {
+        state[i].v = parseInt(range.value, 10);
+        val.textContent = range.value;
+        range.style.setProperty('--pct', range.value + '%');
+        render();
+      });
+      nd.addEventListener('change', function () {
+        state[i].off = nd.checked;
+        row.classList.toggle('off', nd.checked);
+        range.disabled = nd.checked;
+        render();
+      });
+      rows.push({ range: range, val: val, nd: nd, row: row });
+    });
+
+    function render() {
+      var p = compute();
+      var cls = clasificar(p);
+      panel.style.setProperty('--score-color', cls.c);
+      elScore.innerHTML = p.toFixed(1) + '<small>/100</small>';
+      elPill.textContent = cls.t;
+      elFill.style.width = Math.max(0, Math.min(100, p)) + '%';
+      var spans = elScale.querySelectorAll('span');
+      spans.forEach(function (s) {
+        s.classList.toggle('on', parseInt(s.getAttribute('data-z'), 10) === cls.z);
+      });
+    }
+
+    function reset() {
+      DEFAULTS.forEach(function (d, i) {
+        state[i].v = d.v; state[i].off = d.off;
+        rows[i].range.value = d.v; rows[i].range.disabled = false;
+        rows[i].range.style.setProperty('--pct', d.v + '%');
+        rows[i].val.textContent = d.v;
+        rows[i].nd.checked = false;
+        rows[i].row.classList.remove('off');
+      });
+      render();
+    }
+    document.getElementById('resetBtn').addEventListener('click', reset);
+    document.getElementById('resetBtn2').addEventListener('click', reset);
+    render();
+  })();
+</script>
+
+</html>
