@@ -1,493 +1,775 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>MIGRA-IA · Demostración interactiva</title>
+<meta name="description" content="MIGRA-IA: agente de IA para diagnostico de obsolescencia y migracion de hardware de automatizacion industrial. Prototipo v0.1.0.">
+<title>MIGRA-IA — Artefacto de software</title>
 <style>
-  :root{
-    --bg:#E7EAEE; --surface:#FFFFFF; --surface-2:#F2F4F7; --inset:#12161B;
-    --ink:#161A20; --ink-2:#515B67; --ink-3:#7B8794; --line:#D6DBE2;
-    --accent:#B15D06; --accent-bright:#E07C10; --signal:#1C874A; --signal-soft:#E4F3EA;
-    --steel:#33506B; --steel-soft:#E9EFF5; --danger:#B4362C; --danger-soft:#F8E9E7; --warn-soft:#FAEFDD;
-    --agent:#F2F4F7; --user:#33506B; --user-ink:#F4F7FA;
-    --shadow:0 1px 2px rgba(20,26,34,.04), 0 8px 26px rgba(20,26,34,.07);
+  :root {
+    --bg: #e9edf1;
+    --surface: #ffffff;
+    --surface-2: #f3f6f8;
+    --surface-3: #eaeff3;
+    --ink: #15202b;
+    --ink-soft: #53616d;
+    --ink-faint: #8593a0;
+    --line: #d4dbe2;
+    --line-strong: #bcc7d0;
+    --accent: #0b8f88;
+    --accent-ink: #06726c;
+    --accent-soft: rgba(11, 143, 136, 0.10);
+    --accent-line: rgba(11, 143, 136, 0.30);
+    --r-bajo: #16a34a;
+    --r-moderado: #7f9c0c;
+    --r-importante: #c69402;
+    --r-alto: #df6410;
+    --r-critico: #d22f2f;
+    --shadow: 0 1px 2px rgba(21, 32, 43, 0.04), 0 8px 24px rgba(21, 32, 43, 0.06);
+    --font-sans: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Cascadia Code", "Cascadia Mono", ui-monospace, "Consolas", "SFMono-Regular", Menlo, monospace;
+    --maxw: 1080px;
   }
-  @media (prefers-color-scheme:dark){:root{
-    --bg:#0D1115; --surface:#161B21; --surface-2:#1C222A; --inset:#0A0D11;
-    --ink:#E7EBF0; --ink-2:#9BA7B3; --ink-3:#69747F; --line:#28303A;
-    --accent:#F0912A; --accent-bright:#F5A44A; --signal:#43BD74; --signal-soft:#122419;
-    --steel:#6E93B8; --steel-soft:#16202B; --danger:#E4796F; --danger-soft:#25130F; --warn-soft:#241C0E;
-    --agent:#1C222A; --user:#33506B; --user-ink:#EDF2F7;
-    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 32px rgba(0,0,0,.4);
-  }}
-  :root[data-theme="light"]{
-    --bg:#E7EAEE; --surface:#FFFFFF; --surface-2:#F2F4F7; --inset:#12161B;
-    --ink:#161A20; --ink-2:#515B67; --ink-3:#7B8794; --line:#D6DBE2;
-    --accent:#B15D06; --accent-bright:#E07C10; --signal:#1C874A; --signal-soft:#E4F3EA;
-    --steel:#33506B; --steel-soft:#E9EFF5; --danger:#B4362C; --danger-soft:#F8E9E7; --warn-soft:#FAEFDD;
-    --agent:#F2F4F7; --user:#33506B; --user-ink:#F4F7FA;
-    --shadow:0 1px 2px rgba(20,26,34,.04), 0 8px 26px rgba(20,26,34,.07);
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1119;
+      --surface: #131d27;
+      --surface-2: #0f1822;
+      --surface-3: #172431;
+      --ink: #e3ebf1;
+      --ink-soft: #9fb0bd;
+      --ink-faint: #66788a;
+      --line: #223140;
+      --line-strong: #33475a;
+      --accent: #2ed3c5;
+      --accent-ink: #63e2d6;
+      --accent-soft: rgba(46, 211, 197, 0.12);
+      --accent-line: rgba(46, 211, 197, 0.28);
+      --r-bajo: #2fce7d;
+      --r-moderado: #a6cf2b;
+      --r-importante: #efb52e;
+      --r-alto: #fb8b3c;
+      --r-critico: #f2564e;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
   }
-  :root[data-theme="dark"]{
-    --bg:#0D1115; --surface:#161B21; --surface-2:#1C222A; --inset:#0A0D11;
-    --ink:#E7EBF0; --ink-2:#9BA7B3; --ink-3:#69747F; --line:#28303A;
-    --accent:#F0912A; --accent-bright:#F5A44A; --signal:#43BD74; --signal-soft:#122419;
-    --steel:#6E93B8; --steel-soft:#16202B; --danger:#E4796F; --danger-soft:#25130F; --warn-soft:#241C0E;
-    --agent:#1C222A; --user:#33506B; --user-ink:#EDF2F7;
-    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 32px rgba(0,0,0,.4);
+  :root[data-theme="light"] {
+    --bg: #e9edf1; --surface: #ffffff; --surface-2: #f3f6f8; --surface-3: #eaeff3;
+    --ink: #15202b; --ink-soft: #53616d; --ink-faint: #8593a0;
+    --line: #d4dbe2; --line-strong: #bcc7d0;
+    --accent: #0b8f88; --accent-ink: #06726c; --accent-soft: rgba(11,143,136,0.10); --accent-line: rgba(11,143,136,0.30);
+    --r-bajo: #16a34a; --r-moderado: #7f9c0c; --r-importante: #c69402; --r-alto: #df6410; --r-critico: #d22f2f;
+    --shadow: 0 1px 2px rgba(21,32,43,0.04), 0 8px 24px rgba(21,32,43,0.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1119; --surface: #131d27; --surface-2: #0f1822; --surface-3: #172431;
+    --ink: #e3ebf1; --ink-soft: #9fb0bd; --ink-faint: #66788a;
+    --line: #223140; --line-strong: #33475a;
+    --accent: #2ed3c5; --accent-ink: #63e2d6; --accent-soft: rgba(46,211,197,0.12); --accent-line: rgba(46,211,197,0.28);
+    --r-bajo: #2fce7d; --r-moderado: #a6cf2b; --r-importante: #efb52e; --r-alto: #fb8b3c; --r-critico: #f2564e;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.35);
   }
 
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{
-    background:var(--bg); color:var(--ink);
-    font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
-    font-size:15.5px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-  .mono{font-family:ui-monospace,"Cascadia Code",Consolas,Menlo,monospace}
-  .wrap{max-width:1120px; margin:0 auto; padding:clamp(14px,3vw,28px) clamp(12px,3vw,24px) 40px}
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
 
-  /* header */
-  header.top{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px}
-  .logo{width:44px; height:44px; border-radius:11px; display:grid; place-items:center; font-size:24px;
-    background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow)}
-  .brand h1{margin:0; font-size:22px; font-weight:800; letter-spacing:-.01em}
-  .brand h1 .ia{color:var(--accent)}
-  .brand .sub{font-size:12.5px; color:var(--ink-3); letter-spacing:.04em}
-  .pill{margin-left:auto; display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:700;
-    letter-spacing:.08em; text-transform:uppercase; padding:6px 12px; border-radius:999px;
-    color:var(--accent); background:var(--warn-soft); border:1px solid color-mix(in srgb,var(--accent-bright) 40%,var(--line))}
+  /* ---- eyebrow / labels ---- */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 16px; height: 1.5px;
+    background: var(--accent);
+    display: inline-block;
+  }
 
-  .banner{display:flex; gap:11px; align-items:flex-start; background:var(--surface); border:1px solid var(--line);
-    border-left:3px solid var(--steel); border-radius:11px; padding:13px 15px; margin-bottom:16px;
-    font-size:13.5px; color:var(--ink-2); box-shadow:var(--shadow)}
-  .banner b{color:var(--ink)}
-  .banner .ic{font-size:17px; flex:none}
+  a { color: var(--accent-ink); text-decoration-color: var(--accent-line); text-underline-offset: 2px; }
 
-  /* layout */
-  .grid{display:grid; grid-template-columns:1fr 340px; gap:18px; align-items:start}
-  @media (max-width:820px){ .grid{grid-template-columns:1fr} .panel{order:-1} }
+  /* ---- nameplate header ---- */
+  .nameplate {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nameplate-in {
+    max-width: var(--maxw); margin: 0 auto; padding: 11px 22px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .np-led {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--r-importante);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--r-importante) 22%, transparent);
+    flex: none;
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .np-code { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.03em; font-size: 15px; }
+  .np-code span { color: var(--ink-faint); font-weight: 500; }
+  .np-tag {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft); border: 1px solid var(--line-strong); border-radius: 4px; padding: 2px 7px;
+  }
+  .np-spacer { flex: 1; }
+  .theme-btn {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+    background: var(--surface-2); color: var(--ink-soft);
+    border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 10px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--accent); }
 
-  /* chat */
-  .chat{background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
-    display:flex; flex-direction:column; overflow:hidden; min-height:420px}
-  .stream{padding:clamp(14px,2.5vw,22px); display:flex; flex-direction:column; gap:16px;
-    max-height:min(66vh,640px); overflow-y:auto; scroll-behavior:smooth}
-  .msg{display:flex; gap:11px; max-width:100%}
-  .msg .av{width:30px; height:30px; border-radius:8px; flex:none; display:grid; place-items:center; font-size:15px;
-    background:var(--surface-2); border:1px solid var(--line)}
-  .msg .bubble{background:var(--agent); border:1px solid var(--line); border-radius:4px 13px 13px 13px;
-    padding:12px 15px; font-size:14.5px; min-width:0}
-  .msg.user{flex-direction:row-reverse}
-  .msg.user .av{background:var(--user); border-color:transparent; color:var(--user-ink)}
-  .msg.user .bubble{background:var(--user); color:var(--user-ink); border-color:transparent; border-radius:13px 4px 13px 13px}
-  .msg .name{font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-3); margin-bottom:4px}
-  .msg.user .name{color:color-mix(in srgb,var(--user-ink) 70%,transparent); text-align:right}
-  .bubble p{margin:.35em 0} .bubble p:first-child{margin-top:0} .bubble p:last-child{margin-bottom:0}
-  .bubble strong{font-weight:700}
-  .bubble.demoflag{border-left:3px solid var(--accent-bright)}
-  .bubble code{font-family:ui-monospace,Consolas,monospace; font-size:.9em; background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:1px 5px}
-  .msg.user .bubble code{background:rgba(255,255,255,.14); border-color:transparent}
-  .bubble ol,.bubble ul{margin:.4em 0; padding-left:1.25em} .bubble li{margin:.24em 0}
-  .bubble h4{margin:.6em 0 .3em; font-size:14px} .bubble h5{margin:.5em 0 .25em; font-size:13px; color:var(--ink-2)}
-  .tbl{overflow-x:auto; margin:.5em 0; border:1px solid var(--line); border-radius:9px}
-  .tbl table{border-collapse:collapse; width:100%; font-size:12.5px}
-  .tbl th,.tbl td{padding:7px 10px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top}
-  .tbl th{background:var(--surface-2); font-weight:700; white-space:nowrap}
-  .tbl tr:last-child td{border-bottom:none}
+  /* ---- hero ---- */
+  .hero { padding: 62px 0 34px; }
+  .hero h1 {
+    font-size: clamp(30px, 5.4vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    margin: 18px 0 0;
+    text-wrap: balance;
+    max-width: 17ch;
+  }
+  .hero h1 .hl { color: var(--accent-ink); }
+  .lede {
+    margin: 20px 0 0; max-width: 60ch; font-size: 18px; color: var(--ink-soft); line-height: 1.58;
+  }
+  .authorline {
+    margin-top: 22px; font-size: 14.5px; color: var(--ink); display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline;
+  }
+  .authorline b { font-weight: 600; }
+  .authorline .role { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); letter-spacing: 0.04em; }
 
-  .composer{border-top:1px solid var(--line); padding:12px; display:flex; gap:9px; align-items:center; background:var(--surface)}
-  .composer input{flex:1; min-width:0; font:inherit; font-size:14.5px; padding:11px 14px; border-radius:10px;
-    border:1px solid var(--line); background:var(--surface-2); color:var(--ink)}
-  .composer input:focus{outline:2px solid var(--accent-bright); outline-offset:1px; border-color:transparent}
-  .btn{font:inherit; font-weight:700; font-size:14px; cursor:pointer; border-radius:10px; padding:11px 17px;
-    border:1px solid transparent; background:var(--accent-bright); color:#fff; white-space:nowrap; transition:filter .15s}
-  .btn:hover{filter:brightness(1.06)} .btn:disabled{opacity:.5; cursor:default; filter:none}
-  .btn.ghost{background:transparent; color:var(--ink-2); border-color:var(--line)}
-  .composer .hint{position:absolute}
-  .barrow{display:flex; align-items:center; gap:12px; padding:0 14px 12px; font-size:12px; color:var(--ink-3)}
-  .prog{flex:1; height:5px; border-radius:3px; background:var(--surface-2); overflow:hidden; border:1px solid var(--line)}
-  .prog > i{display:block; height:100%; width:0; background:var(--accent-bright); transition:width .35s}
+  .chips { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+    color: var(--ink-soft); display: inline-flex; align-items: center; gap: 7px;
+  }
+  .chip b { color: var(--ink); font-weight: 600; }
+  .chip.free { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent-ink); }
+  .chip.free b { color: var(--accent-ink); }
+  .dotk { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
 
-  /* panel */
-  .panel{position:sticky; top:14px; display:flex; flex-direction:column; gap:12px}
-  .card{background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); overflow:hidden}
-  .card .hd{padding:11px 15px; font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase;
-    color:var(--ink-3); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center}
-  .card .bd{padding:15px}
-  .risk{display:flex; align-items:center; gap:14px}
-  .gauge{--p:0; width:82px; height:82px; border-radius:50%; flex:none;
-    background:conic-gradient(var(--gc,var(--ink-3)) calc(var(--p)*1%), var(--surface-2) 0);
-    display:grid; place-items:center; position:relative}
-  .gauge::after{content:""; position:absolute; inset:9px; border-radius:50%; background:var(--surface)}
-  .gauge .val{position:relative; font-weight:800; font-size:20px; font-variant-numeric:tabular-nums}
-  .risk .lab{font-size:12px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.08em}
-  .risk .cls{font-weight:800; font-size:17px; margin-top:2px}
-  .risk .cls.alto{color:var(--danger)}
-  .waiting{color:var(--ink-3); font-size:13px; font-style:italic}
-  .factors{display:flex; flex-direction:column; gap:6px; margin-top:14px}
-  .factor{display:grid; grid-template-columns:1fr auto; gap:4px 8px; align-items:center; font-size:11.5px}
-  .factor .fl{color:var(--ink-2)} .factor .fv{font-variant-numeric:tabular-nums; color:var(--ink-3); font-weight:600}
-  .factor .fbar{grid-column:1/-1; height:5px; border-radius:3px; background:var(--surface-2); overflow:hidden}
-  .factor .fbar > i{display:block; height:100%; background:var(--accent)}
-  .metric{display:flex; align-items:center; gap:11px; padding:9px 0}
-  .metric + .metric{border-top:1px solid var(--line)}
-  .metric .mi{width:30px; height:30px; border-radius:8px; flex:none; display:grid; place-items:center; font-size:15px; background:var(--surface-2); border:1px solid var(--line)}
-  .metric .mt{flex:1; min-width:0} .metric .mt .k{font-size:12.5px; color:var(--ink-2)} .metric .mt .v{font-size:13.5px; font-weight:700; color:var(--ink); line-height:1.35}
-  .metric .n{font-weight:800; font-size:17px; font-variant-numeric:tabular-nums; color:var(--ink-3)}
-  .metric.on .n{color:var(--accent)}
-  .metric.on.flag .n{color:var(--danger)} .metric.on.appr .n{color:var(--accent)}
-  .tag{font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:5px}
-  .tag.rojo{color:var(--danger); background:var(--danger-soft)} .tag.amar{color:var(--accent); background:var(--warn-soft)}
-  .tag.verde{color:var(--signal); background:var(--signal-soft)}
-  .repbtn{margin-top:10px; width:100%; justify-content:center; display:flex}
-  .empty{color:var(--ink-3); font-size:12.5px; padding:9px 0}
+  /* ---- section scaffolding ---- */
+  section { padding: 30px 0; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .sec-head h2 {
+    font-size: clamp(21px, 3vw, 27px); font-weight: 700; letter-spacing: -0.015em; margin: 0; text-wrap: balance;
+  }
+  .sec-note { color: var(--ink-soft); font-size: 14.5px; max-width: 62ch; margin: 0 0 4px; }
 
-  /* modal */
-  .modal{position:fixed; inset:0; background:rgba(10,13,17,.62); display:none; align-items:center; justify-content:center; padding:18px; z-index:50}
-  .modal.open{display:flex}
-  .modal .sheet{background:var(--surface); border:1px solid var(--line); border-radius:16px; max-width:660px; width:100%; max-height:86vh; overflow-y:auto; box-shadow:var(--shadow)}
-  .modal .mh{position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--line); padding:14px 18px; display:flex; justify-content:space-between; align-items:center}
-  .modal .mh b{font-size:15px} .modal .mb{padding:8px 20px 22px; font-size:13.5px}
-  .modal .mb h4{margin:14px 0 4px; font-size:13.5px; color:var(--accent)} .modal .mb p{margin:.3em 0; color:var(--ink-2)}
-  .x{cursor:pointer; border:1px solid var(--line); background:var(--surface-2); color:var(--ink-2); border-radius:8px; width:30px; height:30px; font-size:16px; line-height:1}
+  .panel {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+  .panel-pad { padding: clamp(20px, 3vw, 30px); }
 
-  footer{margin-top:26px; text-align:center; color:var(--ink-3); font-size:12px}
-  footer .mono{letter-spacing:.03em}
-  a{color:var(--accent)}
-  @media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto!important; transition:none!important} }
+  /* ---- risk engine ---- */
+  .engine-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 20px; }
+  .engine-title { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+  .readout { display: flex; align-items: baseline; gap: 14px; margin-top: 8px; }
+  .score {
+    font-family: var(--font-mono); font-weight: 700; font-size: clamp(46px, 9vw, 66px);
+    line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+    color: var(--score-color, var(--ink)); transition: color .35s ease;
+  }
+  .score small { font-size: 0.34em; color: var(--ink-faint); font-weight: 600; letter-spacing: 0.02em; }
+  .clasif-pill {
+    align-self: center;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 7px 14px; border-radius: 999px;
+    color: #fff; background: var(--score-color, var(--ink)); white-space: nowrap;
+    transition: background .35s ease;
+  }
+  :root[data-theme="dark"] .clasif-pill, @media (prefers-color-scheme: dark) { }
+  .gauge { margin-top: 24px; }
+  .gauge-track {
+    position: relative; height: 16px; border-radius: 8px;
+    background: var(--surface-3); border: 1px solid var(--line); overflow: hidden;
+  }
+  .gauge-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    background: var(--score-color, var(--accent));
+    border-radius: 8px 0 0 8px;
+    transition: width .4s cubic-bezier(.4,0,.2,1), background .35s ease;
+  }
+  .gauge-ticks { position: relative; height: 0; }
+  .gauge-tick { position: absolute; top: -16px; width: 1px; height: 16px; background: var(--line-strong); }
+  .gauge-scale {
+    display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 9px;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .gauge-scale span { text-align: center; transition: color .3s ease; position: relative; }
+  .gauge-scale span.on { color: var(--score-color); font-weight: 700; }
+  .gauge-scale span::before {
+    content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 5px; height: 5px; border-radius: 50%; background: var(--zc); opacity: .55;
+  }
+
+  .factors { margin-top: 30px; display: grid; gap: 2px; }
+  .factor {
+    display: grid; grid-template-columns: minmax(0,1.5fr) 1.6fr auto auto; align-items: center; gap: 14px;
+    padding: 11px 12px; border-radius: 8px;
+  }
+  .factor:hover { background: var(--surface-2); }
+  .factor.off { opacity: 0.42; }
+  .f-name { font-size: 13.5px; line-height: 1.25; }
+  .f-name .w { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.03em; display: block; margin-top: 2px; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 4px;
+    background: linear-gradient(to right, var(--accent) var(--pct,50%), var(--line-strong) var(--pct,50%));
+    outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer; border-color: var(--accent);
+  }
+  input[type="range"]:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft); }
+  .f-val { font-family: var(--font-mono); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; width: 3ch; text-align: right; color: var(--ink); }
+  .f-nd {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.05em; color: var(--ink-faint);
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer; user-select: none;
+  }
+  .f-nd input { accent-color: var(--accent); cursor: pointer; }
+  .engine-foot {
+    margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--line-strong);
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
+  }
+  .engine-foot p { margin: 0; font-size: 12.5px; color: var(--ink-soft); max-width: 62ch; }
+  .btn-reset {
+    font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.05em;
+    background: var(--surface-2); color: var(--ink-soft); border: 1px solid var(--line-strong);
+    border-radius: 6px; padding: 7px 13px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-reset:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* ---- feature grid ---- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card .k {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--accent-ink); font-weight: 600;
+    display: block; margin-bottom: 9px;
+  }
+  .card h3 { margin: 0 0 7px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .card p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* ---- diagnostic readout (demo case) ---- */
+  .diag { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .diag-row { display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 13px 0; border-top: 1px solid var(--line); }
+  .diag-row:first-child { border-top: none; }
+  .diag-k { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); padding-top: 2px; }
+  .diag-v { font-size: 14.5px; color: var(--ink); }
+  .diag-v .muted { color: var(--ink-soft); }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+  .tg { font-family: var(--font-mono); font-size: 11.5px; padding: 3px 9px; border-radius: 5px; border: 1px solid var(--line-strong); color: var(--ink-soft); }
+  .tg.warn { border-color: color-mix(in srgb, var(--r-importante) 55%, var(--line)); color: var(--r-importante); background: color-mix(in srgb, var(--r-importante) 10%, transparent); }
+  .tg.crit { border-color: color-mix(in srgb, var(--r-critico) 55%, var(--line)); color: var(--r-critico); background: color-mix(in srgb, var(--r-critico) 10%, transparent); }
+  .flag {
+    display: flex; gap: 11px; align-items: flex-start; padding: 13px 15px; border-radius: 9px;
+    background: color-mix(in srgb, var(--r-critico) 8%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--r-critico) 35%, var(--line));
+    margin-top: 16px;
+  }
+  .flag .ic { color: var(--r-critico); font-family: var(--font-mono); font-weight: 700; flex: none; }
+  .flag p { margin: 0; font-size: 13px; color: var(--ink); }
+  .flag b { color: var(--r-critico); }
+
+  /* ---- code / run ---- */
+  .run-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .run-grid { grid-template-columns: 1fr; } }
+  pre {
+    margin: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.65; color: var(--ink);
+  }
+  pre .c { color: var(--ink-faint); }
+  pre .p { color: var(--accent-ink); }
+  .steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: start; font-size: 14px; color: var(--ink-soft); }
+  .steps li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--accent-ink);
+    background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: 6px;
+    width: 26px; height: 26px; display: grid; place-items: center;
+  }
+  .steps li b { color: var(--ink); font-weight: 600; }
+  kbd {
+    font-family: var(--font-mono); font-size: 12.5px; background: var(--surface-3); border: 1px solid var(--line-strong);
+    border-bottom-width: 2px; border-radius: 5px; padding: 1px 7px; color: var(--ink);
+  }
+
+  /* ---- cite ---- */
+  .cite-note { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 14px; max-width: 64ch; }
+
+  /* ---- status banner ---- */
+  .status {
+    display: flex; gap: 15px; align-items: flex-start;
+    border: 1px solid var(--line-strong); border-left: 3px solid var(--accent);
+    background: var(--surface); border-radius: 12px; padding: 20px 22px;
+  }
+  .status .ic { font-family: var(--font-mono); color: var(--accent-ink); font-weight: 700; font-size: 18px; flex: none; }
+  .status h3 { margin: 0 0 6px; font-size: 15px; font-weight: 700; }
+  .status p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* ---- footer ---- */
+  footer { border-top: 1px solid var(--line); margin-top: 24px; padding: 34px 0 60px; }
+  .foot-grid { display: flex; flex-wrap: wrap; gap: 22px 40px; justify-content: space-between; }
+  .foot-brand { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.03em; }
+  .foot-brand span { color: var(--ink-faint); font-weight: 500; }
+  .foot-meta { font-size: 12.5px; color: var(--ink-faint); max-width: 52ch; line-height: 1.6; }
+  .disclaimer {
+    margin-top: 22px; font-size: 12px; color: var(--ink-faint); line-height: 1.55;
+    border-top: 1px dashed var(--line); padding-top: 16px; max-width: 78ch;
+  }
+
+  @media (max-width: 620px) {
+    .factor { grid-template-columns: 1fr auto; grid-template-areas: "name val" "slider slider" "nd nd"; row-gap: 8px; }
+    .f-name { grid-area: name; } .f-val { grid-area: val; } .factor > input[type=range] { grid-area: slider; } .f-nd { grid-area: nd; justify-self: start; }
+    .diag-row { grid-template-columns: 1fr; gap: 4px; }
+    .hero { padding: 40px 0 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
 </style>
-</head>
-<body>
 
-<div class="wrap">
-  <header class="top">
-    <div class="logo" aria-hidden="true">⚙️</div>
-    <div class="brand">
-      <h1>MIGRA<span class="ia">-IA</span></h1>
-      <div class="sub mono">DIAGNÓSTICO DE OBSOLESCENCIA Y MIGRACIÓN · v0.1.0</div>
-    </div>
-    <span class="pill">● Demo interactiva</span>
-  </header>
-
-  <div class="banner">
-    <span class="ic" aria-hidden="true">ℹ️</span>
-    <div>Este es un <b>recorrido guiado</b> con un caso real de ejemplo (Siemens S7-300). Escribe cualquier cosa y pulsa <b>Enviar</b> para avanzar; el <b>panel del expediente</b> se actualiza con el motor real (activos, riesgo, banderas, informe). <b>No usa IA en vivo</b> — es la demostración determinista del agente.</div>
+<header class="nameplate">
+  <div class="nameplate-in">
+    <span class="np-led" aria-hidden="true"></span>
+    <span class="np-code">MIGRA-IA <span>· MIGRA-AI-001</span></span>
+    <span class="np-tag">v0.1.0 · prototipo</span>
+    <span class="np-spacer"></span>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">
+      <span id="themeIco">◐</span><span id="themeTxt">Tema</span>
+    </button>
   </div>
+</header>
 
-  <div class="grid">
-    <!-- CHAT -->
-    <section class="chat" aria-label="Conversación">
-      <div class="stream" id="stream"></div>
-      <div class="barrow">
-        <span class="mono" id="steplbl">Paso 1 / 12</span>
-        <span class="prog"><i id="progbar"></i></span>
+<main>
+  <div class="wrap">
+
+    <section class="hero">
+      <span class="eyebrow">Artefacto de software · Automatización industrial</span>
+      <h1>Diagnóstico de <span class="hl">obsolescencia</span> y migración de hardware, guiado por IA.</h1>
+      <p class="lede">
+        MIGRA-IA es un agente conversacional <b>asistido</b> que guía paso a paso al personal técnico
+        para diagnosticar la obsolescencia de PLCs, módulos de E/S, HMI, redes industriales y variadores,
+        y para planificar su migración — con trazabilidad, niveles de confianza y validación humana obligatoria.
+      </p>
+      <div class="authorline">
+        <span><b>Carlos Omar Castellanos</b> · <b>Julio Noé Castillo</b> · <b>Isidoro Emilio Medina</b></span>
+        <span class="role">Tesis de maestría · Automatización industrial</span>
       </div>
-      <form class="composer" id="composer" autocomplete="off">
-        <input id="inp" type="text" placeholder="Escribe cualquier cosa y pulsa Enviar…" aria-label="Tu mensaje">
-        <button class="btn" id="send" type="submit">Enviar ▸</button>
-      </form>
+      <div class="chips">
+        <span class="chip free"><span class="dotk"></span> Modo demo <b>sin clave · sin costo</b></span>
+        <span class="chip">Licencia <b>MIT</b></span>
+        <span class="chip">Motor <b>claude-opus-4-8</b></span>
+        <span class="chip">Python <b>3.10+</b></span>
+        <span class="chip">DOI <b>por asignar (Zenodo)</b></span>
+      </div>
     </section>
 
-    <!-- PANEL -->
-    <aside class="panel" aria-label="Expediente del caso">
-      <div class="card">
-        <div class="hd">Riesgo de obsolescencia</div>
-        <div class="bd" id="riskbox">
-          <div class="waiting">Se calcula al avanzar el diagnóstico…</div>
+    <!-- ================= RISK ENGINE ================= -->
+    <section id="motor">
+      <div class="sec-head">
+        <span class="eyebrow">Sección 6 · en vivo</span>
+      </div>
+      <div class="panel panel-pad">
+        <div class="engine-top">
+          <div>
+            <div class="engine-title">Motor de riesgo de obsolescencia</div>
+            <div class="readout">
+              <div class="score" id="score">75.2<small>/100</small></div>
+              <div class="clasif-pill" id="pill">Riesgo alto</div>
+            </div>
+          </div>
+          <button class="btn-reset" id="resetBtn" type="button">↺ Caso demo (S7-300)</button>
+        </div>
+
+        <div class="gauge">
+          <div class="gauge-ticks">
+            <div class="gauge-tick" style="left:20%"></div>
+            <div class="gauge-tick" style="left:40%"></div>
+            <div class="gauge-tick" style="left:60%"></div>
+            <div class="gauge-tick" style="left:80%"></div>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill" id="fill"></div></div>
+          <div class="gauge-scale" id="scale">
+            <span style="--zc:var(--r-bajo)" data-z="0">Bajo</span>
+            <span style="--zc:var(--r-moderado)" data-z="1">Moderado</span>
+            <span style="--zc:var(--r-importante)" data-z="2">Importante</span>
+            <span style="--zc:var(--r-alto)" data-z="3">Alto</span>
+            <span style="--zc:var(--r-critico)" data-z="4">Crítico</span>
+          </div>
+        </div>
+
+        <div class="factors" id="factors"></div>
+
+        <div class="engine-foot">
+          <p>
+            Es el <b>mismo motor determinista</b> del artefacto (<span style="font-family:var(--font-mono)">migra_ia/scoring.py</span>),
+            portado a tu navegador: ocho factores ponderados, renormalizados cuando marcas un factor como <b>N/D</b>
+            (sin datos), con el redondeo <i>half-to-even</i> de Python. Mismo caso → misma puntuación.
+          </p>
+          <button class="btn-reset" id="resetBtn2" type="button">Restablecer</button>
         </div>
       </div>
-      <div class="card">
-        <div class="hd">Expediente <span class="mono" id="cid" style="font-size:10px;color:var(--ink-3)"></span></div>
-        <div class="bd" id="metrics"></div>
+    </section>
+
+    <!-- ================= WHAT IT DEMONSTRATES ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>Qué demuestra el artefacto</h2>
+        <p class="sec-note">Afirmaciones verificables con el modo demo, sin clave de API y en ~10–15 minutos.</p>
       </div>
-    </aside>
-  </div>
+      <div class="grid">
+        <div class="card">
+          <span class="k">A–K</span>
+          <h3>Cuestionario adaptativo</h3>
+          <p>Captura la información del equipo por secciones; las respuestas activan, ocultan o modifican las preguntas siguientes, con un nivel de confianza por dato.</p>
+        </div>
+        <div class="card">
+          <span class="k">0–100</span>
+          <h3>Riesgo de obsolescencia</h3>
+          <p>Ocho factores ponderados producen una puntuación determinista y su clasificación. Mismo caso, misma puntuación — auditable.</p>
+        </div>
+        <div class="card">
+          <span class="k">ID + auditoría</span>
+          <h3>Expediente trazable</h3>
+          <p>Cada activo, evidencia y decisión recibe un identificador único y queda en un registro de auditoría reconstruible.</p>
+        </div>
+        <div class="card">
+          <span class="k">Sección 8</span>
+          <h3>Reglas de seguridad</h3>
+          <p>No inventa números de catálogo, no asume compatibilidad ni respaldos, marca datos faltantes y exige aprobación humana antes de intervenir.</p>
+        </div>
+        <div class="card">
+          <span class="k">Consultoría</span>
+          <h3>Orienta la solución</h3>
+          <p>Alternativas comparadas, equivalencias sugeridas por criterio técnico (a verificar con el fabricante) y procedimiento de migración por etapas.</p>
+        </div>
+        <div class="card">
+          <span class="k">Sección 9</span>
+          <h3>Informe técnico</h3>
+          <p>Genera automáticamente un informe trazable que separa hechos confirmados, inferencias y recomendaciones, con sus fuentes.</p>
+        </div>
+      </div>
+    </section>
 
-  <footer>
-    <div class="mono">MIGRA-IA · PROTOTIPO v0.1.0 · CASTELLANOS · CASTILLO · MEDINA</div>
-    <div style="margin-top:5px">Demostración determinista (sin costo). Para un diagnóstico real con tus datos se usa el agente con IA.</div>
-  </footer>
-</div>
+    <!-- ================= DEMO CASE ================= -->
+    <section>
+      <div class="sec-head">
+        <span class="eyebrow">Caso de demostración</span>
+      </div>
+      <div class="panel panel-pad">
+        <div class="engine-title" style="margin-bottom:6px">Lectura de diagnóstico · CAS-2026-904335</div>
+        <div class="diag">
+          <div class="diag-row">
+            <div class="diag-k">Equipo</div>
+            <div class="diag-v">CPU Siemens <b>S7-300 315-2 DP</b> — operando con fallas intermitentes</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Redes</div>
+            <div class="diag-v">Profibus DP · MPI</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Confianza global</div>
+            <div class="diag-v"><span class="muted">confianza media</span> — evidencias pendientes (placa, respaldo, lista de E/S)</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Recomendación</div>
+            <div class="diag-v"><b>Prioridad 1:</b> recuperar el respaldo del programa. Luego <b>migrar a S7-1500</b> conservando Profibus DP.</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Alternativas</div>
+            <div class="diag-v">
+              <div class="tags">
+                <span class="tg">Operación temporal</span>
+                <span class="tg">Repuesto directo</span>
+                <span class="tg">Hardware equivalente</span>
+                <span class="tg">Migración S7-1500</span>
+                <span class="tg">Reconstrucción</span>
+              </div>
+            </div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Equivalencias <span style="text-transform:none;letter-spacing:0">(a verificar)</span></div>
+            <div class="diag-v">
+              S7-300 315-2 DP → familia <b>S7-1500</b> con Profibus DP · módulos → ET 200MP / ET 200SP · STEP 7 Classic → TIA Portal.
+              <span class="muted">No se confirman números de catálogo: deben verificarse con la herramienta oficial del fabricante.</span>
+            </div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Banderas</div>
+            <div class="diag-v">
+              <div class="tags">
+                <span class="tg crit">Seguridad funcional: revisión obligatoria</span>
+                <span class="tg warn">Aprobación humana pendiente</span>
+                <span class="tg warn">Dato faltante: respaldo sin verificar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flag">
+          <span class="ic" aria-hidden="true">▲</span>
+          <p>Si la migración puede afectar funciones de seguridad (paros de emergencia, cortinas, PLC/relés de seguridad, PL/SIL), MIGRA-IA marca <b>«revisión obligatoria por especialista en seguridad funcional»</b> y detiene toda instrucción de intervención hasta la validación de personal competente.</p>
+        </div>
+      </div>
+    </section>
 
-<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Informe generado">
-  <div class="sheet">
-    <div class="mh"><b>📄 Informe técnico generado</b> <button class="x" id="closem" aria-label="Cerrar">×</button></div>
-    <div class="mb" id="modalbody"></div>
+    <!-- ================= RUN ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>Ejecútalo sin clave y sin costo</h2>
+        <p class="sec-note">La vía recomendada para revisores: ejercita el motor real (cuestionario, riesgo, expediente e informe) con un caso de ejemplo. El razonamiento en lenguaje natural con la API es opcional.</p>
+      </div>
+      <div class="run-grid">
+        <div class="panel panel-pad">
+          <div class="engine-title" style="margin-bottom:12px">Modo demostración</div>
+          <pre><span class="c"># En la carpeta del proyecto</span>
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+<span class="c"># Levantar la app web</span>
+python -m webapp.app</pre>
+          <ol class="steps" style="margin-top:18px">
+            <li>Abre <b>http://127.0.0.1:5000</b> en tu navegador.</li>
+            <li>Pulsa <kbd>Modo demo (sin clave)</kbd> y avanza por el diagnóstico.</li>
+            <li>El panel derecho muestra riesgo, activos, datos faltantes y banderas en vivo.</li>
+          </ol>
+        </div>
+        <div class="panel panel-pad">
+          <div class="engine-title" style="margin-bottom:12px">Salidas deterministas esperadas</div>
+          <div class="diag">
+            <div class="diag-row"><div class="diag-k">Riesgo</div><div class="diag-v"><b>75.2 / 100</b> → Riesgo alto</div></div>
+            <div class="diag-row"><div class="diag-k">Activos</div><div class="diag-v">1 · CPU S7-300 315-2 DP</div></div>
+            <div class="diag-row"><div class="diag-k">Datos faltantes</div><div class="diag-v">1 · respaldo sin verificar</div></div>
+            <div class="diag-row"><div class="diag-k">Bandera</div><div class="diag-v">Revisión por especialista</div></div>
+            <div class="diag-row"><div class="diag-k">Informe</div><div class="diag-v">1 archivo Markdown en <span style="font-family:var(--font-mono)">casos/</span></div></div>
+          </div>
+          <div class="engine-title" style="margin:20px 0 10px">Solo el motor (sin navegador)</div>
+          <pre><span class="p">python</span> -c "from migra_ia.scoring
+  import calcular_riesgo; ..."</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CITE ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>Cómo citar</h2>
+      </div>
+      <div class="panel panel-pad">
+        <p class="cite-note">
+          Metadatos completos en <span style="font-family:var(--font-mono)">CITATION.cff</span>. Tras el depósito en Zenodo,
+          reemplaza el DOI y cita el artefacto en el artículo. Hoy el DOI está <b>por asignar</b> — no se muestra uno provisional para no inducir a error.
+        </p>
+        <pre>@software{migra_ia_2026,
+  author  = {Castellanos, Carlos Omar and Castillo, Julio Noé
+             and Medina, Isidoro Emilio},
+  title   = {{MIGRA-IA: Agente de IA para la migración y
+             reacondicionamiento de hardware obsoleto en
+             sistemas de automatización industrial}},
+  version = {0.1.0},
+  year    = {2026},
+  license = {MIT},
+  note    = {DOI por asignar (Zenodo)}
+}</pre>
+      </div>
+    </section>
+
+    <!-- ================= STATUS ================= -->
+    <section>
+      <div class="status">
+        <span class="ic" aria-hidden="true">i</span>
+        <div>
+          <h3>Estado del proyecto — honesto y verificable</h3>
+          <p>
+            MIGRA-IA es un <b>prototipo (MVP v0.1.0)</b>. El código y su documentación son públicos y reproducibles;
+            para <b>archivarlo con DOI</b> se sigue <span style="font-family:var(--font-mono)">docs/GUIA_ZENODO.md</span>.
+            Publicar el artefacto <b>no requiere clave de API</b>; la clave solo habilita el razonamiento en lenguaje natural sobre
+            datos arbitrarios (servicio de pago de Anthropic, cada usuario aporta la suya). Alcance del MVP: origen Siemens S7-300/400,
+            destino S7-1500, STEP 7 Classic y TIA Portal, redes MPI/Profibus DP/Profinet/Ethernet.
+          </p>
+        </div>
+      </div>
+    </section>
+
   </div>
-</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MIGRA-IA <span>· MIGRA-AI-001 · v0.1.0</span></div>
+        <p class="foot-meta" style="margin-top:8px">
+          Carlos Omar Castellanos · Julio Noé Castillo · Isidoro Emilio Medina.<br>
+          Aporte a la comunidad científica — tesis de maestría en Automatización Industrial. Licencia MIT.
+        </p>
+      </div>
+      <div class="foot-meta">
+        <b style="color:var(--ink-soft)">Aviso.</b> Sistema de asistencia técnica. No sustituye las evaluaciones
+        de seguridad funcional, los procedimientos de bloqueo y etiquetado, las normas de planta ni la autorización
+        de personal competente. Verifica siempre las recomendaciones antes de intervenir equipos reales.
+      </div>
+    </div>
+    <p class="disclaimer">
+      Las equivalencias y familias de hardware mencionadas son orientativas y deben verificarse con la herramienta oficial
+      de selección/migración del fabricante. MIGRA-IA nunca confirma números de catálogo, referencias ni datos de placa.
+    </p>
+  </div>
+</footer>
 
 <script>
-// ---------- mini markdown ----------
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function inline(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');}
-function tableHTML(rows){
-  const cells=r=>r.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(c=>c.trim());
-  const head=cells(rows[0]); const body=rows.slice(2).map(cells);
-  let h='<div class="tbl"><table><thead><tr>'+head.map(c=>'<th>'+inline(c)+'</th>').join('')+'</tr></thead><tbody>';
-  h+=body.map(r=>'<tr>'+r.map(c=>'<td>'+inline(c)+'</td>').join('')+'</tr>').join('');
-  return h+'</tbody></table></div>';
-}
-function md(src){
-  const L=src.split('\n'); let o=[], i=0;
-  while(i<L.length){
-    if(/^\s*$/.test(L[i])){i++;continue;}
-    if(/^\s*\|/.test(L[i])){let t=[];while(i<L.length&&/^\s*\|/.test(L[i])){t.push(L[i++]);}o.push(tableHTML(t));continue;}
-    let h=L[i].match(/^(#{1,6})\s+(.*)$/); if(h){let lv=Math.min(h[1].length+2,6);o.push('<h'+lv+'>'+inline(h[2])+'</h'+lv+'>');i++;continue;}
-    if(/^\s*\d+\.\s+/.test(L[i])){let it=[];while(i<L.length&&/^\s*\d+\.\s+/.test(L[i])){it.push(L[i++].replace(/^\s*\d+\.\s+/,''));}o.push('<ol>'+it.map(t=>'<li>'+inline(t)+'</li>').join('')+'</ol>');continue;}
-    if(/^\s*[-*]\s+/.test(L[i])){let it=[];while(i<L.length&&/^\s*[-*]\s+/.test(L[i])){it.push(L[i++].replace(/^\s*[-*]\s+/,''));}o.push('<ul>'+it.map(t=>'<li>'+inline(t)+'</li>').join('')+'</ul>');continue;}
-    let p=[L[i++]];
-    while(i<L.length&&!/^\s*$/.test(L[i])&&!/^\s*\|/.test(L[i])&&!/^\s*\d+\.\s+/.test(L[i])&&!/^\s*[-*]\s+/.test(L[i])&&!/^#{1,6}\s/.test(L[i])){p.push(L[i++]);}
-    o.push('<p>'+p.map(inline).join('<br>')+'</p>');
-  }
-  return o.join('');
-}
+  // ---- Theme toggle ----
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('themeBtn');
+    var txt = document.getElementById('themeTxt'), ico = document.getElementById('themeIco');
+    function apply(mode) {
+      root.setAttribute('data-theme', mode);
+      txt.textContent = mode === 'dark' ? 'Oscuro' : 'Claro';
+      ico.textContent = mode === 'dark' ? '☾' : '☀';
+    }
+    var start = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    apply(start);
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
 
-// ---------- demo script (12 pasos) ----------
-const STEPS=[
-`**[MODO DEMOSTRACIÓN — sin clave de API]**
+  // ---- Risk engine (faithful port of migra_ia/scoring.py) ----
+  (function () {
+    var FACTORS = [
+      { key: 'estado_ciclo_vida',        label: 'Estado del ciclo de vida',        w: 0.20, v: 90 },
+      { key: 'disponibilidad_repuestos', label: 'Disponibilidad de repuestos',     w: 0.15, v: 70 },
+      { key: 'soporte_fabricante',       label: 'Soporte del fabricante',          w: 0.15, v: 75 },
+      { key: 'disponibilidad_software',  label: 'Disponibilidad del software',     w: 0.10, v: 40 },
+      { key: 'disponibilidad_respaldo',  label: 'Disponibilidad de respaldo',      w: 0.15, v: 100 },
+      { key: 'compatibilidad_sistemas',  label: 'Compatibilidad con sistemas',     w: 0.10, v: 50 },
+      { key: 'historial_fallas',         label: 'Historial de fallas',             w: 0.05, v: 70 },
+      { key: 'criticidad_productiva',    label: 'Criticidad productiva',           w: 0.10, v: 80 }
+    ];
+    var DEFAULTS = FACTORS.map(function (f) { return { v: f.v, off: false }; });
+    var state = DEFAULTS.map(function (d) { return { v: d.v, off: d.off }; });
 
-Hola, soy MIGRA-IA. Asisto paso a paso al personal técnico para diagnosticar la obsolescencia de un equipo y orientarlo hacia la solución: reparación, repuesto, **hardware equivalente** o **migración** a una plataforma moderna.
+    // Python round-half-to-even at 1 decimal.
+    function roundHalfEven1(x) {
+      var n = x * 10;
+      var r = Math.round(n);
+      if (Math.abs(n - (Math.floor(n) + 0.5)) < 1e-9) {
+        var fl = Math.floor(n);
+        r = (fl % 2 === 0) ? fl : fl + 1;
+      }
+      return r / 10;
+    }
+    function clasificar(p) {
+      if (p <= 20) return { t: 'Riesgo bajo', z: 0, c: 'var(--r-bajo)' };
+      if (p <= 40) return { t: 'Riesgo moderado', z: 1, c: 'var(--r-moderado)' };
+      if (p <= 60) return { t: 'Riesgo importante', z: 2, c: 'var(--r-importante)' };
+      if (p <= 80) return { t: 'Riesgo alto', z: 3, c: 'var(--r-alto)' };
+      return { t: 'Riesgo crítico', z: 4, c: 'var(--r-critico)' };
+    }
+    function compute() {
+      var sw = 0, swv = 0;
+      for (var i = 0; i < FACTORS.length; i++) {
+        if (state[i].off) continue;
+        sw += FACTORS[i].w;
+        swv += FACTORS[i].w * state[i].v;
+      }
+      return sw === 0 ? 0 : roundHalfEven1(swv / sw);
+    }
 
-Esta es una demostración guiada con un caso real de ejemplo (Siemens S7-300). Verás: diagnóstico → riesgo → alternativas → equivalencias sugeridas → procedimiento de migración → informe. Escribe cualquier cosa y pulsa Enviar para avanzar; observa el panel de la derecha.
+    var elFactors = document.getElementById('factors');
+    var elScore = document.getElementById('score');
+    var elPill = document.getElementById('pill');
+    var elFill = document.getElementById('fill');
+    var elScale = document.getElementById('scale');
+    var panel = document.getElementById('motor');
+    var rows = [];
 
-Para empezar: ¿cuál es tu nombre y estás autorizado para acceder o modificar el sistema, o solo para diagnóstico?`,
+    FACTORS.forEach(function (f, i) {
+      var row = document.createElement('div');
+      row.className = 'factor';
+      row.innerHTML =
+        '<div class="f-name">' + f.label + '<span class="w">peso ' + f.w.toFixed(2) + '</span></div>' +
+        '<input type="range" min="0" max="100" step="1" value="' + f.v + '" aria-label="' + f.label + '">' +
+        '<div class="f-val">' + f.v + '</div>' +
+        '<label class="f-nd"><input type="checkbox"> N/D</label>';
+      elFactors.appendChild(row);
+      var range = row.querySelector('input[type=range]');
+      var val = row.querySelector('.f-val');
+      var nd = row.querySelector('input[type=checkbox]');
+      range.style.setProperty('--pct', f.v + '%');
+      range.addEventListener('input', function () {
+        state[i].v = parseInt(range.value, 10);
+        val.textContent = range.value;
+        range.style.setProperty('--pct', range.value + '%');
+        render();
+      });
+      nd.addEventListener('change', function () {
+        state[i].off = nd.checked;
+        row.classList.toggle('off', nd.checked);
+        range.disabled = nd.checked;
+        render();
+      });
+      rows.push({ range: range, val: val, nd: nd, row: row });
+    });
 
-`Gracias, Luis. Trabajaremos en **modo diagnóstico**: no daré instrucciones de intervención sin aprobación de personal autorizado.
+    function render() {
+      var p = compute();
+      var cls = clasificar(p);
+      panel.style.setProperty('--score-color', cls.c);
+      elScore.innerHTML = p.toFixed(1) + '<small>/100</small>';
+      elPill.textContent = cls.t;
+      elFill.style.width = Math.max(0, Math.min(100, p)) + '%';
+      var spans = elScale.querySelectorAll('span');
+      spans.forEach(function (s) {
+        s.classList.toggle('on', parseInt(s.getAttribute('data-z'), 10) === cls.z);
+      });
+    }
 
-Hablemos del controlador. ¿Cuál es el fabricante, la familia y el modelo de la CPU? Si no lo sabes, una foto de la placa me sirve.`,
-
-`Registrado: **Siemens S7-300, CPU 315-2 DP**, operando con fallas intermitentes. Lo más crítico ahora es que **no hay respaldo verificado del programa** — lo marco como dato faltante prioritario.
-
-¿Existe copia del programa del PLC? ¿Se conoce la contraseña, y están disponibles STEP 7 y el cable MPI para intentar leerlo?`,
-
-`Entendido: no se conoce si hay respaldo. La **prioridad 1** pasa a ser recuperar el programa antes de cualquier otra acción.
-
-Sigamos con las comunicaciones y la criticidad. ¿La máquina usa Profibus DP y MPI? ¿Qué tan crítica es para la producción?`,
-
-`Anotado: **criticidad alta** y red **Profibus DP** (relevante para elegir una plataforma destino compatible).
-
-Última parte antes de evaluar: ¿la migración afectaría funciones de seguridad (paros de emergencia, cortinas, PLC de seguridad)? ¿Y cuál es tu objetivo principal?`,
-
-`Como no se conoce si la migración afecta la seguridad, activo una **bandera de seguridad funcional**: cualquier cambio que la toque requiere revisión de un especialista.
-
-Con la información confirmada, calculo el riesgo de obsolescencia…`,
-
-`**Riesgo calculado.** Mira el panel: la puntuación y su clasificación salen del motor real (ponderación de los 8 factores de la Sección 6).
-
-El peso mayor lo aportan el fin de ciclo de vida de la S7-300, la ausencia de respaldo verificado y la alta criticidad productiva. Ahora paso a la **consultoría**: alternativas de solución.`,
-
-`**Alternativas de solución** (de menor a mayor alcance):
-
-1. **Operación temporal controlada** — mantener el equipo con respaldo recuperado y repuesto puente. *Rápido y barato, no resuelve la obsolescencia.*
-2. **Repuesto directo** — reemplazar la CPU por la misma referencia (nueva o usada). *Mínima intervención; depende de disponibilidad, que aquí es limitada.*
-3. **Hardware equivalente** — CPU compatible que conserve E/S, redes y lógica con cambios menores. *Equilibrio costo/vida útil.*
-4. **Migración a plataforma moderna** — S7-1500 con TIA Portal. *Mayor inversión, pero resuelve la obsolescencia y habilita mejoras.*
-5. **Reconstrucción** — reingeniería si no hay respaldo ni documentación. *Último recurso.*
-
-Dado el riesgo alto y la falta de repuestos, te sugiero **equivalencia hacia S7-1500**. Te muestro las equivalencias.`,
-
-`**Sugerencia de equivalencias (preliminar — a verificar).**
-
-| Elemento actual | Candidato equivalente | Criterio |
-|---|---|---|
-| CPU S7-300 315-2 DP | Familia **S7-1500** con interfaz Profibus DP (p. ej. CPU 1516-3 PN/DP) o S7-1500 + módulo CM 1542-5 | Conserva Profibus DP; mayor memoria y rendimiento |
-| Módulos E/S S7-300 (SM) | Módulos **ET 200MP / ET 200SP** | Mismos tipos de señal (DI/DO/AI/AO), reutiliza cableado por canal |
-| STEP 7 Classic | **TIA Portal** (herramienta de migración S7-300→S7-1500) | Conversión asistida del programa |
-| MPI | **Profinet / Industrial Ethernet** | Puesta en marcha y HMI |
-
-⚠️ **Importante (regla del agente):** estas son familias candidatas por criterio técnico; **no confirmo números de catálogo exactos**. Deben verificarse con el fabricante y su herramienta oficial de selección/migración, y validarse contra E/S, memoria, tiempo de ciclo y funciones especiales reales.`,
-
-`**Procedimiento de migración por etapas** (S7-300 → S7-1500):
-
-1. **Respaldo y aseguramiento** — recuperar y verificar el programa, HMI y parámetros de drives; guardar copia con checksum.
-2. **Levantamiento** — inventario completo de E/S, redes, direcciones y funciones especiales (PID, conteo, posicionamiento).
-3. **Arquitectura destino** — seleccionar CPU y periferia S7-1500/ET 200, definir redes (Profinet + Profibus DP donde aplique).
-4. **Mapa de señales** — tabla de conversión de direccionamiento S7-300 → S7-1500 (entradas, salidas, marcas, DB).
-5. **Conversión del programa** — migrar con TIA Portal, revisar bloques, resolver instrucciones no equivalentes, conservar símbolos y comentarios.
-6. **Lista de materiales (BOM) preliminar** — hardware, licencias, accesorios (a cotizar con referencias verificadas).
-7. **Pruebas FAT** — en banco, con simulación de E/S, antes de tocar la planta.
-8. **Puesta en marcha (SAT)** — ventana de parada planificada, pruebas de seguridad con especialista, verificación de la secuencia.
-9. **Plan de retorno** — dejar la CPU original y respaldo listos para revertir si el arranque falla.
-
-Cada etapa que toque seguridad requiere validación del especialista (bandera activa).`,
-
-`**Recomendación principal (confianza media).** Separo lo que sé de lo que infiero:
-
-- **Hechos confirmados:** CPU S7-300 315-2 DP; falla intermitente; red Profibus DP/MPI; criticidad alta.
-- **Inferencias (no confirmadas):** probable ausencia de respaldo; repuestos escasos.
-- **Recomendación:** *Prioridad 1 — recuperar el respaldo del programa.* Luego, **migrar a S7-1500** conservando Profibus DP según las equivalencias y el procedimiento anteriores.
-
-Para darte el procedimiento operativo de lectura del programa desde el PLC (podría requerir detener la máquina), necesito **aprobación humana**. La dejo registrada como PENDIENTE en el panel.`,
-
-`Genero el **informe técnico trazable** con la estructura estándar (Sección 9) — incluye diagnóstico, alternativas, equivalencias, procedimiento de migración y datos faltantes — y lo guardo en el expediente.
-
-Con esto termina la demostración. Viste el ciclo completo de consultoría: diagnóstico guiado, cálculo de riesgo, **alternativas**, **equivalencias sugeridas**, **procedimiento de migración** y validación humana.
-
-Para un diagnóstico **real con los datos de tu equipo**, se usa el agente con IA (Caso real). Pulsa **Reiniciar** abajo para repetir la demo.`
-];
-
-const FACTORES=[
- ["Fin de ciclo de vida",90],["Disponibilidad de repuestos",70],["Soporte del fabricante",75],
- ["Disponibilidad de software",40],["Respaldo verificado",100],["Compatibilidad de sistemas",50],
- ["Historial de fallas",70],["Criticidad productiva",80]
-];
-
-const INFORME=
-`## 1. Identificación
-Caso de demostración. CPU Siemens S7-300 315-2 DP.
-
-## 2. Resumen ejecutivo
-CPU en fin de ciclo de vida, con falla intermitente y sin respaldo verificado del programa. Riesgo de obsolescencia alto. Se recomienda recuperar el respaldo y migrar a S7-1500.
-
-## 3. Información confirmada
-CPU 315-2 DP; falla intermitente; Profibus DP/MPI; criticidad alta.
-
-## 4. Información no confirmada / supuestos
-Probable ausencia de respaldo; repuestos escasos.
-
-## 5. Datos faltantes
-Respaldo del programa sin verificar; memoria utilizada; lista completa de módulos; versión de firmware; funciones especiales.
-
-## 6. Estado y puntuación de obsolescencia
-Riesgo alto: 75.2 / 100 (motor de ponderación, Sección 6).
-
-## 7. Riesgos
-Técnico: falla de CPU sin respaldo. Productivo: parada de línea crítica. Seguridad: revisión obligatoria por especialista (bandera activa).
-
-## 8. Alternativas
-(1) Operación temporal controlada; (2) repuesto directo; (3) hardware equivalente; (4) migración a S7-1500; (5) reconstrucción.
-
-## 9. Recomendación principal
-Prioridad 1: recuperar el respaldo. Luego migrar a S7-1500 conservando Profibus DP.
-
-## 10. Equivalencias preliminares (a verificar con el fabricante)
-CPU S7-300 315-2 DP → familia S7-1500 con Profibus DP (p. ej. CPU 1516-3 PN/DP o CM 1542-5); módulos S7-300 → ET 200MP/ET 200SP; STEP 7 Classic → TIA Portal. NO se confirman números de catálogo: deben verificarse oficialmente.
-
-## 11. Plan de respaldo, migración y retorno
-Respaldo verificado → levantamiento → arquitectura destino → mapa de señales → conversión en TIA Portal → BOM preliminar → plan de retorno (conservar CPU original).
-
-## 12. Plan de pruebas
-FAT en banco con simulación de E/S; SAT en ventana de parada con pruebas de seguridad por especialista.
-
-## 13. Nivel de confianza y fuentes
-Confianza media. Fuentes: declaración verbal del técnico (pendiente de evidencias: placa, respaldo, lista de E/S).`;
-
-// cumulative state changes at each step index
-const PATCH={
- 1:{datos:3},
- 2:{datos:3, activo:"CPU S7-300 315-2 DP", faltante:"Respaldo del programa del PLC sin verificar"},
- 3:{datos:2},
- 4:{datos:2},
- 5:{datos:1, bandera:true},
- 6:{riesgo:true},
- 10:{aprobacion:"Leer/recuperar el programa desde el PLC S7-300"},
- 11:{informe:true}
-};
-
-// ---------- state ----------
-const S={idx:-1, datos:0, activo:null, faltante:null, bandera:false, riesgo:false, aprobacion:null, informe:false};
-const stream=document.getElementById('stream');
-const inp=document.getElementById('inp');
-const sendBtn=document.getElementById('send');
-const caseId='CAS-2026-'+String(58755).padStart(6,'0');
-document.getElementById('cid').textContent=caseId;
-
-function addMsg(role, html, isFlag){
-  const m=document.createElement('div'); m.className='msg '+role;
-  const av=document.createElement('div'); av.className='av'; av.textContent=role==='user'?'🧑‍🔧':'⚙️';
-  const b=document.createElement('div'); b.className='bubble'+(isFlag?' demoflag':'');
-  const nm=document.createElement('div'); nm.className='name'; nm.textContent=role==='user'?'Tú':'MIGRA-IA';
-  b.appendChild(nm);
-  const c=document.createElement('div'); c.innerHTML=html; b.appendChild(c);
-  m.appendChild(av); m.appendChild(b); stream.appendChild(m);
-  stream.scrollTop=stream.scrollHeight;
-}
-
-function applyPatch(i){
-  const p=PATCH[i]; if(!p) return;
-  if(p.datos) S.datos+=p.datos;
-  if(p.activo) S.activo=p.activo;
-  if(p.faltante) S.faltante=p.faltante;
-  if(p.bandera) S.bandera=true;
-  if(p.riesgo) S.riesgo=true;
-  if(p.aprobacion) S.aprobacion=p.aprobacion;
-  if(p.informe) S.informe=true;
-}
-
-function renderRisk(){
-  const box=document.getElementById('riskbox');
-  if(!S.riesgo){ box.innerHTML='<div class="waiting">Se calcula al avanzar el diagnóstico…</div>'; return; }
-  let fh=FACTORES.map(f=>`<div class="factor"><span class="fl">${f[0]}</span><span class="fv">${f[1]}</span><span class="fbar"><i style="width:${f[1]}%"></i></span></div>`).join('');
-  box.innerHTML=
-    `<div class="risk">
-       <div class="gauge" style="--p:75.2; --gc:var(--danger)"><span class="val">75</span></div>
-       <div><div class="lab">Puntuación</div><div class="cls alto">75.2 / 100</div><div class="lab" style="margin-top:3px">Riesgo alto</div></div>
-     </div>
-     <div class="factors">${fh}</div>`;
-}
-
-function metric(icon,k,v,n,cls,on){
-  return `<div class="metric ${on?'on':''} ${cls||''}"><div class="mi">${icon}</div><div class="mt"><div class="k">${k}</div>${v?`<div class="v">${v}</div>`:''}</div><div class="n">${n}</div></div>`;
-}
-function renderMetrics(){
-  const el=document.getElementById('metrics');
-  let h='';
-  h+=metric('🗄️','Datos registrados','', S.datos, '', S.datos>0);
-  h+=metric('🔧','Activo registrado', S.activo?S.activo:'—', S.activo?1:0, '', !!S.activo);
-  h+=metric('❓','Datos faltantes', S.faltante?S.faltante:'—', S.faltante?1:0, '', !!S.faltante);
-  h+=metric('🚩','Bandera de seguridad', S.bandera?'Revisión obligatoria por especialista':'—', S.bandera?1:0, 'flag', S.bandera);
-  h+=metric('✋','Aprobación pendiente', S.aprobacion?S.aprobacion:'—', S.aprobacion?1:0, 'appr', !!S.aprobacion);
-  h+=metric('📄','Informe generado', S.informe?'Estructura de 13 secciones':'—', S.informe?'✓':'—','', S.informe);
-  if(S.informe){ h+=`<button class="btn ghost repbtn" id="verinf" type="button">Ver informe generado ▸</button>`; }
-  el.innerHTML=h;
-  const vi=document.getElementById('verinf'); if(vi) vi.addEventListener('click',openInforme);
-}
-
-function updateProgress(){
-  const shown=S.idx+1, total=STEPS.length;
-  document.getElementById('steplbl').textContent='Paso '+Math.min(shown,total)+' / '+total;
-  document.getElementById('progbar').style.width=Math.round(Math.min(shown,total)/total*100)+'%';
-}
-
-function advance(userText){
-  if(S.idx>=STEPS.length-1){ return; }
-  if(S.idx>=0 && userText){ addMsg('user', md(userText)); }
-  S.idx++;
-  applyPatch(S.idx);
-  addMsg('agent', md(STEPS[S.idx]), S.idx===0);
-  renderRisk(); renderMetrics(); updateProgress();
-  if(S.idx>=STEPS.length-1){
-    inp.disabled=true; sendBtn.textContent='Reiniciar ⟳'; sendBtn.disabled=false; S.done=true;
-  }
-}
-
-function reset(){
-  Object.assign(S,{idx:-1,datos:0,activo:null,faltante:null,bandera:false,riesgo:false,aprobacion:null,informe:false,done:false});
-  stream.innerHTML=''; inp.disabled=false; inp.value=''; sendBtn.textContent='Enviar ▸';
-  advance();  // show step 0
-  inp.focus();
-}
-
-document.getElementById('composer').addEventListener('submit',function(e){
-  e.preventDefault();
-  if(S.done){ reset(); return; }
-  const t=inp.value.trim(); inp.value='';
-  advance(t||'Continuar');
-});
-
-// informe modal
-const modal=document.getElementById('modal');
-function openInforme(){ document.getElementById('modalbody').innerHTML=md(INFORME); modal.classList.add('open'); }
-document.getElementById('closem').addEventListener('click',()=>modal.classList.remove('open'));
-modal.addEventListener('click',e=>{ if(e.target===modal) modal.classList.remove('open'); });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') modal.classList.remove('open'); });
-
-// init
-reset();
+    function reset() {
+      DEFAULTS.forEach(function (d, i) {
+        state[i].v = d.v; state[i].off = d.off;
+        rows[i].range.value = d.v; rows[i].range.disabled = false;
+        rows[i].range.style.setProperty('--pct', d.v + '%');
+        rows[i].val.textContent = d.v;
+        rows[i].nd.checked = false;
+        rows[i].row.classList.remove('off');
+      });
+      render();
+    }
+    document.getElementById('resetBtn').addEventListener('click', reset);
+    document.getElementById('resetBtn2').addEventListener('click', reset);
+    render();
+  })();
 </script>
 
-</body>
 </html>
