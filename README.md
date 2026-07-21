@@ -8,12 +8,12 @@ variadores, servos e instrumentación asociada).
 Modalidad **asistida**: recomienda, documenta y guía; la aprobación final y toda
 intervención sobre equipos reales corresponde a personal autorizado.
 
-> Prototipo v0.1.0 (MVP) construido sobre la API de Claude (`claude-opus-4-8`).
+> Prototipo v0.2.0 construido sobre la API de Claude (`claude-opus-4-8`).
 > Implementa la especificación del documento *MIGRA-IA — Cuestionario maestro y
 > diseño funcional del agente*.
 
 **Autores:** Carlos Omar Castellanos · Julio Noe Castillo · Isidoro Emilio Medina
-**Licencia:** MIT · **DOI:** `TODO-DOI` (ver [`docs/GUIA_ZENODO.md`](docs/GUIA_ZENODO.md))
+**Licencia:** MIT · **DOI (v0.2.0):** [10.5281/zenodo.21480950](https://doi.org/10.5281/zenodo.21480950) · **DOI (todas las versiones):** [10.5281/zenodo.21480949](https://doi.org/10.5281/zenodo.21480949)
 
 > **¿Eres revisor?** El proyecto se puede evaluar **sin clave de API y sin costo**
 > con el *modo demo*. Sigue [`ARTIFACT.md`](ARTIFACT.md).
