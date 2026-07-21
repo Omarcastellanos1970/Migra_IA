@@ -1,0 +1,195 @@
+{
+  "agente": "MIGRA-IA",
+  "version": "0.1.0",
+  "idioma": "es",
+  "descripcion": "Cuestionario maestro adaptativo para diagnostico de obsolescencia y migracion de sistemas de automatizacion industrial. El agente NO debe leerlo de forma rigida: las respuestas activan, ocultan o modifican las preguntas siguientes (principio de cuestionario adaptativo).",
+  "secciones": [
+    {
+      "id": "A",
+      "titulo": "Identificacion del usuario",
+      "preguntas": [
+        {"codigo": "A01", "texto": "Nombre del responsable del caso", "tipo": "texto", "obligatorio": true},
+        {"codigo": "A02", "texto": "Cargo o funcion", "tipo": "seleccion", "opciones": ["Tecnico de mantenimiento", "Ingeniero de automatizacion", "Ingeniero electrico", "Supervisor de produccion", "Integrador de sistemas", "Estudiante o investigador", "Otro"]},
+        {"codigo": "A03", "texto": "Nivel de experiencia en automatizacion", "tipo": "seleccion", "opciones": ["Basico", "Intermedio", "Avanzado", "Especialista"], "regla_adaptativa": "El nivel seleccionado determina la profundidad del lenguaje tecnico y la cantidad de explicaciones mostradas."},
+        {"codigo": "A04", "texto": "Correo electronico", "tipo": "texto_validado"},
+        {"codigo": "A05", "texto": "Telefono de contacto", "tipo": "texto", "obligatorio": false},
+        {"codigo": "A06", "texto": "Pais", "tipo": "seleccion"},
+        {"codigo": "A07", "texto": "Esta autorizado para acceder o modificar el sistema?", "tipo": "seleccion", "opciones": ["Si", "No", "Solo autorizado para diagnostico", "Pendiente de autorizacion"], "regla_adaptativa": "Si la respuesta es 'No', el agente puede ofrecer informacion general pero NO instrucciones operativas de modificacion."}
+      ]
+    },
+    {
+      "id": "B",
+      "titulo": "Identificacion de la empresa y planta",
+      "preguntas": [
+        {"codigo": "B01", "texto": "Nombre de la empresa", "tipo": "texto"},
+        {"codigo": "B02", "texto": "Nombre o codigo de la planta", "tipo": "texto"},
+        {"codigo": "B03", "texto": "Sector industrial", "tipo": "seleccion", "opciones": ["Alimentos y bebidas", "Textil", "Plasticos", "Calzado", "Farmaceutico", "Mineria", "Energia", "Agua y saneamiento", "Manufactura", "Automotriz", "Cemento", "Quimico", "Otro"]},
+        {"codigo": "B04", "texto": "Ubicacion general de la planta (ciudad, region y pais)", "tipo": "texto"},
+        {"codigo": "B05", "texto": "La planta cuenta con normas o procedimientos internos para modificaciones?", "tipo": "seleccion", "opciones": ["Si", "No", "No se conoce"]},
+        {"codigo": "B06", "texto": "Normas aplicables", "tipo": "seleccion_multiple", "opciones": ["IEC", "ISA", "IEEE", "NFPA", "NEC", "ISO", "Normativas locales", "Normas internas", "No se conoce"]}
+      ]
+    },
+    {
+      "id": "C",
+      "titulo": "Identificacion de la maquina o proceso",
+      "preguntas": [
+        {"codigo": "C01", "texto": "Nombre de la maquina", "tipo": "texto"},
+        {"codigo": "C02", "texto": "Codigo interno de la maquina", "tipo": "texto"},
+        {"codigo": "C03", "texto": "Fabricante de la maquina", "tipo": "texto"},
+        {"codigo": "C04", "texto": "Modelo de la maquina", "tipo": "texto"},
+        {"codigo": "C05", "texto": "Ano aproximado de fabricacion", "tipo": "numero"},
+        {"codigo": "C06", "texto": "Descripcion del proceso: que produce, que movimientos realiza, que variables controla, y que condiciones inician y detienen el ciclo", "tipo": "texto_extenso"},
+        {"codigo": "C07", "texto": "Estado actual", "tipo": "seleccion", "opciones": ["Operando normalmente", "Operando con fallas", "Operacion intermitente", "Fuera de servicio", "Desmontada", "En modernizacion"]},
+        {"codigo": "C08", "texto": "Criticidad de la maquina", "tipo": "seleccion", "opciones": ["Baja: puede detenerse varios dias", "Media: afecta parcialmente la produccion", "Alta: afecta una linea importante", "Critica: detiene la planta o presenta riesgo de seguridad"]},
+        {"codigo": "C09", "texto": "Horas de operacion", "tipo": "seleccion", "opciones": ["Menos de 8 horas diarias", "Entre 8 y 16 horas", "Entre 16 y 24 horas", "Operacion continua"]},
+        {"codigo": "C10", "texto": "Tiempo maximo permitido de parada", "tipo": "seleccion", "opciones": ["Menos de 1 hora", "1 a 4 horas", "4 a 12 horas", "12 a 24 horas", "Mas de 24 horas"]}
+      ]
+    },
+    {
+      "id": "D",
+      "titulo": "Identificacion del controlador",
+      "preguntas": [
+        {"codigo": "D01", "texto": "Fabricante del PLC", "tipo": "seleccion", "opciones": ["Siemens", "Rockwell Automation/Allen-Bradley", "Mitsubishi", "Schneider Electric", "Omron", "ABB", "Beckhoff", "B&R", "Delta", "Keyence", "GE/Emerson", "Wago", "Otro", "Desconocido"]},
+        {"codigo": "D02", "texto": "Familia del PLC (dependiente del fabricante)", "tipo": "seleccion_dependiente", "opciones_por_fabricante": {"Siemens": ["S5", "S7-200", "S7-300", "S7-400", "S7-1200", "S7-1500"], "Mitsubishi": ["FX", "Q", "iQ-R"], "Rockwell Automation/Allen-Bradley": ["SLC 500", "MicroLogix", "CompactLogix", "ControlLogix"], "Schneider Electric": ["Modicon"], "Omron": ["CJ", "NJ", "NX"], "Otro": ["Otra"]}},
+        {"codigo": "D03", "texto": "Modelo exacto de CPU", "tipo": "texto", "regla_adaptativa": "Si el usuario no conoce el modelo, solicitar fotografia de la placa."},
+        {"codigo": "D04", "texto": "Numero de catalogo o referencia", "tipo": "texto"},
+        {"codigo": "D05", "texto": "Numero de serie", "tipo": "texto", "obligatorio": false},
+        {"codigo": "D06", "texto": "Version de firmware", "tipo": "texto"},
+        {"codigo": "D07", "texto": "Ano aproximado de instalacion", "tipo": "numero"},
+        {"codigo": "D08", "texto": "Estado de la CPU", "tipo": "seleccion", "opciones": ["RUN", "STOP", "FALLA", "Sin energia", "Desconocido"]},
+        {"codigo": "D09", "texto": "La CPU posee indicadores de error?", "tipo": "seleccion", "opciones": ["Si", "No", "No verificado"], "regla_adaptativa": "Si responde 'Si', solicitar fotografia e identificacion de los LED activos."},
+        {"codigo": "D10", "texto": "La CPU esta protegida con contrasena?", "tipo": "seleccion", "opciones": ["Si", "No", "No se conoce"]},
+        {"codigo": "D11", "texto": "Existe una CPU de repuesto?", "tipo": "seleccion", "opciones": ["Si, nueva", "Si, usada", "No", "No se conoce"]},
+        {"codigo": "D12", "texto": "Existen modulos de repuesto?", "tipo": "seleccion", "opciones": ["Si", "Parcialmente", "No", "No se conoce"]}
+      ]
+    },
+    {
+      "id": "E",
+      "titulo": "Inventario de modulos de entradas y salidas",
+      "nota": "El usuario podra registrar tantos modulos como existan. Cada registro debe quedar asociado al rack, estacion o gabinete correspondiente.",
+      "campos_por_modulo": [
+        {"codigo": "E01", "campo": "Posicion en rack", "ejemplo": "Rack 0, slot 4"},
+        {"codigo": "E02", "campo": "Fabricante", "ejemplo": "Siemens, Mitsubishi, etc."},
+        {"codigo": "E03", "campo": "Numero de referencia", "ejemplo": "Codigo completo de catalogo"},
+        {"codigo": "E04", "campo": "Tipo de modulo", "ejemplo": "DI, DO, AI, AO, RTD, termopar, contador, comunicacion, posicionamiento, seguridad, fuente"},
+        {"codigo": "E05", "campo": "Cantidad de canales", "ejemplo": "8, 16, 32"},
+        {"codigo": "E06", "campo": "Nivel electrico", "ejemplo": "24 VDC, 120 VAC, 230 VAC, 0-10 V, +-10 V, 4-20 mA, PT100, tipo K"},
+        {"codigo": "E07", "campo": "Canales utilizados", "ejemplo": "Numero o porcentaje"},
+        {"codigo": "E08", "campo": "Canales disponibles", "ejemplo": "Numero o porcentaje"},
+        {"codigo": "E09", "campo": "Estado", "ejemplo": "Operativo, con fallas, intermitente, no probado, fuera de servicio"},
+        {"codigo": "E10", "campo": "Referencia electrica por canal", "ejemplo": "Si, parcial o no"}
+      ]
+    },
+    {
+      "id": "F",
+      "titulo": "Programa, software y respaldos",
+      "preguntas": [
+        {"codigo": "F01", "texto": "Existe copia del programa del PLC?", "tipo": "seleccion", "opciones": ["Si", "No", "No se conoce"], "regla_adaptativa": "Las preguntas posteriores cambian segun la respuesta (rama Si / rama No)."}
+      ],
+      "rama_si": [
+        {"codigo": "F02", "texto": "Nombre del archivo"},
+        {"codigo": "F03", "texto": "Fecha del respaldo"},
+        {"codigo": "F04", "texto": "Software utilizado"},
+        {"codigo": "F05", "texto": "Version del software"},
+        {"codigo": "F06", "texto": "El respaldo abre correctamente?"},
+        {"codigo": "F07", "texto": "Puede compilarse sin errores?"},
+        {"codigo": "F08", "texto": "Coincide con el programa cargado actualmente?"},
+        {"codigo": "F09", "texto": "Incluye simbolos y comentarios?"},
+        {"codigo": "F10", "texto": "Incluye bloques protegidos?"},
+        {"codigo": "F11", "texto": "Cargar archivo (evidencia)"}
+      ],
+      "rama_no": [
+        {"codigo": "F12", "texto": "La CPU esta operativa?"},
+        {"codigo": "F13", "texto": "Existe cable de programacion?"},
+        {"codigo": "F14", "texto": "Existe el software requerido?"},
+        {"codigo": "F15", "texto": "Puede detenerse la maquina?"},
+        {"codigo": "F16", "texto": "Se conoce la contrasena?"},
+        {"codigo": "F17", "texto": "Se ha intentado cargar el programa desde el PLC?"},
+        {"codigo": "F18", "texto": "Existe tarjeta de memoria extraible?"}
+      ],
+      "preguntas_finales": [
+        {"codigo": "F19", "texto": "Existe respaldo de la HMI?", "tipo": "seleccion", "opciones": ["Si", "No", "No aplica", "No se conoce"]},
+        {"codigo": "F20", "texto": "Existe respaldo de variadores o servodrives?", "tipo": "seleccion", "opciones": ["Si", "No", "No aplica", "Parcialmente"]}
+      ]
+    },
+    {
+      "id": "G",
+      "titulo": "Comunicaciones industriales",
+      "preguntas": [
+        {"codigo": "G01", "texto": "Que redes utiliza la maquina?", "tipo": "seleccion_multiple", "opciones": ["MPI", "Profibus DP", "Profibus PA", "Profinet", "Industrial Ethernet", "Modbus RTU", "Modbus TCP", "DeviceNet", "ControlNet", "EtherNet/IP", "CANopen", "AS-Interface", "CC-Link", "EtherCAT", "RS-232", "RS-485", "Red propietaria", "No se conoce"]},
+        {"codigo": "G02", "texto": "El PLC se comunica con una HMI?", "tipo": "si_no_detalle"},
+        {"codigo": "G03", "texto": "Se comunica con un SCADA?", "tipo": "si_no_detalle"},
+        {"codigo": "G04", "texto": "Se comunica con variadores?", "tipo": "si_no_detalle"},
+        {"codigo": "G05", "texto": "Se comunica con otro PLC?", "tipo": "si_no_detalle"},
+        {"codigo": "G06", "texto": "Se comunica con un sistema de gestion o base de datos?", "tipo": "si_no_detalle"},
+        {"codigo": "G07", "texto": "Velocidad y configuracion de red", "tipo": "si_no_detalle"},
+        {"codigo": "G08", "texto": "Direcciones de nodos", "tipo": "si_no_detalle"},
+        {"codigo": "G09", "texto": "Existe diagrama de red?", "tipo": "si_no_detalle"},
+        {"codigo": "G10", "texto": "Existen terminadores, convertidores o gateways?", "tipo": "si_no_detalle"}
+      ]
+    },
+    {
+      "id": "H",
+      "titulo": "HMI y supervision",
+      "preguntas": [
+        {"codigo": "H01", "texto": "Fabricante de la HMI", "tipo": "texto"},
+        {"codigo": "H02", "texto": "Modelo", "tipo": "texto"},
+        {"codigo": "H03", "texto": "Numero de referencia", "tipo": "texto"},
+        {"codigo": "H04", "texto": "Tamano de pantalla", "tipo": "texto"},
+        {"codigo": "H05", "texto": "Software de programacion", "tipo": "texto"},
+        {"codigo": "H06", "texto": "Version del software", "tipo": "texto"},
+        {"codigo": "H07", "texto": "Tipo de comunicacion con el PLC", "tipo": "texto"},
+        {"codigo": "H08", "texto": "Existe archivo fuente?", "tipo": "texto"},
+        {"codigo": "H09", "texto": "Se conocen las contrasenas?", "tipo": "texto"},
+        {"codigo": "H10", "texto": "Numero aproximado de pantallas", "tipo": "texto"},
+        {"codigo": "H11", "texto": "Funciones existentes", "tipo": "seleccion_multiple", "opciones": ["Alarmas", "Tendencias", "Recetas", "Registro historico", "Usuarios y contrasenas", "Ajuste de parametros", "Modo manual", "Modo automatico", "Mantenimiento", "Diagnostico"]}
+      ]
+    },
+    {
+      "id": "I",
+      "titulo": "Seguridad funcional",
+      "preguntas": [
+        {"codigo": "I01", "texto": "La maquina posee paro de emergencia?", "tipo": "si_no_detalle"},
+        {"codigo": "I02", "texto": "Los paros estan conectados al PLC normal o a un sistema de seguridad?", "tipo": "si_no_detalle"},
+        {"codigo": "I03", "texto": "Existe PLC de seguridad?", "tipo": "si_no_detalle"},
+        {"codigo": "I04", "texto": "Existen reles de seguridad?", "tipo": "si_no_detalle"},
+        {"codigo": "I05", "texto": "Existen cortinas, escaneres o puertas con enclavamiento?", "tipo": "si_no_detalle"},
+        {"codigo": "I06", "texto": "Se conoce el nivel de desempeno requerido?", "tipo": "seleccion", "opciones": ["PL", "SIL", "Categoria de seguridad", "No se conoce", "No aplica"]},
+        {"codigo": "I07", "texto": "La migracion afectara funciones de seguridad?", "tipo": "seleccion", "opciones": ["Si", "No", "No se conoce"], "regla_adaptativa": "Si la respuesta es 'Si' o 'No se conoce', marcar 'REVISION OBLIGATORIA POR ESPECIALISTA EN SEGURIDAD FUNCIONAL'."}
+      ]
+    },
+    {
+      "id": "J",
+      "titulo": "Instrumentacion y actuadores",
+      "nota": "Permite registrar sensores digitales, sensores analogicos, valvulas, motores, contactores, variadores, servomotores, encoders, resolvers, caudalimetros, transmisores, basculas y dispositivos neumaticos o hidraulicos.",
+      "campos_por_dispositivo": [
+        {"campo": "Codigo", "descripcion": "Identificador interno"},
+        {"campo": "Fabricante y modelo", "descripcion": "Datos de placa"},
+        {"campo": "Alimentacion", "descripcion": "Tension y tipo de corriente"},
+        {"campo": "Tipo de senal", "descripcion": "Digital, 0-10 V, 4-20 mA, pulso, bus, etc."},
+        {"campo": "Rango", "descripcion": "Rango de medida o actuacion"},
+        {"campo": "Direccion de PLC", "descripcion": "Entrada, salida, palabra o tag"},
+        {"campo": "Funcion", "descripcion": "Papel dentro del proceso"},
+        {"campo": "Estado", "descripcion": "Operativo, intermitente, fallado, no probado"},
+        {"campo": "Criticidad", "descripcion": "Baja, media, alta o critica"},
+        {"campo": "Documentacion", "descripcion": "Manual, plano, hoja tecnica o sin documento"}
+      ]
+    },
+    {
+      "id": "K",
+      "titulo": "Objetivo y restricciones de la intervencion",
+      "preguntas": [
+        {"codigo": "K01", "texto": "Que desea realizar?", "tipo": "seleccion_multiple", "opciones": ["Identificar obsolescencia", "Buscar repuesto directo", "Buscar hardware equivalente", "Migrar a una plataforma moderna", "Recuperar el programa", "Reconstruir el programa", "Reducir riesgo de parada", "Mejorar rendimiento", "Agregar nuevas funciones", "Integrar con Industria 4.0", "Mejorar seguridad", "Otro"]},
+        {"codigo": "K02", "texto": "Desea conservar la misma marca?", "tipo": "seleccion", "opciones": ["Si", "No", "Preferible, pero no obligatorio", "No se ha decidido"]},
+        {"codigo": "K03", "texto": "Existe hardware nuevo seleccionado?", "tipo": "si_no_detalle"},
+        {"codigo": "K04", "texto": "Existe presupuesto estimado?", "tipo": "si_no_detalle"},
+        {"codigo": "K05", "texto": "Existe una fecha limite?", "tipo": "si_no_detalle"},
+        {"codigo": "K06", "texto": "Debe mantenerse el cableado existente?", "tipo": "si_no_detalle"},
+        {"codigo": "K07", "texto": "Debe mantenerse la HMI existente?", "tipo": "si_no_detalle"},
+        {"codigo": "K08", "texto": "Debe mantenerse la red industrial existente?", "tipo": "si_no_detalle"},
+        {"codigo": "K09", "texto": "Se permiten cambios en el tablero?", "tipo": "si_no_detalle"},
+        {"codigo": "K10", "texto": "Se requiere crecimiento futuro de entradas y salidas?", "tipo": "si_no_detalle"}
+      ]
+    }
+  ]
+}

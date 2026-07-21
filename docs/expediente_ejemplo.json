@@ -1,0 +1,329 @@
+{
+  "case_id": "CAS-2026-904335",
+  "agente_version": "0.1.0",
+  "creado": "2026-07-20T12:29:04-06:00",
+  "actualizado": "2026-07-20T12:29:04-06:00",
+  "respuestas": {
+    "A01": {
+      "seccion": "A",
+      "pregunta": "Nombre del responsable",
+      "valor": "Luis",
+      "nivel_confianza": "confirmado",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "A02": {
+      "seccion": "A",
+      "pregunta": "Cargo o funcion",
+      "valor": "Ingeniero de mantenimiento",
+      "nivel_confianza": "confirmado",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "A07": {
+      "seccion": "A",
+      "pregunta": "Autorizacion",
+      "valor": "Solo autorizado para diagnostico",
+      "nivel_confianza": "confirmado",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "D01": {
+      "seccion": "D",
+      "pregunta": "Fabricante del PLC",
+      "valor": "Siemens",
+      "nivel_confianza": "confianza_media",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "D02": {
+      "seccion": "D",
+      "pregunta": "Familia del PLC",
+      "valor": "S7-300",
+      "nivel_confianza": "confianza_media",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "C07": {
+      "seccion": "C",
+      "pregunta": "Estado actual",
+      "valor": "Operando con fallas",
+      "nivel_confianza": "confianza_media",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "F01": {
+      "seccion": "F",
+      "pregunta": "Existe copia del programa?",
+      "valor": "No se conoce",
+      "nivel_confianza": "confianza_media",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "G01": {
+      "seccion": "G",
+      "pregunta": "Redes utilizadas",
+      "valor": "Profibus DP, MPI",
+      "nivel_confianza": "confianza_media",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "C08": {
+      "seccion": "C",
+      "pregunta": "Criticidad de la maquina",
+      "valor": "Alta: afecta una linea importante",
+      "nivel_confianza": "confianza_media",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "K01": {
+      "seccion": "K",
+      "pregunta": "Que desea realizar?",
+      "valor": "Reducir riesgo de parada; evaluar migracion",
+      "nivel_confianza": "confirmado",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    },
+    "I07": {
+      "seccion": "I",
+      "pregunta": "La migracion afectara funciones de seguridad?",
+      "valor": "No se conoce",
+      "nivel_confianza": "confianza_media",
+      "fuente": "verbal",
+      "ts": "2026-07-20T12:29:04-06:00"
+    }
+  },
+  "activos": [
+    {
+      "id": "AST-2026-000001",
+      "ts": "2026-07-20T12:29:04-06:00",
+      "tipo": "cpu",
+      "descripcion": "CPU S7-300 315-2 DP",
+      "fabricante": "Siemens",
+      "modelo": "S7-300 / CPU 315-2 DP",
+      "estado": "Operando con fallas",
+      "nivel_confianza": "confianza_media",
+      "notas": "Falla intermitente reportada por el usuario."
+    }
+  ],
+  "evidencias": [],
+  "datos_faltantes": [
+    {
+      "descripcion": "Respaldo del programa del PLC sin verificar",
+      "impacto": "Bloquea cualquier descarga o migracion segura hasta recuperarlo.",
+      "ts": "2026-07-20T12:29:04-06:00"
+    }
+  ],
+  "riesgo": {
+    "ts": "2026-07-20T12:29:04-06:00",
+    "puntuacion": 75.2,
+    "clasificacion": "Riesgo alto",
+    "detalle_factores": [
+      {
+        "factor": "Estado del ciclo de vida",
+        "clave": "estado_ciclo_vida",
+        "peso": 0.2,
+        "valor": 90.0,
+        "justificacion": "S7-300 en fin de ciclo de vida; descontinuacion progresiva."
+      },
+      {
+        "factor": "Disponibilidad de repuestos",
+        "clave": "disponibilidad_repuestos",
+        "peso": 0.15,
+        "valor": 70.0,
+        "justificacion": "Repuestos limitados; mercado de segunda mano."
+      },
+      {
+        "factor": "Soporte del fabricante",
+        "clave": "soporte_fabricante",
+        "peso": 0.15,
+        "valor": 75.0,
+        "justificacion": "Soporte reducido; el fabricante recomienda migrar."
+      },
+      {
+        "factor": "Disponibilidad del software",
+        "clave": "disponibilidad_software",
+        "peso": 0.1,
+        "valor": 40.0,
+        "justificacion": "STEP 7 Classic disponible pero requiere SO antiguo."
+      },
+      {
+        "factor": "Disponibilidad de respaldo",
+        "clave": "disponibilidad_respaldo",
+        "peso": 0.15,
+        "valor": 100.0,
+        "justificacion": "Sin respaldo verificado del programa."
+      },
+      {
+        "factor": "Compatibilidad con sistemas actuales",
+        "clave": "compatibilidad_sistemas",
+        "peso": 0.1,
+        "valor": 50.0,
+        "justificacion": "Profibus DP compatible con la plataforma destino."
+      },
+      {
+        "factor": "Historial de fallas",
+        "clave": "historial_fallas",
+        "peso": 0.05,
+        "valor": 70.0,
+        "justificacion": "Falla intermitente reportada."
+      },
+      {
+        "factor": "Criticidad productiva",
+        "clave": "criticidad_productiva",
+        "peso": 0.1,
+        "valor": 80.0,
+        "justificacion": "Maquina de alta criticidad para la linea."
+      }
+    ]
+  },
+  "recomendaciones": [],
+  "informes": [
+    {
+      "id": "INF-2026-000001",
+      "ruta": "C:\\Users\\Carlos Castellanos\\Desktop\\MIGRA_IA_Cuestionario_y_Diseno_del_Agente\\casos\\CAS-2026-904335_INF-2026-000001.md",
+      "resumen": "Riesgo alto; recuperar respaldo y migrar a S7-1500 conservando Profibus DP.",
+      "ts": "2026-07-20T12:29:04-06:00"
+    }
+  ],
+  "banderas": [
+    {
+      "texto": "REVISION OBLIGATORIA POR ESPECIALISTA EN SEGURIDAD FUNCIONAL",
+      "ts": "2026-07-20T12:29:04-06:00"
+    }
+  ],
+  "aprobaciones_pendientes": [
+    {
+      "accion": "Leer/recuperar el programa desde el PLC S7-300",
+      "riesgos": "Puede requerir detener la maquina; sin respaldo previo hay riesgo de perdida."
+    }
+  ],
+  "auditoria": [
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "A01"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "A02"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "A07"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "registrar_activo",
+      "detalle": {
+        "id": "AST-2026-000001",
+        "tipo": "cpu"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "D01"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "D02"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "C07"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "registrar_dato_faltante",
+      "detalle": {
+        "descripcion": "Respaldo del programa del PLC sin verificar"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "F01"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "G01"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "C08"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "K01"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_respuesta",
+      "detalle": {
+        "codigo": "I07"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "registrar_bandera",
+      "detalle": {
+        "texto": "REVISION OBLIGATORIA POR ESPECIALISTA EN SEGURIDAD FUNCIONAL"
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "guardar_riesgo",
+      "detalle": {
+        "puntuacion": 75.2
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "aprobacion_humana",
+      "detalle": {
+        "accion": "Leer/recuperar el programa desde el PLC S7-300",
+        "aprobado": false
+      }
+    },
+    {
+      "ts": "2026-07-20T12:29:04-06:00",
+      "accion": "registrar_informe",
+      "detalle": {
+        "id": "INF-2026-000001",
+        "ruta": "C:\\Users\\Carlos Castellanos\\Desktop\\MIGRA_IA_Cuestionario_y_Diseno_del_Agente\\casos\\CAS-2026-904335_INF-2026-000001.md"
+      }
+    }
+  ],
+  "_contadores": {
+    "AST": 1,
+    "INF": 1
+  }
+}

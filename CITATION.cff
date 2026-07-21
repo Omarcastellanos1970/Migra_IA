@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: "Si utiliza este software, por favor cítelo usando estos metadatos."
+title: "MIGRA-IA: Agente inteligente para diagnóstico de obsolescencia y migración de sistemas de automatización industrial"
+abstract: >-
+  MIGRA-IA es un agente conversacional asistido que guía paso a paso al personal
+  técnico en el diagnóstico de obsolescencia de hardware (PLC, módulos de E/S,
+  HMI, redes industriales, variadores) y en la planificación de migraciones.
+  Implementa un cuestionario adaptativo, un motor ponderado de puntuación de
+  riesgo de obsolescencia, un expediente trazable con registro de auditoría,
+  reglas de seguridad obligatorias y validación humana. Incluye un modo de
+  demostración reproducible que funciona sin clave de API.
+version: "0.1.0"
+date-released: "2026-07-20"
+license: MIT
+type: software
+keywords:
+  - obsolescencia
+  - migración de hardware
+  - automatización industrial
+  - PLC
+  - agente de IA
+  - sistemas de control
+  - mantenimiento industrial
+authors:
+  # Si algún autor tiene dos apellidos, mueve el segundo a "family-names".
+  # Puedes añadir "orcid" y "affiliation" a cada uno antes de publicar.
+  - given-names: "Carlos Omar"
+    family-names: "Castellanos"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+    # affiliation: "Institución / Universidad"
+  - given-names: "Julio Noe"
+    family-names: "Castillo"
+    # affiliation: "Institución / Universidad"
+  - given-names: "Isidoro Emilio"
+    family-names: "Medina"
+    # affiliation: "Institución / Universidad"

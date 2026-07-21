@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ agente }} — Diagnóstico de obsolescencia y migración</title>
+<style>
+  :root {
+    --bg: #0f1720; --panel: #16212e; --panel2: #1c2a3a; --line: #26374b;
+    --tx: #e6edf3; --tx2: #9fb0c3; --accent: #22d3ee; --accent2: #0ea5b7;
+    --user: #1f3a5f; --agent: #1c2a3a;
+    --ok:#22c55e; --mod:#a3e635; --imp:#f59e0b; --alto:#f97316; --crit:#ef4444;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg:#f4f6f9; --panel:#ffffff; --panel2:#f0f4f8; --line:#dbe3ec;
+      --tx:#0f1720; --tx2:#5b6b7c; --accent:#0ea5b7; --accent2:#0b8ea0;
+      --user:#dceafe; --agent:#eef2f7;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+         background:var(--bg); color:var(--tx); height:100vh; display:flex; flex-direction:column; }
+  header { display:flex; align-items:center; gap:12px; padding:12px 18px;
+           background:var(--panel); border-bottom:1px solid var(--line); }
+  header .logo { font-weight:800; letter-spacing:.5px; color:var(--accent); font-size:19px; }
+  header .sub { color:var(--tx2); font-size:13px; }
+  header .badge { margin-left:auto; font-size:12px; color:var(--tx2);
+                  background:var(--panel2); border:1px solid var(--line);
+                  padding:4px 10px; border-radius:20px; }
+  header button { background:var(--accent2); color:#fff; border:none; border-radius:8px;
+                  padding:8px 14px; font-weight:600; cursor:pointer; margin-left:8px; }
+  header button:hover { filter:brightness(1.1); }
+  header button.sec { background:transparent; color:var(--tx2); border:1px solid var(--line); }
+  header .badge.demo { color:#111; background:var(--imp); border-color:var(--imp); font-weight:700; }
+
+  main { flex:1; display:flex; min-height:0; }
+  .chat { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .msgs { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px; }
+  .msg { max-width:760px; padding:12px 15px; border-radius:12px; line-height:1.5;
+         white-space:normal; word-wrap:break-word; font-size:15px; }
+  .msg.user { align-self:flex-end; background:var(--user); border:1px solid var(--line); }
+  .msg.agent { align-self:flex-start; background:var(--agent); border:1px solid var(--line); }
+  .msg .who { font-size:11px; text-transform:uppercase; letter-spacing:.6px;
+              color:var(--tx2); margin-bottom:5px; }
+  .msg code { background:rgba(127,127,127,.18); padding:1px 5px; border-radius:4px;
+              font-family:ui-monospace, monospace; font-size:.9em; }
+  .msg h1,.msg h2,.msg h3 { margin:.5em 0 .3em; font-size:1.05em; }
+  .thinking { align-self:flex-start; color:var(--tx2); font-style:italic; padding:4px 15px; }
+  .dot { display:inline-block; animation: blink 1.2s infinite; }
+  .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+  @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+  .compose { border-top:1px solid var(--line); padding:12px; display:flex; gap:10px; background:var(--panel); }
+  .compose textarea { flex:1; resize:none; height:52px; padding:12px; border-radius:10px;
+                      border:1px solid var(--line); background:var(--bg); color:var(--tx);
+                      font-family:inherit; font-size:15px; }
+  .compose button { background:var(--accent2); color:#fff; border:none; border-radius:10px;
+                    padding:0 22px; font-weight:700; cursor:pointer; }
+  .compose button:disabled { opacity:.5; cursor:not-allowed; }
+
+  aside { width:330px; border-left:1px solid var(--line); background:var(--panel);
+          overflow-y:auto; padding:16px; }
+  aside h2 { font-size:13px; text-transform:uppercase; letter-spacing:.6px; color:var(--tx2);
+             margin:18px 0 8px; }
+  aside h2:first-child { margin-top:0; }
+  .riesgo { text-align:center; padding:16px; border-radius:12px; border:1px solid var(--line);
+            background:var(--panel2); }
+  .riesgo .num { font-size:42px; font-weight:800; line-height:1; }
+  .riesgo .cls { margin-top:6px; font-weight:700; font-size:14px; }
+  .riesgo .sub { color:var(--tx2); font-size:12px; margin-top:4px; }
+  .lista { list-style:none; margin:0; padding:0; font-size:13px; }
+  .lista li { padding:7px 10px; border:1px solid var(--line); border-radius:8px;
+              margin-bottom:6px; background:var(--panel2); }
+  .lista li .tag { color:var(--accent); font-weight:700; margin-right:6px; }
+  .vacio { color:var(--tx2); font-size:13px; font-style:italic; }
+  .bandera { border-color:var(--crit)!important; color:#fff; background:rgba(239,68,68,.18)!important; }
+  .pend { border-color:var(--imp)!important; background:rgba(245,158,11,.15)!important; }
+  .aviso { font-size:11px; color:var(--tx2); margin-top:18px; border-top:1px solid var(--line); padding-top:12px; }
+
+  @media (max-width: 820px) { aside { display:none; } }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">{{ agente }}</span>
+  <span class="sub">Diagnóstico de obsolescencia y migración de hardware</span>
+  <span class="badge" id="badge">v{{ version }}</span>
+  <button id="btn-demo">Modo demo (sin clave)</button>
+  <button id="btn-nuevo" class="sec">Caso real (API)</button>
+</header>
+
+<main>
+  <section class="chat">
+    <div class="msgs" id="msgs"></div>
+    <div class="compose">
+      <textarea id="entrada" placeholder="Escribe tu respuesta…  (Enter para enviar, Shift+Enter salto de línea)"></textarea>
+      <button id="enviar">Enviar</button>
+    </div>
+  </section>
+
+  <aside>
+    <h2>Riesgo de obsolescencia</h2>
+    <div class="riesgo" id="riesgo">
+      <div class="num" id="r-num">—</div>
+      <div class="cls" id="r-cls">Sin evaluar</div>
+      <div class="sub" id="r-sub">se calcula durante el diagnóstico</div>
+    </div>
+
+    <h2>Activos registrados</h2>
+    <ul class="lista" id="activos"><li class="vacio">Ninguno aún</li></ul>
+
+    <h2>Datos faltantes</h2>
+    <ul class="lista" id="faltantes"><li class="vacio">Ninguno</li></ul>
+
+    <h2>Banderas de seguridad</h2>
+    <ul class="lista" id="banderas"><li class="vacio">Ninguna</li></ul>
+
+    <h2>Aprobaciones pendientes</h2>
+    <ul class="lista" id="pendientes"><li class="vacio">Ninguna</li></ul>
+
+    <div class="aviso">
+      Asistencia técnica. No sustituye la evaluación de seguridad funcional, el
+      bloqueo/etiquetado ni la autorización de personal competente. Verifica toda
+      recomendación antes de intervenir equipos reales.
+    </div>
+  </aside>
+</main>
+
+<script>
+let caseId = null;
+let ocupado = false;
+let esDemo = false;
+const $ = (id) => document.getElementById(id);
+
+function escapar(t){ const d=document.createElement("div"); d.textContent=t; return d.innerHTML; }
+
+// Render minimalista de Markdown (seguro: se escapa primero).
+function fmt(t){
+  let h = escapar(t);
+  h = h.replace(/^### (.*)$/gm,"<h3>$1</h3>")
+       .replace(/^## (.*)$/gm,"<h2>$1</h2>")
+       .replace(/^# (.*)$/gm,"<h3>$1</h3>")
+       .replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")
+       .replace(/`([^`]+?)`/g,"<code>$1</code>")
+       .replace(/\n/g,"<br>");
+  return h;
+}
+
+function addMsg(quien, texto){
+  const div = document.createElement("div");
+  div.className = "msg " + quien;
+  div.innerHTML = '<div class="who">' + (quien==="user"?"Tú":"MIGRA-IA") + '</div>' + fmt(texto);
+  $("msgs").appendChild(div);
+  $("msgs").scrollTop = $("msgs").scrollHeight;
+}
+
+function pensando(on){
+  let el = $("thinking");
+  if(on){
+    if(!el){
+      el = document.createElement("div");
+      el.id = "thinking"; el.className = "thinking";
+      el.innerHTML = "MIGRA-IA está analizando <span class='dot'>●</span><span class='dot'>●</span><span class='dot'>●</span>";
+      $("msgs").appendChild(el);
+      $("msgs").scrollTop = $("msgs").scrollHeight;
+    }
+  } else if(el){ el.remove(); }
+}
+
+const COLORES = {
+  "Riesgo bajo":"var(--ok)", "Riesgo moderado":"var(--mod)", "Riesgo importante":"var(--imp)",
+  "Riesgo alto":"var(--alto)", "Riesgo critico":"var(--crit)", "Riesgo crítico":"var(--crit)"
+};
+
+function pintarPanel(r){
+  if(!r) return;
+  // Riesgo
+  const rg = r.riesgo;
+  if(rg){
+    $("r-num").textContent = Math.round(rg.puntuacion);
+    $("r-cls").textContent = rg.clasificacion;
+    const c = COLORES[rg.clasificacion] || "var(--accent)";
+    $("r-num").style.color = c; $("r-cls").style.color = c;
+    $("r-sub").textContent = "escala 0–100 (mayor = más riesgo)";
+  }
+  llenar("activos", (r.activos||[]).map(a => '<span class="tag">'+escapar(a.id||"")+'</span>'+escapar((a.tipo||"")+" — "+(a.descripcion||""))), "Ninguno aún");
+  llenar("faltantes", (r.datos_faltantes||[]).map(escapar), "Ninguno");
+  llenar("banderas", (r.banderas||[]).map(escapar), "Ninguna", "bandera");
+  llenar("pendientes", (r.aprobaciones_pendientes||[]).map(p => escapar(p.accion||"")), "Ninguna", "pend");
+}
+
+function llenar(id, items, vacio, clase){
+  const ul = $(id); ul.innerHTML = "";
+  if(!items.length){ ul.innerHTML = '<li class="vacio">'+vacio+'</li>'; return; }
+  for(const it of items){
+    const li = document.createElement("li");
+    if(clase) li.className = clase;
+    li.innerHTML = it;
+    ul.appendChild(li);
+  }
+}
+
+async function iniciar(demo){
+  if(ocupado) return;
+  ocupado = true; $("enviar").disabled = true;
+  $("msgs").innerHTML = ""; pensando(true);
+  try{
+    const r = await fetch("/api/nuevo", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({demo: !!demo})
+    });
+    const d = await r.json();
+    pensando(false);
+    if(d.error){ addMsg("agent","⚠️ "+d.error); return; }
+    caseId = d.case_id; esDemo = !!demo;
+    const b = $("badge");
+    b.textContent = (demo ? "DEMO · " : "") + caseId;
+    b.className = "badge" + (demo ? " demo" : "");
+    addMsg("agent", d.texto);
+    pintarPanel(d.resumen);
+  }catch(e){ pensando(false); addMsg("agent","⚠️ Error de conexión con el servidor."); }
+  finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
+}
+const nuevoCaso = () => iniciar(false);
+const nuevoDemo = () => iniciar(true);
+
+function bienvenida(){
+  addMsg("agent",
+    "**Bienvenido a MIGRA-IA.**\n\n" +
+    "• Pulsa **Modo demo (sin clave)** para ver una demostración guiada con un caso " +
+    "de ejemplo (Siemens S7-300). Usa el motor real: registra datos, calcula el riesgo " +
+    "y genera el informe. Escribe cualquier cosa y pulsa Enviar para avanzar.\n\n" +
+    "• Pulsa **Caso real (API)** para diagnosticar tu propio equipo (requiere " +
+    "configurar tu ANTHROPIC_API_KEY en el archivo .env)."
+  );
+}
+
+async function enviar(){
+  const t = $("entrada").value.trim();
+  if(!t || ocupado || !caseId) return;
+  ocupado = true; $("enviar").disabled = true;
+  addMsg("user", t); $("entrada").value = ""; pensando(true);
+  try{
+    const r = await fetch("/api/mensaje", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({case_id: caseId, mensaje: t})
+    });
+    const d = await r.json();
+    pensando(false);
+    if(d.error){ addMsg("agent","⚠️ "+d.error); return; }
+    addMsg("agent", d.texto);
+    pintarPanel(d.resumen);
+  }catch(e){ pensando(false); addMsg("agent","⚠️ Error de conexión con el servidor."); }
+  finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
+}
+
+$("enviar").addEventListener("click", enviar);
+$("btn-nuevo").addEventListener("click", nuevoCaso);
+$("btn-demo").addEventListener("click", nuevoDemo);
+$("entrada").addEventListener("keydown", (e)=>{
+  if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); enviar(); }
+});
+
+bienvenida();
+</script>
+</body>
+</html>
