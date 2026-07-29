@@ -1,0 +1,13 @@
+# Normalizacion de finales de linea.
+#
+# Los archivos por lotes de Windows DEBEN conservar CRLF: cmd.exe puede
+# interpretar mal los bloques `if (...)` y los saltos a etiquetas `goto`
+# cuando el archivo solo tiene LF. Esto afecta al paquete que se descarga
+# desde Zenodo/GitHub, donde `INSTALAR.bat` es la via de instalacion.
+*.bat text eol=crlf
+
+# Instrucciones pensadas para abrirse con el Bloc de notas en Windows.
+EMPIEZA_AQUI.txt text eol=crlf
+
+# El resto se normaliza a LF en el repositorio.
+* text=auto
