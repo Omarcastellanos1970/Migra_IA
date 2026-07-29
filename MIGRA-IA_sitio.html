@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="MIGRA-IA: agente de IA para diagnostico de obsolescencia y migracion de hardware de automatizacion industrial. Prototipo v0.1.0.">
+<meta name="description" content="MIGRA-IA: agente de IA para diagnostico de obsolescencia y migracion de hardware de automatizacion industrial. Prototipo v0.3.0, archivado en Zenodo con DOI 10.5281/zenodo.21659730.">
 <title>MIGRA-IA — Artefacto de software</title>
 <style>
   :root {
@@ -362,7 +362,7 @@
   <div class="nameplate-in">
     <span class="np-led" aria-hidden="true"></span>
     <span class="np-code">MIGRA-IA <span>· MIGRA-AI-001</span></span>
-    <span class="np-tag">v0.1.0 · prototipo</span>
+    <span class="np-tag">v0.3.0 · prototipo</span>
     <span class="np-spacer"></span>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">
       <span id="themeIco">◐</span><span id="themeTxt">Tema</span>
@@ -390,7 +390,7 @@
         <span class="chip">Licencia <b>MIT</b></span>
         <span class="chip">Motor <b>claude-opus-4-8</b></span>
         <span class="chip">Python <b>3.10+</b></span>
-        <span class="chip">DOI <b>por asignar (Zenodo)</b></span>
+        <span class="chip">DOI <b><a href="https://doi.org/10.5281/zenodo.21659730" style="color:inherit">10.5281/zenodo.21659730</a></b></span>
       </div>
     </section>
 
@@ -587,19 +587,24 @@ python -m webapp.app</pre>
       </div>
       <div class="panel panel-pad">
         <p class="cite-note">
-          Metadatos completos en <span style="font-family:var(--font-mono)">CITATION.cff</span>. Tras el depósito en Zenodo,
-          reemplaza el DOI y cita el artefacto en el artículo. Hoy el DOI está <b>por asignar</b> — no se muestra uno provisional para no inducir a error.
+          Metadatos completos en <span style="font-family:var(--font-mono)">CITATION.cff</span>. El artefacto está
+          <b>archivado en Zenodo con DOI</b>. Cita el DOI de la <b>versión</b>, que fija el código exacto aquí descrito;
+          el <i>concept DOI</i> <span style="font-family:var(--font-mono)">10.5281/zenodo.21480949</span> resuelve siempre a la
+          última versión publicada. En LaTeX con <span style="font-family:var(--font-mono)">IEEEtran.bst</span> usa
+          <span style="font-family:var(--font-mono)">@misc</span>, ya que ese estilo no reconoce
+          <span style="font-family:var(--font-mono)">@software</span>.
         </p>
         <pre>@software{migra_ia_2026,
   author  = {Castellanos, Carlos Omar and Castillo, Julio Noé
              and Medina, Isidoro Emilio},
-  title   = {{MIGRA-IA: Agente de IA para la migración y
-             reacondicionamiento de hardware obsoleto en
-             sistemas de automatización industrial}},
-  version = {0.1.0},
+  title   = {{MIGRA-IA: Agente inteligente para diagnóstico de
+             obsolescencia y migración de sistemas de
+             automatización industrial}},
+  version = {0.3.0},
   year    = {2026},
   license = {MIT},
-  note    = {DOI por asignar (Zenodo)}
+  doi     = {10.5281/zenodo.21659730},
+  url     = {https://doi.org/10.5281/zenodo.21659730}
 }</pre>
       </div>
     </section>
@@ -611,8 +616,8 @@ python -m webapp.app</pre>
         <div>
           <h3>Estado del proyecto — honesto y verificable</h3>
           <p>
-            MIGRA-IA es un <b>prototipo (MVP v0.1.0)</b>. El código y su documentación son públicos y reproducibles;
-            para <b>archivarlo con DOI</b> se sigue <span style="font-family:var(--font-mono)">docs/GUIA_ZENODO.md</span>.
+            MIGRA-IA es un <b>prototipo (v0.3.0)</b>. El código y su documentación son públicos y reproducibles, y el
+            artefacto está <b>archivado en Zenodo con DOI</b> (<span style="font-family:var(--font-mono)">10.5281/zenodo.21659730</span>).
             Publicar el artefacto <b>no requiere clave de API</b>; la clave solo habilita el razonamiento en lenguaje natural sobre
             datos arbitrarios (servicio de pago de Anthropic, cada usuario aporta la suya). Alcance del MVP: origen Siemens S7-300/400,
             destino S7-1500, STEP 7 Classic y TIA Portal, redes MPI/Profibus DP/Profinet/Ethernet.
@@ -628,7 +633,7 @@ python -m webapp.app</pre>
   <div class="wrap">
     <div class="foot-grid">
       <div>
-        <div class="foot-brand">MIGRA-IA <span>· MIGRA-AI-001 · v0.1.0</span></div>
+        <div class="foot-brand">MIGRA-IA <span>· MIGRA-AI-001 · v0.3.0</span></div>
         <p class="foot-meta" style="margin-top:8px">
           Carlos Omar Castellanos · Julio Noé Castillo · Isidoro Emilio Medina.<br>
           Aporte a la comunidad científica — tesis de maestría en Automatización Industrial. Licencia MIT.
