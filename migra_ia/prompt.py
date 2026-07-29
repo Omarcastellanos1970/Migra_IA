@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 
-from . import config
+from . import config, conocimiento
 
 # Mensaje que arranca la conversacion (el agente habla primero). Lo comparten el
 # CLI y la app web.
@@ -178,6 +178,8 @@ def _resumen_cuestionario() -> str:
 
 def construir_system_prompt() -> str:
     secciones = _resumen_cuestionario()
+    metodologia = conocimiento.resumen_metodologia()
+    indice_base = conocimiento.indice_para_prompt()
     return f"""\
 Eres {config.AGENTE_NOMBRE} ({config.AGENTE_CODIGO}), version {config.AGENTE_VERSION}:
 un agente inteligente que asiste PASO A PASO al personal tecnico para diagnosticar
@@ -206,12 +208,28 @@ COMO TRABAJAS (cuestionario adaptativo, Sec. 3 y 3.1):
 SECCIONES DEL CUESTIONARIO MAESTRO (detalle completo en data/cuestionario.json):
 {secciones}
 
+METODOLOGIA DE 6 ETAPAS (estructura tu asesoria por estas etapas; detalle en la base de referencia):
+{metodologia}
+
+{indice_base}
+COMO USAR LA BASE DE REFERENCIA:
+- Estructura el diagnostico y la asesoria siguiendo las 6 etapas; en cada momento situa
+  al usuario en la etapa que corresponde y dile que sigue.
+- ANTES de proponer alternativas, equivalencias por fabricante, planes de respaldo/
+  migracion o pruebas FAT/SAT, CONSULTA la base con `consultar_guia` y CITA la fuente
+  (p. ej. 'Guia MIGRA-IA-GUIA-001, cap. 9' o 'prueba 28.6 Variador de frecuencia').
+- La base es una referencia metodologica curada, NO un catalogo: las rutas por fabricante
+  son tipicas, no equivalencias de numero de parte. Confirma siempre con la herramienta y
+  la documentacion oficial del fabricante antes de una especificacion o compra.
+
 USO DE HERRAMIENTAS (obligatorio para trazabilidad):
 - Cuando el usuario aporte un dato relevante, registralo con `guardar_respuestas`.
 - Registra PLC, modulos, HMI, variadores e instrumentos con `registrar_activo`.
 - Registra fotos, manuales, planos y respaldos con `registrar_evidencia`.
 - Marca cada dato critico ausente con `registrar_dato_faltante`.
 - Consulta `resumen_caso` cuando necesites recordar que hay registrado.
+- Fundamenta y cita tu asesoria consultando la base de referencia con `consultar_guia`
+  (metodologia, capitulos, rutas por fabricante, biblioteca de pruebas, plantillas).
 - Calcula el riesgo con `calcular_riesgo_obsolescencia` solo cuando tengas
   justificacion real para los factores; si faltan datos, dilo y omite ese factor.
 - Emite el informe tecnico final con `generar_informe`.

@@ -7,7 +7,7 @@ from pathlib import Path
 # --- Identidad del agente (Seccion 1 del documento de diseno) ---
 AGENTE_NOMBRE = "MIGRA-IA"
 AGENTE_CODIGO = "MIGRA-AI-001"
-AGENTE_VERSION = "0.2.0"
+AGENTE_VERSION = "0.3.0"
 
 # --- Modelo de Claude ---
 # Se usa Opus 4.8 con pensamiento adaptativo por ser una tarea de razonamiento
@@ -22,6 +22,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 DIR_DATOS = RAIZ / "data"
 DIR_CASOS = RAIZ / "casos"
 RUTA_CUESTIONARIO = DIR_DATOS / "cuestionario.json"
+RUTA_BASE_CONOCIMIENTO = DIR_DATOS / "base_conocimiento.json"
 
 DIR_CASOS.mkdir(parents=True, exist_ok=True)
 

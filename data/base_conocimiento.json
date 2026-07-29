@@ -1,0 +1,426 @@
+{
+  "guia": {
+    "titulo": "Guia integral para la migracion de PLC obsoletos a plataformas modernas",
+    "codigo": "MIGRA-IA-GUIA-001",
+    "version": "1.0",
+    "fecha": "2026-07-27",
+    "cita": "Guia MIGRA-IA-GUIA-001 v1.0",
+    "aplicacion": "Migraciones de PLC, HMI, SCADA, redes, variadores, servos y sistemas de seguridad.",
+    "advertencia": "Toda migracion debe validarse en campo por personal competente y conforme a manuales, normas y requisitos de seguridad aplicables. Esta guia no reemplaza los manuales del fabricante, los calculos de ingenieria, la evaluacion de riesgos, el bloqueo y etiquetado, la seguridad funcional ni la validacion independiente.",
+    "criterio_obligatorio": "No se debe descargar, modificar, puentear ni energizar un sistema industrial sin autorizacion, respaldo verificado, evaluacion de riesgos y un plan de retorno tecnicamente viable."
+  },
+  "principios_rectores": [
+    "La continuidad operacional y la seguridad tienen prioridad sobre la rapidez de la conversion.",
+    "El respaldo no se considera valido hasta que pueda restaurarse o verificarse mediante una lectura independiente.",
+    "La equivalencia funcional debe demostrarse con pruebas; una equivalencia de catalogo no garantiza comportamiento identico.",
+    "Los cambios deben estar controlados, versionados y aprobados.",
+    "El diseno objetivo debe mejorar mantenibilidad, diagnostico, ciberseguridad y soporte del ciclo de vida.",
+    "La migracion debe conservar un camino de retorno hasta completar los criterios de aceptacion."
+  ],
+  "entregables_minimos": [
+    "Acta de alcance y responsables.",
+    "Especificacion funcional y criterios de aceptacion.",
+    "Inventario y respaldos verificados.",
+    "Codigo convertido o reescrito con control de versiones.",
+    "Lista de E/S y matriz de senales.",
+    "Protocolos y registros FAT/SAT.",
+    "Arquitectura existente y objetivo.",
+    "Plan de corte, contingencia y retorno.",
+    "Matriz de equivalencia y desviaciones.",
+    "Planos, licencias, respaldos finales y capacitacion."
+  ],
+  "criterios_salida_por_etapa": [
+    "Responsable asignado.",
+    "Evidencia almacenada y versionada.",
+    "Riesgos y desviaciones registradas.",
+    "Criterios de salida aprobados."
+  ],
+  "metodologia": {
+    "descripcion": "La metodologia divide el proyecto en seis etapas. Cada etapa produce entregables verificables y criterios de salida, y mantiene trazabilidad entre el sistema antiguo, los requisitos del proceso, la solucion nueva y las pruebas de aceptacion. El gobierno del proyecto y la gestion del cambio (cap. 2) son transversales a todas las etapas.",
+    "etapas": [
+      {
+        "n": 1,
+        "id": "diagnostico",
+        "nombre": "Diagnostico",
+        "objetivo": "Entender el sistema existente, asegurar la evidencia y cuantificar el riesgo antes de decidir la estrategia.",
+        "capitulos": [1, 3, 4, 5, 6, 7],
+        "actividades": [
+          "Seguridad previa a la intervencion y LOTO (cap. 3).",
+          "Levantamiento e inventario de hardware, software, E/S y comunicaciones (cap. 4).",
+          "Respaldo forense verificado (cap. 5).",
+          "Ingenieria inversa del proceso y del software (cap. 6).",
+          "Evaluacion de riesgos y criticidad (cap. 7)."
+        ]
+      },
+      {
+        "n": 2,
+        "id": "ingenieria",
+        "nombre": "Ingenieria",
+        "objetivo": "Definir requisitos y disenar la solucion objetivo: arquitectura, hardware, conversion de programa, E/S, redes, HMI, SCADA, drives, seguridad y ciberseguridad.",
+        "capitulos": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+        "actividades": [
+          "Requisitos funcionales y no funcionales con criterios de aceptacion (cap. 8).",
+          "Seleccion de hardware y arquitectura destino (cap. 9).",
+          "Estrategia de conversion/reescritura del programa (cap. 10).",
+          "Diseno de migracion de E/S, redes, HMI, SCADA y drives (cap. 11-15).",
+          "Seguridad funcional y ciberseguridad OT por diseno (cap. 16-17)."
+        ]
+      },
+      {
+        "n": 3,
+        "id": "construccion",
+        "nombre": "Construccion",
+        "objetivo": "Construir gabinetes y software, integrar y validar por bloques antes de la aceptacion en fabrica.",
+        "capitulos": [10, 11, 18],
+        "actividades": [
+          "Ensamble de tableros y cableado segun diseno.",
+          "Programacion con estructura moderna y control de versiones (cap. 10).",
+          "Pruebas unitarias, simulacion y prueba de regresion contra el sistema antiguo (cap. 18)."
+        ]
+      },
+      {
+        "n": 4,
+        "id": "fat",
+        "nombre": "FAT (Factory Acceptance Test)",
+        "objetivo": "Comprobar, antes de enviar a planta, que hardware, software, interfaces y documentacion cumplen los requisitos acordados.",
+        "capitulos": [19],
+        "actividades": [
+          "Protocolo aprobado y configuracion congelada.",
+          "Pruebas con E/S simulada, secuencias, alarmas, comunicaciones, recetas y recuperacion.",
+          "Gestion de desviaciones (critico/mayor/menor); no enviar con desviaciones criticas abiertas."
+        ]
+      },
+      {
+        "n": 5,
+        "id": "corte_sat",
+        "nombre": "Corte y SAT (Site Acceptance Test)",
+        "objetivo": "Instalar, ejecutar el corte con plan de retorno y demostrar el funcionamiento con dispositivos reales y condiciones de planta.",
+        "capitulos": [20, 21],
+        "actividades": [
+          "Plan de corte minuto a minuto con punto de no retorno y criterios de abortar (cap. 21).",
+          "Plan de retorno probado antes del corte (cap. 21).",
+          "Loop check y pruebas funcionales por senal, actuador, enclavamiento y secuencia (cap. 20).",
+          "Produccion representativa y liberacion final o condicionada (cap. 20)."
+        ]
+      },
+      {
+        "n": 6,
+        "id": "cierre",
+        "nombre": "Cierre",
+        "objetivo": "Entregar documentacion final, capacitar, dejar el soporte y la gestion de ciclo de vida establecidos.",
+        "capitulos": [22, 23],
+        "actividades": [
+          "Paquete final as built: planos, fuente, respaldos, licencias, contrasenas administradas y pruebas (cap. 22).",
+          "Capacitacion por rol (operadores, mantenimiento, ingenieria) (cap. 22).",
+          "Registro de ciclo de vida, repuestos y vigilancia periodica (cap. 23)."
+        ]
+      }
+    ]
+  },
+  "capitulos": [
+    {"n": 1, "titulo": "Fundamentos de obsolescencia y criterios de decision", "etapa": "diagnostico", "puntos_clave": [
+      "Un equipo puede seguir funcionando y aun asi estar obsoleto (retiro del producto, sin repuestos, sin soporte, sin tecnicos, riesgo de parada).",
+      "La unidad de analisis no es solo la CPU: evaluar rack, fuente, modulos especiales, comunicaciones, software, licencias, baterias, memorias, servidores, drives y documentacion.",
+      "Estrategias posibles: no hacer nada (solo con riesgo cuantificado y aprobado), extender vida util, migracion parcial, migracion por etapas, migracion completa, rediseno funcional.",
+      "La opcion con menor precio de compra no necesariamente tiene el menor costo del ciclo de vida (evaluar seguridad, parada, repuestos, capacidad interna, ciberseguridad, soporte y facilidad de retorno)."
+    ]},
+    {"n": 2, "titulo": "Gobierno del proyecto y gestion del cambio", "etapa": "transversal", "puntos_clave": [
+      "Roles: patrocinador, lider de automatizacion, produccion, mantenimiento, seguridad y ambiente, IT/OT, integrador y control de calidad.",
+      "Definir limites fisicos y funcionales: que se mantiene, que se sustituye y que queda fuera; registrar interfaces con otros sistemas.",
+      "Control de cambios formal (motivo, solicitante, impacto tecnico, costo, plazo, riesgos, pruebas afectadas y aprobacion). Su ausencia es causa frecuente de fallas en el arranque.",
+      "Puntos de control por etapa: diagnostico, congelamiento de requisitos, diseno, software, preparacion FAT, envio, corte, liberacion SAT y cierre."
+    ]},
+    {"n": 3, "titulo": "Seguridad industrial antes de intervenir", "etapa": "diagnostico", "puntos_clave": [
+      "Identificar energias (electrica, neumatica, hidraulica, termica, gravitacional, quimica, mecanica), puntos de aislamiento y energia almacenada.",
+      "Plan de LOTO especifico del equipo; el PLC nunca se considera un dispositivo de aislamiento de energia.",
+      "Evitar el trabajo energizado; si es indispensable, usar permiso, personal competente, EPP y procedimiento de rescate.",
+      "No modificar logica de seguridad, reles, paros o enclavamientos sin evaluacion formal; mantener las funciones de seguridad independientes de las pruebas de produccion."
+    ]},
+    {"n": 4, "titulo": "Levantamiento e inventario del sistema existente", "etapa": "diagnostico", "puntos_clave": [
+      "Inspeccion fisica y fotografica de gabinetes, modulos, borneras, cables y etiquetas; registrar fabricante, numero de parte, revision, firmware y posicion.",
+      "Inventario de software: version, service pack, licencia, SO, drivers, cables/interfaces, maquinas virtuales, contrasenas administradas e instaladores.",
+      "Lista de E/S por senal: direccion, etiqueta, tipo electrico, rango, escalamiento, estado seguro, instrumento, bornera y destino; marcar alta velocidad, encoders, RTD, termopares, pesaje y seguridad.",
+      "Topologia real de comunicaciones y condiciones ambientales (temperatura, polvo, vibracion, tierra, EMC, clasificacion de area)."
+    ]},
+    {"n": 5, "titulo": "Respaldo forense y conservacion de evidencias", "etapa": "diagnostico", "puntos_clave": [
+      "Regla de tres copias: original de solo lectura, copia de trabajo y copia externa segura, con nombres normalizados y suma de verificacion.",
+      "Contenido del respaldo: programa, comentarios, simbolos, DB, recetas, HMI, SCADA, parametros de drives, configuraciones de red, GSD/EDS/DTM, firmware, licencias, instaladores y planos.",
+      "La subida desde el PLC puede ser insuficiente para una migracion completa (algunas plataformas no recuperan comentarios, simbolos ni fuentes).",
+      "Verificar el respaldo abriendolo, compilandolo cuando sea seguro, comparandolo con el equipo y probando su restauracion."
+    ]},
+    {"n": 6, "titulo": "Ingenieria inversa del proceso y del software", "etapa": "diagnostico", "puntos_clave": [
+      "Comprender la funcion del proceso antes de convertir; construir una narrativa operacional (modos, secuencias, permisos, enclavamientos, alarmas, estados seguros).",
+      "Mapa de bloques: relacionar cada rutina con equipos y funciones; identificar logica huerfana, forzados, bypasses, temporizaciones criticas y dependencias del scan.",
+      "Registrar comportamiento (tendencias, tiempos de ciclo, secuencias, recetas) como referencia de equivalencia funcional.",
+      "Producir un documento funcional independiente de la marca para validar el sistema nuevo aunque cambie todo el codigo."
+    ]},
+    {"n": 7, "titulo": "Evaluacion de riesgos y criticidad", "etapa": "diagnostico", "puntos_clave": [
+      "Dimensiones de riesgo: probabilidad de falla, impacto en produccion/seguridad/ambiente/calidad, tiempo de recuperacion, repuestos, detectabilidad y operacion manual.",
+      "Clasificar activos como critico, alto, medio o bajo; un activo critico combina alta consecuencia con baja capacidad de recuperacion.",
+      "Riesgos del proyecto: perdida del programa, incompatibilidad de senal, scan diferente, datos no migrados, recetas incompletas, ventana insuficiente y ausencia de retorno."
+    ]},
+    {"n": 8, "titulo": "Requisitos del sistema objetivo", "etapa": "ingenieria", "puntos_clave": [
+      "Requisitos funcionales: modos, tiempos, precision, secuencias, recetas, produccion, alarmas, historizacion, comunicaciones, diagnostico y recuperacion.",
+      "Requisitos no funcionales: disponibilidad, mantenibilidad, expansibilidad, retencion de datos, ciberseguridad, licenciamiento, soporte y capacitacion.",
+      "Cada requisito debe tener una prueba asociada con valores, tolerancias, condiciones y responsable; evitar frases ambiguas como 'funcionar correctamente'."
+    ]},
+    {"n": 9, "titulo": "Seleccion de hardware y arquitectura", "etapa": "ingenieria", "puntos_clave": [
+      "Dimensionar la CPU por E/S, memoria, tiempo de scan, tareas, comunicaciones, motion, PID, seguridad, redundancia, diagnostico y crecimiento esperado.",
+      "Validar E/S por niveles, aislamiento, resolucion, tiempo de conversion y diagnostico; no asumir equivalencia por igual numero de canales.",
+      "Calcular fuentes y gabinetes (consumo, inrush, disipacion termica, ventilacion, segregacion de voltajes, reserva).",
+      "Estrategia de E/S: sustitucion total, adaptacion de cableado, chasis remoto temporal, modulos de conversion o gateways; evaluar costo, riesgo, diagnostico y duracion."
+    ]},
+    {"n": 10, "titulo": "Conversion y reescritura del programa PLC", "etapa": "ingenieria", "puntos_clave": [
+      "La conversion automatica reduce trabajo pero no garantiza equivalencia; revisar instrucciones no compatibles, punteros, direccionamiento indirecto, temporizadores, interrupciones, PID y comunicaciones.",
+      "Comprobar tipos de datos (tamano, signo, rango, BCD, punto flotante, endianidad, fechas, cadenas, estructuras).",
+      "Documentar tareas, prioridades, watchdog e interrupciones; migrar temporizadores con unidades explicitas.",
+      "Identificar retentividad (contadores, recetas, totales, estados de lote, calibraciones) y estructurar el software por equipos y funciones con control de versiones."
+    ]},
+    {"n": 11, "titulo": "Migracion de E/S y cableado", "etapa": "ingenieria", "puntos_clave": [
+      "Tabla origen-destino por canal (direccion antigua, direccion nueva, bornera, cable, etiqueta, rango, prueba y resultado).",
+      "Senales digitales: logica positiva/negativa, PNP/NPN, contactos secos, tipo de salida (transistor/rele/triac), corriente de fuga y supresion de transientes.",
+      "Senales analogicas: 0-10 V, +-10 V, 0/4-20 mA, 2/3/4 hilos, aislamiento, hilo roto y tierras de pantallas.",
+      "Instrumentacion especial (termopar, RTD, celda de carga, encoder, SSI, HART, pesaje) y loop check de campo a accion final."
+    ]},
+    {"n": 12, "titulo": "Redes y comunicaciones industriales", "etapa": "ingenieria", "puntos_clave": [
+      "Inventario de protocolos (PROFIBUS, PROFINET, MPI, Modbus RTU/TCP, EtherNet/IP, DeviceNet, ControlNet, CC-Link, EtherCAT, CANopen, serial, OPC DA/UA).",
+      "Migracion directa vs gateway: el gateway reduce la parada pero agrega dependencia, latencia y diagnostico; usarlo permanente solo si su ciclo de vida y ciberseguridad son aceptables.",
+      "Congelar la tabla de nodos, IP, slots, assemblies, escalas y frecuencia de actualizacion.",
+      "Pruebas de perdida, reconexion, tiempo de recuperacion, carga, latencia y jitter."
+    ]},
+    {"n": 13, "titulo": "Migracion de HMI y paneles de operador", "etapa": "ingenieria", "puntos_clave": [
+      "Inventario de pantallas, navegacion, tags, alarmas, tendencias, recetas, scripts, usuarios e idiomas.",
+      "Reconstruir tags simbolicos con convenciones comunes con el PLC; evitar direcciones absolutas sin documentacion.",
+      "Gestionar alarmas (prioridad, texto, retardo, reconocimiento, retorno a normal) y eliminar duplicadas o sin accion.",
+      "Conservar los flujos conocidos cuando sean seguros pero mejorar consistencia y diagnostico; reconciliar recetas y datos persistentes."
+    ]},
+    {"n": 14, "titulo": "Migracion de SCADA, historizador y servidores", "etapa": "ingenieria", "puntos_clave": [
+      "Dependencias de plataforma: SO, dominio, antivirus, licencias, base de datos, drivers, OPC, certificados, servicios e interfaces MES/ERP.",
+      "Migracion de datos historicos: definir que se conserva, formato, rango temporal, integridad y zonas horarias; mantener copia de solo lectura del sistema antiguo si la transferencia no es viable.",
+      "Probar redundancia y failover (reconexion, cola de datos, restauracion desde backup, perdida de un servidor).",
+      "Cuentas nominales, roles, minimo privilegio y registro de eventos."
+    ]},
+    {"n": 15, "titulo": "Variadores, arrancadores y servos", "etapa": "ingenieria", "puntos_clave": [
+      "Respaldar parametros, firmware, tarjeta opcional, macros, autotuning, datos de motor, rampas, limites y funciones de seguridad.",
+      "Equivalencia electrica: potencia, tension, corriente, sobrecarga, frecuencia, tipo de motor, encoder, frenado, filtros y proteccion.",
+      "Interfaz de control: palabra de control/estado, referencias, escalamiento, fallas y secuencia de habilitacion.",
+      "Motion (servos): relacion mecanica, home, limites, perfiles, gearing/camming y sintonia; pruebas de giro, STO, perdida de comunicacion y operacion termica con carga."
+    ]},
+    {"n": 16, "titulo": "Seguridad funcional y sistemas de parada", "etapa": "ingenieria", "puntos_clave": [
+      "Tratar la seguridad como un ciclo de vida independiente (especificacion, diseno, verificacion, validacion, operacion, mantenimiento y modificacion).",
+      "Evaluar la funcion completa: sensor, logica, comunicaciones de seguridad, actuador, diagnostico, tiempo de respuesta y fallas comunes.",
+      "La migracion de un safety PLC requiere herramientas y personal autorizados, control de versiones y validacion independiente; no copiar una funcion sin revisar certificados y nivel requerido.",
+      "Probar cada demanda, canal, discrepancia, corto, perdida de alimentacion, fallo de red y respuesta final."
+    ]},
+    {"n": 17, "titulo": "Ciberseguridad OT durante la migracion", "etapa": "ingenieria", "puntos_clave": [
+      "La migracion cambia la superficie de ataque (Ethernet, acceso remoto, servidores); la seguridad debe disenarse, no anadirse al final.",
+      "Segmentar en zonas y conduits; documentar puertos y protocolos; no conectar controladores a redes corporativas o Internet.",
+      "Estaciones de ingenieria administradas, con antimalware compatible, cuentas nominales y control de medios removibles.",
+      "Acceso remoto aprobado con autenticacion robusta y registro; nunca exponer puertos de PLC o HMI directamente a Internet; gestion de vulnerabilidades con ventanas de prueba."
+    ]},
+    {"n": 18, "titulo": "Pruebas unitarias y simulacion", "etapa": "construccion", "puntos_clave": [
+      "Probar cada bloque con entradas normales, limites, errores, perdida de comunicacion, arranque, parada, reset y recuperacion.",
+      "Usar simuladores de PLC, modelos de proceso o senales forzadas en entorno controlado, documentando las limitaciones de la simulacion.",
+      "Prueba de regresion: comparar el comportamiento nuevo contra registros del sistema antiguo (secuencia, tiempos, valores, alarmas).",
+      "Revision de codigo por una persona distinta al programador (logica critica, inicializacion, estados seguros, trazabilidad con requisitos)."
+    ]},
+    {"n": 19, "titulo": "Factory Acceptance Test (FAT)", "etapa": "fat", "puntos_clave": [
+      "Objetivo: comprobar antes de enviar a planta que hardware, software, interfaces y documentacion cumplen los requisitos acordados.",
+      "Preparacion: protocolo aprobado, configuracion congelada, versiones, instrumentos calibrados y criterios de aceptacion.",
+      "Alcance minimo: inspeccion de gabinete, arranque, E/S simulada, secuencias, modos, alarmas, comunicaciones, HMI, recetas, historizacion, recuperacion y respaldos.",
+      "Clasificar desviaciones (critico, mayor, menor, observacion); no enviar con desviaciones criticas abiertas."
+    ]},
+    {"n": 20, "titulo": "Site Acceptance Test (SAT)", "etapa": "corte_sat", "puntos_clave": [
+      "Objetivo: demostrar que el sistema instalado funciona con dispositivos reales, utilidades, comunicaciones y condiciones de planta.",
+      "Pruebas preliminares: aislamiento, torque, continuidad, puesta a tierra, voltajes, polaridad, etiquetado y proteccion.",
+      "Loop check y pruebas funcionales por cada senal de campo, actuador, enclavamiento y secuencia, con evidencia y valores medidos.",
+      "Produccion representativa (productos, recetas, velocidades) y liberacion final o condicionada con responsable y fecha."
+    ]},
+    {"n": 21, "titulo": "Plan de corte, puesta en marcha y retorno", "etapa": "corte_sat", "puntos_clave": [
+      "Preparacion: ventana aprobada, repuestos, herramientas, software, licencias, planos, personal, permisos y soporte del fabricante.",
+      "Plan minuto a minuto con actividad, duracion, responsable, criterio de finalizacion y punto de no retorno.",
+      "Criterios de abortar: tiempo consumido, E/S no recuperada, funcion de seguridad no validada, comunicacion critica inestable o ausencia de personal clave.",
+      "Retorno probado antes del corte cuando sea posible (equipo antiguo disponible, respaldos, cableado reversible); estabilizacion con monitoreo intensivo."
+    ]},
+    {"n": 22, "titulo": "Documentacion, capacitacion y soporte", "etapa": "cierre", "puntos_clave": [
+      "Paquete final as built: planos, lista de E/S, arquitectura, fuente, respaldo ejecutable, HMI, SCADA, parametros, licencias, firmware, contrasenas administradas, pruebas y repuestos.",
+      "Capacitacion por rol: operadores (navegacion, modos, alarmas, recuperacion), mantenimiento (diagnostico, reemplazo, respaldo/restauracion) e ingenieria (arquitectura, codigo, redes, versiones).",
+      "Soporte: garantia, tiempos de respuesta, contactos, acceso remoto, repuestos y escalamiento."
+    ]},
+    {"n": 23, "titulo": "Gestion de ciclo de vida y repuestos", "etapa": "cierre", "puntos_clave": [
+      "Registro por activo: estado comercial, fecha de instalacion, ultima compra, repuestos, firmware, licencias, riesgo, estrategia y fecha de revision.",
+      "Priorizar repuestos de falla frecuente o largo plazo de entrega; almacenar bien, probar periodicamente y controlar baterias.",
+      "Vigilancia al menos anual de avisos de fabricantes, vulnerabilidades, compatibilidad de SO y disponibilidad de soporte."
+    ]},
+    {"n": 24, "titulo": "Aplicacion del agente MIGRA-IA", "etapa": "agente", "puntos_clave": [
+      "El agente guia al tecnico con preguntas estructuradas, valida que se recopilo la informacion minima, propone alternativas, detecta incompatibilidades y genera documentos preliminares.",
+      "Entradas: marca, modelo, revision, firmware, rack, modulos, E/S, programa, redes, HMI, drives, proceso, criticidad, restricciones, normas, ventana y presupuesto.",
+      "Salidas: informe de diagnostico, nivel de riesgo, lista de faltantes, matriz de equivalencia, arquitectura preliminar, plan de respaldo/migracion, protocolos de prueba y documentacion.",
+      "Limites: el agente no autoriza por si solo trabajo energizado, bypass de seguridad, cambios en SIS, seleccion final sin datos de placa ni puesta en marcha sin supervision competente.",
+      "Trazabilidad: cada recomendacion indica fuente, supuestos, fecha, datos faltantes y nivel de confianza; el usuario revisa y aprueba cada decision."
+    ]}
+  ],
+  "fabricantes": {
+    "nota": "Rutas tipicas de modernizacion, NO equivalencias automaticas de numero de parte. La seleccion final requiere consultar el estado comercial, manuales, capacidades de E/S, comunicaciones, seguridad y disponibilidad regional en la fecha del proyecto. Los nombres de software y productos pueden cambiar; confirmar vigencia en las paginas oficiales antes de emitir una especificacion o compra.",
+    "procedimiento_recomendado": [
+      "Confirmar numero de parte, firmware y estado comercial en fuente oficial.",
+      "Obtener respaldo y lista de E/S completa.",
+      "Ejecutar la herramienta de conversion en una copia, nunca sobre el unico proyecto.",
+      "Revisar el reporte de incompatibilidades instruccion por instruccion.",
+      "Construir la matriz de senales, datos y comunicaciones.",
+      "Probar en banco o simulador antes del corte.",
+      "Documentar toda desviacion respecto de la logica antigua."
+    ],
+    "rutas": [
+      {
+        "marca": "Siemens SIMATIC",
+        "software_legado": "STEP 5 / STEP 7 Classic",
+        "software_objetivo": "TIA Portal",
+        "redes_heredadas": "MPI / PROFIBUS",
+        "riesgo_tipico": "AWL/STL, SFC, bloques de sistema.",
+        "origenes": [
+          {"origen": "S5", "ruta": "S7-1500 o arquitectura moderna seleccionada", "aspectos_criticos": "La guia oficial S5 a S7 ayuda a interpretar la conversion, pero normalmente requiere reconstruccion y verificacion manual."},
+          {"origen": "S7-200", "ruta": "S7-1200", "aspectos_criticos": "Revisar direccionamiento, temporizadores, comunicaciones y librerias."},
+          {"origen": "S7-300 / S7-400", "ruta": "S7-1500 / S7-1500R/H segun necesidad", "aspectos_criticos": "Siemens publica una guia especifica de migracion y herramientas de TIA Portal. Revisar STL/AWL, bloques de sistema, datos y PROFIBUS."},
+          {"origen": "ET 200M", "ruta": "ET 200SP / ET 200MP u opcion compatible", "aspectos_criticos": "Puede migrarse por etapas; validar modulos especiales, conectores y diagnostico."},
+          {"origen": "Paneles antiguos / WinCC flexible", "ruta": "WinCC Comfort/Advanced/Unified segun aplicacion", "aspectos_criticos": "Revisar scripts, recetas, alarmas, archivos y drivers."}
+        ]
+      },
+      {
+        "marca": "Rockwell Automation / Allen-Bradley",
+        "software_legado": "RSLogix 5 / 500",
+        "software_objetivo": "Studio 5000",
+        "redes_heredadas": "DH+, RIO, DeviceNet, ControlNet",
+        "riesgo_tipico": "Block transfers, direccionamiento indirecto, comportamiento del scan.",
+        "origenes": [
+          {"origen": "PLC-5", "ruta": "ControlLogix", "aspectos_criticos": "Rockwell ofrece rutas y herramientas de migracion; revisar Remote I/O, block transfers, archivos de datos y logica secuencial."},
+          {"origen": "SLC 500", "ruta": "CompactLogix 5380 o ControlLogix", "aspectos_criticos": "Existen herramientas de conversion y opciones para conservar temporalmente cableado/E/S."},
+          {"origen": "MicroLogix", "ruta": "Micro800 o CompactLogix segun alcance", "aspectos_criticos": "Seleccionar por E/S, motion, comunicaciones y software."},
+          {"origen": "PanelView legado", "ruta": "PanelView Plus / plataforma HMI actual", "aspectos_criticos": "Validar tags, alarmas, seguridad, recetas y comunicaciones."},
+          {"origen": "DeviceNet / ControlNet", "ruta": "EtherNet/IP o convivencia temporal", "aspectos_criticos": "La migracion por gateway requiere analisis de diagnostico, latencia y repuestos."}
+        ]
+      },
+      {
+        "marca": "Mitsubishi Electric",
+        "software_legado": "GX Developer / GX Works",
+        "software_objetivo": "GX Works3",
+        "redes_heredadas": "MELSECNET / CC-Link",
+        "riesgo_tipico": "Modulos inteligentes y parametros.",
+        "origenes": [
+          {"origen": "MELSEC-A / AnS / QnA", "ruta": "MELSEC iQ-R", "aspectos_criticos": "Mitsubishi publica manuales de transicion y herramientas de seleccion."},
+          {"origen": "MELSEC-Q", "ruta": "MELSEC iQ-R", "aspectos_criticos": "Guia oficial Q a iQ-R; revisar modulos inteligentes, redes y programa."},
+          {"origen": "MELSEC-FX antiguo", "ruta": "MELSEC iQ-F", "aspectos_criticos": "Validar E/S integrada, expansiones, posicionamiento y comunicaciones."},
+          {"origen": "GOT antiguo", "ruta": "GOT2000 u opcion vigente", "aspectos_criticos": "Revisar resolucion, scripts, recetas, drivers y almacenamiento."},
+          {"origen": "CC-Link legado", "ruta": "CC-Link IE u opcion de transicion", "aspectos_criticos": "Puede requerir modulos puente o cambio por etapas."}
+        ]
+      },
+      {
+        "marca": "Schneider Electric / Modicon",
+        "software_legado": "Concept / Unity Pro",
+        "software_objetivo": "EcoStruxure Control Expert",
+        "redes_heredadas": "Modbus Plus, Fipio",
+        "riesgo_tipico": "E/S, DFB, comunicaciones y tipos de datos.",
+        "origenes": [
+          {"origen": "Modicon Quantum", "ruta": "Modicon M580 o M340 segun aplicacion", "aspectos_criticos": "Schneider publica rutas EcoFit y utilidad UMAC para determinados proyectos."},
+          {"origen": "Modicon Premium", "ruta": "Modicon M580 o M340", "aspectos_criticos": "Revisar E/S X80, redes, Unity/Control Expert y modulos especiales."},
+          {"origen": "Momentum", "ruta": "M340/M580 con E/S distribuida u opcion vigente", "aspectos_criticos": "Analizar topologia, adaptadores y comunicacion."},
+          {"origen": "Magelis antiguo", "ruta": "Harmony HMI o plataforma vigente", "aspectos_criticos": "Revisar Vijeo Designer, drivers, alarmas, recetas y scripts."},
+          {"origen": "Modbus Plus", "ruta": "Ethernet/Modbus TCP o gateway controlado", "aspectos_criticos": "Validar latencia, direccionamiento y diagnostico."}
+        ]
+      },
+      {
+        "marca": "Omron",
+        "software_legado": "CX-Programmer",
+        "software_objetivo": "Sysmac Studio",
+        "redes_heredadas": "Controller Link, serial",
+        "riesgo_tipico": "Mapeo de instrucciones, memoria y motion.",
+        "origenes": [
+          {"origen": "CS / CJ con CX-Programmer", "ruta": "NJ / NX con Sysmac Studio", "aspectos_criticos": "Omron ofrece una ruta de actualizacion CJ/CX a NJ/NX. Revisar memoria, instrucciones, redes y motion."},
+          {"origen": "CPM / CP1 antiguo", "ruta": "CP2E, NX1P2 u opcion seleccionada", "aspectos_criticos": "Seleccionar segun E/S, comunicacion, posicionamiento y soporte."},
+          {"origen": "NS HMI", "ruta": "NA HMI u opcion vigente", "aspectos_criticos": "Revisar tags, macros, alarmas, recetas y conectividad."},
+          {"origen": "Controller Link / serial", "ruta": "EtherNet/IP, EtherCAT u opcion de transicion", "aspectos_criticos": "Validar intercambio de datos, determinismo y dispositivos existentes."},
+          {"origen": "Motion separado", "ruta": "NJ/NX integrado con EtherCAT cuando aplique", "aspectos_criticos": "Requiere rediseno de unidades, ejes, homing y seguridad."}
+        ]
+      }
+    ],
+    "matriz_verificacion": [
+      {"aspecto": "Software legado", "Siemens": "STEP 5 / STEP 7 Classic", "Rockwell": "RSLogix 5 / 500", "Mitsubishi": "GX Developer / GX Works", "Schneider": "Concept / Unity Pro", "Omron": "CX-Programmer"},
+      {"aspecto": "Software objetivo", "Siemens": "TIA Portal", "Rockwell": "Studio 5000", "Mitsubishi": "GX Works3", "Schneider": "EcoStruxure Control Expert", "Omron": "Sysmac Studio"},
+      {"aspecto": "Conversion", "Siemens": "Herramientas y guias; revision manual", "Rockwell": "Conversion tools; revision de archivos e instrucciones", "Mitsubishi": "Guias y herramientas de transicion", "Schneider": "UMAC en rutas soportadas", "Omron": "Ruta de upgrade; conversion/reingenieria"},
+      {"aspecto": "Direcciones", "Siemens": "Absolutas a simbolicas/DB optimizados", "Rockwell": "Archivos N/B/T a tags Logix", "Mitsubishi": "Dispositivos X/Y/M/D a etiquetas/estructuras", "Schneider": "Localizacion a variables/estructuras", "Omron": "Areas CIO/DM a variables NJ/NX"},
+      {"aspecto": "Redes heredadas", "Siemens": "MPI/PROFIBUS", "Rockwell": "DH+, RIO, DeviceNet, ControlNet", "Mitsubishi": "MELSECNET/CC-Link", "Schneider": "Modbus Plus, Fipio", "Omron": "Controller Link, serial"},
+      {"aspecto": "Riesgo tipico", "Siemens": "AWL/STL, SFC, bloques de sistema", "Rockwell": "Block transfers, indirect addressing, scan behavior", "Mitsubishi": "Modulos inteligentes y parametros", "Schneider": "E/S, DFB, comunicaciones y data types", "Omron": "Instruction mapping, memory, motion"},
+      {"aspecto": "Ruta de E/S temporal", "Siemens": "Conservar remotas/gateways seleccionados", "Rockwell": "Conversion I/O / remote chassis segun solucion", "Mitsubishi": "Adaptadores/placas de conversion segun guia", "Schneider": "EcoFit wiring adapters / X80", "Omron": "Remote I/O/gateways segun aplicacion"}
+    ]
+  },
+  "biblioteca_pruebas": [
+    {"id": "28.1", "dispositivo": "Entrada digital", "objetivo": "Comprobar que una entrada digital cambia correctamente desde campo hasta PLC y HMI.", "procedimiento": ["Confirmar tension y tipo de senal.", "Activar y desactivar el dispositivo real o simulador.", "Verificar LED del modulo, tag PLC, indicacion HMI, alarma y enclavamiento.", "Medir tiempos de filtro y rebote cuando sean criticos.", "Desconectar cable para validar diagnostico y estado seguro."]},
+    {"id": "28.2", "dispositivo": "Salida digital", "objetivo": "Comprobar mando, proteccion y realimentacion de una salida.", "procedimiento": ["Verificar carga, corriente y dispositivo de proteccion.", "Ejecutar mando manual autorizado.", "Confirmar LED, tension de salida, actuacion y feedback.", "Probar perdida de realimentacion, sobrecarga y reset.", "Confirmar estado al reiniciar PLC o perder comunicacion."]},
+    {"id": "28.3", "dispositivo": "Entrada analogica", "objetivo": "Validar rango, precision, escalamiento y alarmas.", "procedimiento": ["Aplicar 0 %, 25 %, 50 %, 75 % y 100 % del rango.", "Registrar valor aplicado, valor bruto, valor de ingenieria y error.", "Probar sobre-rango, bajo-rango y hilo abierto.", "Confirmar filtros, limites y alarmas.", "Repetir en sentido descendente para detectar histeresis."]},
+    {"id": "28.4", "dispositivo": "Salida analogica", "objetivo": "Validar la referencia desde PLC hasta dispositivo final.", "procedimiento": ["Forzar valores autorizados de 0 %, 25 %, 50 %, 75 % y 100 %.", "Medir corriente o tension en bornas.", "Confirmar escala del receptor y respuesta del proceso.", "Probar perdida de comunicacion o CPU en STOP.", "Verificar limite, saturacion y valor de fallback."]},
+    {"id": "28.5", "dispositivo": "Arrancador de motor", "objetivo": "Verificar permisos, arranque, parada y proteccion.", "procedimiento": ["Confirmar sentido de giro y datos de motor.", "Probar local/remoto y manual/automatico.", "Validar enclavamientos y feedback de marcha.", "Simular disparo termico y perdida de feedback.", "Confirmar rearme y prevencion de rearranque inesperado."]},
+    {"id": "28.6", "dispositivo": "Variador de frecuencia", "objetivo": "Validar control de velocidad, estado y fallas.", "procedimiento": ["Confirmar placa, parametros, control mode y referencia.", "Probar marcha, paro, jog y sentido.", "Validar velocidades minima, nominal y maxima.", "Probar perdida de red, sobrecarga, fallo y reset.", "Verificar STO, frenado y arranque despues de perdida de energia."]},
+    {"id": "28.7", "dispositivo": "Servo y eje", "objetivo": "Validar homing, posicionamiento y limites.", "procedimiento": ["Confirmar unidades mecanicas y relacion de transmision.", "Ejecutar homing y verificar repetibilidad.", "Probar movimientos cortos, largos y a distintas velocidades.", "Validar limites, following error y perdida de encoder.", "Probar parada segura y recuperacion."]},
+    {"id": "28.8", "dispositivo": "Valvula discreta", "objetivo": "Validar apertura/cierre y confirmaciones.", "procedimiento": ["Comprobar aire/energia y posicion segura.", "Mandar abrir/cerrar.", "Verificar finales de carrera y tiempo de movimiento.", "Simular senal contradictoria o ausencia de feedback.", "Confirmar alarmas, enclavamientos y reset."]},
+    {"id": "28.9", "dispositivo": "Valvula de control", "objetivo": "Validar mando analogico y posicion.", "procedimiento": ["Calibrar 0 %, 25 %, 50 %, 75 % y 100 %.", "Comparar senal de mando, posicion y variable de proceso.", "Probar perdida de aire/energia.", "Verificar fail-open, fail-close o fail-in-place segun diseno.", "Confirmar limites y diagnostico."]},
+    {"id": "28.10", "dispositivo": "Lazo PID", "objetivo": "Validar configuracion y respuesta dinamica.", "procedimiento": ["Confirmar escalas, unidades, accion directa/inversa y limites.", "Probar manual/automatico y transferencia sin golpe.", "Aplicar cambio de setpoint y registrar respuesta.", "Probar saturacion, anti-windup y fallo del sensor.", "Documentar parametros finales y criterio de aceptacion."]},
+    {"id": "28.11", "dispositivo": "Secuencia automatica", "objetivo": "Validar estados, transiciones y recuperacion.", "procedimiento": ["Iniciar desde condiciones normales.", "Confirmar cada etapa, permiso, temporizacion y salida.", "Introducir fallas en etapas criticas.", "Probar pausa, paro, reset y continuacion.", "Verificar que no se omitan pasos ni queden salidas activas indebidamente."]},
+    {"id": "28.12", "dispositivo": "Alarmas HMI/SCADA", "objetivo": "Validar ciclo completo de alarma.", "procedimiento": ["Generar condicion.", "Confirmar texto, prioridad, hora y estado.", "Reconocer y verificar registro de usuario.", "Retornar a normal y confirmar cierre.", "Revisar ayuda, filtrado, historico y repeticion."]},
+    {"id": "28.13", "dispositivo": "Recetas", "objetivo": "Validar creacion, descarga, carga y limites.", "procedimiento": ["Crear receta de prueba.", "Descargar al controlador y comparar todos los valores.", "Editar con permisos y validar limites.", "Cambiar producto y confirmar aplicacion ordenada.", "Respaldar, restaurar y verificar trazabilidad."]},
+    {"id": "28.14", "dispositivo": "Historizacion", "objetivo": "Validar captura, almacenamiento y consulta.", "procedimiento": ["Generar cambios conocidos.", "Confirmar timestamp, calidad y unidad.", "Interrumpir comunicacion y revisar buffer/reconexion.", "Consultar tendencias y exportar datos.", "Verificar retencion y respaldo."]},
+    {"id": "28.15", "dispositivo": "Perdida y retorno de energia", "objetivo": "Validar comportamiento seguro y recuperacion.", "procedimiento": ["Registrar estado inicial.", "Interrumpir alimentacion segun procedimiento.", "Confirmar salidas y actuadores en estado seguro.", "Restaurar energia y observar inicializacion.", "Verificar datos retentivos, alarmas y arranque controlado."]},
+    {"id": "28.16", "dispositivo": "Perdida de comunicacion", "objetivo": "Validar timeout, fallback y recuperacion.", "procedimiento": ["Desconectar enlace seleccionado.", "Confirmar diagnostico y tiempo de deteccion.", "Verificar estado seguro o estrategia de operacion degradada.", "Restaurar enlace.", "Confirmar reconexion sin comandos espurios ni datos congelados."]},
+    {"id": "28.17", "dispositivo": "Backup y restauracion", "objetivo": "Demostrar recuperacion del sistema.", "procedimiento": ["Crear backup con version identificada.", "Restaurar en equipo de prueba o reemplazo.", "Confirmar firmware, proyecto, parametros y comunicaciones.", "Comparar versiones y checksums.", "Registrar tiempo total y recursos necesarios."]},
+    {"id": "28.18", "dispositivo": "Rendimiento", "objetivo": "Validar capacidad bajo carga.", "procedimiento": ["Medir tiempo de scan, carga CPU, memoria y conexiones.", "Ejecutar condicion de maxima produccion.", "Activar tendencias, reportes y usuarios simultaneos.", "Observar jitter, perdida de paquetes y colas.", "Comparar con limites de diseno."]},
+    {"id": "28.19", "dispositivo": "Ciberseguridad", "objetivo": "Validar controles basicos sin afectar produccion.", "procedimiento": ["Revisar cuentas, roles y contrasenas administradas.", "Confirmar puertos y servicios autorizados.", "Probar registro de accesos y cambios.", "Verificar respaldo de configuracion de switches/firewalls.", "Confirmar que no existe exposicion directa a Internet."]},
+    {"id": "28.20", "dispositivo": "Seguridad funcional", "objetivo": "Validar una funcion de seguridad bajo protocolo independiente.", "procedimiento": ["Confirmar identificacion y estado de calibracion.", "Demandar cada canal y registrar tiempo.", "Probar discrepancia, corto, perdida de energia y comunicacion.", "Confirmar estado final del actuador.", "Verificar reset, reinicio y firma de testigos autorizados."]}
+  ],
+  "plantillas": [
+    {"id": "A", "nombre": "Ficha general del activo", "proposito": "Identificar el sistema y su contexto."},
+    {"id": "B", "nombre": "Inventario de hardware", "proposito": "Registrar cada componente fisico."},
+    {"id": "C", "nombre": "Inventario de software y licencias", "proposito": "Asegurar la capacidad de abrir, modificar y restaurar proyectos."},
+    {"id": "D", "nombre": "Registro de respaldos", "proposito": "Demostrar que fue respaldado y como se verifico."},
+    {"id": "E", "nombre": "Lista maestra de E/S", "proposito": "Mantener trazabilidad de todas las senales."},
+    {"id": "F", "nombre": "Matriz de comunicaciones", "proposito": "Documentar intercambio de datos y dependencias."},
+    {"id": "G", "nombre": "Matriz de equivalencia de hardware", "proposito": "Comparar origen, sustituto y desviaciones."},
+    {"id": "H", "nombre": "Registro de riesgos", "proposito": "Controlar riesgos tecnicos y del proyecto."},
+    {"id": "I", "nombre": "Especificacion de requisito", "proposito": "Conectar cada requisito con su prueba."},
+    {"id": "J", "nombre": "Registro de conversion de software", "proposito": "Controlar incompatibilidades y decisiones."},
+    {"id": "K", "nombre": "Prueba unitaria", "proposito": "Validar bloques, rutinas o equipos individuales."},
+    {"id": "L", "nombre": "Protocolo FAT", "proposito": "Registrar pruebas de aceptacion en fabrica."},
+    {"id": "M", "nombre": "Protocolo SAT", "proposito": "Registrar pruebas de aceptacion en sitio."},
+    {"id": "N", "nombre": "Hoja de loop check", "proposito": "Validar la senal completa desde campo hasta control."},
+    {"id": "O", "nombre": "Hoja de parametros de variador/servo", "proposito": "Conservar y validar configuracion."},
+    {"id": "P", "nombre": "Plan de corte minuto a minuto", "proposito": "Secuenciar el corte con responsables y punto de no retorno."},
+    {"id": "Q", "nombre": "Plan de retorno", "proposito": "Definir el retorno seguro al sistema anterior."},
+    {"id": "R", "nombre": "Lista de ciberseguridad OT", "proposito": "Verificar controles de ciberseguridad de la migracion."},
+    {"id": "S", "nombre": "Registro de capacitacion", "proposito": "Registrar la capacitacion entregada por rol."},
+    {"id": "T", "nombre": "Acta de aceptacion", "proposito": "Formalizar la aceptacion final o condicionada."},
+    {"id": "U", "nombre": "Registro de lecciones aprendidas", "proposito": "Capturar aprendizajes para futuros proyectos."},
+    {"id": "V", "nombre": "Scorecard de obsolescencia", "proposito": "Puntuar el estado de obsolescencia de los activos."}
+  ],
+  "anexos_gestion": [
+    {"id": "29.1", "nombre": "Matriz RACI"},
+    {"id": "29.2", "nombre": "Cronograma maestro"},
+    {"id": "29.3", "nombre": "Estimacion de costos"},
+    {"id": "29.4", "nombre": "Lista de repuestos"},
+    {"id": "29.5", "nombre": "Plan de licencias"},
+    {"id": "29.6", "nombre": "Plan de direccionamiento IP"},
+    {"id": "29.7", "nombre": "Registro de decisiones"},
+    {"id": "29.8", "nombre": "Solicitud de cambio"},
+    {"id": "29.9", "nombre": "Punch list"},
+    {"id": "29.10", "nombre": "Plan de comunicacion de corte"},
+    {"id": "29.11", "nombre": "Disponibilidad de personal"},
+    {"id": "29.12", "nombre": "Matriz de herramientas y recursos"},
+    {"id": "29.13", "nombre": "Plan de capacitacion"},
+    {"id": "29.14", "nombre": "Plan de mantenimiento inicial"},
+    {"id": "29.15", "nombre": "Auditoria de cierre"}
+  ],
+  "casos_estudio": [
+    {"id": "26.1", "titulo": "Linea de embotellado: S7-300 a S7-1500", "situacion": "Linea con CPU S7-300, E/S ET 200M, panel HMI y variadores PROFIBUS con fallas de modulos y dificultad para conseguir repuestos.", "estrategia": "Migracion por etapas: CPU y software primero, conservacion temporal de PROFIBUS y E/S remota, luego cambio de HMI y variadores en una segunda parada.", "riesgos": "Instrucciones STL, bloques de comunicacion, escalamiento analogico, temporizaciones de transportadores y recetas.", "pruebas": "Simulacion de sensores, seguimiento de botella, rechazo, velocidades, perdida de red, arranque despues de paro y produccion con tres formatos."},
+    {"id": "26.2", "titulo": "Estacion de bombeo: PLC-5 a CompactLogix", "situacion": "Sistema de bombeo con PLC-5, Remote I/O y SCADA antiguo; la planta debe mantener servicio continuo.", "estrategia": "Instalar nuevo controlador y rack de pruebas; convertir logica, crear interfaz temporal con senales paralelas y ejecutar corte por estacion.", "riesgos": "Block transfers, control PID, contadores totalizadores y comunicaciones con centro de control.", "pruebas": "Modos local/remoto, alternancia, presion, nivel, fallo de bomba, perdida de comunicacion, recuperacion y registro historico."},
+    {"id": "26.3", "titulo": "Maquina de empaque: MELSEC-A a iQ-R", "situacion": "Maquina con PLC MELSEC-A, modulos de posicionamiento y GOT antiguo.", "estrategia": "Inventariar modulos especiales, usar guia de transicion, reconstruir motion y actualizar HMI.", "riesgos": "Parametros de posicionamiento, registros especiales, alta velocidad y sincronizacion mecanica.", "pruebas": "Homing, jog, produccion lenta, velocidad nominal, atascos, fallo de encoder y reinicio."},
+    {"id": "26.4", "titulo": "Skid de proceso: Modicon Quantum a M580", "situacion": "Skid con Quantum, E/S remota, lazos PID y comunicacion Modbus Plus.", "estrategia": "Convertir proyecto soportado, sustituir red por Ethernet industrial y mantener gateway temporal para equipos no migrados.", "riesgos": "DFB, retentividad, calculos de ingenieria, tiempos de actualizacion y control de secuencia.", "pruebas": "Calibracion de lazos, secuencia, alarmas, perdida de servidor, failover y lote de produccion."},
+    {"id": "26.5", "titulo": "Maquina de motion: Omron CJ a NX/NJ", "situacion": "Equipo con CJ, modulos de motion y HMI NS; se requiere mejorar diagnostico y disponibilidad.", "estrategia": "Reconstruir proyecto en Sysmac Studio, integrar motion sobre EtherCAT y migrar HMI.", "riesgos": "Areas de memoria, instrucciones especificas, unidades mecanicas, home y seguridad.", "pruebas": "Eje por eje, sincronismo, perfiles, limites, fallo de red, STO y produccion prolongada."}
+  ]
+}

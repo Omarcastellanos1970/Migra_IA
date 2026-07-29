@@ -12,7 +12,7 @@ from datetime import datetime
 
 from .caso import Caso
 from .scoring import calcular_riesgo, PESOS
-from . import config
+from . import config, conocimiento
 
 NIVELES = ["confirmado", "alta_confianza", "confianza_media", "baja_confianza", "no_determinado"]
 
@@ -138,6 +138,43 @@ TOOLS = [
         "input_schema": {"type": "object", "properties": {}},
     },
     {
+        "name": "consultar_guia",
+        "description": (
+            "Consulta la base de referencia interna (Guia MIGRA-IA-GUIA-001) para "
+            "conducir el diagnostico de forma estructurada y FUNDAMENTAR Y CITAR cada "
+            "recomendacion. Contiene: metodologia de 6 etapas (diagnostico, ingenieria, "
+            "construccion, FAT, corte/SAT, cierre), 24 capitulos, rutas de migracion por "
+            "fabricante (Siemens, Rockwell, Mitsubishi, Schneider, Omron), una biblioteca "
+            "de 20 pruebas, 22 plantillas y anexos de gestion. Devuelve el fragmento "
+            "pedido junto con su cita. Consultala antes de proponer alternativas, "
+            "equivalencias por fabricante o planes de prueba."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "tema": {
+                    "type": "string",
+                    "enum": [
+                        "indice", "metodologia", "etapa", "capitulo", "fabricante",
+                        "matriz_fabricantes", "prueba", "plantilla", "anexo", "caso",
+                        "principios", "entregables", "guia",
+                    ],
+                    "description": "Parte de la guia a consultar.",
+                },
+                "clave": {
+                    "type": "string",
+                    "description": (
+                        "Identificador dentro del tema: numero o titulo de capitulo; id o "
+                        "numero de etapa; id o dispositivo de prueba; letra o nombre de "
+                        "plantilla/anexo; id o titulo de caso; marca o familia de fabricante "
+                        "(p. ej. 'Siemens' o 'S7-300'). Omitela para obtener el indice del tema."
+                    ),
+                },
+            },
+            "required": ["tema"],
+        },
+    },
+    {
         "name": "solicitar_aprobacion_humana",
         "description": (
             "Solicita aprobacion explicita del personal autorizado ANTES de entregar "
@@ -227,6 +264,10 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
 
         elif nombre == "resumen_caso":
             resultado = json.dumps(caso.resumen(), ensure_ascii=False)
+
+        elif nombre == "consultar_guia":
+            res = conocimiento.consultar(entrada.get("tema", ""), entrada.get("clave"))
+            resultado = json.dumps(res, ensure_ascii=False)
 
         elif nombre == "solicitar_aprobacion_humana":
             aprob = aprobador or _aprobacion_consola
