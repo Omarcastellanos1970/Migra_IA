@@ -8,12 +8,12 @@ variadores, servos e instrumentación asociada).
 Modalidad **asistida**: recomienda, documenta y guía; la aprobación final y toda
 intervención sobre equipos reales corresponde a personal autorizado.
 
-> Prototipo v0.2.0 construido sobre la API de Claude (`claude-opus-4-8`).
+> Prototipo v0.3.0 construido sobre la API de Claude (`claude-opus-4-8`).
 > Implementa la especificación del documento *MIGRA-IA — Cuestionario maestro y
-> diseño funcional del agente*.
+> diseño funcional del agente* y la guía de referencia *MIGRA-IA-GUIA-001*.
 
 **Autores:** Carlos Omar Castellanos · Julio Noe Castillo · Isidoro Emilio Medina
-**Licencia:** MIT · **DOI (v0.2.0):** [10.5281/zenodo.21480950](https://doi.org/10.5281/zenodo.21480950) · **DOI (todas las versiones):** [10.5281/zenodo.21480949](https://doi.org/10.5281/zenodo.21480949)
+**Licencia:** MIT · **DOI (todas las versiones):** [10.5281/zenodo.21480949](https://doi.org/10.5281/zenodo.21480949) — resuelve siempre a la última versión publicada en Zenodo.
 
 > **¿Eres revisor?** El proyecto se puede evaluar **sin clave de API y sin costo**
 > con el *modo demo*. Sigue [`ARTIFACT.md`](ARTIFACT.md).
@@ -33,6 +33,10 @@ intervención sobre equipos reales corresponde a personal autorizado.
   de catálogo, no asume compatibilidad ni respaldos, separa hechos/inferencias/
   recomendaciones, y **solicita aprobación humana** antes de instrucciones de
   intervención.
+- Consulta la **base de conocimiento** *MIGRA-IA-GUIA-001* (seis etapas
+  metodológicas, capítulos, rutas de migración por fabricante, biblioteca de
+  pruebas, plantillas y anexos de gestión) y **cita la guía** en sus
+  recomendaciones.
 - Marca **datos faltantes** y **banderas de seguridad funcional**.
 - Genera un **informe técnico trazable** en Markdown con la estructura estándar
   de la Sección 9.
@@ -107,12 +111,14 @@ Cuando el agente proponga una acción sobre el equipo real:
 ```
 MIGRA_IA_Cuestionario_y_Diseno_del_Agente/
 ├── data/
-│   └── cuestionario.json     # Catálogo de preguntas A–K con reglas adaptativas
+│   ├── cuestionario.json     # Catálogo de preguntas A–K con reglas adaptativas
+│   └── base_conocimiento.json # Guía MIGRA-IA-GUIA-001 (etapas, rutas, pruebas)
 ├── migra_ia/                 # Motor reutilizable
 │   ├── config.py             # Modelo, rutas e identidad del agente
 │   ├── prompt.py             # Prompt del sistema (reglas, confianza, estructura)
 │   ├── scoring.py            # Motor de puntuación de obsolescencia (Sec. 6)
 │   ├── caso.py               # Expediente trazable + IDs + auditoría (Sec. 2, 5, 13)
+│   ├── conocimiento.py       # Consultas a la base de conocimiento (guía)
 │   ├── herramientas.py       # Tools de registro, riesgo, aprobación e informe
 │   ├── nucleo.py             # Turno del agente (usado por la web)
 │   └── agente.py             # Bucle conversacional con streaming (CLI)
