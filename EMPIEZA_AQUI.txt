@@ -1,0 +1,131 @@
+===========================================================
+  MIGRA-IA  v0.3.0
+  Agente de asesoria en obsolescencia y migracion de hardware
+  industrial (PLC, modulos de E/S, HMI, redes, variadores)
+===========================================================
+
+  Autores : Carlos Omar Castellanos - Julio Noe Castillo -
+            Isidoro Emilio Medina
+            Universidad Tecnologica de Honduras
+  Licencia: MIT
+
+
+  SON 3 PASOS. NO NECESITAS SABER PROGRAMAR.
+  Puedes probarlo GRATIS: el "modo demo" no pide clave de API
+  ni cuesta nada.
+
+
+-----------------------------------------------------------
+  PASO 1 - Descomprimir  (importante)
+-----------------------------------------------------------
+
+  Si estas leyendo esto DENTRO del archivo .zip, primero
+  descomprimelo:
+
+     Clic derecho sobre el .zip  ->  "Extraer todo..."  ->  Extraer
+
+  No funciona si lo ejecutas desde dentro del zip.
+  Deja la carpeta en un lugar facil, por ejemplo el Escritorio.
+
+
+-----------------------------------------------------------
+  PASO 2 - Instalar  (una sola vez, unos minutos)
+-----------------------------------------------------------
+
+  Doble clic en:     INSTALAR.bat
+
+  Se abre una ventana negra que instala todo solo.
+  Necesita internet. Espera a que diga "INSTALACION TERMINADA".
+
+  Si te dice que no encuentra Python:
+     1. Entra a  https://www.python.org/downloads/
+     2. Descarga Python 3.10 o superior.
+     3. Al instalar, MARCA la casilla "Add Python to PATH".
+        (es la casilla de abajo, es facil pasarla por alto)
+     4. Vuelve a hacer doble clic en INSTALAR.bat
+
+
+-----------------------------------------------------------
+  PASO 3 - Usarlo
+-----------------------------------------------------------
+
+  Doble clic en:     Iniciar_MIGRA-IA.bat
+
+  - Se abre una ventana negra. NO LA CIERRES mientras lo usas.
+  - Solo unos segundos despues se abre tu navegador en
+    http://127.0.0.1:5000
+    (si no se abre solo, escribe esa direccion en el navegador)
+
+  - Pulsa el boton  "Modo demo (sin clave)"
+  - Escribe cualquier cosa y pulsa Enviar. Ve respondiendo.
+
+  Veras el diagnostico paso a paso, el panel del expediente,
+  la puntuacion de riesgo de obsolescencia (75.2, "Riesgo alto")
+  y al final el informe tecnico generado.
+
+  Para apagarlo: cierra la ventana negra.
+
+
+-----------------------------------------------------------
+  OPCIONAL - Modo "Caso real (API)"
+-----------------------------------------------------------
+
+  El modo demo ya muestra el motor completo. Si ademas quieres
+  la conversacion real con la IA:
+
+     1. Consigue tu clave en
+        https://console.anthropic.com/settings/keys
+        (es un servicio de PAGO de Anthropic; cada quien usa la
+         suya, no se comparte)
+     2. En la carpeta, copia el archivo  .env.example
+        y renombra la copia a   .env
+     3. Abrelo con el Bloc de notas y pega tu clave donde dice
+        sk-ant-...
+     4. Inicia de nuevo y elige "Caso real (API)".
+
+
+-----------------------------------------------------------
+  SI ALGO FALLA
+-----------------------------------------------------------
+
+  La ventana negra se abre y se cierra al instante
+     -> Todavia no ejecutaste INSTALAR.bat (Paso 2).
+
+  "python no se reconoce como un comando"
+     -> Reinstala Python marcando "Add Python to PATH".
+
+  La pagina no abre
+     -> Espera unos segundos mas y entra manualmente a
+        http://127.0.0.1:5000
+        Revisa que la ventana negra siga abierta.
+
+  Windows muestra un aviso al abrir el .bat
+     -> Es normal en archivos descargados de internet.
+        "Mas informacion" -> "Ejecutar de todas formas".
+
+  El navegador dice que el sitio no es seguro / no hay internet
+     -> El agente corre LOCAL en tu propia computadora. La
+        direccion 127.0.0.1 es tu maquina, no un sitio de
+        internet. Es correcto.
+
+  Cualquier otra cosa: abre una incidencia en
+  https://github.com/Omarcastellanos1970/Migra_IA/issues
+  adjuntando una captura de la ventana negra.
+
+
+-----------------------------------------------------------
+  DOCUMENTOS DEL PROYECTO
+-----------------------------------------------------------
+
+  README.md            Que hace el agente y como esta hecho
+  ARTIFACT.md          Como evaluarlo (para revisores)
+  GUIA_INSTALACION.md  Instalacion detallada por terminal
+  LICENSE              Licencia MIT
+  CITATION.cff         Como citar el software
+
+
+  AVISO: MIGRA-IA es un sistema de ASISTENCIA TECNICA. No
+  sustituye las evaluaciones de seguridad funcional, los
+  procedimientos de bloqueo y etiquetado, las normas de la
+  planta ni la autorizacion de personal competente. Verifica
+  siempre antes de intervenir equipos reales.

@@ -1,7 +1,7 @@
 # Artefacto reproducible — MIGRA-IA
 
 **Autores:** Carlos Omar Castellanos · Julio Noe Castillo · Isidoro Emilio Medina
-**Versión:** 0.1.0 · **Licencia:** MIT
+**Versión:** 0.3.0 · **Licencia:** MIT
 
 Este documento es la **guía de evaluación del artefacto** que acompaña al artículo.
 Está pensado para que un revisor pueda ejecutar y verificar el sistema en su
@@ -29,6 +29,10 @@ Afirmaciones respaldadas por el artefacto (verificables con el modo demo):
 5. **Consultoría**: alternativas comparadas, equivalencias sugeridas (a verificar)
    y procedimiento de migración por etapas.
 6. **Informe técnico trazable** generado automáticamente.
+7. **Base de conocimiento citable** (*MIGRA-IA-GUIA-001*): el agente estructura el
+   diagnóstico por las seis etapas de la metodología y **cita la guía** al
+   fundamentar sus recomendaciones, consultándola con la herramienta
+   `consultar_guia` (`data/base_conocimiento.json`).
 
 ---
 
@@ -41,6 +45,15 @@ Afirmaciones respaldadas por el artefacto (verificables con el modo demo):
 ---
 
 ## 3. Instalación
+
+### Windows — instalación asistida (recomendada)
+
+Descomprima el paquete y haga **doble clic en `INSTALAR.bat`**. Detecta Python,
+crea el entorno virtual, instala las dependencias y verifica la instalación. Una
+vez terminado, **doble clic en `Iniciar_MIGRA-IA.bat`** arranca el agente y abre
+el navegador. Instrucciones paso a paso en `EMPIEZA_AQUI.txt`.
+
+### Cualquier sistema — instalación manual
 
 ```bash
 # En la carpeta del proyecto:
@@ -110,10 +123,15 @@ la clave solo habilita el razonamiento en lenguaje natural sobre datos arbitrari
 
 ```
 migra_ia/        Motor: prompt, scoring (Sec. 6), expediente trazable, tools, demo
+                 conocimiento.py — consultas a la base de conocimiento
 webapp/          App web (Flask): servidor + interfaz de chat
 data/            cuestionario.json (catálogo A–K con reglas adaptativas)
+                 base_conocimiento.json (guía MIGRA-IA-GUIA-001)
 docs/            informe_ejemplo.md, expediente_ejemplo.json, guía Zenodo
 casos/           Expedientes e informes generados en ejecución
+INSTALAR.bat     Instalación asistida en Windows (doble clic)
+Iniciar_MIGRA-IA.bat  Arranque del agente en Windows (doble clic)
+EMPIEZA_AQUI.txt Instrucciones paso a paso para usuarios no técnicos
 ARTIFACT.md      Este documento
 CITATION.cff     Metadatos de cita
 .zenodo.json     Metadatos para el DOI de Zenodo
@@ -124,7 +142,8 @@ LICENSE          MIT
 
 ## 7. Lista de verificación para el revisor
 
-- [ ] `pip install -r requirements.txt` finaliza sin errores.
+- [ ] La instalación finaliza sin errores (`INSTALAR.bat` en Windows, o
+      `pip install -r requirements.txt`).
 - [ ] La app arranca en http://127.0.0.1:5000.
 - [ ] El modo demo produce riesgo **75.2 / "Riesgo alto"**.
 - [ ] El panel muestra activo, dato faltante, bandera y aprobación pendiente.

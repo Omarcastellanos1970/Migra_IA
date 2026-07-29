@@ -49,6 +49,12 @@ intervención sobre equipos reales corresponde a personal autorizado.
 
 ## Instalación
 
+**Windows (sin usar la terminal):** doble clic en **`INSTALAR.bat`** y, cuando
+termine, doble clic en **`Iniciar_MIGRA-IA.bat`**. Paso a paso en
+[`EMPIEZA_AQUI.txt`](EMPIEZA_AQUI.txt).
+
+**Cualquier sistema:**
+
 ```bash
 cd MIGRA_IA_Cuestionario_y_Diseno_del_Agente
 python -m venv .venv
