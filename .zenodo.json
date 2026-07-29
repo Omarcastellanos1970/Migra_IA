@@ -1,13 +1,14 @@
 {
   "title": "MIGRA-IA: Agente inteligente para diagnóstico de obsolescencia y migración de sistemas de automatización industrial",
-  "description": "Agente conversacional asistido que guía paso a paso al personal técnico en el diagnóstico de obsolescencia de hardware (PLC, módulos de E/S, HMI, redes industriales, variadores) y en la planificación de migraciones. Implementa un cuestionario adaptativo, un motor ponderado de puntuación de riesgo de obsolescencia (0–100), un expediente trazable con registro de auditoría, reglas de seguridad obligatorias y validación humana. Incluye un modo de demostración reproducible que funciona sin clave de API (artefacto evaluable de forma independiente).",
+  "description": "Agente conversacional asistido que guía paso a paso al personal técnico en el diagnóstico de obsolescencia de hardware (PLC, módulos de E/S, HMI, redes industriales, variadores) y en la planificación de migraciones. Implementa un cuestionario adaptativo, un motor ponderado de puntuación de riesgo de obsolescencia (0–100), un expediente trazable con registro de auditoría, reglas de seguridad obligatorias y validación humana. Incluye un modo de demostración reproducible que funciona sin clave de API (artefacto evaluable de forma independiente). La versión 0.3.0 incorpora la base de conocimiento estructurada MIGRA-IA-GUIA-001 (6 etapas metodológicas, 24 capítulos, rutas de migración de 5 fabricantes, 20 pruebas de verificación, 22 plantillas y 5 casos de estudio), consultable por el agente mediante una herramienta dedicada, de modo que el diagnóstico se organiza por etapas y cita explícitamente la guía de referencia.",
   "upload_type": "software",
   "license": "MIT",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "language": "spa",
   "keywords": [
     "obsolescencia",
     "migración de hardware",
+    "base de conocimiento",
     "automatización industrial",
     "PLC",
     "agente de IA",

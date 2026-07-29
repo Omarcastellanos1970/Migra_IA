@@ -8,9 +8,12 @@ abstract: >-
   Implementa un cuestionario adaptativo, un motor ponderado de puntuación de
   riesgo de obsolescencia, un expediente trazable con registro de auditoría,
   reglas de seguridad obligatorias y validación humana. Incluye un modo de
-  demostración reproducible que funciona sin clave de API.
-version: "0.2.0"
-date-released: "2026-07-21"
+  demostración reproducible que funciona sin clave de API. Desde la versión 0.3.0
+  integra la base de conocimiento estructurada MIGRA-IA-GUIA-001 (etapas
+  metodológicas, rutas de migración por fabricante, pruebas de verificación y
+  plantillas), que el agente consulta y cita durante el diagnóstico.
+version: "0.3.0"
+date-released: "2026-07-28"
 license: MIT
 type: software
 keywords:
