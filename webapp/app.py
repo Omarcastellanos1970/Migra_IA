@@ -62,7 +62,12 @@ def nuevo_caso():
     # Modo demostracion: no usa la API, recorre un caso de ejemplo con el motor real.
     if es_demo:
         paso = demo.ejecutar_paso(caso, 0)
-        SESIONES[caso.case_id] = {"messages": [], "caso": caso, "demo": True, "demo_idx": 1}
+        # `ctx` guarda el equipo identificado: la demo lo necesita para armar los
+        # pasos siguientes con la marca del usuario, no con una de ejemplo.
+        SESIONES[caso.case_id] = {
+            "messages": [], "caso": caso, "demo": True, "demo_idx": 1,
+            "demo_ctx": paso.pop("ctx", {}),
+        }
         return jsonify(case_id=caso.case_id, **paso)
 
     messages: list[dict] = [{"role": "user", "content": MENSAJE_INICIAL_USUARIO}]
@@ -91,10 +96,14 @@ def mensaje():
     if not texto_usuario:
         return jsonify(error="Mensaje vacio."), 400
 
-    # Modo demostracion: avanza el guion sin llamar a la API.
+    # Modo demostracion: avanza el guion sin llamar a la API, pero LEYENDO lo que
+    # escribe el usuario (su nombre y, sobre todo, su equipo) para adaptarse.
     if ses.get("demo"):
         idx = ses.get("demo_idx", 1)
-        paso = demo.ejecutar_paso(ses["caso"], idx)
+        paso = demo.ejecutar_paso(
+            ses["caso"], idx, texto_usuario, ses.get("demo_ctx")
+        )
+        ses["demo_ctx"] = paso.pop("ctx", ses.get("demo_ctx"))
         ses["demo_idx"] = idx + 1
         return jsonify(**paso)
 

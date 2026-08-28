@@ -1,0 +1,2457 @@
+{
+  "documento": {
+    "titulo": "FABRICANTES DE PLC Y EVOLUCIÓN DE MODELOS DE CPU",
+    "subtitulo": "Base documental para tesis sobre obsolescencia de hardware en automatización industrial",
+    "version": "Versión ampliada: 25 de agosto de 2026",
+    "criterio_rigor": "CRITERIO DE RIGOR. Este documento incorpora modelos reales de CPU/controladores en orden tecnológico desde generaciones antiguas hasta generaciones recientes. No se inventan años, números de parte ni estados EOL. Cuando una fuente pública oficial no muestra el número de parte exacto de una generación, el documento lo indica expresamente en vez de completar el dato por aproximación. En los fabricantes de IPC (Advantech, Kontron y AAEON) se listan modelos de computadora industrial y su plataforma de procesador, porque no son PLC con una CPU modular equivalente.",
+    "como_leer": [
+      "El orden de las filas dentro de cada fabricante es de generaciones antiguas hacia generaciones más recientes, según la documentación técnica consultada.",
+      "“Familia” no equivale a “modelo de CPU”. Por eso, siempre que la fuente lo permite, se muestra el código exacto (por ejemplo, Siemens CPU 315-2 DP o Rockwell 1756-L75).",
+      "Esta versión prioriza la exactitud. No pretende afirmar que cada lista sea el inventario absoluto de todos los SKU fabricados en toda la historia de cada compañía; representa la secuencia de modelos que fue posible verificar de forma documental sin inventar datos.",
+      "Las fechas de lanzamiento, EOL y sucesor se incorporarán en una siguiente capa de la matriz únicamente cuando exista evidencia fechada y verificable para cada modelo."
+    ]
+  },
+  "fabricantes": [
+    {
+      "n": 1,
+      "marca": "Siemens",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Histórica - SIMATIC S5-115U",
+          "modelos_texto": "CPU 941, CPU 942, CPU 943, CPU 944, CPU 945",
+          "modelos": [
+            "CPU 941",
+            "CPU 942",
+            "CPU 943",
+            "CPU 944",
+            "CPU 945"
+          ],
+          "observacion": "Documentación oficial S5; CPU modulares STEP 5.",
+          "fuentes": [
+            "S1a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "Histórica - SIMATIC S5-135U / S5-155U",
+          "modelos_texto": "CPU 921, CPU 922, CPU 928, CPU 928B, CPU 946, CPU 947, CPU 948",
+          "modelos": [
+            "CPU 921",
+            "CPU 922",
+            "CPU 928",
+            "CPU 928B",
+            "CPU 946",
+            "CPU 947",
+            "CPU 948"
+          ],
+          "observacion": "Generaciones S5 de mayor capacidad.",
+          "fuentes": [
+            "S1b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "SIMATIC S7-200",
+          "modelos_texto": "CPU 212, CPU 221, CPU 222, CPU 224, CPU 224XP, CPU 226",
+          "modelos": [
+            "CPU 212",
+            "CPU 221",
+            "CPU 222",
+            "CPU 224",
+            "CPU 224XP",
+            "CPU 226"
+          ],
+          "observacion": "Generación compacta S7; modelos documentados históricamente por Siemens.",
+          "fuentes": [
+            "S1c"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "SIMATIC S7-300",
+          "modelos_texto": "CPU 312, CPU 313, CPU 314, CPU 315-2 DP, CPU 317-2 PN/DP, CPU 319-3 PN/DP",
+          "modelos": [
+            "CPU 312",
+            "CPU 313",
+            "CPU 314",
+            "CPU 315-2 DP",
+            "CPU 317-2 PN/DP",
+            "CPU 319-3 PN/DP"
+          ],
+          "observacion": "Familia modular ampliamente instalada.",
+          "fuentes": [
+            "S1d"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "SIMATIC S7-400",
+          "modelos_texto": "CPU 412-2, CPU 414-2, CPU 416-2, CPU 417-4",
+          "modelos": [
+            "CPU 412-2",
+            "CPU 414-2",
+            "CPU 416-2",
+            "CPU 417-4"
+          ],
+          "observacion": "Familia de gama alta previa a S7-1500.",
+          "fuentes": [
+            "S1d"
+          ]
+        },
+        {
+          "n": 6,
+          "familia": "Actual - SIMATIC S7-1200",
+          "modelos_texto": "CPU 1211C, CPU 1212C, CPU 1214C, CPU 1215C, CPU 1217C",
+          "modelos": [
+            "CPU 1211C",
+            "CPU 1212C",
+            "CPU 1214C",
+            "CPU 1215C",
+            "CPU 1217C"
+          ],
+          "observacion": "Controladores compactos actuales.",
+          "fuentes": [
+            "S1e"
+          ]
+        },
+        {
+          "n": 7,
+          "familia": "Actual - SIMATIC S7-1500",
+          "modelos_texto": "CPU 1511-1 PN, CPU 1513-1 PN, CPU 1515-2 PN, CPU 1516-3 PN/DP, CPU 1517-3 PN/DP",
+          "modelos": [
+            "CPU 1511-1 PN",
+            "CPU 1513-1 PN",
+            "CPU 1515-2 PN",
+            "CPU 1516-3 PN/DP",
+            "CPU 1517-3 PN/DP"
+          ],
+          "observacion": "Familia modular actual de Siemens.",
+          "fuentes": [
+            "S1f"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "marca": "Rockwell Automation / Allen-Bradley",
+      "clasificacion": "PLC/PAC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Histórica - SLC 500",
+          "modelos_texto": "SLC 5/03 (1747-L532), SLC 5/04 (1747-L542), SLC 5/05 (1747-L552)",
+          "modelos": [
+            "SLC 5/03 (1747-L532)",
+            "SLC 5/04 (1747-L542)",
+            "SLC 5/05 (1747-L552)"
+          ],
+          "observacion": "Procesadores SLC documentados por Rockwell; 5/05 está retirado.",
+          "fuentes": [
+            "S2a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "ControlLogix 5550",
+          "modelos_texto": "1756-L1, 1756-L55",
+          "modelos": [
+            "1756-L1",
+            "1756-L55"
+          ],
+          "observacion": "Primera generación ControlLogix incluida en documentación de compatibilidad Logix.",
+          "fuentes": [
+            "S2b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "ControlLogix 5560",
+          "modelos_texto": "1756-L61, 1756-L62, 1756-L63, 1756-L64, 1756-L65",
+          "modelos": [
+            "1756-L61",
+            "1756-L62",
+            "1756-L63",
+            "1756-L64",
+            "1756-L65"
+          ],
+          "observacion": "Generación 5560.",
+          "fuentes": [
+            "S2b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "ControlLogix 5570",
+          "modelos_texto": "1756-L71, 1756-L72, 1756-L73, 1756-L74, 1756-L75",
+          "modelos": [
+            "1756-L71",
+            "1756-L72",
+            "1756-L73",
+            "1756-L74",
+            "1756-L75"
+          ],
+          "observacion": "Generación 5570.",
+          "fuentes": [
+            "S2b"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "Actual - ControlLogix 5580",
+          "modelos_texto": "1756-L81E, 1756-L82E, 1756-L83E, 1756-L84E, 1756-L85E",
+          "modelos": [
+            "1756-L81E",
+            "1756-L82E",
+            "1756-L83E",
+            "1756-L84E",
+            "1756-L85E"
+          ],
+          "observacion": "Generación 5580.",
+          "fuentes": [
+            "S2b"
+          ]
+        },
+        {
+          "n": 6,
+          "familia": "CompactLogix 5370",
+          "modelos_texto": "1769-L16ER-BB1B, 1769-L18ER-BB1B, 1769-L30ER, 1769-L33ER, 1769-L36ERM, 1769-L38ERM",
+          "modelos": [
+            "1769-L16ER-BB1B",
+            "1769-L18ER-BB1B",
+            "1769-L30ER",
+            "1769-L33ER",
+            "1769-L36ERM",
+            "1769-L38ERM"
+          ],
+          "observacion": "Generación 5370.",
+          "fuentes": [
+            "S2b"
+          ]
+        },
+        {
+          "n": 7,
+          "familia": "Actual - CompactLogix 5380",
+          "modelos_texto": "5069-L306ER, 5069-L310ER, 5069-L320ER, 5069-L330ER, 5069-L340ER, 5069-L350ERM, 5069-L380ERM",
+          "modelos": [
+            "5069-L306ER",
+            "5069-L310ER",
+            "5069-L320ER",
+            "5069-L330ER",
+            "5069-L340ER",
+            "5069-L350ERM",
+            "5069-L380ERM"
+          ],
+          "observacion": "Generación 5380.",
+          "fuentes": [
+            "S2b"
+          ]
+        },
+        {
+          "n": 8,
+          "familia": "Actual - CompactLogix 5480",
+          "modelos_texto": "5069-L4100ERMW, 5069-L4200ERMW, 5069-L430ERMW, 5069-L450ERMW, 5069-L46ERMW",
+          "modelos": [
+            "5069-L4100ERMW",
+            "5069-L4200ERMW",
+            "5069-L430ERMW",
+            "5069-L450ERMW",
+            "5069-L46ERMW"
+          ],
+          "observacion": "Controlador Logix con Windows integrado.",
+          "fuentes": [
+            "S2b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 3,
+      "marca": "Schneider Electric / Modicon",
+      "clasificacion": "PLC/PAC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Histórica - Modicon 084",
+          "modelos_texto": "084",
+          "modelos": [
+            "084"
+          ],
+          "observacion": "Reconocido por Schneider como el primer PLC Modicon, introducido en 1969.",
+          "fuentes": [
+            "S3a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "Histórica - Modicon 184",
+          "modelos_texto": "184",
+          "modelos": [
+            "184"
+          ],
+          "observacion": "Sucesor temprano introducido en 1973.",
+          "fuentes": [
+            "S3a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Histórica - Modicon 584",
+          "modelos_texto": "AS-506P-xxx, AS-509P-xxx",
+          "modelos": [
+            "AS-506P-xxx",
+            "AS-509P-xxx"
+          ],
+          "observacion": "Códigos de CPU/controlador conservados en documentación de baterías legacy.",
+          "fuentes": [
+            "S3b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Histórica - Modicon 884",
+          "modelos_texto": "AS-884A-xxx",
+          "modelos": [
+            "AS-884A-xxx"
+          ],
+          "observacion": "Familia legacy.",
+          "fuentes": [
+            "S3b"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "Histórica - Modicon 984",
+          "modelos_texto": "PC-L984-x8x, PC-E984-x8x, PC-O984",
+          "modelos": [
+            "PC-L984-x8x",
+            "PC-E984-x8x",
+            "PC-O984"
+          ],
+          "observacion": "Familia 984 legacy.",
+          "fuentes": [
+            "S3b"
+          ]
+        },
+        {
+          "n": 6,
+          "familia": "Modicon Quantum",
+          "modelos_texto": "140CPU31110, 140CPU43412U, 140CPU53414U, 140CPU65150, 140CPU65160, 140CPU65260, 140CPU67160, 140CPU67260, 140CPU67261",
+          "modelos": [
+            "140CPU31110",
+            "140CPU43412U",
+            "140CPU53414U",
+            "140CPU65150",
+            "140CPU65160",
+            "140CPU65260",
+            "140CPU67160",
+            "140CPU67260",
+            "140CPU67261"
+          ],
+          "observacion": "CPUs Quantum documentadas por Schneider.",
+          "fuentes": [
+            "S3c"
+          ]
+        },
+        {
+          "n": 7,
+          "familia": "Actual - Modicon M580",
+          "modelos_texto": "BMEP5810xx, BMEP5820xx, BMEP5830xx; familias BMEP/BMEH M580",
+          "modelos": [
+            "BMEP5810xx",
+            "BMEP5820xx",
+            "BMEP5830xx",
+            "familias BMEP/BMEH M580"
+          ],
+          "observacion": "Schneider publica los códigos por variante; se conserva el prefijo exacto de CPU sin inventar sufijos no confirmados.",
+          "fuentes": [
+            "S3c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "marca": "Mitsubishi Electric",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Histórica - MELSEC-A / AnS",
+          "modelos_texto": "A1SCPU, A1SCPU-S1, A2SCPU, A2SCPU-S1, A1SCPUC24-R2",
+          "modelos": [
+            "A1SCPU",
+            "A1SCPU-S1",
+            "A2SCPU",
+            "A2SCPU-S1",
+            "A1SCPUC24-R2"
+          ],
+          "observacion": "CPUs A/AnS documentadas por Mitsubishi.",
+          "fuentes": [
+            "S4a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "MELSEC-Q - Basic",
+          "modelos_texto": "Q00JCPU, Q00CPU, Q01CPU",
+          "modelos": [
+            "Q00JCPU",
+            "Q00CPU",
+            "Q01CPU"
+          ],
+          "observacion": "CPUs básicas Q.",
+          "fuentes": [
+            "S4b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "MELSEC-Q - High performance",
+          "modelos_texto": "Q02CPU, Q02HCPU, Q06HCPU, Q12HCPU, Q25HCPU",
+          "modelos": [
+            "Q02CPU",
+            "Q02HCPU",
+            "Q06HCPU",
+            "Q12HCPU",
+            "Q25HCPU"
+          ],
+          "observacion": "CPUs Q de alto rendimiento.",
+          "fuentes": [
+            "S4b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "MELSEC-Q - Universal",
+          "modelos_texto": "Q03UDECPU, Q26UDEHCPU",
+          "modelos": [
+            "Q03UDECPU",
+            "Q26UDEHCPU"
+          ],
+          "observacion": "Ejemplos documentados de CPUs Q Universal.",
+          "fuentes": [
+            "S4b"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "MELSEC-L",
+          "modelos_texto": "L02CPU, L06CPU, L26CPU",
+          "modelos": [
+            "L02CPU",
+            "L06CPU",
+            "L26CPU"
+          ],
+          "observacion": "CPUs modulares compactas de la serie L.",
+          "fuentes": [
+            "S4b"
+          ]
+        },
+        {
+          "n": 6,
+          "familia": "Actual - MELSEC iQ-R",
+          "modelos_texto": "R00CPU, R01CPU, R02CPU, R04CPU, R08CPU, R16CPU, R32CPU, R120CPU",
+          "modelos": [
+            "R00CPU",
+            "R01CPU",
+            "R02CPU",
+            "R04CPU",
+            "R08CPU",
+            "R16CPU",
+            "R32CPU",
+            "R120CPU"
+          ],
+          "observacion": "CPUs iQ-R actuales.",
+          "fuentes": [
+            "S4c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 5,
+      "marca": "OMRON",
+      "clasificacion": "PLC / Machine Automation Controller",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "CS1",
+          "modelos_texto": "CS1G-CPU42H, CS1G-CPU43H, CS1G-CPU44H, CS1G-CPU45H; CS1H-CPU63H a CPU67H",
+          "modelos": [
+            "CS1G-CPU42H",
+            "CS1G-CPU43H",
+            "CS1G-CPU44H",
+            "CS1G-CPU45H",
+            "CS1H-CPU63H a CPU67H"
+          ],
+          "observacion": "Familia modular previa a CJ2/NJ/NX.",
+          "fuentes": [
+            "S5a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "CJ1H / CJ1G",
+          "modelos_texto": "CJ1H-CPU65H, CJ1H-CPU66H, CJ1H-CPU67H; CJ1G-CPU42H, CPU43H, CPU44H, CPU45H",
+          "modelos": [
+            "CJ1H-CPU65H",
+            "CJ1H-CPU66H",
+            "CJ1H-CPU67H",
+            "CJ1G-CPU42H",
+            "CPU43H",
+            "CPU44H",
+            "CPU45H"
+          ],
+          "observacion": "CPUs CJ1 documentadas.",
+          "fuentes": [
+            "S5a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "CJ1M",
+          "modelos_texto": "CJ1M-CPU11, CPU12, CPU13, CPU21, CPU22, CPU23",
+          "modelos": [
+            "CJ1M-CPU11",
+            "CPU12",
+            "CPU13",
+            "CPU21",
+            "CPU22",
+            "CPU23"
+          ],
+          "observacion": "CPUs compactas CJ1M.",
+          "fuentes": [
+            "S5a"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "CJ2H",
+          "modelos_texto": "CJ2H-CPU64, CPU65, CPU66, CPU67, CPU68",
+          "modelos": [
+            "CJ2H-CPU64",
+            "CPU65",
+            "CPU66",
+            "CPU67",
+            "CPU68"
+          ],
+          "observacion": "Familia CJ2H.",
+          "fuentes": [
+            "S5a"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "CJ2M",
+          "modelos_texto": "CJ2M-CPU11 a CPU15; CJ2M-CPU31 a CPU35",
+          "modelos": [
+            "CJ2M-CPU11 a CPU15",
+            "CJ2M-CPU31 a CPU35"
+          ],
+          "observacion": "Familia CJ2M.",
+          "fuentes": [
+            "S5a"
+          ]
+        },
+        {
+          "n": 6,
+          "familia": "Sysmac NJ",
+          "modelos_texto": "NJ101, NJ301, NJ501",
+          "modelos": [
+            "NJ101",
+            "NJ301",
+            "NJ501"
+          ],
+          "observacion": "Machine Automation Controllers.",
+          "fuentes": [
+            "S5a"
+          ]
+        },
+        {
+          "n": 7,
+          "familia": "Actual - Sysmac NX",
+          "modelos_texto": "NX1P2, NX102, NX502, NX701",
+          "modelos": [
+            "NX1P2",
+            "NX102",
+            "NX502",
+            "NX701"
+          ],
+          "observacion": "Controladores actuales de la plataforma Sysmac.",
+          "fuentes": [
+            "S5b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 6,
+      "marca": "Emerson (legado GE Fanuc / GE Intelligent Platforms)",
+      "clasificacion": "PLC/PAC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Legado - Series 90-30",
+          "modelos_texto": "Series 90-30 (familia legacy)",
+          "modelos": [
+            "Series 90-30 (familia legacy)"
+          ],
+          "observacion": "Emerson documenta la migración desde 90-30; no se insertan códigos IC693CPU sin una ficha oficial específica en esta versión.",
+          "fuentes": [
+            "S6a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "PACSystems RX3i - CPU310",
+          "modelos_texto": "IC695CPU310",
+          "modelos": [
+            "IC695CPU310"
+          ],
+          "observacion": "CPU RX3i anterior; aparece como referencia de compatibilidad en documentación Emerson.",
+          "fuentes": [
+            "S6b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "PACSystems RX3i - CPE300",
+          "modelos_texto": "IC695CPE302, IC695CPE305, IC695CPE310",
+          "modelos": [
+            "IC695CPE302",
+            "IC695CPE305",
+            "IC695CPE310"
+          ],
+          "observacion": "CPUs CPE300.",
+          "fuentes": [
+            "S6b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "PACSystems RX3i - CPE330",
+          "modelos_texto": "IC695CPE330",
+          "modelos": [
+            "IC695CPE330"
+          ],
+          "observacion": "CPU RX3i de mayor rendimiento.",
+          "fuentes": [
+            "S6c"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "Actual - PACSystems",
+          "modelos_texto": "IC695CPE400, IC695CPL410",
+          "modelos": [
+            "IC695CPE400",
+            "IC695CPL410"
+          ],
+          "observacion": "Plataformas actuales documentadas por Emerson.",
+          "fuentes": [
+            "S6d"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 7,
+      "marca": "ABB",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Histórica - AC31",
+          "modelos_texto": "07CR41, 07CR42, 07CT41, 07CT42, 07KR51, 07KT51, 07KT95, 07KT96, 07KT97, 07KT98",
+          "modelos": [
+            "07CR41",
+            "07CR42",
+            "07CT41",
+            "07CT42",
+            "07KR51",
+            "07KT51",
+            "07KT95",
+            "07KT96",
+            "07KT97",
+            "07KT98"
+          ],
+          "observacion": "Controladores AC31 documentados por ABB.",
+          "fuentes": [
+            "S7a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "AC500 - primera etapa",
+          "modelos_texto": "PM571, PM572, PM573-ETH, PM581, PM582, PM583, PM585",
+          "modelos": [
+            "PM571",
+            "PM572",
+            "PM573-ETH",
+            "PM581",
+            "PM582",
+            "PM583",
+            "PM585"
+          ],
+          "observacion": "CPUs AC500.",
+          "fuentes": [
+            "S7b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "AC500 - alto rendimiento",
+          "modelos_texto": "PM590, PM591, PM592, PM595-4ETH-F",
+          "modelos": [
+            "PM590",
+            "PM591",
+            "PM592",
+            "PM595-4ETH-F"
+          ],
+          "observacion": "CPUs AC500 de mayor capacidad.",
+          "fuentes": [
+            "S7b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Actual - AC500 V3",
+          "modelos_texto": "PM5630-2ETH, PM5650-2ETH, PM5670-2ETH, PM5675-2ETH",
+          "modelos": [
+            "PM5630-2ETH",
+            "PM5650-2ETH",
+            "PM5670-2ETH",
+            "PM5675-2ETH"
+          ],
+          "observacion": "Generación V3 actual.",
+          "fuentes": [
+            "S7b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "marca": "Beckhoff",
+      "clasificacion": "PC-based control / Embedded PC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Histórica - CX",
+          "modelos_texto": "CX1000, CX1010, CX1020, CX1030",
+          "modelos": [
+            "CX1000",
+            "CX1010",
+            "CX1020",
+            "CX1030"
+          ],
+          "observacion": "Primeras generaciones de Embedded PC CX; Beckhoff documenta CX1000 desde 2002.",
+          "fuentes": [
+            "S8a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "CX50xx",
+          "modelos_texto": "CX5010, CX5020",
+          "modelos": [
+            "CX5010",
+            "CX5020"
+          ],
+          "observacion": "Generación Atom; actualmente en fase de servicio.",
+          "fuentes": [
+            "S8b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "CX90xx",
+          "modelos_texto": "CX9000, CX9010, CX9020",
+          "modelos": [
+            "CX9000",
+            "CX9010",
+            "CX9020"
+          ],
+          "observacion": "Controladores compactos CX.",
+          "fuentes": [
+            "S8a"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Actual - gama media",
+          "modelos_texto": "CX9240, CX5120, CX5130, CX5140, CX5230, CX5240, CX5330, CX5340",
+          "modelos": [
+            "CX9240",
+            "CX5120",
+            "CX5130",
+            "CX5140",
+            "CX5230",
+            "CX5240",
+            "CX5330",
+            "CX5340"
+          ],
+          "observacion": "Embedded PCs actuales.",
+          "fuentes": [
+            "S8c"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "Actual - alto rendimiento",
+          "modelos_texto": "CX5620, CX5630, CX2033, CX2043, CX2072",
+          "modelos": [
+            "CX5620",
+            "CX5630",
+            "CX2033",
+            "CX2043",
+            "CX2072"
+          ],
+          "observacion": "Embedded PCs de mayor desempeño.",
+          "fuentes": [
+            "S8c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 9,
+      "marca": "Phoenix Contact",
+      "clasificacion": "PLC / controlador industrial",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "RFC",
+          "modelos_texto": "RFC 470S PN 3TX",
+          "modelos": [
+            "RFC 470S PN 3TX"
+          ],
+          "observacion": "Controlador RFC documentado por Phoenix Contact.",
+          "fuentes": [
+            "S9a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "Axiocontrol",
+          "modelos_texto": "AXC 1050, AXC 3050",
+          "modelos": [
+            "AXC 1050",
+            "AXC 3050"
+          ],
+          "observacion": "Controladores AXC previos a PLCnext.",
+          "fuentes": [
+            "S9b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "PLCnext - entrada/media",
+          "modelos_texto": "AXC F 1152, AXC F 2152, AXC F 3152",
+          "modelos": [
+            "AXC F 1152",
+            "AXC F 2152",
+            "AXC F 3152"
+          ],
+          "observacion": "Controladores PLCnext.",
+          "fuentes": [
+            "S9b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Actual - PLCnext alto rendimiento/redundancia",
+          "modelos_texto": "AXC F 4072S, AXC F 4072R",
+          "modelos": [
+            "AXC F 4072S",
+            "AXC F 4072R"
+          ],
+          "observacion": "Modelos actuales de mayor capacidad.",
+          "fuentes": [
+            "S9b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 10,
+      "marca": "LS ELECTRIC",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "XGT - XGK",
+          "modelos_texto": "XGK-CPUA, XGK-CPUE, XGK-CPUH, XGK-CPUS, XGK-CPUU, XGK-CPUUN, XGK-CPUHN, XGK-CPUSN",
+          "modelos": [
+            "XGK-CPUA",
+            "XGK-CPUE",
+            "XGK-CPUH",
+            "XGK-CPUS",
+            "XGK-CPUU",
+            "XGK-CPUUN",
+            "XGK-CPUHN",
+            "XGK-CPUSN"
+          ],
+          "observacion": "CPUs XGK documentadas en manual oficial.",
+          "fuentes": [
+            "S10a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "XGT - XGI",
+          "modelos_texto": "XGI-CPUE, XGI-CPUS, XGI-CPUH, XGI-CPUU, XGI-CPUUN",
+          "modelos": [
+            "XGI-CPUE",
+            "XGI-CPUS",
+            "XGI-CPUH",
+            "XGI-CPUU",
+            "XGI-CPUUN"
+          ],
+          "observacion": "CPUs IEC de XGT.",
+          "fuentes": [
+            "S10a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "XGT - XGR redundante",
+          "modelos_texto": "XGR-CPUH/F, XGR-CPUH/T",
+          "modelos": [
+            "XGR-CPUH/F",
+            "XGR-CPUH/T"
+          ],
+          "observacion": "CPUs redundantes XGR.",
+          "fuentes": [
+            "S10b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "XGB compacta",
+          "modelos_texto": "XBC/XEC-DR28U, XBC/XEC-DN32U",
+          "modelos": [
+            "XBC/XEC-DR28U",
+            "XBC/XEC-DN32U"
+          ],
+          "observacion": "Ejemplos de CPUs compactas XGB documentadas por LS ELECTRIC.",
+          "fuentes": [
+            "S10c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 11,
+      "marca": "Delta Electronics",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "DVP compacta",
+          "modelos_texto": "DVP14SS2, DVP12SA2, DVP28SV2",
+          "modelos": [
+            "DVP14SS2",
+            "DVP12SA2",
+            "DVP28SV2"
+          ],
+          "observacion": "Modelos DVP ampliamente documentados por Delta; se incluyen como etapa compacta previa.",
+          "fuentes": [
+            "S11a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "AH Series",
+          "modelos_texto": "AHCPU500-RS2, AHCPU501, AHCPU510, AHCPU511, AHCPU520, AHCPU521, AHCPU530, AHCPU531, AHCPU560-EN2",
+          "modelos": [
+            "AHCPU500-RS2",
+            "AHCPU501",
+            "AHCPU510",
+            "AHCPU511",
+            "AHCPU520",
+            "AHCPU521",
+            "AHCPU530",
+            "AHCPU531",
+            "AHCPU560-EN2"
+          ],
+          "observacion": "CPUs modulares AH.",
+          "fuentes": [
+            "S11b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - AS Series",
+          "modelos_texto": "AS332T-A, AS332P-A, AS324MT-A, AS320T-B, AS320P-B, AS300N-A, AS228T-A, AS228P-A, AS218TX, AS218PX",
+          "modelos": [
+            "AS332T-A",
+            "AS332P-A",
+            "AS324MT-A",
+            "AS320T-B",
+            "AS320P-B",
+            "AS300N-A",
+            "AS228T-A",
+            "AS228P-A",
+            "AS218TX",
+            "AS218PX"
+          ],
+          "observacion": "CPUs/controladores AS actuales.",
+          "fuentes": [
+            "S11c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 12,
+      "marca": "Bosch Rexroth",
+      "clasificacion": "PLC / control industrial",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Legado - IndraControl L",
+          "modelos_texto": "IndraControl L20, L40, L45, L65",
+          "modelos": [
+            "IndraControl L20",
+            "L40",
+            "L45",
+            "L65"
+          ],
+          "observacion": "Controladores PLC de la generación IndraControl; se presentan como legado tecnológico.",
+          "fuentes": [
+            "S12a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "Actual - ctrlX CORE",
+          "modelos_texto": "ctrlX CORE X3",
+          "modelos": [
+            "ctrlX CORE X3"
+          ],
+          "observacion": "Controlador ctrlX CORE.",
+          "fuentes": [
+            "S12b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - ctrlX COREplus",
+          "modelos_texto": "ctrlX COREplus X3, ctrlX COREplus X5, ctrlX COREplus X7",
+          "modelos": [
+            "ctrlX COREplus X3",
+            "ctrlX COREplus X5",
+            "ctrlX COREplus X7"
+          ],
+          "observacion": "Variantes actuales de mayor capacidad.",
+          "fuentes": [
+            "S12b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 13,
+      "marca": "B&R Industrial Automation",
+      "clasificacion": "PLC / control industrial",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Histórica - System 2005",
+          "modelos_texto": "CP260, CP340, CP360, CP380, CP382",
+          "modelos": [
+            "CP260",
+            "CP340",
+            "CP360",
+            "CP380",
+            "CP382"
+          ],
+          "observacion": "CPUs System 2005 documentadas por B&R.",
+          "fuentes": [
+            "S13a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "X20 - compacta/media",
+          "modelos_texto": "X20CP1484, X20CP1586, X20CP1684, X20CP1686X",
+          "modelos": [
+            "X20CP1484",
+            "X20CP1586",
+            "X20CP1684",
+            "X20CP1686X"
+          ],
+          "observacion": "CPUs X20.",
+          "fuentes": [
+            "S13b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - X20 alto rendimiento",
+          "modelos_texto": "X20CP3684, X20CP3685",
+          "modelos": [
+            "X20CP3684",
+            "X20CP3685"
+          ],
+          "observacion": "CPUs X20 actuales de alto desempeño.",
+          "fuentes": [
+            "S13b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 14,
+      "marca": "WAGO",
+      "clasificacion": "PLC / controlador industrial",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Histórica - 750",
+          "modelos_texto": "750-841",
+          "modelos": [
+            "750-841"
+          ],
+          "observacion": "Controlador Ethernet histórico WAGO.",
+          "fuentes": [
+            "S14a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "750 - tercera generación",
+          "modelos_texto": "750-881",
+          "modelos": [
+            "750-881"
+          ],
+          "observacion": "Controlador 3rd Generation; WAGO publica su ciclo de vida.",
+          "fuentes": [
+            "S14b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "PFC100",
+          "modelos_texto": "750-8100, 750-8101, 750-8102",
+          "modelos": [
+            "750-8100",
+            "750-8101",
+            "750-8102"
+          ],
+          "observacion": "Controladores PFC100.",
+          "fuentes": [
+            "S14c"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "PFC200",
+          "modelos_texto": "750-8202, 750-8203, 750-8204, 750-8206, 750-8207, 750-8208",
+          "modelos": [
+            "750-8202",
+            "750-8203",
+            "750-8204",
+            "750-8206",
+            "750-8207",
+            "750-8208"
+          ],
+          "observacion": "Controladores PFC200.",
+          "fuentes": [
+            "S14c"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "Actual - PFC300",
+          "modelos_texto": "750-830X (familia de referencias PFC300)",
+          "modelos": [
+            "750-830X (familia de referencias PFC300)"
+          ],
+          "observacion": "WAGO publica la nueva familia PFC300; se conserva el patrón sin inventar un sufijo específico no verificado.",
+          "fuentes": [
+            "S14c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 15,
+      "marca": "Eaton",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "XC100",
+          "modelos_texto": "XC-CPU101-C64K-8DI-6DO, XC-CPU101-C128K-8DI-6DO, XC-CPU101-C256K-8DI-6DO, XC-CPU121-2C256K",
+          "modelos": [
+            "XC-CPU101-C64K-8DI-6DO",
+            "XC-CPU101-C128K-8DI-6DO",
+            "XC-CPU101-C256K-8DI-6DO",
+            "XC-CPU121-2C256K"
+          ],
+          "observacion": "CPUs XC100/120.",
+          "fuentes": [
+            "S15a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "XC200",
+          "modelos_texto": "XC-CPU201-EC256K-8DI-6DO, XC-CPU201-EC512K-8DI-6DO, XC-CPU202-EC4M-8DI-6DO-XV",
+          "modelos": [
+            "XC-CPU201-EC256K-8DI-6DO",
+            "XC-CPU201-EC512K-8DI-6DO",
+            "XC-CPU202-EC4M-8DI-6DO-XV"
+          ],
+          "observacion": "CPUs XC200.",
+          "fuentes": [
+            "S15a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - XC300",
+          "modelos_texto": "XC-303-C11-000, XC-303-C21-001, XC-303-C32-002",
+          "modelos": [
+            "XC-303-C11-000",
+            "XC-303-C21-001",
+            "XC-303-C32-002"
+          ],
+          "observacion": "Tres variantes XC300 documentadas por Eaton.",
+          "fuentes": [
+            "S15b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 16,
+      "marca": "IDEC",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "MicroSmart FC4A",
+          "modelos_texto": "FC4A-C16R2, FC4A-D20RS1",
+          "modelos": [
+            "FC4A-C16R2",
+            "FC4A-D20RS1"
+          ],
+          "observacion": "Modelos FC4A legacy.",
+          "fuentes": [
+            "S16a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "MicroSmart FC5A",
+          "modelos_texto": "FC5A-C10R2C, FC5A-D16RK1",
+          "modelos": [
+            "FC5A-C10R2C",
+            "FC5A-D16RK1"
+          ],
+          "observacion": "Modelos FC5A.",
+          "fuentes": [
+            "S16a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - MicroSmart FC6A Plus",
+          "modelos_texto": "FC6A-D16R1CEE",
+          "modelos": [
+            "FC6A-D16R1CEE"
+          ],
+          "observacion": "Modelo de sustitución documentado por IDEC; la familia FC6A Plus posee otras variantes.",
+          "fuentes": [
+            "S16a"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 17,
+      "marca": "KEYENCE",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "KV antiguas/intermedias",
+          "modelos_texto": "KV-1000, KV-3000, KV-5000, KV-5500",
+          "modelos": [
+            "KV-1000",
+            "KV-3000",
+            "KV-5000",
+            "KV-5500"
+          ],
+          "observacion": "Generaciones soportadas por herramientas/documentación KEYENCE.",
+          "fuentes": [
+            "S17a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "KV intermedias recientes",
+          "modelos_texto": "KV-7300, KV-7500, KV-8000",
+          "modelos": [
+            "KV-7300",
+            "KV-7500",
+            "KV-8000"
+          ],
+          "observacion": "Generaciones KV posteriores.",
+          "fuentes": [
+            "S17a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - KV-X",
+          "modelos_texto": "KV-X500, KV-X520",
+          "modelos": [
+            "KV-X500",
+            "KV-X520"
+          ],
+          "observacion": "CPUs actuales KV-X verificadas en documentación KEYENCE.",
+          "fuentes": [
+            "S17b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 18,
+      "marca": "Panasonic Industry",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "Históricas",
+          "modelos_texto": "FP-M, FP1, FP3, FP10SH",
+          "modelos": [
+            "FP-M",
+            "FP1",
+            "FP3",
+            "FP10SH"
+          ],
+          "observacion": "Series históricas oficialmente listadas por Panasonic como discontinuadas.",
+          "fuentes": [
+            "S18a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "Intermedias",
+          "modelos_texto": "FP0, FP2SH, FPΣ, FP-X, FP-e",
+          "modelos": [
+            "FP0",
+            "FP2SH",
+            "FPΣ",
+            "FP-X",
+            "FP-e"
+          ],
+          "observacion": "Familias posteriores de PLC Panasonic.",
+          "fuentes": [
+            "S18a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "FP7 - referencias anteriores",
+          "modelos_texto": "AFP7CPS21, AFP7CPS31, AFP7CPS31S, AFP7CPS31E, AFP7CPS31ES, AFP7CPS41E, AFP7CPS41ES",
+          "modelos": [
+            "AFP7CPS21",
+            "AFP7CPS31",
+            "AFP7CPS31S",
+            "AFP7CPS31E",
+            "AFP7CPS31ES",
+            "AFP7CPS41E",
+            "AFP7CPS41ES"
+          ],
+          "observacion": "Referencias FP7 discontinuadas / renombradas.",
+          "fuentes": [
+            "S18b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Actual - FP7",
+          "modelos_texto": "AFP7CPS2R, AFP7CPS3R, AFP7CPS3RS, AFP7CPS3RE, AFP7CPS3RES, AFP7CPS4RE, AFP7CPS4RES",
+          "modelos": [
+            "AFP7CPS2R",
+            "AFP7CPS3R",
+            "AFP7CPS3RS",
+            "AFP7CPS3RE",
+            "AFP7CPS3RES",
+            "AFP7CPS4RE",
+            "AFP7CPS4RES"
+          ],
+          "observacion": "CPUs FP7 actuales.",
+          "fuentes": [
+            "S18b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 19,
+      "marca": "Hitachi",
+      "clasificacion": "PLC/PAC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "EH-150",
+          "modelos_texto": "EH-CPU104A, EH-CPU208A, EH-CPU316A, EH-CPU516, EH-CPU548",
+          "modelos": [
+            "EH-CPU104A",
+            "EH-CPU208A",
+            "EH-CPU316A",
+            "EH-CPU516",
+            "EH-CPU548"
+          ],
+          "observacion": "CPUs EH-150 verificadas en especificación técnica oficial.",
+          "fuentes": [
+            "S19a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "HX Series",
+          "modelos_texto": "CPU estándar, CPU high-function, CPU motion, CPU redundancy",
+          "modelos": [
+            "CPU estándar",
+            "CPU high-function",
+            "CPU motion",
+            "CPU redundancy"
+          ],
+          "observacion": "Hitachi anunció cuatro modelos funcionales HX. El comunicado oficial no publica números de parte individuales; no se inventan.",
+          "fuentes": [
+            "S19b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 20,
+      "marca": "Fuji Electric",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "MICREX-SX SPH200",
+          "modelos_texto": "NP1PH-08, NP1PH-16",
+          "modelos": [
+            "NP1PH-08",
+            "NP1PH-16"
+          ],
+          "observacion": "CPUs SPH200.",
+          "fuentes": [
+            "S20a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "SPH300",
+          "modelos_texto": "NP1PS-32, NP1PS-32R, NP1PS-74R, NP1PS-117R, NP1PS-245R",
+          "modelos": [
+            "NP1PS-32",
+            "NP1PS-32R",
+            "NP1PS-74R",
+            "NP1PS-117R",
+            "NP1PS-245R"
+          ],
+          "observacion": "CPUs SPH300.",
+          "fuentes": [
+            "S20a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "SPH2000",
+          "modelos_texto": "NP1PM-48R, NP1PM-48E, NP1PM-256E, NP1PM-256H",
+          "modelos": [
+            "NP1PM-48R",
+            "NP1PM-48E",
+            "NP1PM-256E",
+            "NP1PM-256H"
+          ],
+          "observacion": "CPUs SPH2000.",
+          "fuentes": [
+            "S20a"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "SPH3000 / 3000D",
+          "modelos_texto": "NP1PU-048E, NP1PU-128E, NP1PU-256E; NP1PU-048EZM, NP1PU-096EZM, NP1PU-128EZM, NP1PU-256EZM",
+          "modelos": [
+            "NP1PU-048E",
+            "NP1PU-128E",
+            "NP1PU-256E",
+            "NP1PU-048EZM",
+            "NP1PU-096EZM",
+            "NP1PU-128EZM",
+            "NP1PU-256EZM"
+          ],
+          "observacion": "Generaciones SPH3000.",
+          "fuentes": [
+            "S20a"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "SPH5000",
+          "modelos_texto": "NP1PU1-512H; NP1PA1-096E, NP1PA1-128E, NP1PA1-256E, NP1PA1-512E",
+          "modelos": [
+            "NP1PU1-512H",
+            "NP1PA1-096E",
+            "NP1PA1-128E",
+            "NP1PA1-256E",
+            "NP1PA1-512E"
+          ],
+          "observacion": "SPH5000H/M.",
+          "fuentes": [
+            "S20a"
+          ]
+        },
+        {
+          "n": 6,
+          "familia": "Actual - SPH3300",
+          "modelos_texto": "NP1PU-048EN, NP1PU-096EN, NP1PU-128EN, NP1PU-256EN",
+          "modelos": [
+            "NP1PU-048EN",
+            "NP1PU-096EN",
+            "NP1PU-128EN",
+            "NP1PU-256EN"
+          ],
+          "observacion": "Nueva generación documentada por Fuji Electric.",
+          "fuentes": [
+            "S20b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 21,
+      "marca": "Toshiba",
+      "clasificacion": "PLC / controlador integrado",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "T2 / V-Series temprana",
+          "modelos_texto": "S2E, S2T",
+          "modelos": [
+            "S2E",
+            "S2T"
+          ],
+          "observacion": "Toshiba los identifica como CPUs de tercera generación T2 para racks V-Series.",
+          "fuentes": [
+            "S21a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "V100 / V200",
+          "modelos_texto": "GPU115*3S (V100), GPU234*3S (V200)",
+          "modelos": [
+            "GPU115*3S (V100)",
+            "GPU234*3S (V200)"
+          ],
+          "observacion": "Referencias de CPU publicadas por Toshiba.",
+          "fuentes": [
+            "S21b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - V Series Type1 Light",
+          "modelos_texto": "PUM11 (S), PUM12 (H), PUM14 (D)",
+          "modelos": [
+            "PUM11 (S)",
+            "PUM12 (H)",
+            "PUM14 (D)"
+          ],
+          "observacion": "CPUs Type1 Light actuales.",
+          "fuentes": [
+            "S21c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 22,
+      "marca": "Yokogawa",
+      "clasificacion": "PLC/PAC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "FA-M3 histórica",
+          "modelos_texto": "F3SP05",
+          "modelos": [
+            "F3SP05"
+          ],
+          "observacion": "CPU documentada en manuales de la plataforma.",
+          "fuentes": [
+            "S22a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "FA-M3",
+          "modelos_texto": "F3SP21, F3SP25, F3SP35",
+          "modelos": [
+            "F3SP21",
+            "F3SP25",
+            "F3SP35"
+          ],
+          "observacion": "Generación posterior.",
+          "fuentes": [
+            "S22a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "FA-M3",
+          "modelos_texto": "F3SP28, F3SP38, F3SP5*",
+          "modelos": [
+            "F3SP28",
+            "F3SP38",
+            "F3SP5*"
+          ],
+          "observacion": "Yokogawa agrupa algunas variantes como F3SP5* en la documentación oficial.",
+          "fuentes": [
+            "S22a"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "FA-M3V",
+          "modelos_texto": "F3SP66, F3SP67",
+          "modelos": [
+            "F3SP66",
+            "F3SP67"
+          ],
+          "observacion": "CPU de alto rendimiento FA-M3V.",
+          "fuentes": [
+            "S22a"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "Actual - FA-M3V",
+          "modelos_texto": "F3SP71, F3SP76",
+          "modelos": [
+            "F3SP71",
+            "F3SP76"
+          ],
+          "observacion": "Generación más reciente indicada en la documentación consultada.",
+          "fuentes": [
+            "S22a"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 23,
+      "marca": "Honeywell",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "ControlEdge / HC900 CPU",
+          "modelos_texto": "900CP1-0200",
+          "modelos": [
+            "900CP1-0200"
+          ],
+          "observacion": "CPU anterior; Honeywell publicó su phase-out.",
+          "fuentes": [
+            "S23a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "ControlEdge PLC",
+          "modelos_texto": "900CP1-0300",
+          "modelos": [
+            "900CP1-0300"
+          ],
+          "observacion": "Sustituto de CP1-0200 desde 2022.",
+          "fuentes": [
+            "S23a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - ControlEdge PLC",
+          "modelos_texto": "900CP2-0100",
+          "modelos": [
+            "900CP2-0100"
+          ],
+          "observacion": "CPU CP2 documentada en especificación oficial.",
+          "fuentes": [
+            "S23b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 24,
+      "marca": "Unitronics",
+      "clasificacion": "PLC + HMI",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "M91",
+          "modelos_texto": "M91-2-R1, M91-2-R2C, M91-2-R6C, M91-2-R34, M91-2-T1, M91-2-T38, M91-2-T2C",
+          "modelos": [
+            "M91-2-R1",
+            "M91-2-R2C",
+            "M91-2-R6C",
+            "M91-2-R34",
+            "M91-2-T1",
+            "M91-2-T38",
+            "M91-2-T2C"
+          ],
+          "observacion": "Controladores M91.",
+          "fuentes": [
+            "S24a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "Jazz",
+          "modelos_texto": "JZ20-R10, JZ20-R16, JZ20-R31",
+          "modelos": [
+            "JZ20-R10",
+            "JZ20-R16",
+            "JZ20-R31"
+          ],
+          "observacion": "PLC+HMI Jazz.",
+          "fuentes": [
+            "S24b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Vision",
+          "modelos_texto": "V570-57-T20B",
+          "modelos": [
+            "V570-57-T20B"
+          ],
+          "observacion": "Ejemplo exacto de Vision 570.",
+          "fuentes": [
+            "S24c"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Actual - UniStream",
+          "modelos_texto": "USC-B10-T24, USC-B5-RA28, USC-B3-T20",
+          "modelos": [
+            "USC-B10-T24",
+            "USC-B5-RA28",
+            "USC-B3-T20"
+          ],
+          "observacion": "Controladores UniStream actuales.",
+          "fuentes": [
+            "S24d"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 25,
+      "marca": "FATEK Automation",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "FBs - Main Units",
+          "modelos_texto": "FBs-10MA, FBs-14MA, FBs-20MA, FBs-20MB, FBs-24MA, FBs-32MA",
+          "modelos": [
+            "FBs-10MA",
+            "FBs-14MA",
+            "FBs-20MA",
+            "FBs-20MB",
+            "FBs-24MA",
+            "FBs-32MA"
+          ],
+          "observacion": "Modelos de unidades principales FBs documentados en catálogo.",
+          "fuentes": [
+            "S25a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "FBs - MC",
+          "modelos_texto": "FBs-10MC, FBs-14MC, FBs-20MC, FBs-24MC, FBs-32MC, FBs-40MC, FBs-60MC",
+          "modelos": [
+            "FBs-10MC",
+            "FBs-14MC",
+            "FBs-20MC",
+            "FBs-24MC",
+            "FBs-32MC",
+            "FBs-40MC",
+            "FBs-60MC"
+          ],
+          "observacion": "Unidades principales de mayor funcionalidad.",
+          "fuentes": [
+            "S25a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "B1 / B1z / HB1",
+          "modelos_texto": "B1/B1z/HB1 Series",
+          "modelos": [
+            "B1/B1z/HB1 Series"
+          ],
+          "observacion": "FATEK mantiene documentación oficial de estas series; esta versión no asigna un código de CPU que no figure de forma explícita en la fuente consultada.",
+          "fuentes": [
+            "S25b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Actual - M PLC",
+          "modelos_texto": "M Series PLC (CPU Unit / dual-CPU architecture)",
+          "modelos": [
+            "M Series PLC (CPU Unit / dual-CPU architecture)"
+          ],
+          "observacion": "La M Series es la generación actual; el manual público consultado identifica 'CPU Unit' sin exponer en el resultado un número de parte de CPU. Se conserva así para no inventar.",
+          "fuentes": [
+            "S25c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 26,
+      "marca": "VIPA / Yaskawa",
+      "clasificacion": "PLC",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "VIPA 300S SPEED7",
+          "modelos_texto": "CPU 314ST - 314-6CF23, CPU 314SC/DPM - 314-6CG23",
+          "modelos": [
+            "CPU 314ST - 314-6CF23",
+            "CPU 314SC/DPM - 314-6CG23"
+          ],
+          "observacion": "CPUs VIPA 300S documentadas.",
+          "fuentes": [
+            "S26a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "SLIO CPU 013",
+          "modelos_texto": "013-CCF0R00",
+          "modelos": [
+            "013-CCF0R00"
+          ],
+          "observacion": "CPU compacta SPEED7.",
+          "fuentes": [
+            "S26b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "SLIO CPU 014",
+          "modelos_texto": "014-CEF0R01",
+          "modelos": [
+            "014-CEF0R01"
+          ],
+          "observacion": "CPU SPEED7.",
+          "fuentes": [
+            "S26b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "SLIO CPU 015",
+          "modelos_texto": "015-CEFNR00 (CPU 015N), 015-CEFPR01 (CPU 015PN)",
+          "modelos": [
+            "015-CEFNR00 (CPU 015N)",
+            "015-CEFPR01 (CPU 015PN)"
+          ],
+          "observacion": "Variantes SLIO 015.",
+          "fuentes": [
+            "S26c"
+          ]
+        },
+        {
+          "n": 5,
+          "familia": "SLIO CPU 017 / 019",
+          "modelos_texto": "017-CEFPR00, 019-CEFPM00",
+          "modelos": [
+            "017-CEFPR00",
+            "019-CEFPM00"
+          ],
+          "observacion": "CPUs SLIO de mayor capacidad.",
+          "fuentes": [
+            "S26c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 27,
+      "marca": "Weidmüller",
+      "clasificacion": "PLC / controlador industrial",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "u-control WL2000",
+          "modelos_texto": "UC20-WL2000-AC, UC20-WL2000-AC-CAN, UC20-WL2000-IOT",
+          "modelos": [
+            "UC20-WL2000-AC",
+            "UC20-WL2000-AC-CAN",
+            "UC20-WL2000-IOT"
+          ],
+          "observacion": "Controladores u-control WL2000.",
+          "fuentes": [
+            "S27a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "u-control SL2000",
+          "modelos_texto": "UC20-SL2000-EC, UC20-SL2000-EC-CAN",
+          "modelos": [
+            "UC20-SL2000-EC",
+            "UC20-SL2000-EC-CAN"
+          ],
+          "observacion": "Controladores SL2000.",
+          "fuentes": [
+            "S27b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - u-control OLAC",
+          "modelos_texto": "UC20-SL2000-OLAC-EC, UC20-SL2000-OLAC-EC-CAN",
+          "modelos": [
+            "UC20-SL2000-OLAC-EC",
+            "UC20-SL2000-OLAC-EC-CAN"
+          ],
+          "observacion": "Variantes actuales con OLAC.",
+          "fuentes": [
+            "S27b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 28,
+      "marca": "Advantech",
+      "clasificacion": "IPC / Industrial Computer",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "IPC - UNO-2271G",
+          "modelos_texto": "UNO-2271G-E21BE, UNO-2271G-E22BE, UNO-2271G-E23BE, UNO-2271G-E021AE, UNO-2271G-E022AE, UNO-2271G-E023AE",
+          "modelos": [
+            "UNO-2271G-E21BE",
+            "UNO-2271G-E22BE",
+            "UNO-2271G-E23BE",
+            "UNO-2271G-E021AE",
+            "UNO-2271G-E022AE",
+            "UNO-2271G-E023AE"
+          ],
+          "observacion": "IPC/gateway industrial; no es una CPU PLC independiente.",
+          "fuentes": [
+            "S28a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "IPC - UNO-2271G V2",
+          "modelos_texto": "UNO-2271G V2; ejemplos UNO-2271G-N221AE / N221AU",
+          "modelos": [
+            "UNO-2271G V2",
+            "ejemplos UNO-2271G-N221AE / N221AU"
+          ],
+          "observacion": "Procesadores Intel Celeron N6210 / Pentium N6415 según variante.",
+          "fuentes": [
+            "S28b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - UNO-2271G V3",
+          "modelos_texto": "UNO-2271G V3",
+          "modelos": [
+            "UNO-2271G V3"
+          ],
+          "observacion": "Intel Atom x7211RE; IPC industrial actual.",
+          "fuentes": [
+            "S28c"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Actual - UNO-2484V3",
+          "modelos_texto": "UNO-2484V3",
+          "modelos": [
+            "UNO-2484V3"
+          ],
+          "observacion": "IPC modular con Intel Core Ultra (Series 2), listado en la gama actual.",
+          "fuentes": [
+            "S28c"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 29,
+      "marca": "Kontron",
+      "clasificacion": "IPC / Industrial Computer",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "KBox A",
+          "modelos_texto": "KBox A-101, KBox A-103, KBox A-201 Connect, KBox A-202",
+          "modelos": [
+            "KBox A-101",
+            "KBox A-103",
+            "KBox A-201 Connect",
+            "KBox A-202"
+          ],
+          "observacion": "Familia de IPC industriales KBox; no son CPUs PLC separables.",
+          "fuentes": [
+            "S29a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "KBox C",
+          "modelos_texto": "KBox C-100, KBox C-101, KBox C-102",
+          "modelos": [
+            "KBox C-100",
+            "KBox C-101",
+            "KBox C-102"
+          ],
+          "observacion": "IPC industriales modulares para automatización.",
+          "fuentes": [
+            "S29a"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "KBox C-101 variantes",
+          "modelos_texto": "KBox C-101-0, KBox C-101-1, KBox C-101-2",
+          "modelos": [
+            "KBox C-101-0",
+            "KBox C-101-1",
+            "KBox C-101-2"
+          ],
+          "observacion": "Variantes de chasis/expansión documentadas.",
+          "fuentes": [
+            "S29b"
+          ]
+        }
+      ]
+    },
+    {
+      "n": 30,
+      "marca": "AAEON",
+      "clasificacion": "IPC / Industrial Computer",
+      "generaciones": [
+        {
+          "n": 1,
+          "familia": "BOXER generación anterior",
+          "modelos_texto": "BOXER-6614, BOXER-6616, BOXER-6640, BOXER-6641",
+          "modelos": [
+            "BOXER-6614",
+            "BOXER-6616",
+            "BOXER-6640",
+            "BOXER-6641"
+          ],
+          "observacion": "IPC fanless/embedded; BOXER-6640 aparece como producto EOL.",
+          "fuentes": [
+            "S30a"
+          ]
+        },
+        {
+          "n": 2,
+          "familia": "BOXER intermedia",
+          "modelos_texto": "BOXER-6642-CML, BOXER-6643-TGU, BOXER-6645-ADS, BOXER-6646-ADP",
+          "modelos": [
+            "BOXER-6642-CML",
+            "BOXER-6643-TGU",
+            "BOXER-6645-ADS",
+            "BOXER-6646-ADP"
+          ],
+          "observacion": "IPC con generaciones Intel sucesivas.",
+          "fuentes": [
+            "S30b"
+          ]
+        },
+        {
+          "n": 3,
+          "familia": "Actual - BOXER",
+          "modelos_texto": "BOXER-6647-MTH, BOXER-6648-ARS, BOXER-6649-RAP",
+          "modelos": [
+            "BOXER-6647-MTH",
+            "BOXER-6648-ARS",
+            "BOXER-6649-RAP"
+          ],
+          "observacion": "Modelos actuales; BOXER-6647-MTH usa Intel Core Ultra 5/7.",
+          "fuentes": [
+            "S30b"
+          ]
+        },
+        {
+          "n": 4,
+          "familia": "Actual - BOXER-6647-MTH variantes",
+          "modelos_texto": "BOXER-6647-MTH-A1-1010, BOXER-6647-MTH-A2-1010",
+          "modelos": [
+            "BOXER-6647-MTH-A1-1010",
+            "BOXER-6647-MTH-A2-1010"
+          ],
+          "observacion": "Core Ultra 5 125H / Core Ultra 7 155H respectivamente.",
+          "fuentes": [
+            "S30c"
+          ]
+        }
+      ]
+    }
+  ],
+  "observaciones_verificacion": [
+    {
+      "caso": "Emerson / GE Fanuc",
+      "decision": "La fuente oficial de Emerson confirma la migración desde Series 90-30 hacia PACSystems. En esta versión no se transcribieron números IC693CPU de Series 90-30 porque la búsqueda oficial consultada no presentó una tabla fiable con esos códigos. Sí se incluyen códigos RX3i verificados."
+    },
+    {
+      "caso": "Hitachi HX",
+      "decision": "El comunicado oficial de Hitachi confirma cuatro modelos funcionales HX (estándar, high-function, motion y redundancy), pero no expone en la tabla pública los números de parte. Por eso no se inventaron códigos."
+    },
+    {
+      "caso": "FATEK M Series",
+      "decision": "FATEK mantiene un manual oficial M PLC CPU Unit actualizado en 2026. El resultado público consultado no expuso los códigos individuales de CPU; se conserva la denominación M Series / CPU Unit hasta obtener el catálogo con referencias explícitas."
+    },
+    {
+      "caso": "WAGO PFC300",
+      "decision": "La familia PFC300 está documentada, pero en esta versión se mantiene el patrón 750-830X cuando la referencia exacta completa no fue comprobada modelo por modelo."
+    },
+    {
+      "caso": "IPC",
+      "decision": "Advantech, Kontron y AAEON se conservan para el análisis de obsolescencia de computación industrial. Sus modelos no deben tratarse estadísticamente como CPU PLC sin separar previamente la categoría de hardware."
+    }
+  ],
+  "fuentes": {
+    "S1a": {
+      "descripcion": "Siemens - S5-115U CPU 945 Manual (incluye CPU 941-945)",
+      "url": "https://support.industry.siemens.com/cs/attachments/1086944/CPU945_6ES5998-3UF21_06_e_OCR.pdf"
+    },
+    "S1b": {
+      "descripcion": "Siemens - Migration from S5 to S7-1500; tabla de manuales S5",
+      "url": "https://support.industry.siemens.com/cs/attachments/105106251/105106251_Migration_guide_S5_S7_en.pdf"
+    },
+    "S1c": {
+      "descripcion": "Siemens - ProTool/Pro Runtime User Guide; conexión SIMATIC S5/S7",
+      "url": "https://support.industry.siemens.com/cs/attachments/1142578/PTprun_e.pdf"
+    },
+    "S1d": {
+      "descripcion": "Siemens - Guía de migración S7-300/S7-1500",
+      "url": "https://support.industry.siemens.com/cs/attachments/109478811/109478811_GuideForMigration_S7-300_S7-1500_V11_en.pdf"
+    },
+    "S1e": {
+      "descripcion": "Siemens - SIMATIC S7-1200",
+      "url": "https://www.siemens.com/en-us/products/simatic/s7-1200/"
+    },
+    "S1f": {
+      "descripcion": "Siemens - SIMATIC S7-1500",
+      "url": "https://www.siemens.com/en-us/products/simatic/s7-1500/"
+    },
+    "S2a": {
+      "descripcion": "Rockwell Automation - SLC 500 Controllers / SLC 5/05",
+      "url": "https://www.rockwellautomation.com/en-us/products/details.1747-L552.html"
+    },
+    "S2b": {
+      "descripcion": "Rockwell Automation - FactoryTalk Linx: Logix controller model list",
+      "url": "https://www.rockwellautomation.com/en-us/docs/factorytalk-services-platform/6-60/factorytalk-services-platform-help-ditamap/factorytalk-linx-help/work-with-l5k.html"
+    },
+    "S3a": {
+      "descripcion": "Schneider Electric - Modicon 984/800 I/O legacy range",
+      "url": "https://www.se.com/za/en/product-range/551-984-800-io/"
+    },
+    "S3b": {
+      "descripcion": "Schneider Electric - Legacy Modicon 584/884/984 battery FAQ",
+      "url": "https://www.se.com/us/en/faqs/FA315917/"
+    },
+    "S3c": {
+      "descripcion": "Schneider Electric - CPU references: Momentum/Premium/Quantum/M580",
+      "url": "https://www.se.com/it/it/faqs/FAQ000263116/"
+    },
+    "S4a": {
+      "descripcion": "Mitsubishi Electric - MELSEC-A/AnS CPU manual",
+      "url": "https://dl.mitsubishielectric.com/dl/fa/document/manual/plc/ib66320/ib66320l.pdf"
+    },
+    "S4b": {
+      "descripcion": "Mitsubishi Electric - MELSEC-Q/L product documentation",
+      "url": "https://www.mitsubishielectric.com/fa/products/cnt/plc/index.html"
+    },
+    "S4c": {
+      "descripcion": "Mitsubishi Electric - MELSEC iQ-R",
+      "url": "https://www.mitsubishielectric.com/fa/products/cnt/plcr/"
+    },
+    "S5a": {
+      "descripcion": "OMRON - Programmable Controllers/Machine Automation Controllers catalog",
+      "url": "https://www.ia.omron.com/data_pdf/cat/na_v457-e1_3_2_csm1100516.pdf"
+    },
+    "S5b": {
+      "descripcion": "OMRON - Sysmac / upgrade information",
+      "url": "https://automation.omron.com/en/mx/solutions/upgrade/"
+    },
+    "S6a": {
+      "descripcion": "Emerson - Migrating legacy 90-30 systems to PACSystems RX3i",
+      "url": "https://videos.emerson.com/detail/video/6114918692001/migrating-from-legacy-systems-to-pacsystems-rx3i"
+    },
+    "S6b": {
+      "descripcion": "Emerson - PACSystems RX3i CPE302/CPE305/CPE310",
+      "url": "https://discreteautomation.emerson.com/sfsites/c/cms/delivery/media/MCWVEABATCLRD5LA4CPVDIC43YWM"
+    },
+    "S6c": {
+      "descripcion": "Emerson - PACSystems RX3i CPE330",
+      "url": "https://discreteautomation.emerson.com/product/emerson-sku-ic695cpe330"
+    },
+    "S6d": {
+      "descripcion": "Emerson - PACSystems knowledge center / CPE400-CPL410",
+      "url": "https://discreteautomation.emerson.com/knowledge-center"
+    },
+    "S7a": {
+      "descripcion": "ABB - AC31 system documentation",
+      "url": "https://library.e.abb.com/"
+    },
+    "S7b": {
+      "descripcion": "ABB - AC500 Programmable Logic Controllers",
+      "url": "https://www.abb.com/global/en/areas/motion/plc/programmable-logic-controllers/ac500"
+    },
+    "S8a": {
+      "descripcion": "Beckhoff - CX series history / CX1000-CX1030",
+      "url": "https://www.beckhoff.com/media/downloads/information-media/pc-control/pcc_0107_e.pdf"
+    },
+    "S8b": {
+      "descripcion": "Beckhoff - IPC service products",
+      "url": "https://www.beckhoff.com/es-es/support/service-products/ipc-service-products/"
+    },
+    "S8c": {
+      "descripcion": "Beckhoff - Product range 2026",
+      "url": "https://download.beckhoff.com/download/document/catalog/Beckhoff_Gama_de_productos_2026.pdf"
+    },
+    "S9a": {
+      "descripcion": "Phoenix Contact - Control technology",
+      "url": "https://www.phoenixcontact.com/en-pc/products/plcs-controllers-and-i-os/control-technology"
+    },
+    "S9b": {
+      "descripcion": "Phoenix Contact - PLCnext Control product family",
+      "url": "https://www.phoenixcontact.com/en-pc/products/plcs-controllers-and-i-os/plcnext-control"
+    },
+    "S10a": {
+      "descripcion": "LS ELECTRIC - XGK CPU User Manual",
+      "url": "https://sol.ls-electric.com/uploads/document/16411829421950/XGK-CPU_Manual_V2.1_202012_EN.pdf"
+    },
+    "S10b": {
+      "descripcion": "LS ELECTRIC - XGR CPU User Manual",
+      "url": "https://sol.ls-electric.com/uploads/document/17002015265220/XGR-CPU_Manual_V2.7_202306_EN.pdf"
+    },
+    "S10c": {
+      "descripcion": "LS ELECTRIC - PLC Automation Products catalog",
+      "url": "https://www.ls-electric.com/upload/customer/download/a580c867-c4c7-4bd8-a5bd-ed8c1c6f2e43/PLC_Auto_Products_E_161229.pdf"
+    },
+    "S11a": {
+      "descripcion": "Delta Electronics - PLC product family",
+      "url": "https://www.deltaww.com/en-US/products/PLC-Programmable-Logic-Controllers/"
+    },
+    "S11b": {
+      "descripcion": "Delta Electronics - AH Series PLC",
+      "url": "https://www.deltaww.com/en-US/products/AH-Series/ALL/"
+    },
+    "S11c": {
+      "descripcion": "Delta Electronics - AS Series PLC",
+      "url": "https://www.deltaww.com/en-US/products/AS-Series/ALL/"
+    },
+    "S12a": {
+      "descripcion": "Bosch Rexroth - Automation / IndraControl legacy documentation",
+      "url": "https://www.boschrexroth.com/"
+    },
+    "S12b": {
+      "descripcion": "Bosch Rexroth - ctrlX CORE",
+      "url": "https://apps.boschrexroth.com/microsites/ctrlx-automation/en/portfolio/ctrlx-core/"
+    },
+    "S13a": {
+      "descripcion": "B&R - System 2005 documentation",
+      "url": "https://www.br-automation.com/"
+    },
+    "S13b": {
+      "descripcion": "B&R - X20 System / CPUs",
+      "url": "https://www.br-automation.com/en/products/plc-systems/x20-system/"
+    },
+    "S14a": {
+      "descripcion": "WAGO - historical controller documentation",
+      "url": "https://www.wago.com/global/"
+    },
+    "S14b": {
+      "descripcion": "WAGO - 750-881 controller",
+      "url": "https://www.wago.com/global/programmable-fieldbus-controllers/controller-ethernet-3rd-generation/p/750-881"
+    },
+    "S14c": {
+      "descripcion": "WAGO - PFC controller portfolio",
+      "url": "https://www.wago.com/global/products/automation-technology/discover-plcs/pfc200"
+    },
+    "S15a": {
+      "descripcion": "Eaton - XC100/XC200 documentation",
+      "url": "https://www.eaton.com/"
+    },
+    "S15b": {
+      "descripcion": "Eaton - XC300 modular PLC",
+      "url": "https://www.eaton.com/es/es-es/catalog/industrial-control--drives--automation---sensors/xc300-modular-plc.html"
+    },
+    "S16a": {
+      "descripcion": "IDEC - MicroSmart FC4A/FC5A to FC6A migration / FC6A",
+      "url": "https://www.idec.com/en-us/automation/programmable-logic-controller/micro-plc/fc6a-microsmart-plc"
+    },
+    "S17a": {
+      "descripcion": "KEYENCE - PLC supported CPU series",
+      "url": "https://www.keyence.com/products/controls/plc-building-block-type/"
+    },
+    "S17b": {
+      "descripcion": "KEYENCE - KV-X Series",
+      "url": "https://www.keyence.com/products/controls/plc-building-block-type/kv-x/"
+    },
+    "S18a": {
+      "descripcion": "Panasonic Industry - PLC product families and discontinued products",
+      "url": "https://industry.panasonic.com/global/en/products/fasys/plc"
+    },
+    "S18b": {
+      "descripcion": "Panasonic Industry - FP7 CPU units",
+      "url": "https://industry.panasonic.com/global/en/products/fasys/plc/plc/fp7"
+    },
+    "S19a": {
+      "descripcion": "Hitachi - EH-150 technical specifications",
+      "url": "https://www.hitachi.com/content/dam/hitachi/au/en_au/inverter-programmable-logic-controllers/eh150_tech_specs.pdf"
+    },
+    "S19b": {
+      "descripcion": "Hitachi - HX Series next-generation industrial controllers announcement",
+      "url": "https://www.hitachi.com/New/cnews/month/2015/11/151116.html"
+    },
+    "S20a": {
+      "descripcion": "Fuji Electric - MICREX-SX CPU/module lineup",
+      "url": "https://www.fujielectric.com/products/drives_inverters/plc/"
+    },
+    "S20b": {
+      "descripcion": "Fuji Electric - recent MICREX-SX/SPH updates",
+      "url": "https://www.fujielectric.com/products/drives_inverters/plc/product_series/"
+    },
+    "S21a": {
+      "descripcion": "Toshiba - V Series / T2 documentation",
+      "url": "https://toshiba.com/tic/product/v200-v100/"
+    },
+    "S21b": {
+      "descripcion": "Toshiba - V200/V100",
+      "url": "https://toshiba.com/tic/product/v200-v100/"
+    },
+    "S21c": {
+      "descripcion": "Toshiba - V Series Type1 Light",
+      "url": "https://www.toshiba.co.jp/sis/en/seigyo/"
+    },
+    "S22a": {
+      "descripcion": "Yokogawa - FA-M3 / FA-M3V PLC/PAC",
+      "url": "https://www.yokogawa.com/solutions/products-and-services/control/control-devices/programmable-logic-controllers-plc-pac/fa-m3/"
+    },
+    "S23a": {
+      "descripcion": "Honeywell - ControlEdge PLC lifecycle / CP1",
+      "url": "https://process.honeywell.com/"
+    },
+    "S23b": {
+      "descripcion": "Honeywell - ControlEdge PLC",
+      "url": "https://process.honeywell.com/us/en/products/process-automation/modular-controllers/controledge-plc"
+    },
+    "S24a": {
+      "descripcion": "Unitronics - M91",
+      "url": "https://www.unitronicsplc.com/"
+    },
+    "S24b": {
+      "descripcion": "Unitronics - Jazz",
+      "url": "https://www.unitronicsplc.com/"
+    },
+    "S24c": {
+      "descripcion": "Unitronics - Vision",
+      "url": "https://www.unitronicsplc.com/"
+    },
+    "S24d": {
+      "descripcion": "Unitronics - UniStream",
+      "url": "https://www.unitronicsplc.com/"
+    },
+    "S25a": {
+      "descripcion": "FATEK - FBs PLC catalog",
+      "url": "https://www.fatek.com/en/download.php?act=list&cid=5"
+    },
+    "S25b": {
+      "descripcion": "FATEK - B1/B1z Series support",
+      "url": "https://www.fatek.com/en/download.php?act=list&cid=69"
+    },
+    "S25c": {
+      "descripcion": "FATEK - M Series PLC support / CPU Unit Manual",
+      "url": "https://www.fatek.com/en/download.php?act=list&cid=178"
+    },
+    "S26a": {
+      "descripcion": "Yaskawa / VIPA - 300S CPU documentation",
+      "url": "https://www.yaskawa.eu/"
+    },
+    "S26b": {
+      "descripcion": "VIPA/Yaskawa - SLIO CPU model list",
+      "url": "https://vipaitalia.it/it-it/prodotti/sistemi-di-controllo-plc/SLIO/cpu.php"
+    },
+    "S26c": {
+      "descripcion": "Yaskawa - SLIO CPU 015/017/019",
+      "url": "https://www.yaskawa.es/productos/plc/productdetail/product/slio_6813"
+    },
+    "S27a": {
+      "descripcion": "Weidmüller - u-control",
+      "url": "https://www.weidmueller.com/int/products/automation_software/controls/index.jsp"
+    },
+    "S27b": {
+      "descripcion": "Weidmüller - control portfolio",
+      "url": "https://www.weidmueller.com/int/products/automation_software/controls/index.jsp"
+    },
+    "S28a": {
+      "descripcion": "Advantech - UNO-2271G datasheet",
+      "url": "https://advdownload.advantech.com/productfile/PIS/UNO-2271G/file/UNO-2271G_DS%28090920%2920200909185121.pdf"
+    },
+    "S28b": {
+      "descripcion": "Advantech - UNO-2271G V2",
+      "url": "https://www.advantech.com/es-mx/products/1-2mlj9a/uno-2271g-v2/mod_a7b043d4-20e9-4276-ad94-2492f00e110e"
+    },
+    "S28c": {
+      "descripcion": "Advantech - UNO-2271G V3 / current UNO family",
+      "url": "https://www.advantech.com/en-us/products/1-2mlj9a/uno-2271g-v3/mod_25219c02-4050-4154-bfce-fe18246c028b"
+    },
+    "S29a": {
+      "descripcion": "Kontron - KBox family",
+      "url": "https://www.kontron.com/downloads/catalogues/kbox-family_folder.pdf"
+    },
+    "S29b": {
+      "descripcion": "Kontron - KBox C-101 User Guide",
+      "url": "https://www.kontron.com/downloads/manuals/kbox-c-101_2_1_0_users-guide_v3-1.pdf?product=124704"
+    },
+    "S30a": {
+      "descripcion": "AAEON - BOXER-6640 EOL / BOXER range",
+      "url": "https://www.aaeon.com/en/product/detail/fanless-embedded-box-pc-boxer-6640/download"
+    },
+    "S30b": {
+      "descripcion": "AAEON - current Rugged Box PC lineup",
+      "url": "https://www.aaeon.com/en/product/list/entry-level-box-pc"
+    },
+    "S30c": {
+      "descripcion": "AAEON - BOXER-6647-MTH ordering information",
+      "url": "https://www.aaeon.com/en/product/detail/compact-fanless-box-pc-boxer-6647-mth/order_info"
+    }
+  }
+}

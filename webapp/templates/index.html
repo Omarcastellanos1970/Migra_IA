@@ -217,6 +217,11 @@ async function iniciar(demo){
     const b = $("badge");
     b.textContent = (demo ? "DEMO · " : "") + caseId;
     b.className = "badge" + (demo ? " demo" : "");
+    // La demo SI lee el equipo que se escribe: con el arma el resto del recorrido
+    // desde el catalogo de fabricantes. El resto de pasos son guiados.
+    $("entrada").placeholder = demo
+      ? "MODO DEMO: escribe tu nombre y despues TU equipo (marca, familia y modelo)"
+      : "Escribe tu respuesta…  (Enter para enviar, Shift+Enter salto de línea)";
     addMsg("agent", d.texto);
     pintarPanel(d.resumen);
   }catch(e){ pensando(false); addMsg("agent","⚠️ Error de conexión con el servidor."); }
@@ -228,11 +233,15 @@ const nuevoDemo = () => iniciar(true);
 function bienvenida(){
   addMsg("agent",
     "**Bienvenido a MIGRA-IA.**\n\n" +
-    "• Pulsa **Modo demo (sin clave)** para ver una demostración guiada con un caso " +
-    "de ejemplo (Siemens S7-300). Usa el motor real: registra datos, calcula el riesgo " +
-    "y genera el informe. Escribe cualquier cosa y pulsa Enviar para avanzar.\n\n" +
-    "• Pulsa **Caso real (API)** para diagnosticar tu propio equipo (requiere " +
-    "configurar tu ANTHROPIC_API_KEY en el archivo .env)."
+    "• Pulsa **Modo demo (sin clave)** para un recorrido guiado de 16 pasos **sobre TU " +
+    "equipo**: escribe la marca, familia y modelo de tu PLC y el agente lo identifica " +
+    "contra el catálogo verificado de **30 fabricantes, 130 generaciones y 469 modelos " +
+    "de CPU**, con su software, sus redes, la plataforma destino del mismo fabricante y " +
+    "la fuente oficial. Usa el motor real: registra datos, calcula el riesgo y genera el " +
+    "informe. Las demás respuestas del recorrido están preparadas.\n\n" +
+    "• Pulsa **Caso real (API)** para un diálogo completo, adaptado a cada una de tus " +
+    "respuestas y no sólo al equipo (requiere configurar tu ANTHROPIC_API_KEY en el " +
+    "archivo .env)."
   );
 }
 

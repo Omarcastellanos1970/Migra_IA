@@ -23,6 +23,7 @@ DIR_DATOS = RAIZ / "data"
 DIR_CASOS = RAIZ / "casos"
 RUTA_CUESTIONARIO = DIR_DATOS / "cuestionario.json"
 RUTA_BASE_CONOCIMIENTO = DIR_DATOS / "base_conocimiento.json"
+RUTA_FABRICANTES_CPU = DIR_DATOS / "fabricantes_cpu.json"
 
 DIR_CASOS.mkdir(parents=True, exist_ok=True)
 

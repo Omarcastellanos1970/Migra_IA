@@ -41,6 +41,10 @@ class Caso:
     evidencias: list = field(default_factory=list)
     # Datos criticos faltantes (Seccion 11)
     datos_faltantes: list = field(default_factory=list)
+    # Equipo anclado: ficha del catalogo de fabricantes para el PLC/CPU del caso.
+    # Fija marca, familia y generacion para que toda la asesoria se refiera a ESE
+    # equipo y no a un ejemplo por defecto.
+    equipo_identificado: dict | None = None
     # Resultado del motor de riesgo (Seccion 6)
     riesgo: dict | None = None
     # Recomendaciones e informes emitidos
@@ -98,6 +102,27 @@ class Caso:
         self._tocar("registrar_activo", {"id": aid, "tipo": activo.get("tipo")})
         return aid
 
+    def fijar_equipo(self, identificacion: dict) -> None:
+        """Ancla el equipo del caso a una ficha del catalogo de fabricantes.
+
+        Solo se sustituye una identificacion previa si la nueva es mas precisa
+        (modelo exacto > familia > marca): asi, registrar despues un modulo de E/S
+        o una HMI no borra la CPU ya identificada.
+        """
+        orden = {"modelo_exacto": 3, "familia": 2, "marca": 1}
+        nuevo = orden.get(identificacion.get("estado", ""), 0)
+        if nuevo == 0:
+            return
+        actual = orden.get((self.equipo_identificado or {}).get("estado", ""), 0)
+        if nuevo >= actual:
+            self.equipo_identificado = identificacion
+            self._tocar(
+                "fijar_equipo",
+                {"marca": identificacion.get("marca"),
+                 "familia": identificacion.get("familia"),
+                 "estado": identificacion.get("estado")},
+            )
+
     def registrar_evidencia(self, evidencia: dict) -> str:
         eid = self._nuevo_id("EVD")
         registro = {"id": eid, "ts": _ahora(), **evidencia}
@@ -146,6 +171,17 @@ class Caso:
                 {"id": a["id"], "tipo": a.get("tipo"), "descripcion": a.get("descripcion")}
                 for a in self.activos
             ],
+            "equipo_identificado": (
+                {
+                    "marca": self.equipo_identificado.get("marca"),
+                    "familia": self.equipo_identificado.get("familia"),
+                    "modelo": self.equipo_identificado.get("modelo_identificado"),
+                    "etapa": self.equipo_identificado.get("etapa"),
+                    "estado_identificacion": self.equipo_identificado.get("estado"),
+                }
+                if self.equipo_identificado
+                else None
+            ),
             "num_evidencias": len(self.evidencias),
             "datos_faltantes": [d["descripcion"] for d in self.datos_faltantes],
             "banderas": [b["texto"] for b in self.banderas],

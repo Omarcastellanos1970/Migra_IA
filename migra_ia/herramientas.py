@@ -12,7 +12,7 @@ from datetime import datetime
 
 from .caso import Caso
 from .scoring import calcular_riesgo, PESOS
-from . import config, conocimiento
+from . import config, conocimiento, cuestionario, fabricantes
 
 NIVELES = ["confirmado", "alta_confianza", "confianza_media", "baja_confianza", "no_determinado"]
 
@@ -175,6 +175,94 @@ TOOLS = [
         },
     },
     {
+        "name": "identificar_cpu",
+        "description": (
+            "PRIMERA HERRAMIENTA a usar en cuanto el usuario mencione un equipo. "
+            "Resuelve texto libre de placa ('un Allen Bradley SLC 5/04', 'CJ1M-CPU13', "
+            "'schneider m580') contra el catalogo de 30 fabricantes, 130 generaciones y "
+            "469 modelos reales de CPU. Devuelve marca, familia/generacion, posicion en "
+            "la cronologia del fabricante, modelos documentados de esa generacion, la "
+            "generacion actual del MISMO fabricante y las fuentes oficiales citables. "
+            "Ancla el caso: a partir de su resultado, TODA respuesta debe referirse a ese "
+            "equipo. Si devuelve 'no_catalogado', dilo y pide la placa; no aproximes a la "
+            "marca mas parecida."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "texto": {
+                    "type": "string",
+                    "description": (
+                        "Lo que dijo el usuario sobre el equipo, tal cual: marca, familia "
+                        "y/o modelo. Puede ser una frase completa."
+                    ),
+                }
+            },
+            "required": ["texto"],
+        },
+    },
+    {
+        "name": "consultar_catalogo",
+        "description": (
+            "Consulta el catalogo de fabricantes y CPU: la cronologia completa de una "
+            "marca (de la generacion mas antigua a la actual) o el detalle de una de sus "
+            "generaciones, con modelos documentados y fuentes oficiales. Usala para situar "
+            "el equipo en su ciclo de vida, para saber que generacion del MISMO fabricante "
+            "es la actual y para citar la fuente. No inventes modelos que no devuelva."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "marca": {
+                    "type": "string",
+                    "description": "Marca del catalogo, p. ej. 'Siemens', 'OMRON', 'Fuji Electric'.",
+                },
+                "familia": {
+                    "type": "string",
+                    "description": "Opcional: familia o generacion concreta, p. ej. 'S7-300', 'MELSEC-Q', 'PFC200'.",
+                },
+            },
+            "required": ["marca"],
+        },
+    },
+    {
+        "name": "consultar_cuestionario",
+        "description": (
+            "Consulta el cuestionario maestro adaptativo: el detalle exacto de las "
+            "preguntas (texto, opciones y regla adaptativa) y, sobre todo, el mapa de "
+            "decision que enlaza cada respuesta con el factor de riesgo que alimenta y "
+            "con los criterios de cada alternativa (correccion de causa raiz, reparacion, "
+            "repuesto directo, hardware equivalente, migracion, reconstruccion, operacion "
+            "temporal). Consultala ANTES de abrir una seccion nueva del diagnostico, para "
+            "preguntar con las opciones reales y aplicar su regla adaptativa, y ANTES de "
+            "puntuar un factor o proponer una alternativa, para justificarla con criterio."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "tema": {
+                    "type": "string",
+                    "enum": [
+                        "indice", "seccion", "pregunta", "mapa_decision",
+                        "factor", "criterios", "prioridades", "buscar",
+                    ],
+                    "description": "Parte del cuestionario a consultar.",
+                },
+                "clave": {
+                    "type": "string",
+                    "description": (
+                        "Identificador dentro del tema: letra o titulo de seccion (p. ej. "
+                        "'M' o 'ciclo de vida'); codigo de pregunta (p. ej. 'M06'); clave del "
+                        "factor de riesgo (" + ", ".join(PESOS.keys()) + "); nombre de la "
+                        "alternativa (p. ej. 'migracion'); o texto libre para 'buscar'. "
+                        "Omitela para obtener el indice del tema."
+                    ),
+                },
+            },
+            "required": ["tema"],
+        },
+    },
+    {
         "name": "solicitar_aprobacion_humana",
         "description": (
             "Solicita aprobacion explicita del personal autorizado ANTES de entregar "
@@ -243,7 +331,35 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
 
         elif nombre == "registrar_activo":
             aid = caso.registrar_activo(entrada)
-            resultado = _ok(id_activo=aid)
+            # Anclaje automatico: si el activo es la CPU/PLC, se identifica contra el
+            # catalogo y la ficha viaja de vuelta al modelo en el mismo tool_result.
+            # Asi la adaptacion a la marca no depende de que el modelo decida consultar.
+            extra = {}
+            if entrada.get("tipo", "").lower() in ("cpu", "plc", "controlador", "pac"):
+                texto = " ".join(
+                    str(entrada.get(c, ""))
+                    for c in ("fabricante", "modelo", "referencia_catalogo", "descripcion")
+                ).strip()
+                ident = fabricantes.identificar(texto)
+                caso.fijar_equipo(ident)
+                extra = {
+                    "identificacion_catalogo": ident,
+                    "anclaje": fabricantes.anclaje(ident),
+                }
+            resultado = _ok(id_activo=aid, **extra)
+
+        elif nombre == "identificar_cpu":
+            ident = fabricantes.identificar(entrada.get("texto", ""))
+            caso.fijar_equipo(ident)
+            resultado = json.dumps(
+                {"estado": "ok", "identificacion": ident,
+                 "anclaje": fabricantes.anclaje(ident)},
+                ensure_ascii=False,
+            )
+
+        elif nombre == "consultar_catalogo":
+            res = fabricantes.ficha(entrada.get("marca", ""), entrada.get("familia"))
+            resultado = json.dumps(res, ensure_ascii=False)
 
         elif nombre == "registrar_evidencia":
             eid = caso.registrar_evidencia(entrada)
@@ -267,6 +383,10 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
 
         elif nombre == "consultar_guia":
             res = conocimiento.consultar(entrada.get("tema", ""), entrada.get("clave"))
+            resultado = json.dumps(res, ensure_ascii=False)
+
+        elif nombre == "consultar_cuestionario":
+            res = cuestionario.consultar(entrada.get("tema", ""), entrada.get("clave"))
             resultado = json.dumps(res, ensure_ascii=False)
 
         elif nombre == "solicitar_aprobacion_humana":
