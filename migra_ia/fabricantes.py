@@ -361,6 +361,105 @@ def ficha(marca: str, familia: str | None = None) -> dict:
     return res
 
 
+def generaciones_actuales(marca: str) -> dict:
+    """Familias vigentes de una marca, con sus modelos documentados y sus fuentes.
+
+    `identificar()` solo devuelve esta informacion cuando ademas reconoce una
+    familia o un modelo concretos. El paso 13 del procedimiento necesita poder
+    preguntar solo por la marca, para ofrecer las plataformas actuales de otros
+    fabricantes como alternativa.
+    """
+    try:
+        fab = _por_marca(marca)
+    except KeyError:
+        return {"marca": marca, "familias": [],
+                "error": f"'{marca}' no figura en el catalogo de fabricantes."}
+    gens = fab["generaciones"]
+    actuales = [g for g in gens if _etapa(g["familia"]) == "actual"]
+    nota = ""
+    if not actuales and gens:
+        # Mismo criterio que `_describir_generacion`: se ofrece la ultima de la
+        # cronologia diciendo que la fuente no la declara vigente.
+        actuales = [gens[-1]]
+        nota = ("El documento fuente no marca ninguna generacion de este fabricante "
+                "como 'Actual'; se muestra la ultima de la cronologia. Verifica el "
+                "estado comercial con el fabricante.")
+    return {
+        "marca": fab["marca"],
+        "clasificacion": fab["clasificacion"],
+        "familias": [
+            {"familia": _familia_limpia(g["familia"]),
+             "modelos_documentados": g["modelos_texto"],
+             "fuentes": _fuentes_de(g["fuentes"])}
+            for g in actuales
+        ],
+        "nota": nota,
+    }
+
+
+_PALABRAS_VACIAS = {
+    "tengo", "una", "unos", "unas", "con", "del", "los", "las", "por", "para",
+    "que", "plc", "cpu", "marca", "modelo", "familia", "serie", "controlador",
+    "equipo", "planta", "maquina", "mi", "el", "la", "un", "de", "y", "es",
+}
+
+
+def sugerencias(texto: str, limite: int = 6) -> list[dict]:
+    """Familias del catalogo que comparten algo con lo que escribio el usuario.
+
+    Sirve para el caso en que `identificar()` no reconoce el equipo: en vez de
+    dejar al usuario con un 'no lo encuentro', se le ofrecen las entradas REALES
+    del catalogo que se le parecen para que confirme cual es. No selecciona
+    ninguna ni completa nada: solo pregunta. Un error de tecleo tipo 'S7 1300'
+    devuelve asi las familias S7 que si existen.
+    """
+    tokens = {t for t in _norm(texto).split() if len(t) >= 2 and t not in _PALABRAS_VACIAS}
+    if not tokens:
+        return []
+    # Si el usuario escribio algun nombre ('micrologix', 's7'), la coincidencia
+    # tiene que incluirlo. Sin esta condicion, 'MicroLogix 1200' sugeriria un
+    # SIMATIC S7-1200 solo porque ambos llevan el numero 1200: una pista falsa.
+    con_letras = {t for t in tokens if not t.isdigit()}
+    puntuadas: list[tuple[int, dict]] = []
+    for fab in cargar_catalogo()["fabricantes"]:
+        for gen in fab["generaciones"]:
+            familia = _familia_limpia(gen["familia"])
+            campo = _norm(f"{fab['marca']} {familia} {gen['modelos_texto']}")
+            propios = set(campo.split())
+            comunes = tokens & propios
+            if not comunes:
+                continue
+            if con_letras and not (comunes & con_letras):
+                continue
+            # Un token que ademas es parte del nombre de la familia pesa mas que
+            # uno que solo aparece en la lista de modelos.
+            peso = len(comunes) + sum(1 for t in comunes if t in _norm(familia).split())
+            puntuadas.append((peso, {
+                "marca": fab["marca"],
+                "familia": familia,
+                "etapa": _etapa(gen["familia"]),
+                "modelos_documentados": gen["modelos_texto"],
+                "coincide_en": sorted(comunes),
+            }))
+    puntuadas.sort(key=lambda p: -p[0])
+    return [d for _, d in puntuadas[:limite]]
+
+
+def tipo_de_producto(clasificacion: str) -> str:
+    """Agrupa las clasificaciones del catalogo para comparar cosas comparables.
+
+    El catalogo usa etiquetas finas ('PLC', 'PLC/PAC', 'IPC / Industrial
+    Computer'). Para ofrecer alternativas basta distinguir el controlador de
+    programa almacenado del equipo basado en PC.
+    """
+    c = _norm(clasificacion)
+    if "plc" in c or "pac" in c:
+        return "plc"
+    if "ipc" in c or "pc" in c or "embedded" in c:
+        return "pc"
+    return "otro"
+
+
 # --------------------------------------------------------------------------- #
 # Anclaje: bloque que fija el equipo en consulta para el resto del dialogo
 # --------------------------------------------------------------------------- #

@@ -23,7 +23,7 @@ import re
 from .caso import Caso
 from .herramientas import ejecutar_herramienta
 from .nucleo import aprobador_pendiente
-from . import fabricantes
+from . import fabricantes, procedimiento
 
 # Pasos en los que la demo lee lo que escribe el usuario en vez de ignorarlo.
 PASO_NOMBRE = 1
@@ -36,6 +36,36 @@ _TEXTO_FIN = (
 )
 
 _SIN_RUTA = "(a confirmar en la documentacion oficial del fabricante)"
+
+# Palabras con las que la interfaz avanza de paso: no son una respuesta del usuario.
+_AVANCE = {"", "continuar", "siguiente", "ok", "si", "sigue", "adelante", "next", "."}
+
+_NOTA_NO_LEIDO = (
+    "> ⚠️ **He leido lo que escribiste, pero en modo demo no puedo responderte a eso.** "
+    "Este recorrido solo lee dos cosas tuyas: tu nombre y tu equipo. El resto son las "
+    "respuestas de un caso de referencia ya grabado, y por eso sigo con el guion en "
+    "lugar de contestarte. Para un dialogo real, en el que cada respuesta tuya cambie "
+    "lo que digo, necesitas **Caso real (API)** con tu `ANTHROPIC_API_KEY`.\n\n---\n\n"
+)
+
+
+_INVITACION_CORREGIR = (
+    "\n\n---\n\n**No arranco el recorrido sobre un equipo que no he podido "
+    "identificar.** Escribe el equipo corregido y lo vuelvo a intentar. Si prefieres "
+    "seguir de todos modos, escribe **`continuar`** y avanzo dejando el hardware "
+    "marcado como no verificado."
+)
+
+
+def _es_respuesta_real(texto: str) -> bool:
+    """True si el usuario escribio algo que esperaba que el agente leyera.
+
+    Distingue 'continuar' o un Enter suelto -que solo avanzan- de una pregunta o
+    una respuesta de verdad, que la demo no puede atender y no debe ignorar en
+    silencio.
+    """
+    t = (texto or "").strip().lower().rstrip(".!?")
+    return bool(t) and t not in _AVANCE and len(t) > 3
 
 
 # --------------------------------------------------------------------------- #
@@ -106,6 +136,22 @@ def construir_contexto(texto_equipo: str) -> dict:
         "clasificacion": ident.get("clasificacion", ""),
         "familia": familia or "familia por confirmar",
         "modelo": modelo,
+        # Valores para ESCRIBIR en el expediente. Cuando el equipo no esta
+        # catalogado no se guarda el texto de relleno ('el fabricante reportado',
+        # 'familia por confirmar'): eso convertiria una etiqueta de pantalla en un
+        # dato del caso. Se guarda lo que el usuario escribio, tal cual.
+        "marca_dato": marca if catalogado else "",
+        "familia_dato": familia if catalogado else "",
+        "confianza_equipo": "confianza_media" if catalogado else "no_determinado",
+        # Fragmentos listos para usar dentro de una frase afirmativa. Sin esto se
+        # producen frases como 'la familia familia por confirmar figura
+        # descontinuada', que ademas afirma un estado de ciclo de vida sobre una
+        # familia que no se ha identificado.
+        "familia_frase": (
+            f"la familia **{familia}**" if catalogado and familia
+            else "el equipo del caso de referencia"
+        ),
+        "marca_frase": marca if catalogado else "el fabricante del equipo",
         "etiqueta": etiqueta,
         "posicion": ident.get("posicion", ""),
         "etapa": ident.get("etapa", ""),
@@ -117,8 +163,12 @@ def construir_contexto(texto_equipo: str) -> dict:
         "origen_en_guia": destino_doc.get("origen_en_guia", ""),
         "aspectos_criticos": destino_doc.get("aspectos_criticos", ""),
         "tiene_ruta_guia": bool(ruta),
-        "sw_legado": ruta.get("software_legado") or f"el software original de {marca} {_SIN_RUTA}",
-        "sw_objetivo": ruta.get("software_objetivo") or f"el entorno actual de {marca} {_SIN_RUTA}",
+        "sw_legado": ruta.get("software_legado")
+        or (f"el software original de {marca} {_SIN_RUTA}" if catalogado
+            else f"el software original del fabricante {_SIN_RUTA}"),
+        "sw_objetivo": ruta.get("software_objetivo")
+        or (f"el entorno actual de {marca} {_SIN_RUTA}" if catalogado
+            else f"el entorno de ingenieria actual del fabricante {_SIN_RUTA}"),
         "redes": ruta.get("redes_heredadas") or "las redes del equipo, a levantar en sitio",
         "riesgo_tipico": ruta.get("riesgo_tipico")
         or "conversion del programa, direccionamiento y comunicaciones, a evaluar con la documentacion oficial",
@@ -129,17 +179,41 @@ def construir_contexto(texto_equipo: str) -> dict:
     }
 
 
-def _bloque_identificacion(ctx: dict) -> str:
+def _bloque_identificacion(ctx: dict, cierre: bool = True) -> str:
     """Lo que el agente 've' del equipo: se muestra tal cual para que sea auditable."""
     if not ctx["catalogado"]:
-        return (
+        base = (
             f"**No encuentro '{ctx['consulta']}' en el catalogo verificado de 30 "
             "fabricantes.** Y eso es exactamente lo que debo decirte: no voy a "
             "asimilarlo a la marca mas parecida ni a trasladarle la ruta de otro "
-            "fabricante. Necesito una **foto de la placa** con el numero de parte "
-            "exacto.\n\nSigo el recorrido con la metodologia generica de 6 etapas, "
-            "pero todo lo que diga sobre hardware queda como **preliminar y no "
-            "verificado**."
+            "fabricante."
+        )
+        # Antes de pedir la placa, se ofrecen las entradas REALES del catalogo que
+        # se parecen a lo escrito. Un error de tecleo ('S7 1300') se resuelve aqui
+        # en lugar de arrastrar un recorrido entero sobre un equipo sin identificar.
+        parecidas = fabricantes.sugerencias(ctx["consulta"], limite=5)
+        if parecidas:
+            filas = "\n".join(
+                f"- **{s['marca']} {s['familia']}** — modelos documentados: "
+                f"{s['modelos_documentados']}"
+                for s in parecidas
+            )
+            base += (
+                "\n\nLo que si tengo en el catalogo y se parece a lo que escribiste:\n\n"
+                f"{filas}\n\n"
+                "**Es alguna de estas?** Escribela tal cual y el recorrido se rehace "
+                "sobre ella. Si no es ninguna, hara falta una **foto de la placa** con "
+                "el numero de parte exacto."
+            )
+        else:
+            base += (
+                "\n\nHara falta una **foto de la placa** con el numero de parte exacto."
+            )
+        if not cierre:
+            return base
+        return base + (
+            "\n\nSigo el recorrido con la metodologia generica de 6 etapas, pero todo "
+            "lo que diga sobre hardware queda como **preliminar y no verificado**."
         )
 
     lineas = [
@@ -198,14 +272,18 @@ def paso_inicial() -> dict:
             "diagnosticar la obsolescencia de un equipo y orientarlo hacia la "
             "solucion: reparacion, repuesto, **hardware equivalente** o "
             "**migracion** a una plataforma moderna.\n\n"
-            "**Esta demostracion SI lee tu equipo.** Es un recorrido guiado de 16 "
-            "pasos con respuestas preparadas, pero la marca, la familia, el modelo, "
-            "el software, las redes y la plataforma destino salen del **catalogo "
-            "verificado de 30 fabricantes, 130 generaciones y 469 modelos reales de "
-            "CPU**, segun lo que tu escribas. Las herramientas y el calculo de riesgo "
-            "son los reales: el expediente del panel derecho se llena de verdad.\n\n"
-            "(Para un dialogo completo, adaptado a cada una de tus respuestas y no "
-            "solo al equipo, usa **Caso real (API)** con tu `ANTHROPIC_API_KEY`.)\n\n"
+            "**Esta demostracion lee dos cosas tuyas: tu nombre y TU equipo.** Con la "
+            "marca, familia y modelo que escribas, el recorrido se arma desde el "
+            "**catalogo verificado de 30 fabricantes, 130 generaciones y 469 modelos "
+            "reales de CPU**: su software, sus redes, su plataforma destino y su fuente "
+            "oficial. Las herramientas y el calculo de riesgo son los reales: el "
+            "expediente del panel derecho se llena de verdad.\n\n"
+            "**Los demas datos son los de un caso de referencia**, no tus respuestas: "
+            "a partir del equipo, el recorrido te los va presentando y tu solo pulsas "
+            "Enviar para avanzar. Por eso no te hare preguntas cuya respuesta no vaya a "
+            "leer.\n\n"
+            "Para un diagnostico real, en el que el agente se adapte a **cada una** de "
+            "tus respuestas, usa **Caso real (API)** con tu `ANTHROPIC_API_KEY`.\n\n"
             "Para empezar: **cual es tu nombre** y estas autorizado para acceder o "
             "modificar el sistema, o solo para diagnostico?"
         ),
@@ -248,26 +326,33 @@ def construir_pasos(ctx: dict) -> list[dict]:
                 _bloque_identificacion(ctx)
                 + "\n\nLo mas critico ahora es otra cosa: **no hay respaldo verificado "
                 "del programa**. Lo marco como dato faltante prioritario.\n\n"
-                "Existe copia del programa del PLC? Se conoce la contrasena, y estan "
-                f"disponibles **{ctx['sw_legado']}** y el cable de programacion para "
-                "intentar leerlo?"
+                "---\n"
+                "A partir de aqui el recorrido usa un **caso de referencia** con "
+                "respuestas ya preparadas, para mostrarte el metodo completo sin gastar "
+                "API. Pulsa **Enviar** para avanzar de paso.\n\n"
+                "Primer dato del caso: **no se sabe si existe copia del programa**, "
+                f"**no se conoce la contrasena** de la CPU, y hay {ctx['sw_legado']} "
+                "pero con el adaptador de programacion sin probar."
             ),
             "tools": [
                 ("registrar_activo", {
                     "tipo": "cpu",
                     "descripcion": f"CPU {equipo}",
-                    "fabricante": marca,
-                    "modelo": ctx["modelo"] or familia,
+                    "fabricante": ctx["marca_dato"],
+                    "modelo": ctx["modelo"] or ctx["familia_dato"],
                     "estado": "Operando con fallas",
-                    "nivel_confianza": "confianza_media" if ctx["catalogado"] else "no_determinado",
+                    "nivel_confianza": ctx["confianza_equipo"],
                     "notas": f"Reportado por el usuario: '{ctx['consulta']}'. "
                              "Falla intermitente.",
                 }),
                 ("guardar_respuestas", {"respuestas": [
                     {"seccion": "D", "codigo": "D01", "pregunta": "Fabricante del PLC",
-                     "valor": marca, "nivel_confianza": "confianza_media", "fuente": "verbal"},
+                     "valor": ctx["marca_dato"] or f"sin identificar; el usuario escribio "
+                                                   f"'{ctx['consulta']}'",
+                     "nivel_confianza": ctx["confianza_equipo"], "fuente": "verbal"},
                     {"seccion": "D", "codigo": "D02", "pregunta": "Familia del PLC",
-                     "valor": familia, "nivel_confianza": "confianza_media", "fuente": "verbal"},
+                     "valor": ctx["familia_dato"] or "sin identificar: pendiente de la placa",
+                     "nivel_confianza": ctx["confianza_equipo"], "fuente": "verbal"},
                     {"seccion": "C", "codigo": "C07", "pregunta": "Estado actual",
                      "valor": "Operando con fallas", "nivel_confianza": "confianza_media",
                      "fuente": "verbal"},
@@ -284,8 +369,9 @@ def construir_pasos(ctx: dict) -> list[dict]:
                 "Entendido: no se conoce si hay respaldo. La **prioridad 1** pasa a ser "
                 "recuperar el programa antes de cualquier otra accion.\n\n"
                 f"Sigamos con las comunicaciones y la criticidad. En equipos {marca} de "
-                f"esta generacion lo habitual es encontrar **{ctx['redes']}**. Es tu "
-                "caso? Que tan critica es la maquina para la produccion?"
+                f"esta generacion lo habitual es encontrar **{ctx['redes']}**, y es lo "
+                "que reporta el caso de referencia. La maquina es de **criticidad "
+                "alta**: afecta una linea importante de produccion."
             ),
             "tools": [
                 ("guardar_respuestas", {"respuestas": [
@@ -301,9 +387,10 @@ def construir_pasos(ctx: dict) -> list[dict]:
             "texto": (
                 f"Anotado: **criticidad alta** y redes **{ctx['redes']}** (determinante "
                 "para elegir una plataforma destino que las conserve o las convierta).\n\n"
-                "Ultima parte antes de evaluar: la migracion afectaria funciones de "
-                "seguridad (paros de emergencia, cortinas, PLC de seguridad)? Y cual es "
-                "tu objetivo principal?"
+                "Ultima parte antes de evaluar. En el caso de referencia **no se sabe** "
+                "si la migracion afectaria funciones de seguridad (paros de emergencia, "
+                "cortinas, PLC de seguridad), y el objetivo declarado es **reducir el "
+                "riesgo de parada y evaluar la migracion**."
             ),
             "tools": [
                 ("guardar_respuestas", {"respuestas": [
@@ -325,9 +412,10 @@ def construir_pasos(ctx: dict) -> list[dict]:
                 "Todavia **no puedo puntuar el riesgo**: me falta la evidencia que lo "
                 "sustenta. Consulto el cuestionario para abrir la **Seccion M** (ciclo "
                 "de vida, soporte y repuestos), que es la que mas pesa en la decision.\n\n"
-                f"Que dice {marca} hoy sobre la familia **{familia}**: sigue a la venta o "
-                "esta descontinuada? Consiguen repuestos, en cuanto tiempo llegan, y "
-                "**cuanto tiempo puede estar parada esta maquina**?"
+                f"Los datos de ciclo de vida del caso de referencia: {ctx['familia_frase']} "
+                "figura **descontinuada**, aunque aun con soporte; los repuestos solo se "
+                "consiguen **por pedido especial** y tardan **de 2 a 8 semanas**; y la "
+                "maquina tolera **de 4 a 12 horas** parada."
             ),
             "tools": [
                 ("guardar_respuestas", {"respuestas": [
@@ -351,10 +439,12 @@ def construir_pasos(ctx: dict) -> list[dict]:
                 "aguanta. Conclusion, y la digo sin rodeos: **la estrategia de repuesto "
                 "no cubre este riesgo por si sola**. Solo serviria con una CPU ya "
                 "comprada y en el estante.\n\n"
-                "Ahora el historial. Cuantos paros no programados han tenido en el "
-                "ultimo ano, van a mas o a menos, y que se ha danado? Una pregunta rara "
-                "pero importante: **la maquina pierde la hora o el programa al quitarle "
-                "la energia**?"
+                "Ahora el historial del caso de referencia: **6 paros** no programados en "
+                "el ultimo ano, **en aumento**, con danos en la bateria o el respaldo de "
+                "memoria y en bornes y conectores. Y el dato que lo cambia todo: **la "
+                "maquina pierde la hora al quitarle la energia**.\n\n"
+                "(En un caso real esta es una de las preguntas que mas informacion da, y "
+                "por eso el agente la hace siempre.)"
             ),
             "tools": [
                 ("guardar_respuestas", {"respuestas": [
@@ -385,8 +475,11 @@ def construir_pasos(ctx: dict) -> list[dict]:
                      "valor": "4 a 12 horas", "nivel_confianza": "confirmado", "fuente": "verbal"},
                 ]}),
                 ("registrar_dato_faltante", {
-                    "descripcion": f"Estado de ciclo de vida de la familia {familia} "
-                                   f"({marca}) sin verificar en fuente oficial",
+                    "descripcion": (
+                        f"Estado de ciclo de vida de la familia {familia} ({marca}) sin "
+                        "verificar en fuente oficial" if ctx["catalogado"] else
+                        "Estado de ciclo de vida: no puede verificarse mientras el equipo "
+                        "no este identificado contra el catalogo"),
                     "impacto": "El factor de mayor peso (0.20) se apoya en una declaracion "
                                "verbal; hay que confirmarlo en la pagina de ciclo de vida "
                                "del fabricante.",
@@ -403,13 +496,14 @@ def construir_pasos(ctx: dict) -> list[dict]:
                 "fallas intermitentes.\n\n"
                 "Regla del agente, y va en serio: **antes de atribuir las fallas a la "
                 "obsolescencia hay que descartar la causa raiz externa.** Si cambiaramos "
-                f"el {marca} sin corregir la temperatura y la tierra, el equipo nuevo "
+                f"el PLC {marca} sin corregir la temperatura y la tierra, el equipo nuevo "
                 "volveria a fallar. Lo registro como causa raiz probable.\n\n"
                 "Aviso importante: **cambiar esa bateria con la CPU sin energia puede "
                 "borrar el programa**, y aqui no hay respaldo verificado. Primero el "
                 "respaldo, despues la bateria. Sin excepcion.\n\n"
-                "Ultimo bloque: podrian abrir el programa hoy mismo? Que PC, que "
-                "software y que licencia tienen?"
+                "Ultimo bloque de datos del caso: hay una PC compartida con "
+                f"{ctx['sw_legado']}, pero sobre **Windows 7**, con licencia por **llave "
+                "fisica**, el adaptador **sin probar** y la **contrasena desconocida**."
             ),
             "tools": [
                 ("guardar_respuestas", {"respuestas": [
@@ -537,8 +631,13 @@ def construir_pasos(ctx: dict) -> list[dict]:
             "tools": [
                 ("calcular_riesgo_obsolescencia", {"factores": {
                     "estado_ciclo_vida": {"valor": 75, "justificacion":
-                        f"M01: familia {familia} declarada descontinuada, aun con soporte y "
-                        "repuestos. Pendiente de verificar en fuente oficial del fabricante."},
+                        (f"M01: familia {familia} declarada descontinuada, aun con soporte y "
+                         "repuestos. Pendiente de verificar en fuente oficial del fabricante."
+                         if ctx["catalogado"] else
+                         "M01: el caso de referencia declara el equipo descontinuado, aun con "
+                         "soporte y repuestos. El equipo NO esta identificado contra el "
+                         "catalogo, asi que este factor se apoya solo en la declaracion "
+                         "verbal y queda pendiente de la placa.")},
                     "disponibilidad_repuestos": {"valor": 85, "justificacion":
                         "M04 solo por pedido especial y M06 de 2 a 8 semanas frente a C10 de "
                         "4 a 12 horas de parada tolerable: el plazo excede con mucho la "
@@ -626,31 +725,139 @@ def construir_pasos(ctx: dict) -> list[dict]:
             ),
             "tools": [],
         },
-        # --- 12: procedimiento por etapas -------------------------------------
+        # --- 12: se toma la decision y se ABRE EL MODO GUIA -------------------
         {
             "texto": (
-                f"**Procedimiento de migracion por etapas** ({familia} → {destino}):\n\n"
-                "1. **Respaldo y aseguramiento** — recuperar y verificar el programa, HMI "
-                "y parametros de drives; guardar copia con checksum.\n"
-                "2. **Levantamiento** — inventario completo de E/S, redes, direcciones y "
-                "funciones especiales (PID, conteo, posicionamiento).\n"
-                f"3. **Arquitectura destino** — seleccionar CPU y periferia {destino}, "
-                f"definir redes partiendo de {ctx['redes']}.\n"
-                "4. **Mapa de senales** — tabla de conversion de direccionamiento "
-                f"{familia} → {destino} (entradas, salidas, marcas, datos).\n"
-                f"5. **Conversion del programa** — migrar con {ctx['sw_objetivo']}, revisar "
-                "bloques, resolver instrucciones no equivalentes, conservar simbolos y "
-                f"comentarios. Vigilar: {ctx['riesgo_tipico']}\n"
-                "6. **Lista de materiales (BOM) preliminar** — hardware, licencias y "
-                "accesorios (a cotizar con referencias verificadas).\n"
-                "7. **Pruebas FAT** — en banco, con simulacion de E/S, antes de tocar la "
-                "planta.\n"
-                "8. **Puesta en marcha (SAT)** — ventana de parada planificada, pruebas de "
-                "seguridad con especialista, verificacion de la secuencia.\n"
-                "9. **Plan de retorno** — dejar la CPU original y el respaldo listos para "
-                "revertir si el arranque falla.\n\n"
-                "Cada etapa que toque seguridad requiere validacion del especialista "
-                "(bandera activa)."
+                "**Aqui es donde el agente cambia de papel.**\n\n"
+                "Hasta este punto he diagnosticado. El caso reune dos motivos para "
+                f"cambiar la CPU: {ctx['familia_frase']} esta descontinuada, y la "
+                "**contrasena de la CPU es desconocida**, asi que el programa anterior "
+                "no se puede copiar ni abrir.\n\n"
+                "La decision es tuya, no mia. En un caso real te preguntaria aqui si "
+                "quieres migrar. En el caso de referencia la respuesta es **si**, asi que "
+                "abro el **modo guia**: a partir de ahora te acompano por el "
+                "**procedimiento de 50 pasos** (MIGRA-IA-PROC-050) mas la extension "
+                "**P1-P7** de construccion del programa, uno a uno, con su criterio "
+                "de cierre y la evidencia que debe quedar.\n\n"
+                "Mira el panel: el expediente ya registra que el modo guia esta abierto, "
+                "con su disparador. Y como no hay programa recuperable, queda declarada la "
+                "variante **sin respaldo verificado**, que cambia el contenido de varios "
+                "pasos mas adelante."
+            ),
+            "tools": [
+                ("iniciar_guia_migracion", {
+                    "disparador": "contrasena_desconocida",
+                    "motivo": f"Familia {familia} descontinuada y contrasena de la CPU "
+                              "desconocida: el programa no se puede copiar ni abrir.",
+                    "decidido_por": "sugerencia_del_agente_aceptada",
+                    "sin_respaldo": True,
+                }),
+            ],
+        },
+        # --- 13: paso 13 del procedimiento, las dos opciones de CPU -----------
+        {
+            "texto": (
+                "Primer punto de decision de la guia. No lo resuelvo yo:\n\n"
+                + procedimiento.texto_opciones(ctx["ident"], limite_alternativas=5)
+            ),
+            "tools": [],
+        },
+        # --- 14: el usuario elige y se registra el destino ---------------------
+        # Sin equipo catalogado no hay destino que registrar: el paso 13 queda
+        # bloqueado. Registrar una plataforma inventada aqui contradiria lo que el
+        # agente acaba de decir en el paso anterior y ensuciaria el expediente.
+        {
+            "texto": (
+                f"En el caso de referencia se elige la **Opcion A**: seguir con {marca}, "
+                f"destino **{destino}**.\n\n"
+                "Queda registrado en el expediente con su justificacion y su fuente. Como "
+                "la marca no cambia, el procedimiento se mantiene completo: los pasos 21 y "
+                "22 (migrar con la herramienta oficial del fabricante y revisar su reporte) "
+                "**si aplican**.\n\n"
+                "Si hubieras elegido otra marca, esos dos pasos se habrian marcado como **no "
+                "aplicables** y el programa se reescribiria desde cero. Esa diferencia no la "
+                "improviso: viene declarada paso por paso en el procedimiento."
+            ) if ctx["catalogado"] else (
+                "**El paso 13 se queda abierto, y con razon.**\n\n"
+                f"No puedo elegir una CPU destino para '{ctx['consulta']}' porque el equipo "
+                "de origen no esta en el catalogo verificado. Registrar aqui una plataforma "
+                "seria inventarla.\n\n"
+                "El procedimiento marca el paso 13 como **bloqueado** hasta que llegue la "
+                "**foto de la placa** con el numero de parte exacto. Los pasos que no "
+                "dependen del destino (levantamiento de E/S, redes, funcionamiento del "
+                "proceso) si pueden avanzar mientras tanto.\n\n"
+                "Esto es lo que un plan generico no hace: seguir adelante como si supiera."
+            ),
+            "tools": ([
+                ("fijar_cpu_destino", {
+                    "marca": marca,
+                    "familia": destino,
+                    "justificacion": f"Ruta publicada por el fabricante para la familia de "
+                                     f"origen {familia}; conserva software, redes y "
+                                     "ecosistema de repuestos.",
+                    "fuente": ctx["fuente_texto"],
+                }),
+            ] if ctx["catalogado"] else [
+                ("marcar_paso_migracion", {
+                    "paso": 13, "estado": "bloqueado",
+                    "nota": "Equipo de origen no catalogado: sin marca ni familia "
+                            "verificadas no se propone plataforma destino.",
+                }),
+                ("registrar_dato_faltante", {
+                    "descripcion": "Placa del equipo con el numero de parte exacto",
+                    "impacto": "Bloquea el paso 13 del procedimiento (seleccion de la CPU "
+                               "de reemplazo) y todos los pasos que dependen de el.",
+                }),
+            ]),
+        },
+        # --- 15: arranque del recorrido, sin repetir el diagnostico -----------
+        {
+            "texto": (
+                "**Arranca el recorrido de los 50 pasos.** Lo primero que hago es *no* "
+                "hacerte perder el tiempo: los pasos 1, 2, 4, 6, 8, 9 y 10 preguntan cosas "
+                "que el diagnostico ya registro, asi que los cierro citando de donde salen, "
+                "en lugar de volver a preguntartelas.\n\n"
+                f"- Paso 1 (identificar el sistema) → cerrado con la identificacion de "
+                f"{ctx['etiqueta']} contra el catalogo.\n"
+                f"- Paso 2 (estado de obsolescencia) → cerrado: familia descontinuada, "
+                "repuestos de 2 a 8 semanas.\n"
+                f"- Paso 4 (versiones de software) → cerrado: {ctx['sw_legado']}.\n"
+                "- Paso 6 (funcionamiento del proceso) → cerrado con lo levantado en el "
+                "diagnostico.\n"
+                f"- Pasos 8, 9 y 10 (comunicaciones, red y dependencias) → cerrados: "
+                f"{ctx['redes']}.\n\n"
+                "Fijate en el paso 6: **con la contrasena perdida, deja de ser papeleo y "
+                "pasa a ser la fuente principal** de la que saldra el programa nuevo. El "
+                "procedimiento lo dice explicitamente en su variante sin respaldo."
+            ),
+            "tools": [
+                ("marcar_paso_migracion", {"paso": 1, "estado": "completado",
+                    "nota": "Cerrado con la identificacion del equipo contra el catalogo.",
+                    "evidencia": ["Ficha del catalogo de fabricantes"]}),
+                ("marcar_paso_migracion", {"paso": 2, "estado": "completado",
+                    "nota": "Familia descontinuada; repuestos de 2 a 8 semanas.",
+                    "evidencia": ["Seccion M del cuestionario"]}),
+                ("marcar_paso_migracion", {"paso": 4, "estado": "completado",
+                    "nota": f"Software legado: {ctx['sw_legado']}.",
+                    "evidencia": ["Seccion N del cuestionario"]}),
+                ("marcar_paso_migracion", {"paso": 6, "estado": "en_curso",
+                    "nota": "Sin respaldo recuperable, este paso es la fuente principal "
+                            "de la especificacion del sistema nuevo."}),
+                ("marcar_paso_migracion", {"paso": 8, "estado": "completado",
+                    "nota": f"Redes: {ctx['redes']}.", "evidencia": ["Seccion G"]}),
+                ("marcar_paso_migracion", {"paso": 9, "estado": "completado",
+                    "nota": "Arquitectura de red levantada.", "evidencia": ["Seccion G"]}),
+                ("marcar_paso_migracion", {"paso": 10, "estado": "completado",
+                    "nota": "Dependencias externas identificadas.", "evidencia": ["Secciones G y H"]}),
+            ],
+        },
+        # --- 16: el paso que toca, con su criterio de cierre -------------------
+        {
+            "texto": (
+                "Y este es el paso que toca ahora. Asi se ve **cada uno** de los 50: que "
+                "hay que hacer, cuando se da por terminado, que evidencia debe quedar y "
+                "quien lo ejecuta.\n\n"
+                + procedimiento.texto_paso(3, {"sin_respaldo": True})
             ),
             "tools": [],
         },
@@ -680,11 +887,37 @@ def construir_pasos(ctx: dict) -> list[dict]:
                 "Si la CPU tiene contrasena y no se conoce — que es tu caso (N06) — "
                 "**detente y escala**. Si el respaldo no se puede verificar, tratalo como "
                 "**sin respaldo**.\n\n"
-                f"**B) Cargar el programa en la CPU nueva ({destino}):** solo con respaldo "
-                "verificado, aprobacion y maquina detenida y bloqueada (LOTO). Se detalla "
-                "tras la aprobacion.\n\n"
+                f"**B) Cargar el programa en la CPU nueva ({destino}):** eso no es un "
+                "apartado suelto, son los pasos **35 a 38** del procedimiento (reemplazo "
+                "fisico, verificacion electrica, descarga y prueba de E/S punto por punto), "
+                "y **estan bloqueados** hasta que se cierren sus prerrequisitos. Te lo "
+                "enseno en el paso siguiente.\n\n"
                 "No invento nombres de menus ni de botones de esta version del software: "
                 "sigue el manual oficial del fabricante para cada paso."
+            ),
+            "tools": [],
+        },
+        # --- 18: los bloqueos, la parte que evita el accidente ----------------
+        {
+            "texto": (
+                "**Por que no puedo darte todavia el detalle de cargar la CPU nueva.**\n\n"
+                "El procedimiento declara prerrequisitos por paso, y no son criterio mio: "
+                "estan en la fuente. Esto es lo que el expediente dice ahora mismo:\n\n"
+                "- **Paso 35 — reemplazo fisico.** Bloqueado: faltan el paso 3 (respaldo), "
+                "el 5 (respaldo verificado), el 33 (plan de retorno) y el 34 (ventana de "
+                "parada autorizada). Ademas exige **aprobacion humana, maquina detenida y "
+                "LOTO**, y esta marcado como **irreversible**.\n"
+                "- **Paso 33 — plan de retorno.** Es **bloqueante**: sin el no se avanza.\n"
+                "- **Paso 28 — funciones de seguridad.** Exige **especialista en seguridad "
+                "funcional**; yo identifico y advierto, no doy instrucciones.\n"
+                "- **Paso 41 — provocar fallas controladas.** Exige aprobacion y "
+                "especialista presente.\n\n"
+                "En tu caso el paso 5 no se puede cerrar: **la contrasena es desconocida**. "
+                "El procedimiento no lo esquiva, lo dice: detenerse, escalar, y si el "
+                "programa no se recupera, reconstruirlo a partir del levantamiento "
+                "funcional. Por eso el paso 6 quedo marcado como el critico.\n\n"
+                "Esto es lo que separa una lista de buenas intenciones de una guia: **sabe "
+                "cuando decirte que no.**"
             ),
             "tools": [],
         },
@@ -802,10 +1035,28 @@ def ejecutar_paso(caso: Caso, indice: int, texto_usuario: str = "", ctx: dict | 
         paso = paso_nombre(ctx)
     else:
         if indice == PASO_EQUIPO:
-            # Aqui nace la adaptacion: el resto del guion se arma con ESTE equipo.
-            nombre = ctx.get("nombre", "tecnico")
-            ctx = construir_contexto(texto_usuario)
-            ctx["nombre"] = nombre
+            ya_intentado = bool(ctx.get("ident"))
+            if ya_intentado and not _es_respuesta_real(texto_usuario):
+                # Segunda vuelta y el usuario pulsa Enviar sin corregir: acepta
+                # seguir con el equipo sin identificar. Se conserva el ctx anterior.
+                pass
+            else:
+                # Aqui nace la adaptacion: el resto del guion se arma con ESTE equipo.
+                nombre = ctx.get("nombre", "tecnico")
+                ctx = construir_contexto(texto_usuario)
+                ctx["nombre"] = nombre
+                if not ctx["catalogado"]:
+                    # No se arranca un recorrido completo sobre un equipo que no se
+                    # ha podido identificar: primero se ofrece corregirlo.
+                    return {
+                        "texto": _bloque_identificacion(ctx, cierre=False) + _INVITACION_CORREGIR,
+                        "acciones": [],
+                        "resumen": caso.resumen(),
+                        "fin": False,
+                        "demo": True,
+                        "repetir": True,
+                        "ctx": ctx,
+                    }
         if not ctx.get("ident"):
             ctx = {**construir_contexto(texto_usuario), "nombre": ctx.get("nombre", "tecnico")}
         pasos = construir_pasos(ctx)
@@ -820,9 +1071,15 @@ def ejecutar_paso(caso: Caso, indice: int, texto_usuario: str = "", ctx: dict | 
         ejecutar_herramienta(caso, nombre_tool, entrada, aprobador_pendiente)
         acciones.append(nombre_tool)
 
+    texto = paso["texto"]
+    if indice > PASO_EQUIPO and _es_respuesta_real(texto_usuario):
+        # El usuario escribio algo de verdad y la demo no lo va a leer. Callarselo
+        # y seguir con el guion es lo que hace que el recorrido se sienta roto.
+        texto = _NOTA_NO_LEIDO + texto
+
     total = 2 + len(construir_pasos(ctx)) if ctx.get("ident") else None
     return {
-        "texto": paso["texto"],
+        "texto": texto,
         "acciones": acciones,
         "resumen": caso.resumen(),
         "fin": total is not None and indice >= total - 1,

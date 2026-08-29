@@ -24,6 +24,32 @@ def _sello() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S%f")[:-3]
 
 
+def _partes_marca(texto: str) -> set[str]:
+    """Nombres por los que se conoce una marca, normalizados.
+
+    El catalogo escribe 'Rockwell Automation / Allen-Bradley' o 'Emerson (legado
+    GE Fanuc / GE Intelligent Platforms)'. Se parte por '/' y por los parentesis
+    para que cualquiera de esos nombres identifique al mismo fabricante.
+    """
+    crudo = (texto or "").replace("(", "/").replace(")", "/")
+    partes = {" ".join(p.split()).strip().lower() for p in crudo.split("/")}
+    return {p for p in partes if len(p) >= 3}
+
+
+def _misma_marca(a: str, b: str) -> bool:
+    """True si dos textos designan al mismo fabricante.
+
+    Sin esto, elegir la CPU nueva del propio fabricante se contaria como cambio
+    de marca y activaria las variantes que no corresponden (pasos 21 y 22).
+    """
+    pa, pb = _partes_marca(a), _partes_marca(b)
+    if not pa or not pb:
+        return False
+    if pa & pb:
+        return True
+    return any(x in y or y in x for x in pa for y in pb)
+
+
 @dataclass
 class Caso:
     """Expediente de un caso de diagnostico / migracion."""
@@ -47,6 +73,10 @@ class Caso:
     equipo_identificado: dict | None = None
     # Resultado del motor de riesgo (Seccion 6)
     riesgo: dict | None = None
+    # Modo guia del procedimiento de 50 pasos. Se abre cuando se decide cambiar la
+    # CPU y guarda el disparador, la CPU destino elegida, las variantes que aplican
+    # (cambio de marca, sin respaldo) y el estado de cada paso.
+    migracion: dict | None = None
     # Recomendaciones e informes emitidos
     recomendaciones: list = field(default_factory=list)
     informes: list = field(default_factory=list)
@@ -161,6 +191,82 @@ class Caso:
         return iid
 
     # ------------------------------------------------------------------ #
+    # Modo guia: procedimiento de migracion de 50 pasos
+    # ------------------------------------------------------------------ #
+    def iniciar_migracion(self, disparador: str, motivo: str = "",
+                          decidido_por: str = "usuario") -> dict:
+        """Abre el modo guia. Es idempotente: no reinicia un avance ya empezado."""
+        if self.migracion and self.migracion.get("activa"):
+            self.migracion.setdefault("disparadores", [])
+            if disparador not in self.migracion["disparadores"]:
+                self.migracion["disparadores"].append(disparador)
+                self._tocar("migracion_disparador", {"disparador": disparador})
+            return self.migracion
+        self.migracion = {
+            "activa": True,
+            "abierta": _ahora(),
+            "disparadores": [disparador],
+            "motivo": motivo,
+            "decidido_por": decidido_por,
+            "destino": None,
+            "cambio_marca": False,
+            "sin_respaldo": False,
+            "pasos": {},
+        }
+        self._tocar("iniciar_migracion",
+                    {"disparador": disparador, "decidido_por": decidido_por})
+        return self.migracion
+
+    def declarar_sin_respaldo(self, sin_respaldo: bool = True) -> None:
+        """Marca que no hay programa de origen recuperable (contrasena, sin acceso)."""
+        if not self.migracion:
+            self.iniciar_migracion("sin_acceso_al_programa",
+                                   "Declarado sin respaldo verificado")
+        self.migracion["sin_respaldo"] = bool(sin_respaldo)
+        self._tocar("declarar_sin_respaldo", {"sin_respaldo": bool(sin_respaldo)})
+
+    def fijar_destino(self, marca: str, familia: str, modelo: str = "",
+                      justificacion: str = "", fuente: str = "") -> dict:
+        """Registra la CPU destino elegida (paso 13) y deduce si cambia la marca."""
+        if not self.migracion:
+            self.iniciar_migracion("decision_del_usuario", "Eleccion de CPU destino")
+        origen = (self.equipo_identificado or {}).get("marca") or ""
+        cambio = bool(origen) and not _misma_marca(marca, origen)
+        self.migracion["destino"] = {
+            "marca": marca,
+            "familia": familia,
+            "modelo": modelo,
+            "justificacion": justificacion,
+            "fuente": fuente,
+            "ts": _ahora(),
+        }
+        self.migracion["cambio_marca"] = cambio
+        self._tocar("fijar_destino",
+                    {"marca": marca, "familia": familia, "cambio_marca": cambio})
+        return self.migracion["destino"]
+
+    def marcar_paso(self, clave, estado: str, nota: str = "",
+                    evidencia: list | None = None) -> dict:
+        """Registra el estado de un paso del procedimiento, con su marca de tiempo.
+
+        `clave` es '1'..'50' del documento original o 'P1'..'P7' de la extension
+        de construccion del programa: no se fuerza a entero.
+        """
+        if not self.migracion:
+            self.iniciar_migracion("decision_del_usuario", "Avance del procedimiento")
+        texto = str(clave).strip()
+        c = texto if not texto.isdigit() else str(int(texto))
+        registro = {
+            "estado": estado,
+            "nota": nota,
+            "evidencia": evidencia or [],
+            "ts": _ahora(),
+        }
+        self.migracion.setdefault("pasos", {})[c] = registro
+        self._tocar("marcar_paso", {"paso": c, "estado": estado})
+        return registro
+
+    # ------------------------------------------------------------------ #
     def resumen(self) -> dict:
         """Estado compacto del expediente para que el agente lo consulte."""
         return {
@@ -187,8 +293,28 @@ class Caso:
             "banderas": [b["texto"] for b in self.banderas],
             "aprobaciones_pendientes": self.aprobaciones_pendientes,
             "riesgo": self.riesgo,
+            "migracion": self._resumen_migracion(),
             "num_recomendaciones": len(self.recomendaciones),
             "num_informes": len(self.informes),
+        }
+
+    def _resumen_migracion(self) -> dict | None:
+        """Avance del procedimiento de 50 pasos, si el modo guia esta abierto."""
+        if not self.migracion or not self.migracion.get("activa"):
+            return None
+        pasos = self.migracion.get("pasos", {}) or {}
+        cerrados = [c for c, r in pasos.items()
+                    if r.get("estado") in ("completado", "no_aplica")]
+        # Ordena 1..50 antes que P1..P7, sin romper con las claves no numericas.
+        cerrados.sort(key=lambda c: (0, int(c)) if c.isdigit() else (1, c))
+        return {
+            "activa": True,
+            "disparadores": self.migracion.get("disparadores", []),
+            "destino": self.migracion.get("destino"),
+            "cambio_marca": self.migracion.get("cambio_marca", False),
+            "sin_respaldo": self.migracion.get("sin_respaldo", False),
+            "pasos_cerrados": cerrados,
+            "avance": f"{len(cerrados)} de 57",
         }
 
     def ruta_archivo(self) -> Path:

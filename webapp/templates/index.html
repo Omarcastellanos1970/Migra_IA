@@ -46,6 +46,19 @@
   .msg code { background:rgba(127,127,127,.18); padding:1px 5px; border-radius:4px;
               font-family:ui-monospace, monospace; font-size:.9em; }
   .msg h1,.msg h2,.msg h3 { margin:.5em 0 .3em; font-size:1.05em; }
+  .msg p { margin:.45em 0; }
+  .msg ul,.msg ol { margin:.4em 0; padding-left:1.4em; }
+  .msg li { margin:.18em 0; }
+  .msg hr { border:0; border-top:1px solid var(--line); margin:.8em 0; }
+  .msg blockquote { margin:.6em 0; padding:.5em .8em; border-left:3px solid var(--accent);
+                    background:rgba(127,127,127,.10); border-radius:0 6px 6px 0; }
+  /* Las tablas (factores de riesgo, equivalencias) se desbordan en pantallas
+     estrechas: se hace scroll dentro de la propia tabla, no en la pagina. */
+  .msg .tabla { overflow-x:auto; margin:.6em 0; }
+  .msg table { border-collapse:collapse; width:100%; font-size:.92em; }
+  .msg th,.msg td { border:1px solid var(--line); padding:6px 9px; text-align:left;
+                    vertical-align:top; }
+  .msg th { background:rgba(127,127,127,.14); font-weight:600; white-space:nowrap; }
   .thinking { align-self:flex-start; color:var(--tx2); font-style:italic; padding:4px 15px; }
   .dot { display:inline-block; animation: blink 1.2s infinite; }
   .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
@@ -86,7 +99,8 @@
   <span class="logo">{{ agente }}</span>
   <span class="sub">Diagnóstico de obsolescencia y migración de hardware</span>
   <span class="badge" id="badge">v{{ version }}</span>
-  <button id="btn-demo">Modo demo (sin clave)</button>
+  <button id="btn-demo">Demo guiada (sin clave)</button>
+  <button id="btn-interactivo">Demo interactiva (sin clave)</button>
   <button id="btn-nuevo" class="sec">Caso real (API)</button>
 </header>
 
@@ -135,16 +149,84 @@ const $ = (id) => document.getElementById(id);
 
 function escapar(t){ const d=document.createElement("div"); d.textContent=t; return d.innerHTML; }
 
-// Render minimalista de Markdown (seguro: se escapa primero).
+// Marcado dentro de una linea. Negrita antes que cursiva: si no, el primer
+// asterisco de "**texto**" se comeria como cursiva.
+function linea(s){
+  return s.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")
+          .replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g,"$1<i>$2</i>")
+          .replace(/`([^`]+?)`/g,"<code>$1</code>");
+}
+
+// Render de Markdown por bloques (seguro: se escapa TODO antes de marcar).
+// Cubre lo que el agente emite de verdad: encabezados, tablas, listas, citas,
+// reglas horizontales y parrafos. Sin tablas, la puntuacion de riesgo y las
+// equivalencias salian con las barras verticales en crudo.
 function fmt(t){
-  let h = escapar(t);
-  h = h.replace(/^### (.*)$/gm,"<h3>$1</h3>")
-       .replace(/^## (.*)$/gm,"<h2>$1</h2>")
-       .replace(/^# (.*)$/gm,"<h3>$1</h3>")
-       .replace(/\*\*(.+?)\*\*/g,"<b>$1</b>")
-       .replace(/`([^`]+?)`/g,"<code>$1</code>")
-       .replace(/\n/g,"<br>");
-  return h;
+  const ls = escapar(t).split("\n");
+  const out = [];
+  let parrafo = [];
+  const cerrarParrafo = () => {
+    if(parrafo.length){ out.push("<p>"+parrafo.map(linea).join("<br>")+"</p>"); parrafo=[]; }
+  };
+  const esFila = s => /^\s*\|.*\|\s*$/.test(s);
+  const esSep  = s => /^\s*\|[\s:|-]+\|\s*$/.test(s);
+  const celdas = s => s.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim());
+
+  let i = 0;
+  while(i < ls.length){
+    const l = ls[i];
+
+    if(esFila(l) && i+1 < ls.length && esSep(ls[i+1])){
+      cerrarParrafo();
+      const cab = celdas(l); i += 2;
+      const filas = [];
+      while(i < ls.length && esFila(ls[i])){ filas.push(celdas(ls[i])); i++; }
+      out.push('<div class="tabla"><table><thead><tr>'
+        + cab.map(c=>"<th>"+linea(c)+"</th>").join("")
+        + "</tr></thead><tbody>"
+        + filas.map(f=>"<tr>"+f.map(c=>"<td>"+linea(c)+"</td>").join("")+"</tr>").join("")
+        + "</tbody></table></div>");
+      continue;
+    }
+    if(/^\s*[-•]\s+/.test(l)){
+      cerrarParrafo();
+      const it = [];
+      while(i < ls.length && /^\s*[-•]\s+/.test(ls[i])){
+        it.push(linea(ls[i].replace(/^\s*[-•]\s+/,""))); i++;
+      }
+      out.push("<ul>"+it.map(x=>"<li>"+x+"</li>").join("")+"</ul>");
+      continue;
+    }
+    if(/^\s*\d+\.\s+/.test(l)){
+      cerrarParrafo();
+      const it = [];
+      while(i < ls.length && /^\s*\d+\.\s+/.test(ls[i])){
+        it.push(linea(ls[i].replace(/^\s*\d+\.\s+/,""))); i++;
+      }
+      out.push("<ol>"+it.map(x=>"<li>"+x+"</li>").join("")+"</ol>");
+      continue;
+    }
+    // El '>' de las citas llega escapado como &gt;.
+    if(/^\s*&gt;\s?/.test(l)){
+      cerrarParrafo();
+      const it = [];
+      while(i < ls.length && /^\s*&gt;\s?/.test(ls[i])){
+        it.push(linea(ls[i].replace(/^\s*&gt;\s?/,""))); i++;
+      }
+      out.push("<blockquote>"+it.join("<br>")+"</blockquote>");
+      continue;
+    }
+    if(/^\s*---+\s*$/.test(l)){ cerrarParrafo(); out.push("<hr>"); i++; continue; }
+
+    let m;
+    if((m = l.match(/^#{2,3}\s+(.*)$/))){ cerrarParrafo(); out.push("<h2>"+linea(m[1])+"</h2>"); i++; continue; }
+    if((m = l.match(/^#\s+(.*)$/))){ cerrarParrafo(); out.push("<h3>"+linea(m[1])+"</h3>"); i++; continue; }
+    if(l.trim()===""){ cerrarParrafo(); i++; continue; }
+
+    parrafo.push(l); i++;
+  }
+  cerrarParrafo();
+  return out.join("");
 }
 
 function addMsg(quien, texto){
@@ -201,55 +283,75 @@ function llenar(id, items, vacio, clase){
   }
 }
 
-async function iniciar(demo){
+// modo: "demo" (recorrido narrado), "interactivo" (el motor con tus respuestas)
+// o "api" (dialogo real con el modelo).
+async function iniciar(modo){
   if(ocupado) return;
   ocupado = true; $("enviar").disabled = true;
   $("msgs").innerHTML = ""; pensando(true);
+  const demo = modo === "demo", inter = modo === "interactivo";
   try{
     const r = await fetch("/api/nuevo", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({demo: !!demo})
+      body: JSON.stringify({demo: demo, interactivo: inter})
     });
     const d = await r.json();
     pensando(false);
     if(d.error){ addMsg("agent","⚠️ "+d.error); return; }
-    caseId = d.case_id; esDemo = !!demo;
+    caseId = d.case_id; esDemo = demo || inter;
+    const etiqueta = demo ? "DEMO · " : inter ? "INTERACTIVA · " : "";
     const b = $("badge");
-    b.textContent = (demo ? "DEMO · " : "") + caseId;
-    b.className = "badge" + (demo ? " demo" : "");
-    // La demo SI lee el equipo que se escribe: con el arma el resto del recorrido
-    // desde el catalogo de fabricantes. El resto de pasos son guiados.
+    b.textContent = etiqueta + caseId;
+    b.className = "badge" + (esDemo ? " demo" : "");
+    // La demo guiada solo lee el nombre y el equipo; la interactiva lee TODAS las
+    // respuestas y con ellas mueve el motor real.
     $("entrada").placeholder = demo
-      ? "MODO DEMO: escribe tu nombre y despues TU equipo (marca, familia y modelo)"
+      ? "DEMO GUIADA: tu nombre, luego TU equipo; después pulsa Enviar para avanzar"
+      : inter
+      ? "DEMO INTERACTIVA: responde con el número de la opción, o escríbela"
       : "Escribe tu respuesta…  (Enter para enviar, Shift+Enter salto de línea)";
     addMsg("agent", d.texto);
     pintarPanel(d.resumen);
   }catch(e){ pensando(false); addMsg("agent","⚠️ Error de conexión con el servidor."); }
   finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
 }
-const nuevoCaso = () => iniciar(false);
-const nuevoDemo = () => iniciar(true);
+const nuevoCaso = () => iniciar("api");
+const nuevoDemo = () => iniciar("demo");
+const nuevoInteractivo = () => iniciar("interactivo");
 
 function bienvenida(){
   addMsg("agent",
-    "**Bienvenido a MIGRA-IA.**\n\n" +
-    "• Pulsa **Modo demo (sin clave)** para un recorrido guiado de 16 pasos **sobre TU " +
-    "equipo**: escribe la marca, familia y modelo de tu PLC y el agente lo identifica " +
-    "contra el catálogo verificado de **30 fabricantes, 130 generaciones y 469 modelos " +
-    "de CPU**, con su software, sus redes, la plataforma destino del mismo fabricante y " +
-    "la fuente oficial. Usa el motor real: registra datos, calcula el riesgo y genera el " +
-    "informe. Las demás respuestas del recorrido están preparadas.\n\n" +
-    "• Pulsa **Caso real (API)** para un diálogo completo, adaptado a cada una de tus " +
-    "respuestas y no sólo al equipo (requiere configurar tu ANTHROPIC_API_KEY en el " +
-    "archivo .env)."
+    "**Bienvenido a MIGRA-IA.** Tres formas de usarlo; las dos primeras **no " +
+    "necesitan clave ni tienen costo**.\n\n" +
+    "• **Demo guiada** — un recorrido narrado de 21 pasos que explica el razonamiento " +
+    "del agente: descartar la causa raíz externa antes de culpar a la obsolescencia, " +
+    "exigir respaldo verificado antes de tocar nada, y contrastar el plazo del repuesto " +
+    "con la parada que la línea tolera. Lee **tu equipo** y lo identifica contra el " +
+    "catálogo verificado de **30 fabricantes, 130 generaciones y 469 modelos de CPU**; " +
+    "los demás datos son los de un caso de referencia. Ideal para ver de qué va en " +
+    "cinco minutos.\n\n" +
+    "• **Demo interactiva** — aquí **respondes tú**. Las preguntas y sus opciones salen " +
+    "del cuestionario maestro, el motor de riesgo puntúa **tus** respuestas, el mapa de " +
+    "decisión dice qué procede en **tu** caso y, si toca migrar, el procedimiento de " +
+    "**50 pasos** te guía con la CPU destino que elijas (misma marca u otra). Sin " +
+    "modelo de lenguaje: mismo caso, mismo resultado, siempre.\n\n" +
+    "• **Caso real (API)** — diálogo en lenguaje libre con el agente completo. Es lo " +
+    "único que las demos no pueden hacer, y requiere tu ANTHROPIC_API_KEY en el " +
+    "archivo .env."
   );
 }
 
 async function enviar(){
-  const t = $("entrada").value.trim();
-  if(!t || ocupado || !caseId) return;
+  const escrito = $("entrada").value.trim();
+  if(ocupado || !caseId) return;
+  // Los dos modos de demo avanzan paso a paso y le dicen al usuario "pulsa
+  // Enviar". Sin esto, hacerlo con la caja vacia no producia nada: el envio
+  // salia en silencio y el recorrido parecia colgado.
+  if(!escrito && !esDemo) return;
+  const t = escrito || "continuar";
   ocupado = true; $("enviar").disabled = true;
-  addMsg("user", t); $("entrada").value = ""; pensando(true);
+  if(escrito) addMsg("user", escrito);
+  $("entrada").value = ""; pensando(true);
   try{
     const r = await fetch("/api/mensaje", {
       method:"POST", headers:{"Content-Type":"application/json"},
@@ -267,6 +369,7 @@ async function enviar(){
 $("enviar").addEventListener("click", enviar);
 $("btn-nuevo").addEventListener("click", nuevoCaso);
 $("btn-demo").addEventListener("click", nuevoDemo);
+$("btn-interactivo").addEventListener("click", nuevoInteractivo);
 $("entrada").addEventListener("keydown", (e)=>{
   if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); enviar(); }
 });

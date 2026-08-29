@@ -20,7 +20,7 @@ except Exception:  # noqa: BLE001
 
 from flask import Flask, request, jsonify, render_template
 
-from migra_ia import config, demo
+from migra_ia import config, demo, interactivo
 from migra_ia.caso import Caso
 from migra_ia.prompt import construir_system_prompt, MENSAJE_INICIAL_USUARIO
 from migra_ia.nucleo import ejecutar_turno, nuevo_cliente
@@ -55,9 +55,21 @@ def index():
 def nuevo_caso():
     data = request.get_json(force=True, silent=True) or {}
     es_demo = bool(data.get("demo"))
+    es_interactivo = bool(data.get("interactivo"))
 
     caso = Caso()
     caso.guardar()
+
+    # Demo interactiva: tampoco usa la API, pero a diferencia del recorrido
+    # narrado LEE cada respuesta y hace trabajar al motor real con ella.
+    if es_interactivo:
+        apertura = interactivo.iniciar()
+        SESIONES[caso.case_id] = {
+            "messages": [], "caso": caso, "demo": False, "interactivo": True,
+            "estado": apertura["estado"],
+        }
+        return jsonify(case_id=caso.case_id, texto=apertura["texto"],
+                       acciones=[], resumen=caso.resumen(), interactivo=True)
 
     # Modo demostracion: no usa la API, recorre un caso de ejemplo con el motor real.
     if es_demo:
@@ -96,6 +108,12 @@ def mensaje():
     if not texto_usuario:
         return jsonify(error="Mensaje vacio."), 400
 
+    # Demo interactiva: cada respuesta entra al expediente y mueve el motor.
+    if ses.get("interactivo"):
+        paso = interactivo.responder(ses["caso"], texto_usuario, ses.get("estado"))
+        ses["estado"] = paso.pop("estado", ses.get("estado"))
+        return jsonify(**paso)
+
     # Modo demostracion: avanza el guion sin llamar a la API, pero LEYENDO lo que
     # escribe el usuario (su nombre y, sobre todo, su equipo) para adaptarse.
     if ses.get("demo"):
@@ -104,7 +122,10 @@ def mensaje():
             ses["caso"], idx, texto_usuario, ses.get("demo_ctx")
         )
         ses["demo_ctx"] = paso.pop("ctx", ses.get("demo_ctx"))
-        ses["demo_idx"] = idx + 1
+        # `repetir` deja el recorrido en el mismo paso: lo usa la identificacion del
+        # equipo cuando no se reconoce, para dar oportunidad de corregirlo antes de
+        # arrancar un caso entero sobre un equipo sin identificar.
+        ses["demo_idx"] = idx if paso.pop("repetir", False) else idx + 1
         return jsonify(**paso)
 
     ses["messages"].append({"role": "user", "content": texto_usuario})

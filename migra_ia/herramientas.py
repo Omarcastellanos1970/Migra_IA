@@ -12,7 +12,7 @@ from datetime import datetime
 
 from .caso import Caso
 from .scoring import calcular_riesgo, PESOS
-from . import config, conocimiento, cuestionario, fabricantes
+from . import config, conocimiento, cuestionario, fabricantes, procedimiento
 
 NIVELES = ["confirmado", "alta_confianza", "confianza_media", "baja_confianza", "no_determinado"]
 
@@ -263,6 +263,129 @@ TOOLS = [
         },
     },
     {
+        "name": "consultar_procedimiento",
+        "description": (
+            "Consulta el procedimiento de migracion de 50 pasos (MIGRA-IA-PROC-050): el "
+            "paso a paso que se sigue UNA VEZ QUE SE DECIDE cambiar la CPU. Cada paso trae "
+            "su criterio de salida, la evidencia que debe quedar, quien lo ejecuta, sus "
+            "prerrequisitos y lo que exige antes de tocar la maquina. Usa 'disparadores' "
+            "para saber si el caso ya justifica abrir el modo guia; 'opciones_destino' en "
+            "el paso 13 para presentar las CPU candidatas del mismo fabricante y las "
+            "plataformas de marcas alternativas; 'siguiente' para saber que paso toca; "
+            "'bloqueos' antes de proponer cualquier intervencion fisica. Cita siempre el "
+            "paso: 'Procedimiento MIGRA-IA-PROC-050, paso N'."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "tema": {
+                    "type": "string",
+                    "enum": [
+                        "paso", "fase", "disparadores", "opciones_destino",
+                        "estado", "siguiente", "bloqueos", "huecos", "documento",
+                    ],
+                    "description": "Parte del procedimiento a consultar.",
+                },
+                "clave": {
+                    "type": "string",
+                    "description": (
+                        "Numero de paso (1 a 50) para el tema 'paso'; id de fase "
+                        "(levantamiento, seleccion_e_ingenieria, conversion, fat, "
+                        "corte_y_puesta_en_marcha, cierre) o numero de paso para 'fase'. "
+                        "Omitela en los demas temas."
+                    ),
+                },
+            },
+            "required": ["tema"],
+        },
+    },
+    {
+        "name": "iniciar_guia_migracion",
+        "description": (
+            "Abre el modo guia del procedimiento de 50 pasos. Llamala en el momento en que "
+            "se decide cambiar la CPU: por obsolescencia, por contrasena desconocida, "
+            "porque el programa anterior no se puede copiar ni abrir, o porque el usuario "
+            "lo decide. A partir de esta llamada el agente deja de diagnosticar y acompana "
+            "paso a paso. Declara `sin_respaldo` cuando no exista programa de origen "
+            "recuperable: eso cambia el contenido de varios pasos."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "disparador": {
+                    "type": "string",
+                    "enum": ["cpu_obsoleta", "contrasena_desconocida",
+                             "sin_acceso_al_programa", "decision_del_usuario"],
+                },
+                "motivo": {"type": "string", "description": "Por que se abre, en una linea."},
+                "decidido_por": {
+                    "type": "string",
+                    "enum": ["usuario", "sugerencia_del_agente_aceptada"],
+                    "description": "Quien tomo la decision de cambiar la CPU.",
+                },
+                "sin_respaldo": {
+                    "type": "boolean",
+                    "description": "True si no hay programa de origen recuperable ni verificable.",
+                },
+            },
+            "required": ["disparador", "motivo"],
+        },
+    },
+    {
+        "name": "fijar_cpu_destino",
+        "description": (
+            "Registra la CPU de reemplazo que ELIGIO EL USUARIO en el paso 13, con su "
+            "justificacion y su fuente. Nunca la elijas tu: presenta antes las opciones con "
+            "`consultar_procedimiento` (tema 'opciones_destino') y espera la decision. Si la "
+            "marca elegida es distinta a la de origen, el procedimiento activa solo la "
+            "variante de cambio de marca (los pasos 21 y 22 dejan de aplicar)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "marca": {"type": "string"},
+                "familia": {"type": "string", "description": "Familia o plataforma destino."},
+                "modelo": {
+                    "type": "string",
+                    "description": "Modelo exacto SOLO si el catalogo lo documenta o el "
+                                   "usuario lo aporta. No completes codigos.",
+                },
+                "justificacion": {"type": "string"},
+                "fuente": {"type": "string", "description": "URL o cita de la fuente oficial."},
+            },
+            "required": ["marca", "familia", "justificacion"],
+        },
+    },
+    {
+        "name": "marcar_paso_migracion",
+        "description": (
+            "Registra el estado de un paso del procedimiento en el expediente, con la "
+            "evidencia que lo sustenta. Marca 'completado' solo cuando se cumple el criterio "
+            "de salida del paso; 'no_aplica' cuando una variante lo desactiva; 'bloqueado' "
+            "cuando falta un prerrequisito."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "paso": {"type": "string",
+                         "description": "Clave del paso: '1' a '50' del documento, o "
+                                        "'P1' a 'P7' de la extension de construccion "
+                                        "del programa."},
+                "estado": {
+                    "type": "string",
+                    "enum": ["pendiente", "en_curso", "completado", "no_aplica", "bloqueado"],
+                },
+                "nota": {"type": "string"},
+                "evidencia": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Evidencia aportada por el usuario para cerrar el paso.",
+                },
+            },
+            "required": ["paso", "estado"],
+        },
+    },
+    {
         "name": "solicitar_aprobacion_humana",
         "description": (
             "Solicita aprobacion explicita del personal autorizado ANTES de entregar "
@@ -388,6 +511,96 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
         elif nombre == "consultar_cuestionario":
             res = cuestionario.consultar(entrada.get("tema", ""), entrada.get("clave"))
             resultado = json.dumps(res, ensure_ascii=False)
+
+        elif nombre == "consultar_procedimiento":
+            res = procedimiento.consultar(
+                entrada.get("tema", ""), entrada.get("clave"), caso=caso
+            )
+            resultado = json.dumps(res, ensure_ascii=False)
+
+        elif nombre == "iniciar_guia_migracion":
+            caso.iniciar_migracion(
+                disparador=entrada["disparador"],
+                motivo=entrada.get("motivo", ""),
+                decidido_por=entrada.get("decidido_por", "usuario"),
+            )
+            if entrada.get("sin_respaldo"):
+                caso.declarar_sin_respaldo(True)
+            # El primer paso viaja de vuelta en el mismo tool_result: el modo guia
+            # arranca sin depender de que el modelo decida hacer otra consulta.
+            sig = procedimiento.siguiente(caso)
+            resultado = json.dumps(
+                {"estado": "ok",
+                 "migracion": caso.migracion,
+                 "avance": procedimiento.estado(caso),
+                 "primer_paso": sig,
+                 "texto_primer_paso": procedimiento.texto_paso(
+                     sig["clave"], procedimiento.contexto(caso)) if sig else ""},
+                ensure_ascii=False,
+            )
+
+        elif nombre == "fijar_cpu_destino":
+            destino = caso.fijar_destino(
+                marca=entrada["marca"],
+                familia=entrada["familia"],
+                modelo=entrada.get("modelo", ""),
+                justificacion=entrada.get("justificacion", ""),
+                fuente=entrada.get("fuente", ""),
+            )
+            cambio = caso.migracion.get("cambio_marca", False)
+            resultado = json.dumps(
+                {"estado": "ok",
+                 "destino": destino,
+                 "cambio_marca": cambio,
+                 "consecuencia": (
+                     "Cambio de marca: los pasos 21 y 22 dejan de aplicar y el programa "
+                     "se reescribe desde cero. Revisa las variantes de los pasos 14, 19 y 48."
+                     if cambio else
+                     "Misma marca: el procedimiento sigue completo, con herramienta oficial "
+                     "de conversion en los pasos 21 y 22."),
+                 "avance": procedimiento.estado(caso)},
+                ensure_ascii=False,
+            )
+
+        elif nombre == "marcar_paso_migracion":
+            n = str(entrada["paso"]).strip()
+            ctx = procedimiento.contexto(caso)
+            p = procedimiento.paso(n, ctx)
+            if p is None:
+                resultado = json.dumps(
+                    {"estado": "error",
+                     "mensaje": f"El paso {n} no existe. Validos: 1 a 50, y P1 a P7.",
+                     "validos": procedimiento.orden()},
+                    ensure_ascii=False,
+                )
+            else:
+                pendientes = [
+                    r for r in p["prerrequisitos"]
+                    if (caso.migracion or {}).get("pasos", {}).get(str(r), {}).get("estado")
+                    not in ("completado", "no_aplica")
+                ]
+                if entrada["estado"] == "completado" and pendientes:
+                    # No se cierra un paso saltandose sus prerrequisitos: la
+                    # dependencia es del procedimiento, no criterio del modelo.
+                    resultado = json.dumps(
+                        {"estado": "rechazado",
+                         "mensaje": f"El paso {n} no puede cerrarse: faltan los pasos "
+                                    f"{pendientes}. Cierralos o marcalos 'no_aplica' antes.",
+                         "prerrequisitos_pendientes": pendientes},
+                        ensure_ascii=False,
+                    )
+                else:
+                    caso.marcar_paso(n, entrada["estado"], entrada.get("nota", ""),
+                                     entrada.get("evidencia"))
+                    sig = procedimiento.siguiente(caso)
+                    resultado = json.dumps(
+                        {"estado": "ok",
+                         "avance": procedimiento.estado(caso),
+                         "siguiente_paso": sig["etiqueta"] if sig else None,
+                         "texto_siguiente_paso": procedimiento.texto_paso(
+                             sig["clave"], ctx) if sig else "Todos los pasos estan cerrados."},
+                        ensure_ascii=False,
+                    )
 
         elif nombre == "solicitar_aprobacion_humana":
             aprob = aprobador or _aprobacion_consola

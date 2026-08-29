@@ -71,6 +71,16 @@ def _todas_las_preguntas() -> dict[str, dict]:
     return indice
 
 
+def pregunta(codigo: str) -> dict | None:
+    """Pregunta del cuestionario por su codigo (p. ej. 'M01'), con su seccion.
+
+    Devuelve el item tal cual esta en `data/cuestionario.json`, incluidas las de
+    las ramas adaptativas. Es la via para que otros modulos presenten el texto y
+    las opciones REALES sin duplicarlos en el codigo.
+    """
+    return _todas_las_preguntas().get((codigo or "").strip().upper())
+
+
 def _rango_codigos(items: list[dict]) -> str:
     """Etiqueta compacta del rango de codigos de una seccion (p. ej. 'M01-M10')."""
     codigos = [i["codigo"] for i in items if i.get("codigo")]
