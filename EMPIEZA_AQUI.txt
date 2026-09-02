@@ -11,7 +11,7 @@
 
 
   SON 3 PASOS. NO NECESITAS SABER PROGRAMAR.
-  Puedes probarlo GRATIS: el "modo demo" no pide clave de API
+  Puedes probarlo GRATIS: la "demo interactiva" no pide clave de API
   ni cuesta nada.
 
 
@@ -56,8 +56,8 @@
     http://127.0.0.1:5000
     (si no se abre solo, escribe esa direccion en el navegador)
 
-  - Pulsa el boton  "Modo demo (sin clave)"
-  - Escribe cualquier cosa y pulsa Enviar. Ve respondiendo.
+  - Pulsa el boton  "Demo interactiva (sin clave)"
+  - Responde cada pregunta con el numero de la opcion y pulsa Enviar.
 
   Veras el diagnostico paso a paso, el panel del expediente,
   la puntuacion de riesgo de obsolescencia (75.2, "Riesgo alto")
@@ -70,7 +70,7 @@
   OPCIONAL - Modo "Caso real (API)"
 -----------------------------------------------------------
 
-  El modo demo ya muestra el motor completo. Si ademas quieres
+  La demo interactiva ya muestra el motor completo. Si ademas quieres
   la conversacion real con la IA:
 
      1. Consigue tu clave en

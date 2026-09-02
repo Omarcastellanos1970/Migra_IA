@@ -2,7 +2,7 @@
 
 > **Para:** coautores del proyecto (Julio, Isidoro).
 > **Tiempo:** ~15 minutos.
-> ✅ **Puedes probarlo GRATIS**, sin clave y sin costo, gracias al **modo demo**.
+> ✅ **Puedes probarlo GRATIS**, sin clave y sin costo, gracias a la **demo interactiva**.
 
 MIGRA-IA es un agente que guía el **diagnóstico de obsolescencia** y la **migración de hardware industrial** (PLC, HMI, redes, variadores, etc.).
 
@@ -34,17 +34,17 @@ pip install -r requirements.txt
 ```
 > Si `Activate.ps1` te da un error de permisos, usa en su lugar: `.venv\Scripts\activate.bat`
 
-## ✅ Paso 5 — Ejecutar y probar GRATIS (modo demo)
+## ✅ Paso 5 — Ejecutar y probar GRATIS (demo interactiva)
 - **Lo más fácil (Windows):** doble clic en el archivo **`Iniciar_MIGRA-IA.bat`**. Se abrirá una ventana negra y luego tu navegador en http://127.0.0.1:5000
 - **O por terminal:** ejecuta `python -m webapp.app` y abre http://127.0.0.1:5000
 
-En el navegador, pulsa **"Modo demo (sin clave)"** → escribe cualquier texto y pulsa *Enviar*.
-👉 **Es gratis y no necesita clave de API.** Verás el diagnóstico, el riesgo de obsolescencia (**75.2 / "Riesgo alto"**), el expediente y el informe generado.
+En el navegador, pulsa **"Demo interactiva (sin clave)"** → responde cada pregunta con el número de la opción y pulsa *Enviar*.
+👉 **Es gratis y no necesita clave de API.** Verás el diagnóstico, el riesgo de obsolescencia calculado sobre **tus** respuestas, el expediente y el informe generado.
 
 > ⚠️ **No cierres la ventana negra** mientras usas el agente. Para apagarlo, ciérrala o pulsa **Ctrl + C**.
 
 ## 🔑 Paso 6 (opcional) — Usar el agente real con IA
-El modo demo ya muestra todo el motor. Si quieres el **agente conversacional completo** (razonamiento con Claude):
+La demo interactiva ya muestra todo el motor. Si quieres el **agente conversacional completo** (razonamiento con Claude):
 1. Consigue una clave de API en https://console.anthropic.com/settings/keys *(servicio de pago de Anthropic; cada quien usa la suya)*.
 2. En la carpeta del proyecto, **copia** el archivo `.env.example` y **renómbralo** a `.env`.
 3. Ábrelo con el **Bloc de notas** y reemplaza `sk-ant-...` por tu clave.

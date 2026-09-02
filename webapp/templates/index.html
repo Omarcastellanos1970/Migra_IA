@@ -99,7 +99,6 @@
   <span class="logo">{{ agente }}</span>
   <span class="sub">Diagnóstico de obsolescencia y migración de hardware</span>
   <span class="badge" id="badge">v{{ version }}</span>
-  <button id="btn-demo">Demo guiada (sin clave)</button>
   <button id="btn-interactivo">Demo interactiva (sin clave)</button>
   <button id="btn-nuevo" class="sec">Caso real (API)</button>
 </header>
@@ -283,8 +282,10 @@ function llenar(id, items, vacio, clase){
   }
 }
 
-// modo: "demo" (recorrido narrado), "interactivo" (el motor con tus respuestas)
-// o "api" (dialogo real con el modelo).
+// modo: "interactivo" (el motor con tus respuestas) o "api" (dialogo real con
+// el modelo). El recorrido narrado "demo" ya no se ofrece en la interfaz:
+// sigue existiendo en el backend para presentaciones internas, pero no es un
+// modo del artefacto y ningun boton lo lanza.
 async function iniciar(modo){
   if(ocupado) return;
   ocupado = true; $("enviar").disabled = true;
@@ -303,8 +304,7 @@ async function iniciar(modo){
     const b = $("badge");
     b.textContent = etiqueta + caseId;
     b.className = "badge" + (esDemo ? " demo" : "");
-    // La demo guiada solo lee el nombre y el equipo; la interactiva lee TODAS las
-    // respuestas y con ellas mueve el motor real.
+    // La interactiva lee TODAS las respuestas y con ellas mueve el motor real.
     $("entrada").placeholder = demo
       ? "DEMO GUIADA: tu nombre, luego TU equipo; después pulsa Enviar para avanzar"
       : inter
@@ -316,28 +316,22 @@ async function iniciar(modo){
   finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
 }
 const nuevoCaso = () => iniciar("api");
-const nuevoDemo = () => iniciar("demo");
 const nuevoInteractivo = () => iniciar("interactivo");
 
 function bienvenida(){
   addMsg("agent",
-    "**Bienvenido a MIGRA-IA.** Tres formas de usarlo; las dos primeras **no " +
-    "necesitan clave ni tienen costo**.\n\n" +
-    "• **Demo guiada** — un recorrido narrado de 21 pasos que explica el razonamiento " +
-    "del agente: descartar la causa raíz externa antes de culpar a la obsolescencia, " +
-    "exigir respaldo verificado antes de tocar nada, y contrastar el plazo del repuesto " +
-    "con la parada que la línea tolera. Lee **tu equipo** y lo identifica contra el " +
-    "catálogo verificado de **30 fabricantes, 130 generaciones y 469 modelos de CPU**; " +
-    "los demás datos son los de un caso de referencia. Ideal para ver de qué va en " +
-    "cinco minutos.\n\n" +
-    "• **Demo interactiva** — aquí **respondes tú**. Las preguntas y sus opciones salen " +
-    "del cuestionario maestro, el motor de riesgo puntúa **tus** respuestas, el mapa de " +
-    "decisión dice qué procede en **tu** caso y, si toca migrar, el procedimiento de " +
-    "**50 pasos** te guía con la CPU destino que elijas (misma marca u otra). Sin " +
-    "modelo de lenguaje: mismo caso, mismo resultado, siempre.\n\n" +
-    "• **Caso real (API)** — diálogo en lenguaje libre con el agente completo. Es lo " +
-    "único que las demos no pueden hacer, y requiere tu ANTHROPIC_API_KEY en el " +
-    "archivo .env."
+    "**Bienvenido a MIGRA-IA.** Dos formas de usarlo; la primera **no necesita " +
+    "clave ni tiene costo**.\n\n" +
+    "• **Demo interactiva** — aquí **respondes tú**. Tu equipo se identifica " +
+    "contra el catálogo verificado de **30 fabricantes, 130 generaciones y 469 " +
+    "modelos de CPU**; las preguntas y sus opciones salen del cuestionario " +
+    "maestro; el motor de riesgo puntúa **tus** respuestas; el mapa de decisión " +
+    "dice qué procede en **tu** caso y, si toca migrar, el procedimiento de " +
+    "**50 pasos** te guía con la CPU destino que elijas (misma marca u otra). " +
+    "Sin modelo de lenguaje: mismo caso, mismo resultado, siempre.\n\n" +
+    "• **Caso real (API)** — diálogo en lenguaje libre con el agente completo. " +
+    "Es lo único que la demo no puede hacer, y requiere tu ANTHROPIC_API_KEY " +
+    "en el archivo .env."
   );
 }
 
@@ -368,7 +362,6 @@ async function enviar(){
 
 $("enviar").addEventListener("click", enviar);
 $("btn-nuevo").addEventListener("click", nuevoCaso);
-$("btn-demo").addEventListener("click", nuevoDemo);
 $("btn-interactivo").addEventListener("click", nuevoInteractivo);
 $("entrada").addEventListener("keydown", (e)=>{
   if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); enviar(); }

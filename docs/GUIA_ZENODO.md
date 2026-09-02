@@ -134,5 +134,5 @@ no reconoce ese tipo de entrada y la referencia no se renderiza.
 
 - [ ] `CITATION.cff` y `.zenodo.json` con autores/afiliación correctos.
 - [ ] El `.env` con la clave **no** está en el repositorio ni en el ZIP.
-- [ ] El artefacto arranca y el modo demo da el resultado esperado (ver `ARTIFACT.md`).
+- [ ] El artefacto arranca y la demo interactiva da el resultado esperado (ver `ARTIFACT.md`).
 - [ ] DOI generado y colocado en `README.md` y en el `.bib` del paper.

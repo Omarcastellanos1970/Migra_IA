@@ -1,4 +1,8 @@
-"""Modo demostracion adaptativo (sin API key).
+"""Recorrido narrado adaptativo (sin API key) - guion interno de presentacion.
+
+NO es un modo del artefacto y la interfaz web no lo ofrece: no hay boton que lo
+lance. Se conserva para presentaciones y se ejecuta con `python _demo_run.py`.
+Lo que se evalua son la demo interactiva (`interactivo.py`) y el caso real.
 
 A diferencia de la version anterior -un guion fijo sobre un caso Siemens-, esta
 demo LEE el equipo que escribe el usuario, lo identifica contra el catalogo de 30
@@ -30,7 +34,7 @@ PASO_NOMBRE = 1
 PASO_EQUIPO = 2
 
 _TEXTO_FIN = (
-    "La demostracion ya termino. Pulsa **Modo demo** para reiniciarla con otro "
+    "La demostracion ya termino. Vuelve a lanzarla para repetirla con otro "
     "equipo, o configura tu `ANTHROPIC_API_KEY` y abre un **Caso real (API)** para "
     "un diagnostico conversacional completo sobre tu propia maquina."
 )

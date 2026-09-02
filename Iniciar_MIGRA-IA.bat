@@ -19,7 +19,7 @@ if not exist ".venv\Scripts\python.exe" (
 )
 
 echo   Se abrira tu navegador en http://127.0.0.1:5000
-echo   Ahi pulsa "Modo demo (sin clave)" para usarlo gratis.
+echo   Ahi pulsa "Demo interactiva (sin clave)" para usarlo gratis.
 echo.
 echo   IMPORTANTE: NO cierres esta ventana negra mientras usas
 echo   el agente. Para apagarlo, cierra esta ventana o pulsa

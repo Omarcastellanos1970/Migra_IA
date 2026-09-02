@@ -21,7 +21,7 @@ Usamos **Render** porque tiene plan gratuito y despliega directo desde GitHub.
 
 5. Te pedirá el valor de **`ANTHROPIC_API_KEY`**. Aquí decides:
    - 🆓 **Demo pública gratis (recomendado para empezar):** déjalo **VACÍO**.
-     Funcionará el **"Modo demo"** para todos, **sin ningún costo**.
+     Funcionará la **"Demo interactiva"** para todos, **sin ningún costo**.
    - 🤖 **Agente IA real:** pega tu clave de Anthropic.
      ⚠️ **Ojo:** así, **cada visitante** que use el modo real gasta API de **tu** cuenta.
 

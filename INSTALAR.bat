@@ -68,7 +68,7 @@ echo ============================================================
 echo.
 echo   Ahora haz doble clic en:   Iniciar_MIGRA-IA.bat
 echo.
-echo   Se abrira el navegador. Pulsa "Modo demo (sin clave)"
+echo   Se abrira el navegador. Pulsa "Demo interactiva (sin clave)"
 echo   para probarlo gratis, sin clave de API y sin costo.
 echo.
 pause

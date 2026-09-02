@@ -16,7 +16,7 @@ intervención sobre equipos reales corresponde a personal autorizado.
 **Licencia:** MIT · **DOI (todas las versiones):** [10.5281/zenodo.21480949](https://doi.org/10.5281/zenodo.21480949) — resuelve siempre a la última versión publicada en Zenodo.
 
 > **¿Eres revisor?** El proyecto se puede evaluar **sin clave de API y sin costo**
-> con el *modo demo*. Sigue [`ARTIFACT.md`](ARTIFACT.md).
+> con la *demo interactiva*. Sigue [`ARTIFACT.md`](ARTIFACT.md).
 
 ---
 
