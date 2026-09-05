@@ -1,0 +1,10 @@
+Fabricante;Plataforma;Lanzamiento;Anuncio_fin_de_vida;Fin_comercializacion;Fin_repuestos_reparacion;Vida_comercial_anios;Soporte_total_anios;Nivel
+Rockwell;PLC-5 (1785);1986;18/5/2015;jun-17;31-12-2025 (software RSLogix 5);31;39;A
+Rockwell;SLC 500;1991;;31/3/2024;n.d.;33;;B
+Siemens;S7-300 / ET 200M;1995;01-10-2023 (PM400);01-10-2025 (PM410);>= 01-10-2033 (10 anios);30;38;B
+Schneider;Modicon Quantum;1994;dic-18;31/12/2022;n.d.;28;;B
+Schneider;Modicon Premium;1996;dic-18;2022;n.d.;26;;B
+Mitsubishi;MELSEC-A/QnA (tipo grande);1985;;sep-06;09-2013 (7 anios);21;28;A
+Mitsubishi;MELSEC AnS/QnAS;1993;;sep-14;09-2021 (7 anios);21;28;A
+Omron;SYSMAC CS1;1999;6/11/2023;03-2025 (ult. pedido) / 03-2026 (ult. envio);mar-32;26;33;A
+Omron;SYSMAC CJ1 (Europa);2001;30/5/2024;mar-25;2032 (7 anios tras ult. pedido);24;31;A

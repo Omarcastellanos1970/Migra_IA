@@ -174,3 +174,53 @@ colgantes en todo el árbol.
    en las tres copias: el widget del motor arranca con los ocho valores reales
    del escenario crítico (75/85/90/95/100/75/55/90) y la lectura de diagnóstico
    describe el caso que sí se puede reproducir.
+
+---
+
+## 2026-09-04 (2.ª parte) · Baseline reproducible del rubro
+
+**Se pidió.** El entregable del taller: baseline reproducible con seis casillas
+marcadas. El rubro tiene modelo asignado — *regresión logística ordinal y
+gradient boosting en modo ranking*, como resultado principal de dos de los tres
+subproblemas.
+
+**Devolvió.** `_baseline.py` y su informe `docs/baseline_reproducible.md`, más el
+conjunto de datos dentro del repositorio (`data/ciclo_vida_plataformas.csv`), la
+partición guardada (`data/particion_ciclo_vida.json`) y el entorno congelado
+(`requirements-freeze.txt`).
+
+| | exactitud | F1 macro | error ordinal |
+|---|---|---|---|
+| B0 trivial (clase mayoritaria) | 0.667 | 0.400 | 0.333 |
+| B1 clásico (logística ordinal) | 0.778 | 0.679 | 0.222 |
+
+**Se verificó.** Dos corridas seguidas dan salida **byte a byte idéntica**. La
+fecha de referencia se fijó en `2026-09-04` en vez de usar «hoy», porque las
+etiquetas se derivan de comparar fechas y con «hoy» el entregable dejaría de ser
+reproducible en cuanto pase el calendario. La identidad de las dos columnas
+excluidas por fuga se comprobó con aritmética sobre los propios datos, no por
+criterio: **9 de 9 filas** y **6 de 6 filas**.
+
+**Se corrigió — cuatro cosas que el propio ejercicio destapó:**
+
+1. **La tabla solo tiene 9 filas y 2 clases de 4.** No hay ni una muestra de
+   «activo» ni de «phase-out», porque la tabla se construyó para documentar
+   descontinuaciones. El modelo ordinal degenera en binario y no puede aprender
+   a reconocer una plataforma vigente. Declarado como sesgo de selección.
+2. **Solo una variable sobrevive a la auditoría de fuga.** `Vida_comercial_anios`
+   y `Soporte_total_anios` son la etiqueta escrita de otra forma; `Nivel` es
+   metadato de verificación, no propiedad del equipo; `Fabricante` es la variable
+   de agrupamiento. Queda `antiguedad`. Por eso el clásico es univariante: no
+   por elección, por obligación.
+3. **P2 no es evaluable todavía.** El gradient boosting en modo ranking necesita
+   un orden de referencia que no existe en ninguna fuente del proyecto, y
+   derivarlo de la puntuación del motor sería circular. Se declara qué haría
+   falta en vez de fabricar el dato.
+4. **Se rehízo el clásico.** La primera versión usaba un tocón de decisión;
+   al confirmarse que el rubro tiene modelo asignado se sustituyó por la logística
+   ordinal que pide el rubro.
+
+**Sin resolver.** El conjunto es de nueve filas: cada acierto vale 0.111 de
+exactitud, así que la ventaja del clásico sobre el trivial es un indicio, no
+evidencia. Ampliar la tabla de ciclo de vida a las 130 generaciones del catálogo
+es lo que le daría sentido estadístico, y es trabajo de fuentes oficiales.

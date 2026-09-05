@@ -1,0 +1,106 @@
+{
+  "esquema": "leave-one-manufacturer-out",
+  "agrupamiento": "Fabricante",
+  "fecha_referencia": "2026-09-04",
+  "semilla": 42,
+  "origen": "data/ciclo_vida_plataformas.csv",
+  "variable_admitida": "antiguedad = 2026 - Lanzamiento",
+  "pliegues": [
+    {
+      "pliegue": 0,
+      "prueba_marcas": "Mitsubishi",
+      "prueba": [
+        "MELSEC-A/QnA (tipo grande)",
+        "MELSEC AnS/QnAS"
+      ],
+      "entrenamiento": [
+        "PLC-5 (1785)",
+        "SLC 500",
+        "S7-300 / ET 200M",
+        "Modicon Quantum",
+        "Modicon Premium",
+        "SYSMAC CS1",
+        "SYSMAC CJ1 (Europa)"
+      ]
+    },
+    {
+      "pliegue": 1,
+      "prueba_marcas": "Omron",
+      "prueba": [
+        "SYSMAC CS1",
+        "SYSMAC CJ1 (Europa)"
+      ],
+      "entrenamiento": [
+        "PLC-5 (1785)",
+        "SLC 500",
+        "S7-300 / ET 200M",
+        "Modicon Quantum",
+        "Modicon Premium",
+        "MELSEC-A/QnA (tipo grande)",
+        "MELSEC AnS/QnAS"
+      ]
+    },
+    {
+      "pliegue": 2,
+      "prueba_marcas": "Rockwell",
+      "prueba": [
+        "PLC-5 (1785)",
+        "SLC 500"
+      ],
+      "entrenamiento": [
+        "S7-300 / ET 200M",
+        "Modicon Quantum",
+        "Modicon Premium",
+        "MELSEC-A/QnA (tipo grande)",
+        "MELSEC AnS/QnAS",
+        "SYSMAC CS1",
+        "SYSMAC CJ1 (Europa)"
+      ]
+    },
+    {
+      "pliegue": 3,
+      "prueba_marcas": "Schneider",
+      "prueba": [
+        "Modicon Quantum",
+        "Modicon Premium"
+      ],
+      "entrenamiento": [
+        "PLC-5 (1785)",
+        "SLC 500",
+        "S7-300 / ET 200M",
+        "MELSEC-A/QnA (tipo grande)",
+        "MELSEC AnS/QnAS",
+        "SYSMAC CS1",
+        "SYSMAC CJ1 (Europa)"
+      ]
+    },
+    {
+      "pliegue": 4,
+      "prueba_marcas": "Siemens",
+      "prueba": [
+        "S7-300 / ET 200M"
+      ],
+      "entrenamiento": [
+        "PLC-5 (1785)",
+        "SLC 500",
+        "Modicon Quantum",
+        "Modicon Premium",
+        "MELSEC-A/QnA (tipo grande)",
+        "MELSEC AnS/QnAS",
+        "SYSMAC CS1",
+        "SYSMAC CJ1 (Europa)"
+      ]
+    }
+  ],
+  "etiquetas": {
+    "PLC-5 (1785)": 4,
+    "SLC 500": 3,
+    "S7-300 / ET 200M": 3,
+    "Modicon Quantum": 3,
+    "Modicon Premium": 3,
+    "MELSEC-A/QnA (tipo grande)": 4,
+    "MELSEC AnS/QnAS": 4,
+    "SYSMAC CS1": 3,
+    "SYSMAC CJ1 (Europa)": 3
+  }
+}

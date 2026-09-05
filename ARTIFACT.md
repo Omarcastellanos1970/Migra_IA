@@ -155,6 +155,9 @@ EMPIEZA_AQUI.txt Instrucciones paso a paso para usuarios no técnicos
 ARTIFACT.md      Este documento
 BITACORA.md      Registro de las sesiones asistidas: que se pidio, que devolvio,
                  que se verifico y que se corrigio
+_baseline.py     Baseline reproducible del rubro (P1 riesgo ordinal): dataset,
+                 particion agrupada, trivial vs clasico y auditoria de fuga
+requirements-freeze.txt  Entorno exacto con el que se produjo ese informe
 CITATION.cff     Metadatos de cita
 .zenodo.json     Metadatos para el DOI de Zenodo
 LICENSE          MIT
