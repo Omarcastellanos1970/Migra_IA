@@ -500,3 +500,29 @@ es reversible, en vez de borrarlas.
 - **Seis códigos del cuestionario se recogen y no se usan** (`C05`, `D07`,
   `M02`, `M03`, `M05`, `Q01`), y **F12** igual. Cerrarlo toca `scoring.py` y
   obliga a actualizar la Sección 6 del paper: decisión editorial pendiente.
+
+---
+
+## 2026-09-04 (10.ª parte) · El protocolo, ahora sí en media página
+
+**Se pidió.** Releer la pauta del protocolo de validación. Dice, literal:
+*«media página que se escribe antes de correr los experimentos finales y que
+después se pega casi literal en la metodología del paper»*.
+
+**Se corrigió.** El protocolo que escribí incumplía lo primero que la pauta
+exige: tenía **1.091 palabras**, útiles como documento de trabajo pero
+impegables en un paper de seis páginas. Ahora el archivo abre con **el contrato,
+422 palabras** —media página a dos columnas, en prosa corrida, con los seis
+puntos y listo para pegar— y todo el detalle pasa a **anexo de trabajo**, que no
+se publica. No se perdió nada: se separó lo que va al paper de lo que justifica
+cada decisión.
+
+**Se precisó.** El usuario aclaró qué es la «Semana 4» de la pauta: **la
+revisión final previa a la publicación en Zenodo**. El punto 6 ya no dice «una
+sola vez» a secas, sino que fija ese hito — no una fecha de calendario, sino el
+momento del proyecto en que se libera la versión con DOI. Queda escrito en el
+contrato y en el anexo.
+
+**Se verificó.** El contrato cubre los seis puntos de la pauta y ninguna cifra
+suya contradice al anexo: misma unidad de observación, mismo agrupamiento, misma
+semilla, misma *k*, mismas métricas principales y misma regla de apertura.
