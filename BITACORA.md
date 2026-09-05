@@ -380,3 +380,48 @@ primeras de cada orden, y la posición media se mide sobre los elementos que la
 **Sin resolver.** El clásico de P2 —gradient boosting en modo ranking— sigue sin
 evaluarse, porque sigue sin haber orden de referencia de juicio experto. En
 cuanto lleguen los formularios, este mismo comando lo mide sin tocar código.
+
+---
+
+## 2026-09-04 (7.ª parte) · El protocolo de validación, firmado
+
+**Se pidió.** Escribir el protocolo de validación —media página, seis puntos—
+que se firma **antes** de correr los experimentos finales y que después se pega
+casi literal en la metodología del paper.
+
+**Devolvió.** `PROTOCOLO_VALIDACION.md`, firmado el 2026-09-04:
+
+1. **Partición** — unidad = la plataforma; agrupamiento = fabricante; semilla 42
+   declarada y **sin uso**; índices en `data/particion_ciclo_vida.json`; fecha de
+   referencia fija.
+2. **Esquema** — cruzada estratificada agrupada, **k = 2** (techo duro),
+   **1 repetición** porque no hay aleatoriedad; preprocesamiento dentro del
+   pliegue.
+3. **Métricas congeladas** — P1: principal **F1 macro**, secundarias exactitud y
+   error ordinal. P2: principal **precisión en los 3 primeros**, secundarias
+   posición media y desplazamiento de puesto.
+4. **Búsqueda permitida** — **ninguna**. Hiperparámetros fijos y declarados;
+   esfuerzo de búsqueda cero para los dos modelos, que es lo que hace justa la
+   comparación.
+5. **Reporte** — media ± desviación muestral sobre pliegues, nunca el mejor
+   número; la cifra agrupada solo como contraste etiquetado; toda cifra con la
+   procedencia de su etiqueta.
+6. **Conjunto de prueba** — los cinco casos ciegos más las etiquetas del panel;
+   se abre **una sola vez**, con el protocolo cerrado, y lo que salga se publica.
+
+**Se verificó.** Los seis archivos que cita el protocolo existen; la partición
+guardada declara `k = 2`, semilla 42 y fecha `2026-09-04`; los hiperparámetros
+del documento coinciden con las constantes del código (`ITERACIONES = 4000`,
+`PASO = 0.05`, `L2 = 1.0`); y `etiquetas_p1_p2.json` sigue en
+`provisional_regla`.
+
+**Se corrigió.** El protocolo declaraba una métrica principal que el informe no
+distinguía de las demás. Ahora `_baseline.py` la imprime como tal, citando el
+punto 3 del protocolo, para que sea exigible y no solo declarativa.
+
+**Sin resolver, y firmado sabiéndolo.** El protocolo lleva una sección de deuda
+declarada con las tres cosas abiertas: la etiqueta de P1 sale de las mismas
+fechas que serían las variables; P2 no tiene orden de referencia experto; y con
+nueve filas ninguna diferencia entre modelos es estadísticamente sostenible. Se
+firma igual, que es el punto: **desde hoy el protocolo manda sobre el
+entusiasmo**, y lo que venga después ya no puede acomodarse a lo que salga.

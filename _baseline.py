@@ -653,6 +653,11 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
           f"{c['f1_macro'][0]:>9.3f} +-{c['f1_macro'][1]:<5.3f} "
           f"{c['error_ordinal_medio'][0]:>9.3f} +-{c['error_ordinal_medio'][1]:<5.3f}")
     a("")
+    a("  METRICA PRINCIPAL, congelada por PROTOCOLO_VALIDACION.md punto 3: F1 macro.")
+    a("  Es la que decide. La exactitud y el error ordinal explican, no deciden: con")
+    a("  6 muestras de clase 3 y 3 de clase 4, la exactitud premia al que siempre")
+    a("  dice la clase mayoritaria.")
+    a("")
     a("  Por pliegue:")
     a(f"     {'pliegue':<34s} {'n':>2s} {'exact. B0':>10s} {'exact. B1':>10s} "
       f"{'F1 B0':>8s} {'F1 B1':>8s}")

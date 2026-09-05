@@ -115,6 +115,11 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
   B0 trivial       0.675 +-0.106     0.402 +-0.038     0.325 +-0.106
   B1 clasico       0.800 +-0.283     0.688 +-0.442     0.200 +-0.283
 
+  METRICA PRINCIPAL, congelada por PROTOCOLO_VALIDACION.md punto 3: F1 macro.
+  Es la que decide. La exactitud y el error ordinal explican, no deciden: con
+  6 muestras de clase 3 y 3 de clase 4, la exactitud premia al que siempre
+  dice la clase mayoritaria.
+
   Por pliegue:
      pliegue                             n  exact. B0  exact. B1    F1 B0    F1 B1
      Mitsubishi + Schneider + Siemens    5      0.600      0.600    0.375    0.375
