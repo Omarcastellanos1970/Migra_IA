@@ -260,3 +260,86 @@ validación. Además, con etiqueta derivada de las fechas, P1 sigue siendo la
 re-derivación de una definición y no una predicción — por eso la auditoría de
 fuga deja fuera todas las columnas de fecha. La etiqueta del panel es lo que
 convierte P1 en un problema de aprendizaje real.
+
+---
+
+## 2026-09-04 (4.ª parte) · De un número solitario a media y desviación
+
+**Se pidió.** Aplicar la pauta de validación: la validación cruzada entrega
+**media y desviación** de los k pliegues, no un número solitario que depende de
+cómo cayó la partición.
+
+**Devolvió.** `_baseline.py` ya hacía 5 pliegues, pero agrupaba las nueve
+predicciones en una bolsa y reportaba una sola cifra. Ahora calcula las métricas
+**por pliegue** y reporta media ± desviación muestral (n−1), con la tabla de los
+cinco pliegues debajo y la cifra agrupada relegada a contraste.
+
+| | exactitud | F1 macro | error ordinal |
+|---|---|---|---|
+| B0 trivial | 0.700 ± 0.447 | 0.667 ± 0.471 | 0.300 ± 0.447 |
+| B1 clásico | 0.800 ± 0.447 | 0.800 ± 0.447 | 0.200 ± 0.447 |
+
+**Se verificó.** Dos corridas byte a byte idénticas (248 líneas). Cero
+caracteres no ASCII en el script, que es la convención del repo para lo que se
+genera por código.
+
+**Se corrigió — y esto es lo que el número solitario tapaba.** La tabla por
+pliegue enseña que el pliegue **Mitsubishi da 0.000 en los dos modelos**: falla
+las dos plataformas. Otros tres pliegues dan 1.000. Esa dispersión no se veía en
+el 0.778 agrupado. Además, **la desviación (0.447) es mayor que la diferencia
+entre los dos modelos (0.100)**, de modo que la ventaja del clásico deja de
+poder presentarse como tal: el intervalo de uno cubre la media del otro. Es un
+resultado más honesto y más débil que el anterior, y el informe lo dice así.
+
+**Sin resolver.** El conjunto de prueba apartado —los cinco casos de la guía y
+las etiquetas del panel— sigue **sin abrir**, y el informe ahora lo declara
+explícitamente para que nadie confunda estos cinco pliegues de desarrollo con
+una medida sobre datos apartados.
+
+---
+
+## 2026-09-04 (5.ª parte) · Esquema de partición asignado al rubro
+
+**Se pidió.** Aplicar el esquema que el rubro asigna al rubro: **estratificada por
+nivel de obsolescencia, agrupando por caso de migración**, con el
+preprocesamiento ajustado dentro de cada pliegue.
+
+**Devolvió.** `particionar_estratificado()` en `_baseline.py`, que busca la *k*
+más alta en la que todo pliegue de prueba contiene las dos clases sin partir
+ninguna marca. Resultado: **k = 2**.
+
+| Pliegue | Prueba | n | exact. B0 | exact. B1 |
+|---|---|---|---|---|
+| 0 | Mitsubishi + Schneider + Siemens | 5 | 0.600 | 0.600 |
+| 1 | Omron + Rockwell | 4 | 0.750 | 1.000 |
+
+| | exactitud | F1 macro | error ordinal |
+|---|---|---|---|
+| B0 trivial | 0.675 ± 0.106 | 0.402 ± 0.038 | 0.325 ± 0.106 |
+| B1 clásico | 0.800 ± 0.283 | 0.688 ± 0.442 | 0.200 ± 0.283 |
+
+**Se verificó.** Dos corridas byte a byte idénticas (257 líneas). Y una de las
+tres exigencias ya se cumplía sin saberlo: **el preprocesamiento se ajusta
+dentro del pliegue** — la media y la escala con que se estandariza la antigüedad
+salen solo del entrenamiento de cada pliegue, en `b1_logistica_ordinal()`. No
+había ningún ajuste hecho una sola vez sobre las nueve filas.
+
+**Se corrigió — dos cosas.**
+
+1. **El reparto de marcas estaba mal.** La primera versión mandaba cada marca al
+   pliegue con menos muestras de la clase minoritaria. Eso dejaba a Mitsubishi
+   —que aporta 2 de las 3 muestras de clase 4— solo en su pliegue y **sin
+   ninguna clase 3**, así que ninguna *k* pasaba la comprobación y todo caía al
+   esquema de contraste sin estratificar. Ahora el reparto balancea **todas** las
+   clases: cada marca va al pliegue donde menos desvía del ideal.
+2. **`k = 2` es un techo duro, no una elección.** Solo dos fabricantes aportan
+   clase 4 (Mitsubishi con 2, Rockwell con 1), así que no hay con qué llenar un
+   tercer pliegue estratificado sin partir una marca — y partirlo devolvería la
+   fuga por la puerta de atrás.
+
+**Lo que la estratificación arregló.** En leave-one-manufacturer-out el pliegue
+de Mitsubishi era puro clase 4 y **los dos modelos sacaban 0.000** en él. Con la
+partición estratificada la desviación del trivial baja de **±0.447 a ±0.106**: la
+cifra deja de depender de que una marca caiga entera de un lado. El esquema
+anterior se conserva declarado como contraste, precisamente para enseñar esa
+distorsión.

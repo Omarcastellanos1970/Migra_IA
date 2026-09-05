@@ -200,13 +200,11 @@ def cargar() -> list[Plataforma]:
 # --------------------------------------------------------------------------
 
 def particionar(datos: list[Plataforma]) -> list[dict]:
-    """Leave-one-manufacturer-out.
+    """Leave-one-manufacturer-out. Se conserva solo como CONTRASTE.
 
-    La restriccion de agrupamiento del proyecto es el FABRICANTE: dos
-    plataformas de la misma marca comparten politica de soporte (Tabla 3), asi
-    que repartirlas entre entrenamiento y prueba dejaria que el modelo aprenda
-    la politica de la marca y la reconozca en la prueba. Con nueve filas no hay
-    margen para un split unico: cada marca es un pliegue.
+    Agrupa pero no estratifica: el pliegue de Mitsubishi queda puro (sus dos
+    plataformas son clase 4) y ningun modelo puede acertarlo. Sirve justamente
+    para ensenar lo que la estratificacion evita.
     """
     marcas = sorted({p.fabricante for p in datos})
     return [{
@@ -215,6 +213,74 @@ def particionar(datos: list[Plataforma]) -> list[dict]:
         "prueba": [p.plataforma for p in datos if p.fabricante == marca],
         "entrenamiento": [p.plataforma for p in datos if p.fabricante != marca],
     } for i, marca in enumerate(marcas)]
+
+
+def particionar_estratificado(datos: list[Plataforma],
+                              k_max: int = 5) -> tuple[list[dict], int, str]:
+    """Esquema asignado al rubro: estratificado por nivel de obsolescencia,
+    manteniendo la restriccion de agrupamiento.
+
+    La unidad de observacion decide la variante. El rubro habla de agrupar por
+    "caso de migracion" porque supone componentes que comparten caso; aqui cada
+    fila es una plataforma independiente y no hay casos, asi que la unidad de agrupamiento que
+    juega ese papel es el FABRICANTE: dos plataformas de una marca comparten
+    politica de soporte (Tabla 3) y se parecen entre si por eso.
+
+    Una marca entera cae siempre del mismo lado -si se partiera, la fuga vuelve
+    por la puerta de atras- y se busca la k mas alta en la que TODO pliegue de
+    prueba contenga las dos clases. Reparto determinista: las marcas se ordenan
+    por cuantas muestras de la clase minoritaria aportan y cada uno va al
+    pliegue donde MENOS desvia el reparto del ideal, contando TODAS las clases.
+    Mirar solo la minoritaria no sirve: dejaba a Mitsubishi solo en su pliegue,
+    con sus dos clase 4 y ninguna clase 3.
+    """
+    clases_totales = sorted({p.clase for p in datos})
+    minoritaria = min(clases_totales, key=lambda c: sum(p.clase == c for p in datos))
+    agrupaciones: dict[str, list[Plataforma]] = {}
+    for p in datos:
+        agrupaciones.setdefault(p.fabricante, []).append(p)
+
+    orden = sorted(agrupaciones,
+                   key=lambda g: (-sum(p.clase == minoritaria for p in agrupaciones[g]),
+                                  -len(agrupaciones[g]), g))
+
+    for k in range(min(k_max, len(agrupaciones)), 1, -1):
+        ideal = {c: sum(p.clase == c for p in datos) / k for c in clases_totales}
+        cubos: list[list[str]] = [[] for _ in range(k)]
+        conteo = [{c: 0 for c in clases_totales} for _ in range(k)]
+
+        def _coste(j: int, g: str) -> float:
+            aporte = {c: sum(p.clase == c for p in agrupaciones[g]) for c in clases_totales}
+            return sum((conteo[j][c] + aporte[c] - ideal[c]) ** 2 for c in clases_totales)
+
+        for g in orden:
+            i = min(range(k), key=lambda j: (_coste(j, g), sum(conteo[j].values()), j))
+            cubos[i].append(g)
+            for p in agrupaciones[g]:
+                conteo[i][p.clase] += 1
+
+        completo = all(cubos[j] and all(conteo[j][c] > 0 for c in clases_totales)
+                       for j in range(k))
+        if completo:
+            pliegues = []
+            for i, marcas in enumerate(cubos):
+                prueba = [p.plataforma for g in marcas for p in agrupaciones[g]]
+                pliegues.append({
+                    "pliegue": i,
+                    "prueba_marcas": " + ".join(sorted(marcas)),
+                    "prueba": prueba,
+                    "entrenamiento": [p.plataforma for p in datos
+                                      if p.plataforma not in set(prueba)],
+                })
+            nota = (f"k={k} es la mayor con la que todo pliegue de prueba tiene las "
+                    f"{len(clases_totales)} clases. Con k mayor es imposible: solo "
+                    f"{sum(1 for g in agrupaciones if any(p.clase == minoritaria for p in agrupaciones[g]))} "
+                    f"fabricantes aportan clase {minoritaria}, asi que no hay con que "
+                    f"llenar mas pliegues sin partir una marca.")
+            return pliegues, k, nota
+
+    return particionar(datos), len(agrupaciones), ("no se pudo estratificar: ningun k>=2 "
+                                             "deja las dos clases en todos los pliegues")
 
 
 # --------------------------------------------------------------------------
@@ -359,9 +425,21 @@ def metricas(reales: list[int], predichas: list[int]) -> dict[str, float]:
     }
 
 
+def _media_sd(valores: list[float]) -> tuple[float, float]:
+    """Media y desviacion tipica MUESTRAL (n-1), que es la que se reporta en
+    validacion cruzada: los k pliegues son una muestra, no la poblacion."""
+    n = len(valores)
+    media = sum(valores) / n
+    if n < 2:
+        return media, 0.0
+    var = sum((v - media) ** 2 for v in valores) / (n - 1)
+    return media, math.sqrt(var)
+
+
 def evaluar(datos: list[Plataforma], pliegues: list[dict]) -> dict:
     por_nombre = {p.plataforma: p for p in datos}
     reales, pred_b0, pred_b1, detalle, modelos = [], [], [], [], []
+    por_pliegue = []
 
     for pl in pliegues:
         entrena = [por_nombre[n] for n in pl["entrenamiento"]]
@@ -373,16 +451,33 @@ def evaluar(datos: list[Plataforma], pliegues: list[dict]) -> dict:
             "beta": round(modelo.beta, 3),
             "cortes": [round(c, 3) for c in modelo.cortes],
         })
+        f_reales, f_b0, f_b1 = [], [], []
         for p in prueba:
             p1 = modelo.predecir(float(p.antiguedad))
             reales.append(p.clase)
             pred_b0.append(c0)
             pred_b1.append(p1)
+            f_reales.append(p.clase)
+            f_b0.append(c0)
+            f_b1.append(p1)
             detalle.append({
                 "plataforma": p.plataforma, "marca": p.fabricante,
                 "antiguedad": p.antiguedad, "real": p.clase, "b0": c0, "b1": p1,
             })
+        por_pliegue.append({
+            "marca": pl["prueba_marcas"], "n": len(prueba),
+            "b0": metricas(f_reales, f_b0), "b1": metricas(f_reales, f_b1),
+        })
+
+    resumen = {}
+    for clave in ("b0", "b1"):
+        resumen[clave] = {}
+        for m in ("exactitud", "f1_macro", "error_ordinal_medio"):
+            media, sd = _media_sd([f[clave][m] for f in por_pliegue])
+            resumen[clave][m] = (round(media, 3), round(sd, 3))
+
     return {"b0": metricas(reales, pred_b0), "b1": metricas(reales, pred_b1),
+            "cv": resumen, "por_pliegue": por_pliegue,
             "detalle": detalle, "modelos": modelos}
 
 
@@ -465,7 +560,7 @@ def _envolver(texto: str, ancho: int) -> list[str]:
     return lineas
 
 
-def informe(datos, pliegues, res, fuga, versiones) -> str:
+def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
     L: list[str] = []
     a = L.append
     ref = "%04d-%02d-%02d" % FECHA_REF
@@ -513,14 +608,31 @@ def informe(datos, pliegues, res, fuga, versiones) -> str:
     # ---- casilla 2 -------------------------------------------------------
     a("2. PARTICION")
     a("-" * 74)
-    a("  Esquema   : leave-one-manufacturer-out")
-    a("  Agrupa por: Fabricante (dos plataformas de una marca comparten politica")
-    a("              de soporte; repartirlas dejaria que el modelo la reconozca)")
+    a("  Esquema   : estratificada por nivel de obsolescencia, agrupando por marca")
+    a("              (el esquema asignado al rubro)")
+    a("  Agrupa por: Fabricante. El rubro dice \"caso de migracion\" porque supone")
+    a("              componentes que comparten caso; aqui cada fila es una plataforma")
+    a("              independiente y no hay casos, asi que la unidad de agrupamiento equivalente es la")
+    a("              marca: comparten politica de soporte y se parecen por eso.")
+    a("  Estratifica: cada pliegue de prueba contiene las dos clases presentes.")
     a(f"  Guardada  : {PARTICION.relative_to(RAIZ).as_posix()}")
     a(f"  Pliegues  : {len(pliegues)}")
     for pl in pliegues:
-        a(f"     [{pl['pliegue']}] prueba = {pl['prueba_marcas']:<12s} "
-          f"({len(pl['prueba'])} muestra/s)  entrenamiento = {len(pl['entrenamiento'])}")
+        a(f"     [{pl['pliegue']}] prueba = {pl['prueba_marcas']:<28s} "
+          f"({len(pl['prueba'])} muestras)  entrenamiento = {len(pl['entrenamiento'])}")
+    a("")
+    for linea in _envolver("  " + nota_k, 72):
+        a(f"  {linea}")
+    a("")
+    a("  Preprocesamiento DENTRO del pliegue: la media y la desviacion con que se")
+    a("  estandariza la antiguedad se calculan solo con el entrenamiento de cada")
+    a("  pliegue, en b1_logistica_ordinal(). No hay ningun ajuste hecho una sola")
+    a("  vez sobre las nueve filas.")
+    a("")
+    a("  Contraste con leave-one-manufacturer-out (k=5), que agrupa pero NO")
+    a("  estratifica: alli el pliegue de Mitsubishi queda puro -sus dos plataformas")
+    a("  son clase 4- y los dos modelos sacan 0.000 en el. Esa es exactamente la")
+    a("  distorsion que la estratificacion evita.")
     a("")
 
     # ---- casillas 3 y 4 --------------------------------------------------
@@ -531,16 +643,42 @@ def informe(datos, pliegues, res, fuga, versiones) -> str:
     a("               sobre antiguedad, el modelo asignado al rubro.")
     a(f"               L2={L2}, paso={PASO}, iteraciones={ITERACIONES}, inicio en ceros.")
     a("")
+    a(f"  RESULTADO DE LA VALIDACION CRUZADA "
+      f"(media +- desviacion de los {len(pliegues)} pliegues)")
+    a(f"  {'':<12s} {'exactitud':>16s} {'F1 macro':>16s} {'err. ordinal':>16s}")
+    for etiqueta, clave in (("B0 trivial", "b0"), ("B1 clasico", "b1")):
+        c = res["cv"][clave]
+        a(f"  {etiqueta:<12s} "
+          f"{c['exactitud'][0]:>9.3f} +-{c['exactitud'][1]:<5.3f} "
+          f"{c['f1_macro'][0]:>9.3f} +-{c['f1_macro'][1]:<5.3f} "
+          f"{c['error_ordinal_medio'][0]:>9.3f} +-{c['error_ordinal_medio'][1]:<5.3f}")
+    a("")
+    a("  Por pliegue:")
+    a(f"     {'pliegue':<34s} {'n':>2s} {'exact. B0':>10s} {'exact. B1':>10s} "
+      f"{'F1 B0':>8s} {'F1 B1':>8s}")
+    for f in res["por_pliegue"]:
+        a(f"     {f['marca']:<34s} {f['n']:>2d} "
+          f"{f['b0']['exactitud']:>10.3f} {f['b1']['exactitud']:>10.3f} "
+          f"{f['b0']['f1_macro']:>8.3f} {f['b1']['f1_macro']:>8.3f}")
+    a("")
+    a("  La desviacion sigue siendo grande, y tiene que estarlo: con nueve filas")
+    a("  repartidas en pocos pliegues, un acierto o un fallo mueve la cifra de un")
+    a("  pliegue entero. Reportar la media sin la desviacion esconderia eso.")
+    a("")
+    a("  Agrupando las 9 predicciones en una sola bolsa (micro), para contraste:")
     a(f"  {'':<12s} {'exactitud':>10s} {'F1 macro':>10s} {'err. ordinal':>14s}")
     for etiqueta, clave in (("B0 trivial", "b0"), ("B1 clasico", "b1")):
         m = res[clave]
         a(f"  {etiqueta:<12s} {m['exactitud']:>10.3f} {m['f1_macro']:>10.3f} "
           f"{m['error_ordinal_medio']:>14.3f}")
+    a("  Difiere de la media de pliegues porque los pliegues no son del mismo")
+    a("  tamano. La cifra que se reporta es la de arriba, media +- desviacion;")
+    a("  esta va solo como contraste.")
     a("")
     a("  Coeficientes por pliegue (esto es lo que un ingeniero puede auditar):")
-    a(f"     {'pliegue de prueba':<14s} {'beta':>8s}   cortes")
+    a(f"     {'pliegue de prueba':<34s} {'beta':>8s}   cortes")
     for m in res["modelos"]:
-        a(f"     {m['marca']:<14s} {m['beta']:>8.3f}   {m['cortes']}")
+        a(f"     {m['marca']:<34s} {m['beta']:>8.3f}   {m['cortes']}")
     a("")
     a("     beta positivo = mas antiguedad empuja hacia clases mas altas, que es el")
     a("     sentido esperado. La pendiente esta en unidades de desviacion tipica de")
@@ -552,15 +690,16 @@ def informe(datos, pliegues, res, fuga, versiones) -> str:
         a(f"     {d['plataforma'][:34]:<34s} {d['marca']:<12s} {d['antiguedad']:>6d} "
           f"{d['real']:>5d} {d['b0']:>4d} {d['b1']:>4d}")
     a("")
-    if res["b1"]["exactitud"] <= res["b0"]["exactitud"]:
+    if res["cv"]["b1"]["exactitud"][0] <= res["cv"]["b0"]["exactitud"][0]:
         a("  LECTURA: el clasico NO le gana al trivial. Con una sola variable y nueve")
         a("  filas es un resultado esperable, y es el que hay que publicar: dice que a")
         a("  este tamano la antiguedad por si sola no separa las clases mejor que")
         a("  contar cual es mas frecuente.")
     else:
-        a("  LECTURA: el clasico supera al trivial en las tres metricas o en parte de")
-        a("  ellas. Con nueve filas la diferencia NO es estadisticamente sostenible:")
-        a("  cada acierto vale 0.111 de exactitud. Sirve como indicio de que la")
+        a("  LECTURA: el clasico supera al trivial EN MEDIA. La diferencia NO es")
+        a("  estadisticamente sostenible: con pliegues de 1 y 2 muestras la desviacion")
+        a("  entre pliegues es del orden de la propia diferencia, de modo que el")
+        a("  intervalo de uno cubre la media del otro. Sirve como indicio de que la")
         a("  antiguedad lleva senal, no como evidencia de que el modelo funcione.")
     a("")
 
@@ -606,6 +745,11 @@ def informe(datos, pliegues, res, fuga, versiones) -> str:
     a("")
 
     # ---- P2 --------------------------------------------------------------
+    a("  CONJUNTO DE PRUEBA APARTADO: los cinco casos de estudio de la guia y las")
+    a("  etiquetas del panel de expertos siguen SIN ABRIR. Todo lo anterior ocurre")
+    a(f"  dentro del lazo de desarrollo: son {len(pliegues)} pliegues de validacion sobre")
+    a("  las nueve plataformas, no una medida sobre datos apartados.")
+    a("")
     a("7. P2 PRIORIDAD DE REEMPLAZO - NO EVALUABLE TODAVIA")
     a("-" * 74)
     a("  El clasico asignado a P2 es gradient boosting en modo ranking. No se")
@@ -633,10 +777,13 @@ def main() -> None:
     args = ap.parse_args()
 
     datos = cargar()
-    pliegues = particionar(datos)
+    pliegues, k, nota_k = particionar_estratificado(datos)
     PARTICION.write_text(json.dumps({
-        "esquema": "leave-one-manufacturer-out",
+        "esquema": "estratificada por nivel de obsolescencia, agrupada por fabricante",
+        "k": k,
+        "nota_k": nota_k,
         "agrupamiento": "Fabricante",
+        "preprocesamiento": "ajustado dentro de cada pliegue (media y escala del entrenamiento)",
         "fecha_referencia": "%04d-%02d-%02d" % FECHA_REF,
         "semilla": SEMILLA,
         "origen": "data/ciclo_vida_plataformas.csv",
@@ -647,7 +794,7 @@ def main() -> None:
 
     res = evaluar(datos, pliegues)
     fuga = auditar_fuga(datos)
-    texto = informe(datos, pliegues, res, fuga, _versiones())
+    texto = informe(datos, pliegues, res, fuga, _versiones(), nota_k)
     print(texto)
 
     if args.md:

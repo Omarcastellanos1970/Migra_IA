@@ -77,16 +77,31 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
 
 2. PARTICION
 --------------------------------------------------------------------------
-  Esquema   : leave-one-manufacturer-out
-  Agrupa por: Fabricante (dos plataformas de una marca comparten politica
-              de soporte; repartirlas dejaria que el modelo la reconozca)
+  Esquema   : estratificada por nivel de obsolescencia, agrupando por marca
+              (el esquema asignado al rubro)
+  Agrupa por: Fabricante. El rubro dice "caso de migracion" porque supone
+              componentes que comparten caso; aqui cada fila es una plataforma
+              independiente y no hay casos, asi que la unidad de agrupamiento equivalente es la
+              marca: comparten politica de soporte y se parecen por eso.
+  Estratifica: cada pliegue de prueba contiene las dos clases presentes.
   Guardada  : data/particion_ciclo_vida.json
-  Pliegues  : 5
-     [0] prueba = Mitsubishi   (2 muestra/s)  entrenamiento = 7
-     [1] prueba = Omron        (2 muestra/s)  entrenamiento = 7
-     [2] prueba = Rockwell     (2 muestra/s)  entrenamiento = 7
-     [3] prueba = Schneider    (2 muestra/s)  entrenamiento = 7
-     [4] prueba = Siemens      (1 muestra/s)  entrenamiento = 8
+  Pliegues  : 2
+     [0] prueba = Mitsubishi + Schneider + Siemens (5 muestras)  entrenamiento = 4
+     [1] prueba = Omron + Rockwell             (4 muestras)  entrenamiento = 5
+
+  k=2 es la mayor con la que todo pliegue de prueba tiene las 2 clases.
+  Con k mayor es imposible: solo 2 fabricantes aportan clase 4, asi que no
+  hay con que llenar mas pliegues sin partir una marca.
+
+  Preprocesamiento DENTRO del pliegue: la media y la desviacion con que se
+  estandariza la antiguedad se calculan solo con el entrenamiento de cada
+  pliegue, en b1_logistica_ordinal(). No hay ningun ajuste hecho una sola
+  vez sobre las nueve filas.
+
+  Contraste con leave-one-manufacturer-out (k=5), que agrupa pero NO
+  estratifica: alli el pliegue de Mitsubishi queda puro -sus dos plataformas
+  son clase 4- y los dos modelos sacan 0.000 en el. Esa es exactamente la
+  distorsion que la estratificacion evita.
 
 3 y 4. BASELINES, MISMA PARTICION Y MISMAS METRICAS
 --------------------------------------------------------------------------
@@ -95,17 +110,32 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
                sobre antiguedad, el modelo asignado al rubro.
                L2=1.0, paso=0.05, iteraciones=4000, inicio en ceros.
 
+  RESULTADO DE LA VALIDACION CRUZADA (media +- desviacion de los 2 pliegues)
+                      exactitud         F1 macro     err. ordinal
+  B0 trivial       0.675 +-0.106     0.402 +-0.038     0.325 +-0.106
+  B1 clasico       0.800 +-0.283     0.688 +-0.442     0.200 +-0.283
+
+  Por pliegue:
+     pliegue                             n  exact. B0  exact. B1    F1 B0    F1 B1
+     Mitsubishi + Schneider + Siemens    5      0.600      0.600    0.375    0.375
+     Omron + Rockwell                    4      0.750      1.000    0.429    1.000
+
+  La desviacion sigue siendo grande, y tiene que estarlo: con nueve filas
+  repartidas en pocos pliegues, un acierto o un fallo mueve la cifra de un
+  pliegue entero. Reportar la media sin la desviacion esconderia eso.
+
+  Agrupando las 9 predicciones en una sola bolsa (micro), para contraste:
                 exactitud   F1 macro   err. ordinal
   B0 trivial        0.667      0.400          0.333
   B1 clasico        0.778      0.679          0.222
+  Difiere de la media de pliegues porque los pliegues no son del mismo
+  tamano. La cifra que se reporta es la de arriba, media +- desviacion;
+  esta va solo como contraste.
 
   Coeficientes por pliegue (esto es lo que un ingeniero puede auditar):
-     pliegue de prueba     beta   cortes
-     Mitsubishi        0.642   [1.938]
-     Omron             0.700   [0.307]
-     Rockwell          0.701   [1.002]
-     Schneider         0.721   [0.323]
-     Siemens           0.771   [0.578]
+     pliegue de prueba                      beta   cortes
+     Mitsubishi + Schneider + Siemens      0.497   [1.16]
+     Omron + Rockwell                      0.574   [0.419]
 
      beta positivo = mas antiguedad empuja hacia clases mas altas, que es el
      sentido esperado. La pendiente esta en unidades de desviacion tipica de
@@ -115,17 +145,18 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
      plataforma                         rubro         antig  real   B0   B1
      MELSEC-A/QnA (tipo grande)         Mitsubishi       41     4    3    3
      MELSEC AnS/QnAS                    Mitsubishi       33     4    3    3
-     SYSMAC CS1                         Omron            27     3    3    3
-     SYSMAC CJ1 (Europa)                Omron            25     3    3    3
-     PLC-5 (1785)                       Rockwell         40     4    3    4
-     SLC 500                            Rockwell         35     3    3    3
      Modicon Quantum                    Schneider        32     3    3    3
      Modicon Premium                    Schneider        30     3    3    3
      S7-300 / ET 200M                   Siemens          31     3    3    3
+     PLC-5 (1785)                       Rockwell         40     4    3    4
+     SLC 500                            Rockwell         35     3    3    3
+     SYSMAC CS1                         Omron            27     3    3    3
+     SYSMAC CJ1 (Europa)                Omron            25     3    3    3
 
-  LECTURA: el clasico supera al trivial en las tres metricas o en parte de
-  ellas. Con nueve filas la diferencia NO es estadisticamente sostenible:
-  cada acierto vale 0.111 de exactitud. Sirve como indicio de que la
+  LECTURA: el clasico supera al trivial EN MEDIA. La diferencia NO es
+  estadisticamente sostenible: con pliegues de 1 y 2 muestras la desviacion
+  entre pliegues es del orden de la propia diferencia, de modo que el
+  intervalo de uno cubre la media del otro. Sirve como indicio de que la
   antiguedad lleva senal, no como evidencia de que el modelo funcione.
 
 5. SEMILLA Y VERSIONES
@@ -206,6 +237,11 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
        data/base_conocimiento.json, que contiene los cinco casos ciegos con
        su estrategia. En modo determinista no: interactivo.py no importa
        conocimiento. La fuga existe y depende del modo.
+
+  CONJUNTO DE PRUEBA APARTADO: los cinco casos de estudio de la guia y las
+  etiquetas del panel de expertos siguen SIN ABRIR. Todo lo anterior ocurre
+  dentro del lazo de desarrollo: son 2 pliegues de validacion sobre
+  las nueve plataformas, no una medida sobre datos apartados.
 
 7. P2 PRIORIDAD DE REEMPLAZO - NO EVALUABLE TODAVIA
 --------------------------------------------------------------------------

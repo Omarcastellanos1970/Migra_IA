@@ -1,6 +1,9 @@
 {
-  "esquema": "leave-one-manufacturer-out",
+  "esquema": "estratificada por nivel de obsolescencia, agrupada por fabricante",
+  "k": 2,
+  "nota_k": "k=2 es la mayor con la que todo pliegue de prueba tiene las 2 clases. Con k mayor es imposible: solo 2 fabricantes aportan clase 4, asi que no hay con que llenar mas pliegues sin partir una marca.",
   "agrupamiento": "Fabricante",
+  "preprocesamiento": "ajustado dentro de cada pliegue (media y escala del entrenamiento)",
   "fecha_referencia": "2026-09-04",
   "semilla": 42,
   "origen": "data/ciclo_vida_plataformas.csv",
@@ -8,87 +11,36 @@
   "pliegues": [
     {
       "pliegue": 0,
-      "prueba_marcas": "Mitsubishi",
+      "prueba_marcas": "Mitsubishi + Schneider + Siemens",
       "prueba": [
         "MELSEC-A/QnA (tipo grande)",
-        "MELSEC AnS/QnAS"
+        "MELSEC AnS/QnAS",
+        "Modicon Quantum",
+        "Modicon Premium",
+        "S7-300 / ET 200M"
       ],
       "entrenamiento": [
         "PLC-5 (1785)",
         "SLC 500",
-        "S7-300 / ET 200M",
-        "Modicon Quantum",
-        "Modicon Premium",
         "SYSMAC CS1",
         "SYSMAC CJ1 (Europa)"
       ]
     },
     {
       "pliegue": 1,
-      "prueba_marcas": "Omron",
+      "prueba_marcas": "Omron + Rockwell",
       "prueba": [
-        "SYSMAC CS1",
-        "SYSMAC CJ1 (Europa)"
-      ],
-      "entrenamiento": [
         "PLC-5 (1785)",
         "SLC 500",
-        "S7-300 / ET 200M",
-        "Modicon Quantum",
-        "Modicon Premium",
-        "MELSEC-A/QnA (tipo grande)",
-        "MELSEC AnS/QnAS"
-      ]
-    },
-    {
-      "pliegue": 2,
-      "prueba_marcas": "Rockwell",
-      "prueba": [
-        "PLC-5 (1785)",
-        "SLC 500"
+        "SYSMAC CS1",
+        "SYSMAC CJ1 (Europa)"
       ],
       "entrenamiento": [
         "S7-300 / ET 200M",
         "Modicon Quantum",
         "Modicon Premium",
         "MELSEC-A/QnA (tipo grande)",
-        "MELSEC AnS/QnAS",
-        "SYSMAC CS1",
-        "SYSMAC CJ1 (Europa)"
-      ]
-    },
-    {
-      "pliegue": 3,
-      "prueba_marcas": "Schneider",
-      "prueba": [
-        "Modicon Quantum",
-        "Modicon Premium"
-      ],
-      "entrenamiento": [
-        "PLC-5 (1785)",
-        "SLC 500",
-        "S7-300 / ET 200M",
-        "MELSEC-A/QnA (tipo grande)",
-        "MELSEC AnS/QnAS",
-        "SYSMAC CS1",
-        "SYSMAC CJ1 (Europa)"
-      ]
-    },
-    {
-      "pliegue": 4,
-      "prueba_marcas": "Siemens",
-      "prueba": [
-        "S7-300 / ET 200M"
-      ],
-      "entrenamiento": [
-        "PLC-5 (1785)",
-        "SLC 500",
-        "Modicon Quantum",
-        "Modicon Premium",
-        "MELSEC-A/QnA (tipo grande)",
-        "MELSEC AnS/QnAS",
-        "SYSMAC CS1",
-        "SYSMAC CJ1 (Europa)"
+        "MELSEC AnS/QnAS"
       ]
     }
   ],
