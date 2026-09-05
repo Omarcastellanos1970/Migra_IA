@@ -109,12 +109,10 @@ banderas de seguridad y las aprobaciones humanas pendientes.
 - `docs/informe_ejemplo.md` — informe técnico generado por el motor.
 - `docs/expediente_ejemplo.json` — expediente trazable con auditoría.
 
-Ambas proceden de un recorrido narrado interno sobre un caso Siemens S7-300, que
-puntúa **75.2 → "Riesgo alto"** y genera un informe equivalente con
-`python _demo_run.py`. Ese recorrido **no se ofrece en la interfaz y no es un
-modo del artefacto**: es un guion de presentación que se conserva en el
-repositorio y solo lee el nombre y el equipo del usuario. Lo que se evalúa son
-los dos modos anteriores.
+Ambas proceden del escenario `critico` de `python _interactivo_run.py`, de modo
+que el revisor puede regenerarlas y compararlas: el informe cierra en **85.0 →
+"Riesgo crítico"** con las 24 respuestas del escenario y el detalle de los ocho
+factores, cada uno citando los códigos de pregunta que lo sustentan.
 
 ### Verificación directa del motor de riesgo
 
@@ -146,7 +144,6 @@ datos arbitrarios.
 migra_ia/        Motor: prompt, scoring (Sec. 6), expediente trazable, tools
                  interactivo.py — demo interactiva, sin modelo de lenguaje
                  conocimiento.py — consultas a la base de conocimiento
-                 demo.py — guion interno de presentacion (no es un modo)
 webapp/          App web (Flask): servidor + interfaz de chat
 data/            cuestionario.json (catálogo A–K con reglas adaptativas)
                  base_conocimiento.json (guía MIGRA-IA-GUIA-001)
@@ -156,6 +153,8 @@ INSTALAR.bat     Instalación asistida en Windows (doble clic)
 Iniciar_MIGRA-IA.bat  Arranque del agente en Windows (doble clic)
 EMPIEZA_AQUI.txt Instrucciones paso a paso para usuarios no técnicos
 ARTIFACT.md      Este documento
+BITACORA.md      Registro de las sesiones asistidas: que se pidio, que devolvio,
+                 que se verifico y que se corrigio
 CITATION.cff     Metadatos de cita
 .zenodo.json     Metadatos para el DOI de Zenodo
 LICENSE          MIT

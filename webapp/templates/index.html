@@ -143,7 +143,7 @@
 <script>
 let caseId = null;
 let ocupado = false;
-let esDemo = false;
+let esInteractivo = false;
 const $ = (id) => document.getElementById(id);
 
 function escapar(t){ const d=document.createElement("div"); d.textContent=t; return d.innerHTML; }
@@ -282,32 +282,27 @@ function llenar(id, items, vacio, clase){
   }
 }
 
-// modo: "interactivo" (el motor con tus respuestas) o "api" (dialogo real con
-// el modelo). El recorrido narrado "demo" ya no se ofrece en la interfaz:
-// sigue existiendo en el backend para presentaciones internas, pero no es un
-// modo del artefacto y ningun boton lo lanza.
+// Dos modos: "interactivo" (el motor real con tus respuestas, sin clave) y
+// "api" (dialogo en lenguaje libre con el modelo).
 async function iniciar(modo){
   if(ocupado) return;
   ocupado = true; $("enviar").disabled = true;
   $("msgs").innerHTML = ""; pensando(true);
-  const demo = modo === "demo", inter = modo === "interactivo";
+  const inter = modo === "interactivo";
   try{
     const r = await fetch("/api/nuevo", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({demo: demo, interactivo: inter})
+      body: JSON.stringify({interactivo: inter})
     });
     const d = await r.json();
     pensando(false);
     if(d.error){ addMsg("agent","⚠️ "+d.error); return; }
-    caseId = d.case_id; esDemo = demo || inter;
-    const etiqueta = demo ? "DEMO · " : inter ? "INTERACTIVA · " : "";
+    caseId = d.case_id; esInteractivo = inter;
     const b = $("badge");
-    b.textContent = etiqueta + caseId;
-    b.className = "badge" + (esDemo ? " demo" : "");
+    b.textContent = (inter ? "INTERACTIVA · " : "") + caseId;
+    b.className = "badge" + (inter ? " demo" : "");
     // La interactiva lee TODAS las respuestas y con ellas mueve el motor real.
-    $("entrada").placeholder = demo
-      ? "DEMO GUIADA: tu nombre, luego TU equipo; después pulsa Enviar para avanzar"
-      : inter
+    $("entrada").placeholder = inter
       ? "DEMO INTERACTIVA: responde con el número de la opción, o escríbela"
       : "Escribe tu respuesta…  (Enter para enviar, Shift+Enter salto de línea)";
     addMsg("agent", d.texto);
@@ -338,10 +333,10 @@ function bienvenida(){
 async function enviar(){
   const escrito = $("entrada").value.trim();
   if(ocupado || !caseId) return;
-  // Los dos modos de demo avanzan paso a paso y le dicen al usuario "pulsa
+  // La demo interactiva avanza paso a paso y le dice al usuario "pulsa
   // Enviar". Sin esto, hacerlo con la caja vacia no producia nada: el envio
   // salia en silencio y el recorrido parecia colgado.
-  if(!escrito && !esDemo) return;
+  if(!escrito && !esInteractivo) return;
   const t = escrito || "continuar";
   ocupado = true; $("enviar").disabled = true;
   if(escrito) addMsg("user", escrito);

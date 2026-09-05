@@ -404,11 +404,11 @@
           <div>
             <div class="engine-title">Motor de riesgo de obsolescencia</div>
             <div class="readout">
-              <div class="score" id="score">75.2<small>/100</small></div>
-              <div class="clasif-pill" id="pill">Riesgo alto</div>
+              <div class="score" id="score">85.0<small>/100</small></div>
+              <div class="clasif-pill" id="pill">Riesgo crítico</div>
             </div>
           </div>
-          <button class="btn-reset" id="resetBtn" type="button">↺ Caso demo (S7-300)</button>
+          <button class="btn-reset" id="resetBtn" type="button">↺ Caso de referencia (S7-300)</button>
         </div>
 
         <div class="gauge">
@@ -487,7 +487,7 @@
         <span class="eyebrow">Caso de demostración</span>
       </div>
       <div class="panel panel-pad">
-        <div class="engine-title" style="margin-bottom:6px">Lectura de diagnóstico · CAS-2026-904335</div>
+        <div class="engine-title" style="margin-bottom:6px">Lectura de diagnóstico · escenario <span style="font-family:var(--font-mono)">critico</span></div>
         <div class="diag">
           <div class="diag-row">
             <div class="diag-k">Equipo</div>
@@ -499,22 +499,21 @@
           </div>
           <div class="diag-row">
             <div class="diag-k">Confianza global</div>
-            <div class="diag-v"><span class="muted">confianza media</span> — evidencias pendientes (placa, respaldo, lista de E/S)</div>
+            <div class="diag-v"><span class="muted">confianza media</span> — las 24 respuestas las declara el usuario; ninguna está verificada contra placa, manual ni fuente oficial</div>
           </div>
           <div class="diag-row">
             <div class="diag-k">Recomendación</div>
-            <div class="diag-v"><b>Prioridad 1:</b> recuperar el respaldo del programa. Luego <b>migrar a S7-1500</b> conservando Profibus DP.</div>
+            <div class="diag-v"><b>Prioridad 1:</b> corregir la causa raíz externa (tablero a 40–50 °C, puesta a tierra dudosa, batería agotada) — sustituir el controlador sin corregirla reproduce la falla en el equipo nuevo. Después <b>migrar a S7-1500</b>, reconstruyendo el programa porque no hay respaldo.</div>
           </div>
           <div class="diag-row">
             <div class="diag-k">Alternativas</div>
             <div class="diag-v">
               <div class="tags">
-                <span class="tg">Operación temporal</span>
-                <span class="tg">Repuesto directo</span>
-                <span class="tg">Hardware equivalente</span>
+                <span class="tg">Corrección de causa raíz</span>
+                <span class="tg">Reconstrucción del programa</span>
                 <span class="tg">Migración S7-1500</span>
-                <span class="tg">Reconstrucción</span>
               </div>
+              <span class="muted">En este orden: el mapa de decisión evalúa primero la causa raíz externa.</span>
             </div>
           </div>
           <div class="diag-row">
@@ -528,10 +527,10 @@
             <div class="diag-k">Banderas</div>
             <div class="diag-v">
               <div class="tags">
-                <span class="tg crit">Seguridad funcional: revisión obligatoria</span>
-                <span class="tg warn">Aprobación humana pendiente</span>
-                <span class="tg warn">Dato faltante: respaldo sin verificar</span>
+                <span class="tg warn">Aprobación humana obligatoria antes de intervenir</span>
+                <span class="tg warn">Sin respaldo del programa (F01)</span>
               </div>
+              <span class="muted">Este escenario no dispara la bandera de seguridad funcional; el informe lo declara así en lugar de suponerla.</span>
             </div>
           </div>
         </div>
@@ -567,10 +566,10 @@ python -m webapp.app</pre>
         <div class="panel panel-pad">
           <div class="engine-title" style="margin-bottom:12px">Salidas deterministas esperadas</div>
           <div class="diag">
-            <div class="diag-row"><div class="diag-k">Riesgo</div><div class="diag-v"><b>75.2 / 100</b> → Riesgo alto</div></div>
+            <div class="diag-row"><div class="diag-k">Riesgo</div><div class="diag-v"><b>85.0 / 100</b> → Riesgo crítico</div></div>
+            <div class="diag-row"><div class="diag-k">Respuestas</div><div class="diag-v">24 registradas · 0 datos faltantes</div></div>
             <div class="diag-row"><div class="diag-k">Activos</div><div class="diag-v">1 · CPU S7-300 315-2 DP</div></div>
-            <div class="diag-row"><div class="diag-k">Datos faltantes</div><div class="diag-v">1 · respaldo sin verificar</div></div>
-            <div class="diag-row"><div class="diag-k">Bandera</div><div class="diag-v">Revisión por especialista</div></div>
+            <div class="diag-row"><div class="diag-k">Migración</div><div class="diag-v">57 de 57 pasos · destino Siemens S7-1500</div></div>
             <div class="diag-row"><div class="diag-k">Informe</div><div class="diag-v">1 archivo Markdown en <span style="font-family:var(--font-mono)">casos/</span></div></div>
           </div>
           <div class="engine-title" style="margin:20px 0 10px">Solo el motor (sin navegador)</div>
@@ -672,14 +671,14 @@ python -m webapp.app</pre>
   // ---- Risk engine (faithful port of migra_ia/scoring.py) ----
   (function () {
     var FACTORS = [
-      { key: 'estado_ciclo_vida',        label: 'Estado del ciclo de vida',        w: 0.20, v: 90 },
-      { key: 'disponibilidad_repuestos', label: 'Disponibilidad de repuestos',     w: 0.15, v: 70 },
-      { key: 'soporte_fabricante',       label: 'Soporte del fabricante',          w: 0.15, v: 75 },
-      { key: 'disponibilidad_software',  label: 'Disponibilidad del software',     w: 0.10, v: 40 },
+      { key: 'estado_ciclo_vida',        label: 'Estado del ciclo de vida',        w: 0.20, v: 75 },
+      { key: 'disponibilidad_repuestos', label: 'Disponibilidad de repuestos',     w: 0.15, v: 85 },
+      { key: 'soporte_fabricante',       label: 'Soporte del fabricante',          w: 0.15, v: 90 },
+      { key: 'disponibilidad_software',  label: 'Disponibilidad del software',     w: 0.10, v: 95 },
       { key: 'disponibilidad_respaldo',  label: 'Disponibilidad de respaldo',      w: 0.15, v: 100 },
-      { key: 'compatibilidad_sistemas',  label: 'Compatibilidad con sistemas',     w: 0.10, v: 50 },
-      { key: 'historial_fallas',         label: 'Historial de fallas',             w: 0.05, v: 70 },
-      { key: 'criticidad_productiva',    label: 'Criticidad productiva',           w: 0.10, v: 80 }
+      { key: 'compatibilidad_sistemas',  label: 'Compatibilidad con sistemas',     w: 0.10, v: 75 },
+      { key: 'historial_fallas',         label: 'Historial de fallas',             w: 0.05, v: 55 },
+      { key: 'criticidad_productiva',    label: 'Criticidad productiva',           w: 0.10, v: 90 }
     ];
     var DEFAULTS = FACTORS.map(function (f) { return { v: f.v, off: false }; });
     var state = DEFAULTS.map(function (d) { return { v: d.v, off: d.off }; });

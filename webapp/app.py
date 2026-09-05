@@ -20,7 +20,7 @@ except Exception:  # noqa: BLE001
 
 from flask import Flask, request, jsonify, render_template
 
-from migra_ia import config, demo, interactivo
+from migra_ia import config, interactivo
 from migra_ia.caso import Caso
 from migra_ia.prompt import construir_system_prompt, MENSAJE_INICIAL_USUARIO
 from migra_ia.nucleo import ejecutar_turno, nuevo_cliente
@@ -54,40 +54,28 @@ def index():
 @app.post("/api/nuevo")
 def nuevo_caso():
     data = request.get_json(force=True, silent=True) or {}
-    es_demo = bool(data.get("demo"))
     es_interactivo = bool(data.get("interactivo"))
 
     caso = Caso()
     caso.guardar()
 
-    # Demo interactiva: tampoco usa la API, pero a diferencia del recorrido
-    # narrado LEE cada respuesta y hace trabajar al motor real con ella.
+    # Demo interactiva: no usa la API. LEE cada respuesta del usuario y hace
+    # trabajar al motor real con ella, de modo que el resultado es suyo.
     if es_interactivo:
         apertura = interactivo.iniciar()
         SESIONES[caso.case_id] = {
-            "messages": [], "caso": caso, "demo": False, "interactivo": True,
+            "messages": [], "caso": caso, "interactivo": True,
             "estado": apertura["estado"],
         }
         return jsonify(case_id=caso.case_id, texto=apertura["texto"],
                        acciones=[], resumen=caso.resumen(), interactivo=True)
-
-    # Modo demostracion: no usa la API, recorre un caso de ejemplo con el motor real.
-    if es_demo:
-        paso = demo.ejecutar_paso(caso, 0)
-        # `ctx` guarda el equipo identificado: la demo lo necesita para armar los
-        # pasos siguientes con la marca del usuario, no con una de ejemplo.
-        SESIONES[caso.case_id] = {
-            "messages": [], "caso": caso, "demo": True, "demo_idx": 1,
-            "demo_ctx": paso.pop("ctx", {}),
-        }
-        return jsonify(case_id=caso.case_id, **paso)
 
     messages: list[dict] = [{"role": "user", "content": MENSAJE_INICIAL_USUARIO}]
     try:
         res = ejecutar_turno(_cliente(), SYSTEM, messages, caso)
     except Exception as exc:  # noqa: BLE001
         return jsonify(error=_msg_error(exc)), 500
-    SESIONES[caso.case_id] = {"messages": messages, "caso": caso, "demo": False}
+    SESIONES[caso.case_id] = {"messages": messages, "caso": caso}
     return jsonify(
         case_id=caso.case_id,
         texto=res["texto"],
@@ -112,20 +100,6 @@ def mensaje():
     if ses.get("interactivo"):
         paso = interactivo.responder(ses["caso"], texto_usuario, ses.get("estado"))
         ses["estado"] = paso.pop("estado", ses.get("estado"))
-        return jsonify(**paso)
-
-    # Modo demostracion: avanza el guion sin llamar a la API, pero LEYENDO lo que
-    # escribe el usuario (su nombre y, sobre todo, su equipo) para adaptarse.
-    if ses.get("demo"):
-        idx = ses.get("demo_idx", 1)
-        paso = demo.ejecutar_paso(
-            ses["caso"], idx, texto_usuario, ses.get("demo_ctx")
-        )
-        ses["demo_ctx"] = paso.pop("ctx", ses.get("demo_ctx"))
-        # `repetir` deja el recorrido en el mismo paso: lo usa la identificacion del
-        # equipo cuando no se reconoce, para dar oportunidad de corregirlo antes de
-        # arrancar un caso entero sobre un equipo sin identificar.
-        ses["demo_idx"] = idx if paso.pop("repetir", False) else idx + 1
         return jsonify(**paso)
 
     ses["messages"].append({"role": "user", "content": texto_usuario})

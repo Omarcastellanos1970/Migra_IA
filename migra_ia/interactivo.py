@@ -1,10 +1,9 @@
 """Demo interactiva: el motor real operado por el usuario, sin API ni clave.
 
-Es la respuesta a una limitacion concreta del modo demo narrado: aquel recorre
-un caso grabado y no puede leer las respuestas de quien lo usa. Este modulo no
-imita al agente conversacional -eso solo puede hacerlo el modelo-, sino que
-expone la parte DETERMINISTA del agente y la pone a trabajar con los datos de
-quien la ejecuta:
+Es el unico modo de demostracion del artefacto. No imita al agente
+conversacional -eso solo puede hacerlo el modelo-, sino que expone la parte
+DETERMINISTA del agente y la pone a trabajar con los datos de quien la ejecuta,
+sin caso grabado de por medio:
 
   - el equipo se identifica contra el catalogo verificado (`fabricantes.py`);
   - las preguntas, sus opciones y sus ramas adaptativas salen del cuestionario
