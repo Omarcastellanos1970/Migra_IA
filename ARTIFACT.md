@@ -158,6 +158,8 @@ BITACORA.md      Registro de las sesiones asistidas: que se pidio, que devolvio,
 _baseline.py     Baseline reproducible del rubro (P1 riesgo ordinal): dataset,
                  particion agrupada, trivial vs clasico y auditoria de fuga
 requirements-freeze.txt  Entorno exacto con el que se produjo ese informe
+_etiquetado.py   Etiquetas de P1/P2 (provisionales, por regla) y formulario
+                 de etiquetado ciego para el panel de expertos
 CITATION.cff     Metadatos de cita
 .zenodo.json     Metadatos para el DOI de Zenodo
 LICENSE          MIT

@@ -224,3 +224,39 @@ criterio: **9 de 9 filas** y **6 de 6 filas**.
 exactitud, así que la ventaja del clásico sobre el trivial es un indicio, no
 evidencia. Ampliar la tabla de ciclo de vida a las 130 generaciones del catálogo
 es lo que le daría sentido estadístico, y es trabajo de fuentes oficiales.
+
+---
+
+## 2026-09-04 (3.ª parte) · Etiquetas de P1 y P2, y el formulario para el panel
+
+**Se pidió.** El usuario no tiene comunicación con sus coautores y pide que se
+resuelva lo que ellos harían: producir las etiquetas de referencia de P1 (clase
+de obsolescencia) y P2 (prioridad de reemplazo).
+
+**Devolvió.** `_etiquetado.py` con tres acciones y una separación que no se
+mezcla: `provisional` escribe `data/etiquetas_p1_p2.json` con un etiquetado
+**derivado de una regla escrita**, `formulario` escribe
+`docs/formulario_etiquetado.md` para que lo respondan los coautores, y
+`comparar` lee los formularios devueltos y mide el acuerdo entre evaluadores.
+
+**Se verificó.** Que el formulario **no contiene ninguna salida del motor** ni
+el etiquetado provisional: la única aparición de la palabra «provisional» es la
+frase que advierte que no lo lleva. El criterio de P2 se escribió **antes** de
+mirar los datos, para que no pudiera acomodarse al resultado.
+
+**Se corrigió.** La primera versión trataba el fin de repuestos no publicado
+como el peor caso y lo imprimía como «sin repuestos ya». Eso es afirmar algo
+que ninguna fuente dice, y contradice el principio del propio proyecto de
+marcar el dato faltante en vez de suponerlo. Ahora hay **tres bandas**: sin
+repuestos confirmado, fin de repuestos **no publicado**, y con repuestos. El
+orden resultante no cambió; lo que cambió es lo que se afirma de tres de las
+nueve plataformas.
+
+**Sin resolver, y es lo importante.** Un etiquetado por regla **no es juicio
+experto**. El taller lo pone en la columna «así no»: la contribución la define
+el equipo, que es quien conoce la planta. Mientras `procedencia` diga
+`provisional_regla`, ninguna cifra que salga de aquí puede presentarse como
+validación. Además, con etiqueta derivada de las fechas, P1 sigue siendo la
+re-derivación de una definición y no una predicción — por eso la auditoría de
+fuga deja fuera todas las columnas de fecha. La etiqueta del panel es lo que
+convierte P1 en un problema de aprendizaje real.

@@ -1,0 +1,101 @@
+{
+  "procedencia": "provisional_regla",
+  "advertencia": "ETIQUETADO PROVISIONAL. No es juicio experto: sale de una regla escrita, no de criterio humano. No usar como validacion. Se sustituye por las respuestas del panel en cuanto esten.",
+  "fecha_referencia": "2026-09-04",
+  "evaluadores": [],
+  "criterio_p2": [
+    "1. Primero las que YA no tienen repuestos: fin de reparacion publicado y pasado.",
+    "2. Despues aquellas cuyo fin de repuestos NO esta publicado. Es un riesgo de suministro no confirmado y no se cuenta como si ya hubiera terminado.",
+    "3. Al final las que tienen repuestos confirmados, menos anios restantes primero.",
+    "4. Dentro de cada banda, mas antigua primero.",
+    "5. Empate final: orden alfabetico de plataforma, para que sea reproducible."
+  ],
+  "p1_clase": {
+    "PLC-5 (1785)": 4,
+    "SLC 500": 3,
+    "S7-300 / ET 200M": 3,
+    "Modicon Quantum": 3,
+    "Modicon Premium": 3,
+    "MELSEC-A/QnA (tipo grande)": 4,
+    "MELSEC AnS/QnAS": 4,
+    "SYSMAC CS1": 3,
+    "SYSMAC CJ1 (Europa)": 3
+  },
+  "p1_regla": "derivada de las fechas contra la fecha de referencia; por eso las columnas de fecha quedan excluidas como variable en _baseline.py. Ver la auditoria de fuga.",
+  "p2_orden": [
+    "MELSEC-A/QnA (tipo grande)",
+    "MELSEC AnS/QnAS",
+    "PLC-5 (1785)",
+    "SLC 500",
+    "Modicon Quantum",
+    "Modicon Premium",
+    "SYSMAC CJ1 (Europa)",
+    "SYSMAC CS1",
+    "S7-300 / ET 200M"
+  ],
+  "p2_detalle": [
+    {
+      "puesto": 1,
+      "plataforma": "MELSEC-A/QnA (tipo grande)",
+      "anios_repuestos_restantes": -13.0,
+      "antiguedad": 41,
+      "estado_repuestos": "sin repuestos confirmado"
+    },
+    {
+      "puesto": 2,
+      "plataforma": "MELSEC AnS/QnAS",
+      "anios_repuestos_restantes": -5.0,
+      "antiguedad": 33,
+      "estado_repuestos": "sin repuestos confirmado"
+    },
+    {
+      "puesto": 3,
+      "plataforma": "PLC-5 (1785)",
+      "anios_repuestos_restantes": -0.8,
+      "antiguedad": 40,
+      "estado_repuestos": "sin repuestos confirmado"
+    },
+    {
+      "puesto": 4,
+      "plataforma": "SLC 500",
+      "anios_repuestos_restantes": null,
+      "antiguedad": 35,
+      "estado_repuestos": "fin de repuestos NO publicado"
+    },
+    {
+      "puesto": 5,
+      "plataforma": "Modicon Quantum",
+      "anios_repuestos_restantes": null,
+      "antiguedad": 32,
+      "estado_repuestos": "fin de repuestos NO publicado"
+    },
+    {
+      "puesto": 6,
+      "plataforma": "Modicon Premium",
+      "anios_repuestos_restantes": null,
+      "antiguedad": 30,
+      "estado_repuestos": "fin de repuestos NO publicado"
+    },
+    {
+      "puesto": 7,
+      "plataforma": "SYSMAC CJ1 (Europa)",
+      "anios_repuestos_restantes": 5.3,
+      "antiguedad": 25,
+      "estado_repuestos": "con repuestos"
+    },
+    {
+      "puesto": 8,
+      "plataforma": "SYSMAC CS1",
+      "anios_repuestos_restantes": 5.5,
+      "antiguedad": 27,
+      "estado_repuestos": "con repuestos"
+    },
+    {
+      "puesto": 9,
+      "plataforma": "S7-300 / ET 200M",
+      "anios_repuestos_restantes": 7.1,
+      "antiguedad": 31,
+      "estado_repuestos": "con repuestos"
+    }
+  ]
+}
