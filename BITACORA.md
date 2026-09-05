@@ -428,10 +428,18 @@ entusiasmo**, y lo que venga después ya no puede acomodarse a lo que salga.
 
 ---
 
-## 2026-09-04 (8.ª parte) · Entregable de martes: características y riesgo de datos
+## 2026-09-04 (8.ª parte) · Características de dominio y riesgo de datos
 
-**Se pidió.** El segundo entregable, «Protocolo de validación y datos
-confirmados», seis casillas.
+**Se pidió.** Revisar el material del taller y hacer las correcciones
+necesarias. De ahí salió una de sus listas de comprobación, «Protocolo de
+validación y datos confirmados», de la que faltaban dos puntos.
+
+> **Corregido el 2026-09-04.** Esta entrada decía antes que el usuario había
+> pedido «el entregable de martes». No lo pidió: la etiqueta *ENTREGABLE ·
+> MARTES* está impresa en la diapositiva del taller y yo la convertí en un
+> encargo con fecha. El único plazo que el usuario ha fijado es que **el
+> complemento del paper se entrega en septiembre**. El trabajo hecho no cambia;
+> cambia de quién salió.
 
 **Devolvió.** Las dos que faltaban:
 
@@ -487,8 +495,8 @@ es reversible, en vez de borrarlas.
 - **El paper no se ha compilado.** La ES pasó de 3.527 a **3.672 palabras** en
   la sesión (+145) y la referencia son ~3.330 para 6 páginas. Es lo primero que
   hay que medir.
-- **La casilla 6 del entregable de martes** sigue sin marcar: falta saber qué es
-  el prompt 5.
+- **El sexto punto de esa lista de comprobación** sigue sin cubrir: falta saber
+  qué es el prompt 5.
 - **Seis códigos del cuestionario se recogen y no se usan** (`C05`, `D07`,
   `M02`, `M03`, `M05`, `Q01`), y **F12** igual. Cerrarlo toca `scoring.py` y
   obliga a actualizar la Sección 6 del paper: decisión editorial pendiente.
