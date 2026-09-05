@@ -310,6 +310,11 @@ def main() -> None:
     # --- 1. Baselines ----------------------------------------------------- #
     w("1. BASELINE vs PROPUESTA")
     w("-" * 74)
+    w("  AVISO: son 3 filas pero 2 casos independientes. 'otra_marca' es 'critico'")
+    w("  con otro destino -las mismas 24 respuestas-, asi que sus tres cifras")
+    w("  coinciden por construccion y no por coincidencia. No cuenta como")
+    w("  evidencia adicional.")
+    w("")
     w("  %-12s %12s %13s %11s   decision" % ("caso", "B0 trivial", "B1 uniforme", "propuesta"))
     tabla_base = []
     for nombre, resp in casos.items():

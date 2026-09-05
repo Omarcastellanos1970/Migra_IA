@@ -84,7 +84,10 @@ agente recorre el procedimiento paso a paso con la CPU destino que elija.
 ### Reproducción exacta por línea de comandos
 
 Para obtener las cifras de referencia sin navegador y sin tener que decidir las
-respuestas, el repositorio incluye tres escenarios con respuestas fijas:
+respuestas, el repositorio incluye tres escenarios con respuestas fijas. Son
+tres recorridos pero **dos casos independientes**: `otra_marca` es `critico` con
+otro destino, con las mismas 24 respuestas, así que su puntuación coincide por
+construcción y no cuenta como evidencia adicional.
 
 ```bash
 python _interactivo_run.py              # caso crítico, misma marca
@@ -98,7 +101,7 @@ python _interactivo_run.py otra_marca   # migración con cambio de marca
 |---|---|---|---|
 | `critico` | **85.0 → "Riesgo crítico"** | activa, 57 de 57 pasos | Siemens S7-1500 (misma marca) |
 | `sano` | **11.8 → "Riesgo bajo"** | no se abre | — |
-| `otra_marca` | **85.0 → "Riesgo crítico"** | activa, con `cambio_marca` | OMRON Sysmac NX |
+| `otra_marca` | **85.0 → "Riesgo crítico"** (mismas respuestas que `critico`) | activa, con `cambio_marca` | OMRON Sysmac NX |
 
 Los tres cierran con **24 respuestas** registradas, **0 datos faltantes** y **1
 informe** generado en `casos/`. En la interfaz, el panel derecho debe reflejar

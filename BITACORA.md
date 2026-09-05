@@ -458,3 +458,37 @@ del paper: decisión editorial, no técnica.
 **Sin resolver.** La casilla 6 pide «la tanda de clásicos lanzada con el
 prompt 5». No sé qué es el prompt 5 —es material del taller que no he visto— así
 que esa casilla queda sin marcar a propósito en vez de darla por buena.
+
+---
+
+## 2026-09-04 (9.ª parte) · Pasada de coherencia contra todas las pautas
+
+**Se pidió.** Revisar todo el material del taller de una vez y corregir lo que
+hiciera falta, antes de retomar el paper.
+
+**Devolvió — dos incoherencias reales entre documentos:**
+
+1. **`_evaluacion.py` y `ARTIFACT.md` presentaban tres escenarios como tres
+   casos.** La auditoría de fuga estableció que `otra_marca` es `critico` con
+   otro destino: **las mismas 24 respuestas**. El propio `_evaluacion.py` ya lo
+   sabía en su sección 2, donde lo salta, pero su sección 1 lo listaba en pie de
+   igualdad. Ahora ambos avisan: **3 filas, 2 casos independientes**, y que las
+   cifras coinciden por construcción y no cuentan como evidencia adicional.
+2. **El paper no nombraba la métrica que decide.** Corregido en los cuatro
+   `.tex`: para P1 la principal es el F1 macro, no la exactitud.
+
+**Se verificó.** Antes de renombrar los duplicados del paper se comprobó **por
+hash contra el contenido del ZIP** cuál es la copia canónica: las de
+`Resumen_Metodologia\`. Las de la raíz se renombraron a `*.VIEJO-no-usar`, que
+es reversible, en vez de borrarlas.
+
+**Sin resolver, y son los tres pendientes para mañana:**
+
+- **El paper no se ha compilado.** La ES pasó de 3.527 a **3.672 palabras** en
+  la sesión (+145) y la referencia son ~3.330 para 6 páginas. Es lo primero que
+  hay que medir.
+- **La casilla 6 del entregable de martes** sigue sin marcar: falta saber qué es
+  el prompt 5.
+- **Seis códigos del cuestionario se recogen y no se usan** (`C05`, `D07`,
+  `M02`, `M03`, `M05`, `Q01`), y **F12** igual. Cerrarlo toca `scoring.py` y
+  obliga a actualizar la Sección 6 del paper: decisión editorial pendiente.
