@@ -116,6 +116,63 @@ def provisional() -> dict:
     }
 
 
+# --------------------------------------------------------------------------
+# Metricas de P2: importa el orden
+# --------------------------------------------------------------------------
+
+def metricas_ranking(propuesto: list[str], referencia: list[str],
+                     ks: tuple[int, ...] = (1, 3, 5)) -> dict:
+    """Compara un orden propuesto contra el de referencia.
+
+    ADAPTACION DECLARADA. El rubro pide "precision en los primeros k" y
+    "posicion media del elemento correcto", que estan pensadas para una
+    recuperacion donde hay un elemento relevante y muchos que no. P2 es una
+    permutacion completa de las mismas nueve plataformas, asi que:
+
+      - precision@k se mide como el solapamiento entre los k primeros del orden
+        propuesto y los k primeros de la referencia, dividido por k. Responde a
+        "de las k que dije que hay que reemplazar antes, cuantas lo son".
+
+      - posicion media del elemento correcto se mide sobre los elementos que la
+        REFERENCIA pone en cabeza: en que puesto medio los coloca el orden
+        propuesto. Si la referencia dice que hay tres urgentes y el modelo los
+        pone en los puestos 1, 2 y 5, la posicion media es 2.67 frente a un
+        ideal de 2.0.
+
+    Se anade el desplazamiento medio absoluto sobre TODOS los elementos, que es
+    lo unico que resume la permutacion entera sin privilegiar la cabeza.
+    """
+    puesto_prop = {p: i + 1 for i, p in enumerate(propuesto)}
+    puesto_ref = {p: i + 1 for i, p in enumerate(referencia)}
+    comunes = set(puesto_prop) & set(puesto_ref)
+    if not comunes:
+        return {"error": "los dos ordenes no comparten ningun elemento"}
+
+    res: dict = {"n": len(comunes), "precision_en_k": {}, "posicion_media_en_k": {}}
+    for k in ks:
+        if k > len(referencia):
+            continue
+        cabeza_ref = set(referencia[:k])
+        cabeza_prop = set(propuesto[:k])
+        res["precision_en_k"][k] = round(len(cabeza_ref & cabeza_prop) / k, 3)
+        puestos = [puesto_prop[p] for p in referencia[:k] if p in puesto_prop]
+        res["posicion_media_en_k"][k] = {
+            "obtenida": round(sum(puestos) / len(puestos), 2),
+            "ideal": round(sum(range(1, k + 1)) / k, 2),
+        }
+
+    res["desplazamiento_medio"] = round(
+        sum(abs(puesto_prop[p] - puesto_ref[p]) for p in comunes) / len(comunes), 2)
+    return res
+
+
+def orden_por_antiguedad(datos) -> list[str]:
+    """Orden trivial de P2: la mas antigua primero. Es el B0 del ordenamiento,
+    el suelo contra el que cualquier propuesta tiene que ganar."""
+    return [p.plataforma for p in sorted(datos, key=lambda x: (-x.antiguedad,
+                                                              x.plataforma))]
+
+
 def escribir_formulario() -> None:
     datos = cargar()
     L = ["# Formulario de etiquetado por juicio experto",
@@ -224,7 +281,7 @@ def comparar(archivos: list[Path]) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Etiquetado de P1 y P2.")
-    ap.add_argument("accion", choices=["provisional", "formulario", "comparar"])
+    ap.add_argument("accion", choices=["provisional", "formulario", "comparar", "p2"])
     ap.add_argument("archivos", nargs="*", type=Path)
     args = ap.parse_args()
 
@@ -242,6 +299,31 @@ def main() -> None:
             print(f"  {e['puesto']}. {e['plataforma']:<30s} antig {e['antiguedad']:>2d}  {estado}")
     elif args.accion == "formulario":
         escribir_formulario()
+    elif args.accion == "p2":
+        if not ETIQUETAS.exists():
+            ap.error("falta data/etiquetas_p1_p2.json; corre primero 'provisional'")
+        ref = json.loads(ETIQUETAS.read_text(encoding="utf-8"))
+        datos = cargar()
+        print("=" * 70)
+        print("P2 PRIORIDAD DE REEMPLAZO - METRICAS DE ORDENAMIENTO")
+        print("=" * 70)
+        print(f"Orden de referencia: procedencia = {ref['procedencia']}")
+        if ref["procedencia"] != "panel_experto":
+            print("AVISO: la referencia NO es juicio experto. Lo que sigue mide")
+            print("coherencia interna, no acierto. No publicar como validacion.")
+        print()
+        trivial = orden_por_antiguedad(datos)
+        m = metricas_ranking(trivial, ref["p2_orden"])
+        print("B0 trivial: ordenar por antiguedad, la mas vieja primero")
+        for k, v in m["precision_en_k"].items():
+            pm = m["posicion_media_en_k"][k]
+            print(f"   precision@{k} = {v:<5}   posicion media de los {k} primeros "
+                  f"de la referencia = {pm['obtenida']} (ideal {pm['ideal']})")
+        print(f"   desplazamiento medio de puesto = {m['desplazamiento_medio']}")
+        print()
+        print("El clasico de P2 -gradient boosting en modo ranking- no se evalua:")
+        print("sigue sin haber un orden de referencia de juicio experto. En cuanto")
+        print("lleguen los formularios, este mismo comando lo mide.")
     else:
         if not args.archivos:
             ap.error("comparar necesita al menos un formulario rellenado")

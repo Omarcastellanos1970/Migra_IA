@@ -343,3 +343,40 @@ partición estratificada la desviación del trivial baja de **±0.447 a ±0.106*
 cifra deja de depender de que una marca caiga entera de un lado. El esquema
 anterior se conserva declarado como contraste, precisamente para enseñar esa
 distorsión.
+
+---
+
+## 2026-09-04 (6.ª parte) · Métricas de ordenamiento de P2
+
+**Se pidió.** Aplicar las métricas que el rubro fija para **el rubro** en el
+subproblema de ordenamiento: **precisión en los primeros k** y **posición media
+del elemento correcto**.
+
+**Devolvió.** `metricas_ranking()` en `_etiquetado.py` y la acción
+`python _etiquetado.py p2`, que evalúa el orden trivial —la más antigua
+primero— contra el orden de referencia disponible:
+
+```
+precision@1 = 1.0     posicion media de los 1 primeros = 1.0  (ideal 1.0)
+precision@3 = 0.667   posicion media de los 3 primeros = 2.33 (ideal 2.0)
+precision@5 = 1.0     posicion media de los 5 primeros = 3.0  (ideal 3.0)
+desplazamiento medio de puesto = 1.11
+```
+
+En el paper, el plan de evaluación de los cuatro `.tex` ya tenía la precisión en
+los primeros k («acierto en las posiciones 1 y 3») y ahora incorpora la segunda.
+
+**Se verificó.** El comando imprime un **aviso en cabecera** cuando la
+procedencia del orden de referencia no es `panel_experto`, que es el caso hoy:
+lo que mide es coherencia interna, no acierto.
+
+**Se corrigió.** Nada que estuviera mal; sí una **adaptación que hay que
+declarar**. Las dos métricas están pensadas para una recuperación con un
+elemento relevante entre muchos, y P2 es una permutación completa de las mismas
+nueve plataformas. Así que precision@k se mide como el solapamiento entre las k
+primeras de cada orden, y la posición media se mide sobre los elementos que la
+**referencia** pone en cabeza. Va escrito en el docstring en vez de disimularse.
+
+**Sin resolver.** El clásico de P2 —gradient boosting en modo ranking— sigue sin
+evaluarse, porque sigue sin haber orden de referencia de juicio experto. En
+cuanto lleguen los formularios, este mismo comando lo mide sin tocar código.
