@@ -161,6 +161,8 @@ requirements-freeze.txt  Entorno exacto con el que se produjo ese informe
 _etiquetado.py   Etiquetas de P1/P2 (provisionales, por regla) y formulario
                  de etiquetado ciego para el panel de expertos
 PROTOCOLO_VALIDACION.md  Los seis puntos del protocolo, firmados y congelados
+_caracteristicas.py  Contrasta las caracteristicas de dominio del rubro con
+                 las que el motor realmente usa (genera docs/)
 CITATION.cff     Metadatos de cita
 .zenodo.json     Metadatos para el DOI de Zenodo
 LICENSE          MIT

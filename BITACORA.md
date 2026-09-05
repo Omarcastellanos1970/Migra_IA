@@ -425,3 +425,36 @@ fechas que serían las variables; P2 no tiene orden de referencia experto; y con
 nueve filas ninguna diferencia entre modelos es estadísticamente sostenible. Se
 firma igual, que es el punto: **desde hoy el protocolo manda sobre el
 entusiasmo**, y lo que venga después ya no puede acomodarse a lo que salga.
+
+---
+
+## 2026-09-04 (8.ª parte) · Entregable de martes: características y riesgo de datos
+
+**Se pidió.** El segundo entregable, «Protocolo de validación y datos
+confirmados», seis casillas.
+
+**Devolvió.** Las dos que faltaban:
+
+- **Casilla 3, características de dominio** — `_caracteristicas.py` y
+  `docs/caracteristicas_dominio.md`, generado leyendo el cuestionario y las
+  tablas de puntuación (que a su vez salen del árbol sintáctico del motor), de
+  modo que no pueda divergir. Decisión documentada: **no se va con el dato
+  crudo**; el proyecto define características de dominio y las pondera.
+- **Casilla 5, riesgo de datos** — `docs/riesgo_de_datos.md`, siete puntos
+  ordenados por lo que bloquean, con «qué falta / quién / para cuándo». Los
+  hechos están verificados; los responsables y las fechas van marcados
+  `POR DECIDIR` porque no salen de ningún archivo.
+
+**Se verificó.** Los pesos de los ocho factores suman 1.00 y se extraen del
+documento generado, no se copian a mano.
+
+**Se corrigió — el contraste destapó dos huérfanas más de las que yo tenía.**
+Además de `C05`, `D07`, `M02` y `M03`, tampoco los usa ningún factor `M05`
+(repuestos de mercado secundario) ni `Q01` (coste de una hora de parada).
+**Son seis datos que se le piden al técnico, se guardan en el expediente y se
+tiran.** Cerrarlo obliga a tocar `scoring.py`, cuyos pesos describe la Sección 6
+del paper: decisión editorial, no técnica.
+
+**Sin resolver.** La casilla 6 pide «la tanda de clásicos lanzada con el
+prompt 5». No sé qué es el prompt 5 —es material del taller que no he visto— así
+que esa casilla queda sin marcar a propósito en vez de darla por buena.
