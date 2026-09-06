@@ -733,7 +733,7 @@ apariciones de la sigla en todo el árbol de trabajo**, descontando `.venv`
 quien navegue el historial la ve. Limpiarlo exige reescribir el historial
 (`git filter-repo`) y forzar el push; **no se hizo**, es decisión del usuario.
 
-**Estado al cerrar.** La limpieza sí quedó **commiteada en local** (ocho
+**Estado al cerrar (superado por la 3.ª parte).** La limpieza quedó **commiteada en local** (ocho
 archivos ya seguidos por git), pero **no empujada**: el usuario decidió que hoy
 no se sube nada y que la rama limpia se empuja en el lanzamiento, la semana del
 7 al 13 de septiembre. Descartadas las otras dos salidas que se le plantearon:
@@ -755,3 +755,48 @@ directorios de nadie.
 21-07 y la rama `catalogo-fabricantes-adaptativo` se empujó el 04-09, así que
 la sigla se lee hoy en github.com en los ocho archivos de esa rama. `main`
 sigue en `55a8f78` y no contiene ninguno de ellos: por ahí está limpio.
+
+## 2026-09-05 (3.ª parte) · El repositorio deja de estar congelado en julio
+
+**Se pidió.** Dos cosas: que `main` reflejara el trabajo de agosto y septiembre
+—llevaba parado desde el 29 de julio y la web pública mostraba ese estado— y que
+ni la sigla ni la palabra que nombraba al equipo aparecieran en ningún sitio,
+tampoco en el historial.
+
+**Se separó lo que era una misma palabra con dos sentidos.** El texto usaba el
+mismo término para el equipo de la maestría y para la unidad de agrupamiento de
+la validación cruzada. Lo primero se fue; lo segundo pasa a llamarse **marca** o
+**fabricante**, que es exactamente lo que el protocolo declara que es. En código:
+la variable local pasa a `agrupaciones` y las claves del reparto y del informe a
+`prueba_marcas` y `marca`. `data/particion_ciclo_vida.json` se **regeneró** con
+`_baseline.py` para que el archivo siga siendo lo que produce el script.
+
+**Se verificó que no cambia ni un número.** Mismos pliegues y mismas plataformas
+a cada lado, misma `k = 2`, mismo esquema; **B0 0,675 ±0,106 y B1 0,800 ±0,283**,
+con **F1 macro 0,402 y 0,688**. Es decir: la Tabla II del paper sigue valiendo tal
+cual está.
+
+**Se reescribió el historial.** `git filter-branch` sobre los **17 commits** que
+`main` no tenía, filtrando a la vez el contenido de los archivos y los mensajes
+de commit. Comprobado después, uno por uno: **cero apariciones** en cualquier
+archivo de cualquiera de los 17 commits y en cualquier mensaje, y el **árbol
+final es idéntico** al de antes de reescribir —`git diff` vacío—, así que la
+reescritura no perdió nada. Los números de parte de Siemens (`314-6CG23`), que
+llevan las mismas dos letras por casualidad, siguen intactos: las reglas iban con
+límite de palabra.
+
+**Se publicó.** `main` avanzó de `55a8f78` a `53ff396` sin fusión ni conflictos, y
+la rama de trabajo se reempujó con `--force-with-lease`. Verificado contra el
+remoto ya publicado: limpio en archivos y en mensajes.
+
+⚠️ **Dos avisos.** (1) Al reescribir, los 17 commits **cambiaron de hash**: quien
+tenga una copia antigua no debe hacer `pull`, sino volver a clonar. (2) GitHub
+conserva un tiempo los objetos viejos aunque ya no los apunte ninguna rama; se
+borran solos con su recolección de basura, y si hiciera falta antes hay que
+pedírselo a su soporte.
+
+**Estado al cerrar.** `main` = `origin/main` = `53ff396`. La página pública se
+regenera desde `docs/` de `main`, así que pasa a mostrar el motor anclado en
+**85,0 «Riesgo crítico»** en lugar del 75,2 antiguo. Las etiquetas `v0.2.0` y
+`v0.3.0` y sus DOI de Zenodo **no se tocaron**: son anteriores a `55a8f78` y
+quedaron fuera del rango reescrito, de modo que la cita del paper sigue válida.
