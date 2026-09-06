@@ -737,9 +737,19 @@ quien navegue el historial la ve. Limpiarlo exige reescribir el historial
 archivos ya seguidos por git), pero **no empujada**: el usuario decidió que hoy
 no se sube nada y que la rama limpia se empuja en el lanzamiento, la semana del
 7 al 13 de septiembre. Descartadas las otras dos salidas que se le plantearon:
-ni se borra la rama remota mientras tanto, ni se reescribe el historial. Siguen
-sin seguir por git `PROTOCOLO.md`, los tres scripts de figuras y tabla,
-`docs/figuras/`, `docs/tabla_ii_y_configuracion.md` y dos CSV de `data/`.
+ni se borra la rama remota mientras tanto, ni se reescribe el historial.
+
+**Y entra también el trabajo del 05-09, por orden del usuario.** Segundo commit
+local con los **18 archivos que nunca habían estado en git**: `PROTOCOLO.md`,
+los tres generadores (`_tabla_ii.py`, `_figura_comparacion.py`, `_figura_p3.py`),
+los dos CSV de `data/`, `docs/tabla_ii_y_configuracion.md` y las once salidas de
+`docs/figuras/` (seis `.tex`, dos `.html`, dos `.svg` y la guía de inserción).
+Revisados antes de añadirlos: **sin claves ni `.env`** y **sin la sigla**. Lo
+único que hubo que corregir fue `docs/figuras/insercion_en_el_paper.md`, que
+traía **la ruta absoluta del escritorio del autor** en dos comandos de ejemplo;
+se sustituyó por una marca genérica, que es la misma regla que ya se aplicó el
+04-09 al expediente de ejemplo. El repo es público: ahí no viaja el árbol de
+directorios de nadie.
 
 ⚠️ **Ojo con lo que ya está publicado.** El repo es **público** desde el
 21-07 y la rama `catalogo-fabricantes-adaptativo` se empujó el 04-09, así que

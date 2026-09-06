@@ -1,0 +1,14 @@
+# Barra de LA PROPUESTA en la figura de comparacion de P1.
+#
+# Nace vacia a proposito: mientras la media este vacia, la figura dibuja el
+# hueco marcado en el color distintivo y la palabra "pendiente", en vez de un
+# numero inventado.
+#
+# COMO SE LLENA: medir el agente propuesto BAJO LA MISMA PARTICION congelada
+# (data/particion_ciclo_vida.json), escribir media y desviacion entre pliegues
+# y volver a ejecutar  python _figura_comparacion.py
+#
+# Las cifras del trivial y del clasico NO se escriben aqui: salen de correr
+# _baseline.py, para que no puedan desincronizarse.
+metrica,media,sd
+f1_macro,,

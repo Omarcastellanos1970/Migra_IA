@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8">
+<title>Figura de comparacion - P1</title>
+<style>
+ body{font:15px Georgia,serif;color:#222;background:#faf9f7;margin:0;
+      padding:32px;display:flex;flex-direction:column;align-items:center}
+ figure{margin:0;max-width:720px}
+ figcaption{font-size:13px;color:#444;line-height:1.5;margin-top:14px;
+            text-align:justify}
+ .nota{font-size:12px;color:#777;margin-top:22px;max-width:720px;
+       border-top:1px solid #ddd;padding-top:12px;line-height:1.5}
+ h1{font-size:17px;margin:0 0 18px}
+</style>
+<h1>Figura de comparaci&oacute;n &mdash; P1, riesgo ordinal</h1>
+<figure>
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="430" viewBox="0 0 660 430" font-family="Georgia, serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<line x1="82.0" y1="352.0" x2="634.0" y2="352.0" stroke="#dcdcdc" stroke-width="1"/>
+<text x="73.0" y="356.0" font-size="12" fill="#555" text-anchor="end">0.0</text>
+<line x1="82.0" y1="286.8" x2="634.0" y2="286.8" stroke="#dcdcdc" stroke-width="1"/>
+<text x="73.0" y="290.8" font-size="12" fill="#555" text-anchor="end">0.2</text>
+<line x1="82.0" y1="221.6" x2="634.0" y2="221.6" stroke="#dcdcdc" stroke-width="1"/>
+<text x="73.0" y="225.6" font-size="12" fill="#555" text-anchor="end">0.4</text>
+<line x1="82.0" y1="156.4" x2="634.0" y2="156.4" stroke="#dcdcdc" stroke-width="1"/>
+<text x="73.0" y="160.4" font-size="12" fill="#555" text-anchor="end">0.6</text>
+<line x1="82.0" y1="91.2" x2="634.0" y2="91.2" stroke="#dcdcdc" stroke-width="1"/>
+<text x="73.0" y="95.2" font-size="12" fill="#555" text-anchor="end">0.8</text>
+<line x1="82.0" y1="26.0" x2="634.0" y2="26.0" stroke="#dcdcdc" stroke-width="1"/>
+<text x="73.0" y="30.0" font-size="12" fill="#555" text-anchor="end">1.0</text>
+<line x1="82.0" y1="352.0" x2="634.0" y2="352.0" stroke="#888" stroke-width="1.2"/>
+<line x1="82.0" y1="352.0" x2="82.0" y2="26.0" stroke="#888" stroke-width="1.2"/>
+<text transform="translate(22,189.0) rotate(-90)" font-size="13" fill="#222" text-anchor="middle">F1 macro</text>
+<rect x="142.4" y="220.9" width="78" height="131.1" fill="#d9d9d9" stroke="#666" stroke-width="1"/>
+<line x1="181.4" y1="208.6" x2="181.4" y2="233.3" stroke="#777" stroke-width="1.3"/>
+<line x1="172.4" y1="208.6" x2="190.4" y2="208.6" stroke="#777" stroke-width="1.3"/>
+<line x1="172.4" y1="233.3" x2="190.4" y2="233.3" stroke="#777" stroke-width="1.3"/>
+<rect x="319.0" y="127.7" width="78" height="224.3" fill="#a8a8a8" stroke="#444" stroke-width="1"/>
+<line x1="358.0" y1="26.0" x2="358.0" y2="271.8" stroke="#777" stroke-width="1.3"/>
+<line x1="349.0" y1="26.0" x2="367.0" y2="26.0" stroke="#777" stroke-width="1.3"/>
+<line x1="349.0" y1="271.8" x2="367.0" y2="271.8" stroke="#777" stroke-width="1.3"/>
+<rect x="495.6" y="26.0" width="78" height="326.0" fill="#f2f5fb" stroke="#1F4E9C" stroke-width="2" stroke-dasharray="6,4"/>
+<text transform="translate(538.6,189.0) rotate(-90)" font-size="13" fill="#1F4E9C" font-style="italic" text-anchor="middle">pendiente</text>
+<line x1="82.0" y1="220.9" x2="634.0" y2="220.9" stroke="#444" stroke-width="1.4" stroke-dasharray="7,4"/>
+<text x="630.0" y="214.9" font-size="11" fill="#444" text-anchor="end">linea de referencia: el trivial</text>
+<text x="181.4" y="374.0" font-size="13" fill="#333" font-weight="normal" text-anchor="middle">Trivial</text>
+<text x="181.4" y="391.0" font-size="11" fill="#777" text-anchor="middle">(clase mayoritaria)</text>
+<text x="358.0" y="374.0" font-size="13" fill="#333" font-weight="normal" text-anchor="middle">Clasico</text>
+<text x="358.0" y="391.0" font-size="11" fill="#777" text-anchor="middle">(log. ordinal)</text>
+<text x="534.6" y="374.0" font-size="13" fill="#1F4E9C" font-weight="bold" text-anchor="middle">Propuesta</text>
+<text x="534.6" y="391.0" font-size="11" fill="#777" text-anchor="middle">(agente con RAG)</text>
+</svg>
+<figcaption>Comparacion de modelos en el subproblema P1, sobre la misma particion estratificada y agrupada por fabricante (n=9, k=2). La metrica es el F1 macro, la que decide. La raya discontinua es el modelo trivial: por debajo no hay resultado publicable. Las barras de error son la desviacion entre pliegues y se solapan, asi que la ventaja del clasico es un indicio, no una prueba.</figcaption>
+</figure>
+<p class="nota">MODO DISENO: la propuesta aun no esta medida; su barra va como hueco. Las cifras del trivial y del cl&aacute;sico se
+recalculan corriendo <code>_baseline.py</code>; ninguna est&aacute; escrita a
+mano. La versi&oacute;n que se compila en el paper es el <code>.tex</code> con
+pgfplots, generado por este mismo script.</p>
+</html>

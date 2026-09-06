@@ -1,0 +1,28 @@
+% Table II -- P1 baselines. English version.
+% -------------------------------------------------------------------------
+% GENERADO POR _tabla_ii.py DEL REPOSITORIO MIGRA-IA. NO EDITAR A MANO.
+% Los numeros salen de correr _baseline.py; el coste, de medir la inferencia.
+% ESTADO: fila del trivial con numeros; el resto, vacio a proposito
+%
+% PAQUETES: \usepackage{booktabs} y \usepackage{array}, los dos ya cargados.
+% -------------------------------------------------------------------------
+\begin{table}[!tb]
+\caption{Ordinal obsolescence risk on 9 automation platforms: mean macro $F_1$ $\pm$ deviation over 2 manufacturer-grouped folds}
+\label{tab:baselines}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.40\columnwidth}ccc@{}}
+\toprule
+Model & Macro $F_1$ & Accuracy & Cost \\
+ & (mean $\pm$ dev.) & & ($\mu$s/case) \\
+\midrule
+\textbf{Trivial}\newline {\scriptsize majority class of the training fold} & $0.402 \pm 0.038$ & $0.675$ & $0.024$ \\
+\textbf{Classical: ordinal logistic}\newline {\scriptsize ordered scale, scarce tabular data, auditable coefficients} & --- & --- & --- \\
+\textbf{Proposed: agent with RAG and verification}\newline {\scriptsize retrieves citable evidence and fits no weights} & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+{\scriptsize Empty cells are the experiment plan: they are filled once each model is run under this same partition. Cost is the best of five rounds and is reported to two significant figures, the resolution limit of the measurement.}
+\end{table}

@@ -1,0 +1,28 @@
+% Tabla II -- Lineas base de P1. Version en espanol.
+% -------------------------------------------------------------------------
+% GENERADO POR _tabla_ii.py DEL REPOSITORIO MIGRA-IA. NO EDITAR A MANO.
+% Los numeros salen de correr _baseline.py; el coste, de medir la inferencia.
+% ESTADO: fila del trivial con numeros; el resto, vacio a proposito
+%
+% PAQUETES: \usepackage{booktabs} y \usepackage{array}, los dos ya cargados.
+% -------------------------------------------------------------------------
+\begin{table}[!tb]
+\caption{Riesgo ordinal de obsolescencia en 9 plataformas de automatización: $F_1$ macro medio $\pm$ desviación sobre 2 pliegues agrupados por fabricante}
+\label{tab:baselines}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}p{0.40\columnwidth}ccc@{}}
+\toprule
+Modelo & $F_1$ macro & Exactitud & Coste \\
+ & (media $\pm$ desv.) & & ($\mu$s/caso) \\
+\midrule
+\textbf{Trivial}\newline {\scriptsize clase mayoritaria del pliegue de entrenamiento} & $0{,}402 \pm 0{,}038$ & $0{,}675$ & $0{,}024$ \\
+\textbf{Clásico: logística ordinal}\newline {\scriptsize escala ordenada, dato tabular escaso y coeficientes auditables} & --- & --- & --- \\
+\textbf{Propuesta: agente con RAG y verificación}\newline {\scriptsize recupera evidencia citable y no ajusta pesos} & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+{\scriptsize Las celdas vacías son el plan de experimentos: se llenan cuando cada modelo se ejecute bajo esta misma partición. El coste es el mejor de cinco rondas y se da con dos cifras significativas, que es hasta donde llega la resolución de la medida.}
+\end{table}

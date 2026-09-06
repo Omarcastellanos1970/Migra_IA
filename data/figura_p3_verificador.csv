@@ -1,0 +1,21 @@
+# Figura 1 del paper (subproblema P3): proporcion de programas generados que
+# pasan el verificador frente al numero de iteraciones de correccion.
+#
+# COMO SE LLENA: escribir programas_pasan y programas_total de cada iteracion
+# y volver a ejecutar  python _figura_p3.py --salida <carpeta>
+# Mientras las celdas esten vacias, la figura se emite en MODO DISENO: ejes
+# rotulados, lineas de referencia externas y la curva marcada como pendiente.
+#
+# iteracion       0 = generacion sin verificador (linea de referencia propia)
+# programas_pasan numero de programas que compilan Y pasan la verificacion
+# programas_total numero de programas del banco de casos (mismo en toda columna)
+#
+# NO inventar valores. Una celda vacia significa "todavia no medido"; un cero
+# significa "medido y ninguno paso".
+iteracion,programas_pasan,programas_total,notas
+0,,,generacion sin verificador
+1,,,primera correccion realimentada
+2,,,
+3,,,
+4,,,
+5,,,limite de iteraciones del banco
