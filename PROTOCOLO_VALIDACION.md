@@ -25,8 +25,8 @@ estocástico. Los índices de la partición están guardados en el repositorio.
 El **esquema** es validación cruzada estratificada por nivel de obsolescencia
 manteniendo el agrupamiento, con **k = 2** y **una sola repetición**. La *k* no
 es una elección: solo dos fabricantes aportan muestras de la clase superior, de
-modo que no hay con qué llenar un tercer pliegue estratificado sin partir un
-rubro. Repetir no aportaría nada mientras no exista aleatoriedad. El
+modo que no hay con qué llenar un tercer pliegue estratificado sin partir una
+marca. Repetir no aportaría nada mientras no exista aleatoriedad. El
 **preprocesamiento se ajusta dentro de cada pliegue**, nunca una sola vez sobre
 el conjunto completo.
 
@@ -69,7 +69,8 @@ del otro lado. Ninguna marca se parte nunca.
 
 > El rubro enuncia el agrupamiento como «caso de migración» porque supone
 > componentes que comparten caso. Aquí cada fila es una plataforma
-> independiente y no hay casos, así que la unidad de agrupamiento equivalente es la marca. Queda
+> independiente y no hay casos, así que la unidad que agrupa es la marca.
+> Queda
 > declarado como desviación del enunciado, no como omisión.
 
 **Semilla:** `42`, declarada. **No se usa**: no hay ningún paso estocástico —

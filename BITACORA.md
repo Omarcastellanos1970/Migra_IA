@@ -12,7 +12,7 @@ la memoria de nadie.
 - Se le pide que **contradiga la formulación propia**; un revisor crítico vale
   más que un asistente complaciente.
 - **Cada número se vuelve a correr** antes de entrar a una tabla del paper.
-- La **contribución intelectual la definen los autores**, que es quien conoce la
+- La **contribución intelectual la definen los autores**, que son quienes conocen la
   planta. El agente no la escribe.
 - Ninguna **referencia** se usa sin contrastarla después contra su DOI o arXiv.
 
@@ -348,7 +348,7 @@ distorsión.
 
 ## 2026-09-04 (6.ª parte) · Métricas de ordenamiento de P2
 
-**Se pidió.** Aplicar las métricas que el rubro fija para **el rubro** en el
+**Se pidió.** Aplicar las métricas que el rubro fija en el
 subproblema de ordenamiento: **precisión en los primeros k** y **posición media
 del elemento correcto**.
 
@@ -533,7 +533,7 @@ semilla, misma *k*, mismas métricas principales y misma regla de apertura.
 
 **Se pidió.** La pauta de *anatomía* del taller: cada proyecto tiene **una**
 figura principal, «se diseña esta noche, con los ejes rotulados, y se llena
-cuando lleguen los números». La fila del **rubro** dice: curva de la proporción de
+cuando lleguen los números». La fila que nos toca dice: curva de la proporción de
 programas que pasan el verificador frente al número de iteraciones de
 corrección; demuestra que el verificador en el lazo sube el acierto y en qué
 iteración deja de subir; línea de referencia, la generación sin verificador en
@@ -696,8 +696,8 @@ es para **completar el paper según estos lineamientos**.
 
 ## 2026-09-05 (2.ª parte) · Fuera las siglas, en el paper y en el repo
 
-**Se pidió.** Eliminar las siglas de la maestría: identifican a los
-autores dentro del máster y no tienen por qué viajar en el paper. La orden llegó
+**Se pidió.** Eliminar las siglas que nos identifican dentro de la maestría:
+señalan a los autores y no tienen por qué viajar en el paper. La orden llegó
 al final de la sesión anterior y **la ventana se cerró antes de aplicarla**.
 
 **Se hizo, primero en el paper.** En los `.tex` la sigla salía en dos sitios y en
@@ -715,7 +715,7 @@ títulos de las vistas previas HTML y textos de `--help` y de consola),
 de `docs/` (incluidas las salidas generadas `baseline_reproducible.md`,
 `caracteristicas_dominio.md`, `tabla_ii_y_configuracion.md` y los `.html`/`.svg`
 de las figuras). Donde la frase quedaba coja, la sigla se sustituyó por **«el
-rubro»** o por **«el rubro»**, que es lo que en realidad asignaba el modelo.
+rubro»**, que es lo que en realidad asignaba el modelo.
 Las salidas generadas se editaron a mano **igual que las emiten ahora los
 generadores**, así que una regeneración no debería producir diferencia.
 

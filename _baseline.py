@@ -222,14 +222,14 @@ def particionar_estratificado(datos: list[Plataforma],
 
     La unidad de observacion decide la variante. El rubro habla de agrupar por
     "caso de migracion" porque supone componentes que comparten caso; aqui cada
-    fila es una plataforma independiente y no hay casos, asi que la unidad de agrupamiento que
-    juega ese papel es el FABRICANTE: dos plataformas de una marca comparten
-    politica de soporte (Tabla 3) y se parecen entre si por eso.
+    fila es una plataforma independiente y no hay casos, asi que la unidad
+    que juega ese papel es el FABRICANTE: dos plataformas de una marca
+    comparten politica de soporte (Tabla 3) y se parecen entre si por eso.
 
     Una marca entera cae siempre del mismo lado -si se partiera, la fuga vuelve
     por la puerta de atras- y se busca la k mas alta en la que TODO pliegue de
     prueba contenga las dos clases. Reparto determinista: las marcas se ordenan
-    por cuantas muestras de la clase minoritaria aportan y cada uno va al
+    por cuantas muestras de la clase minoritaria aportan y cada una va al
     pliegue donde MENOS desvia el reparto del ideal, contando TODAS las clases.
     Mirar solo la minoritaria no sirve: dejaba a Mitsubishi solo en su pliegue,
     con sus dos clase 4 y ninguna clase 3.
@@ -612,8 +612,8 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
     a("              (el esquema asignado por el rubro)")
     a("  Agrupa por: Fabricante. El rubro dice \"caso de migracion\" porque supone")
     a("              componentes que comparten caso; aqui cada fila es una plataforma")
-    a("              independiente y no hay casos, asi que la unidad de agrupamiento equivalente es la")
-    a("              marca: comparten politica de soporte y se parecen por eso.")
+    a("              independiente y no hay casos, asi que la unidad")
+    a("              que agrupa es la marca: comparten politica de soporte.")
     a("  Estratifica: cada pliegue de prueba contiene las dos clases presentes.")
     a(f"  Guardada  : {PARTICION.relative_to(RAIZ).as_posix()}")
     a(f"  Pliegues  : {len(pliegues)}")

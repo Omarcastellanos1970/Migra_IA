@@ -81,8 +81,8 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
               (el esquema asignado por el rubro)
   Agrupa por: Fabricante. El rubro dice "caso de migracion" porque supone
               componentes que comparten caso; aqui cada fila es una plataforma
-              independiente y no hay casos, asi que la unidad de agrupamiento equivalente es la
-              marca: comparten politica de soporte y se parecen por eso.
+              independiente y no hay casos, asi que la unidad
+              que agrupa es la marca: comparten politica de soporte.
   Estratifica: cada pliegue de prueba contiene las dos clases presentes.
   Guardada  : data/particion_ciclo_vida.json
   Pliegues  : 2
@@ -147,7 +147,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
      la antiguedad del propio pliegue, no en anios.
 
   Prediccion por plataforma:
-     plataforma                         rubro         antig  real   B0   B1
+     plataforma                         marca         antig  real   B0   B1
      MELSEC-A/QnA (tipo grande)         Mitsubishi       41     4    3    3
      MELSEC AnS/QnAS                    Mitsubishi       33     4    3    3
      Modicon Quantum                    Schneider        32     3    3    3
