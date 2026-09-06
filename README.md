@@ -8,7 +8,7 @@ variadores, servos e instrumentación asociada).
 Modalidad **asistida**: recomienda, documenta y guía; la aprobación final y toda
 intervención sobre equipos reales corresponde a personal autorizado.
 
-> Prototipo v0.3.0 construido sobre la API de Claude (`claude-opus-4-8`).
+> Prototipo v0.4.0 construido sobre la API de Claude (`claude-opus-4-8`).
 > Implementa la especificación del documento *MIGRA-IA — Cuestionario maestro y
 > diseño funcional del agente* y la guía de referencia *MIGRA-IA-GUIA-001*.
 

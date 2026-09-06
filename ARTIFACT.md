@@ -1,7 +1,7 @@
 # Artefacto reproducible — MIGRA-IA
 
 **Autores:** Carlos Omar Castellanos · Julio Noe Castillo · Isidoro Emilio Medina
-**Versión:** 0.3.0 · **Licencia:** MIT
+**Versión:** 0.4.0 · **Licencia:** MIT
 
 Este documento es la **guía de evaluación del artefacto** que acompaña al artículo.
 Está pensado para que un revisor pueda ejecutar y verificar el sistema en su

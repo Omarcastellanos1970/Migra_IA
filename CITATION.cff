@@ -11,9 +11,15 @@ abstract: >-
   demostración reproducible que funciona sin clave de API. Desde la versión 0.3.0
   integra la base de conocimiento estructurada MIGRA-IA-GUIA-001 (etapas
   metodológicas, rutas de migración por fabricante, pruebas de verificación y
-  plantillas), que el agente consulta y cita durante el diagnóstico.
-version: "0.3.0"
-date-released: "2026-07-28"
+  plantillas), que el agente consulta y cita durante el diagnóstico. La
+  versión 0.4.0 añade el catálogo de plataformas de 30 fabricantes, el
+  procedimiento de migración MIGRA-IA-PROC-050 (50 pasos numerados
+  más 7 previos, en 7 fases), el
+  cuestionario ampliado a 17 secciones y un modo interactivo que se ejecuta sin
+  clave de API; retira el modo de demostración guiada, de modo que la interfaz
+  queda con dos entradas.
+version: "0.4.0"
+date-released: "2026-09-06"
 license: MIT
 type: software
 keywords:

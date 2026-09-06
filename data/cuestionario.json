@@ -1,6 +1,6 @@
 {
   "agente": "MIGRA-IA",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "idioma": "es",
   "descripcion": "Cuestionario maestro adaptativo para diagnostico de obsolescencia y migracion de sistemas de automatizacion industrial. El agente NO debe leerlo de forma rigida: las respuestas activan, ocultan o modifican las preguntas siguientes (principio de cuestionario adaptativo). Las secciones A-K levantan el sistema; las secciones L-Q aportan la evidencia con la que se decide entre REPARAR y MIGRAR. El bloque 'mapa_decision' enlaza cada pregunta con el factor de riesgo que alimenta y con los criterios de cada alternativa.",
   "secciones": [
