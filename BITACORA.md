@@ -800,3 +800,35 @@ regenera desde `docs/` de `main`, así que pasa a mostrar el motor anclado en
 **85,0 «Riesgo crítico»** en lugar del 75,2 antiguo. Las etiquetas `v0.2.0` y
 `v0.3.0` y sus DOI de Zenodo **no se tocaron**: son anteriores a `55a8f78` y
 quedaron fuera del rango reescrito, de modo que la cita del paper sigue válida.
+
+## 2026-09-05 (4.ª parte) · La valoración ciega estaba deshecha antes de empezar
+
+**Se encontró al revisar lo que quedaba publicado.** `_plantilla_clave.json`
+—el mapa de cada caso ciego a su id en la guía— estaba en el repositorio, que es
+público, pese a que su propia nota dice *«NO enviar este archivo a los
+coautores»*. Entró el 02-09 y se publicó con la rama el 04-09.
+
+**Y el archivo era lo de menos.** El orden salía de
+`random.Random(SEMILLA_ORDEN).shuffle(casos)` con la **semilla escrita en
+`_plantilla_ciega.py`**, que también es público. Con el guion y la guía delante,
+cualquiera reproducía el barajado y sabía qué caso ciego es cuál. Borrar solo el
+JSON habría sido teatro: la fuga era la semilla.
+
+**Se cerró en tres pasos.** (1) La semilla sale del repositorio: se pasa con
+`--semilla`, se toma de `MIGRA_SEMILLA_ORDEN` o se lee de la clave local, y si no
+hay ninguna el guion se niega a generar. (2) `_plantilla_clave.json` pasa a
+`.gitignore` y deja de seguirse, pero **sigue en el disco**: es la clave, hace
+falta para medir la concordancia. (3) **Se rebarajó con una semilla nueva** y se
+regeneró `docs/plantilla_casos_ciegos.md`, porque quien clonara entre el 4 y hoy
+ya tiene la semilla vieja: retirarla sin rebarajar no habría servido de nada. El
+orden que van a valorar los coautores **no se puede reproducir** desde nada de lo
+publicado.
+
+**Lo que la plantilla NO revelaba, y sigue sin revelar:** el documento que se
+envía no lleva los identificadores de la guía. Comprobado.
+
+⏭️ **Queda pendiente purgar del historial** el archivo de la clave y la semilla
+vieja: aparecen en 15 commits. La reescritura está preparada y verificada, pero
+el permiso para ejecutarla lo tiene que dar el usuario. **No es urgente**: sirve
+para el orden viejo, que ya no se usa. Mientras tanto, en el árbol publicado no
+están ni el archivo ni la semilla.
