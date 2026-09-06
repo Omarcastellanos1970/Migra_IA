@@ -12,7 +12,7 @@ intervención sobre equipos reales corresponde a personal autorizado.
 > Implementa la especificación del documento *MIGRA-IA — Cuestionario maestro y
 > diseño funcional del agente* y la guía de referencia *MIGRA-IA-GUIA-001*.
 
-**Autores:** Carlos Omar Castellanos · Julio Noe Castillo · Isidoro Emilio Medina
+**Autores:** Carlos Omar Castellanos · Julio Noe Castillo · Isidoro Emilio Medina · Luis Loo
 **Licencia:** MIT · **DOI (todas las versiones):** [10.5281/zenodo.21480949](https://doi.org/10.5281/zenodo.21480949) — resuelve siempre a la última versión publicada en Zenodo.
 
 > **¿Eres revisor?** El proyecto se puede evaluar **sin clave de API y sin costo**
