@@ -78,7 +78,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
 2. PARTICION
 --------------------------------------------------------------------------
   Esquema   : estratificada por nivel de obsolescencia, agrupando por marca
-              (el esquema asignado al rubro)
+              (el esquema asignado por el rubro)
   Agrupa por: Fabricante. El rubro dice "caso de migracion" porque supone
               componentes que comparten caso; aqui cada fila es una plataforma
               independiente y no hay casos, asi que la unidad de agrupamiento equivalente es la
@@ -107,7 +107,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
 --------------------------------------------------------------------------
   B0 trivial : clase mayoritaria del pliegue de entrenamiento. Sin variables.
   B1 clasico : regresion logistica ordinal (probabilidades proporcionales)
-               sobre antiguedad, el modelo asignado al rubro.
+               sobre antiguedad, el modelo asignado por el rubro.
                L2=1.0, paso=0.05, iteraciones=4000, inicio en ceros.
 
   RESULTADO DE LA VALIDACION CRUZADA (media +- desviacion de los 2 pliegues)

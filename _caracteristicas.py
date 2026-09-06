@@ -24,7 +24,7 @@ CUESTIONARIO = RAIZ / "data" / "cuestionario.json"
 REGLAS = RAIZ / "docs" / "reglas_de_puntuacion.md"
 SALIDA = RAIZ / "docs" / "caracteristicas_dominio.md"
 
-# Lo que el rubro nombra como caracteristicas candidatas del rubro, y el codigo del
+# Lo que el rubro nombra como caracteristicas candidatas, y el codigo del
 # cuestionario que las recoge. Escrito a mano porque es la correspondencia entre
 # dos vocabularios: el del rubro y el del proyecto.
 CANDIDATAS = [
@@ -89,7 +89,7 @@ def informe() -> str:
 
     L: list[str] = []
     a = L.append
-    a("# Caracteristicas de dominio - el rubro")
+    a("# Caracteristicas de dominio")
     a("")
     a("Generado por `_caracteristicas.py` leyendo `data/cuestionario.json` y")
     a("`docs/reglas_de_puntuacion.md`, que a su vez se extrae del arbol sintactico")

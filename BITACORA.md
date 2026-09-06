@@ -177,10 +177,10 @@ colgantes en todo el árbol.
 
 ---
 
-## 2026-09-04 (2.ª parte) · Baseline reproducible del rubro
+## 2026-09-04 (2.ª parte) · Baseline reproducible
 
 **Se pidió.** El entregable del taller: baseline reproducible con seis casillas
-marcadas. El rubro tiene modelo asignado — *regresión logística ordinal y
+marcadas. El rubro asigna el modelo — *regresión logística ordinal y
 gradient boosting en modo ranking*, como resultado principal de dos de los tres
 subproblemas.
 
@@ -217,7 +217,7 @@ criterio: **9 de 9 filas** y **6 de 6 filas**.
    derivarlo de la puntuación del motor sería circular. Se declara qué haría
    falta en vez de fabricar el dato.
 4. **Se rehízo el clásico.** La primera versión usaba un tocón de decisión;
-   al confirmarse que el rubro tiene modelo asignado se sustituyó por la logística
+   al confirmarse que el rubro asigna el modelo se sustituyó por la logística
    ordinal que pide el rubro.
 
 **Sin resolver.** El conjunto es de nueve filas: cada acierto vale 0.111 de
@@ -298,9 +298,9 @@ una medida sobre datos apartados.
 
 ---
 
-## 2026-09-04 (5.ª parte) · Esquema de partición asignado al rubro
+## 2026-09-04 (5.ª parte) · Esquema de partición asignado por el rubro
 
-**Se pidió.** Aplicar el esquema que el rubro asigna al rubro: **estratificada por
+**Se pidió.** Aplicar el esquema que el rubro asigna: **estratificada por
 nivel de obsolescencia, agrupando por caso de migración**, con el
 preprocesamiento ajustado dentro de cada pliegue.
 
@@ -526,3 +526,222 @@ contrato y en el anexo.
 **Se verificó.** El contrato cubre los seis puntos de la pauta y ninguna cifra
 suya contradice al anexo: misma unidad de observación, mismo agrupamiento, misma
 semilla, misma *k*, mismas métricas principales y misma regla de apertura.
+
+---
+
+## 2026-09-05 · La figura principal, diseñada antes de tener los números
+
+**Se pidió.** La pauta de *anatomía* del taller: cada proyecto tiene **una**
+figura principal, «se diseña esta noche, con los ejes rotulados, y se llena
+cuando lleguen los números». La fila del **rubro** dice: curva de la proporción de
+programas que pasan el verificador frente al número de iteraciones de
+corrección; demuestra que el verificador en el lazo sube el acierto y en qué
+iteración deja de subir; línea de referencia, la generación sin verificador en
+la iteración cero.
+
+**Se devolvió.** La figura, generada por código y sin un solo número tecleado a
+mano:
+
+- `data/figura_p3_verificador.csv` — seis filas (iteraciones 0 a 5) con las
+  celdas **vacías a propósito**. Una celda vacía significa «todavía no medido»;
+  un cero significaría «medido y ninguno pasó».
+- `_figura_p3.py` — única fuente de la figura. Con el CSV vacío emite **modo
+  diseño**: ejes rotulados, rejilla, las dos referencias externas y un aviso de
+  que la curva está pendiente. **No dibuja ninguna curva inventada.** En cuanto
+  el CSV tenga filas, traza la parte medida, dibuja la línea de referencia
+  propia en el valor de la iteración cero, marca la iteración en la que la
+  mejora cae por debajo de 2 puntos porcentuales y lo dice también en el pie.
+- `Figura_P3_verificador_ES.tex` y `Figure_P3_verifier_EN.tex` — bloque
+  `figure` con pgfplots, escritos a la vez en `docs/figuras\` y en la carpeta
+  `Figures\` del paper.
+- `docs/figuras/figura_p3_verificador.svg` y `.html` — vista previa para el
+  navegador, porque en esta máquina no hay LaTeX y el diseño había que verlo
+  esta noche.
+
+Las dos líneas punteadas de 47 % y 72 % son de Fakih *et al.*, la misma línea
+base que el plan de evaluación ya citaba; la figura las rotula como ajenas para
+que nadie las lea como resultado propio. Al ser una cita que el paper ya usa,
+el invariante de 26 referencias citadas no se mueve.
+
+**Se verificó.** `py_compile` limpio. Se ejecutaron los tres caminos con CSV de
+prueba en carpeta temporal, sin tocar los datos buenos: con datos completos
+detecta la meseta —en el juego de prueba, la iteración 4—; con datos parciales
+traza lo medido y mantiene el aviso; con datos imposibles se niega a generar y
+explica por qué (`pasan=40 fuera del rango 0..30` y el banco de casos cambiando
+de tamaño entre iteraciones). El SVG parsea como XML bien formado. El estado
+final de los archivos buenos vuelve a ser `MODO DISENO`.
+
+**Se corrigió.** El script tenía un defecto propio: al probarlo con un CSV
+ajeno **sobreescribía igualmente la vista previa oficial** de `docs/figuras`.
+Ahora esa carpeta solo se toca cuando los datos son los canónicos; con
+`--csv` de prueba la salida va únicamente a donde diga `--salida`.
+
+**Se anotó una discrepancia, sin resolverla.** El rubro asigna los modelos
+clásicos de **P1 y P2** (logística ordinal y *gradient boosting* en modo
+ranking), mientras que esta figura vive en **P3**. No es contradicción —el
+paper formula los tres subproblemas y P3 es justo el que tiene verificación en
+el bucle—, pero conviene confirmar con el taller que la figura principal del
+artículo sea la de P3 y no una de riesgo ordinal.
+
+**Queda abierto.** (1) El CSV está vacío: la figura se llena cuando se ejecute
+el banco de casos. (2) La figura **no está insertada en el paper**: cuesta dos
+líneas de preámbulo (`\usepackage{pgfplots}` y `\pgfplotsset{compat=1.18}`),
+un `\input` y una frase que la referencie, y el paper va a seis páginas justas
+con +145 palabras sin medir desde ayer. Es decisión del usuario y depende de
+compilar la ES en Overleaf.
+
+---
+
+## 2026-09-05 (2.ª parte) · Los dos ejercicios del taller: Tabla II y las siete frases
+
+**Se pidió.** Ejercicio 1, la Tabla II con las celdas vacías: título en una
+línea, filas trivial + clásicos justificados + propuesta y ni una más, columnas
+con la métrica principal ±, una secundaria que explique y un costo, y solo la
+fila del trivial con números. Ejercicio 2, la configuración experimental en
+siete frases, cada una con lo que no puede faltar, guardada como `PROTOCOLO.md`
+y lista para pegar en Overleaf. El usuario añadió que el punto 7 debe declarar
+la máquina real: equipo, sistema operativo y características.
+
+**Se devolvió.** `_tabla_ii.py`, que importa `_baseline.py` y no teclea ningún
+número:
+
+- **Título en una línea:** «Riesgo ordinal de obsolescencia en 9 plataformas de
+  automatización: F1 macro medio ± desviación sobre 2 pliegues agrupados por
+  fabricante». Lleva las cuatro cosas: datos, métrica, sobre qué se promedia y
+  agrupamiento.
+- **Tres filas.** El *gradient boosting* de P2 se dejó fuera a propósito: es
+  otro subproblema con otra métrica, y la tabla tiene un solo título.
+- **Columnas:** F1 macro media ± desviación, exactitud como secundaria —explica
+  por qué decide el F1: el trivial acierta 0,675 y su F1 se hunde a 0,402— y el
+  tiempo de inferencia por caso como costo.
+- **Celdas:** solo el trivial lleva número. El clásico se deja vacío como pide
+  el ejercicio aunque esté medido desde ayer; se llena con `--con-clasico`.
+- **`PROTOCOLO.md`** con el párrafo de siete frases en español e inglés, en
+  versión legible y en versión con marcas de LaTeX para pegar en Overleaf.
+- **`docs/tabla_ii_y_configuracion.md`** con la tabla, el párrafo y la
+  verificación dato a dato.
+
+**Se verificó.** 28 datos del párrafo contrastados contra el código y contra la
+tabla: misma partición, misma métrica, mismo *k*. Las siete frases se cuentan
+por programa en los dos idiomas. La máquina no se escribió a mano: se consulta
+a Windows —i5-12500H de 12 núcleos, 31,7 GB, Windows 11 Pro build 26200— y
+entrenar la validación cruzada completa cuesta 66 ms.
+
+**Se corrigió.** El coste salía 0,02 en una ejecución y 0,03 en la siguiente:
+el valor real está en 0,025 y el redondeo a dos decimales caía justo en la
+frontera. Ahora se dan dos cifras significativas, que es hasta donde llega la
+resolución. Y la verificación **está marcando una discrepancia de verdad**: el
+tiempo del clásico oscila un 36 % entre rondas con la máquina ocupada, así que
+ese número no es publicable tal cual. No afecta a lo que se entrega —esa celda
+va vacía—, pero el día que se llene hay que medir con el equipo en reposo.
+
+**Se anotó.** `PROTOCOLO.md` y `PROTOCOLO_VALIDACION.md` conviven: aquel es el
+contrato de validación de los seis puntos; este es la configuración
+experimental que va al artículo. Si alguna cifra difiere, manda la de
+`PROTOCOLO.md`, que se regenera desde el código.
+
+**Queda abierto.** El paper sigue **sin tocar**, por instrucción del usuario
+hasta terminar de revisar las pautas del máster.
+
+---
+
+## 2026-09-05 (3.ª parte) · El presupuesto de seis páginas y la ronda de datos
+
+**Se pidió.** Dos cosas más del taller. El presupuesto de páginas —cómo debe
+repartirse el paper de seis páginas— y una sugerencia para la ronda de cinco
+preguntas de sí o no, que decide **con qué dato entra cada equipo a deep
+learning** la próxima semana.
+
+**Se midió.** El paper contra el presupuesto, repartiendo su propio texto
+—ya validado en seis páginas— según las proporciones exigidas, para que la
+escala sea la suya. Está volcado hacia adelante: sobran 319 palabras en la
+introducción, 302 en trabajo relacionado y 312 en método, y faltan 257 de
+configuración experimental —la sección no existe—, 437 en resultados y
+discusión y 239 en conclusiones. **No hay que escribir más: hay que mover.**
+Además sobran referencias por poco: **26 únicas contra un techo de 25**.
+
+**Se comprobó, contra lo que decía el registro.** El catálogo tiene 30
+fabricantes, **130 generaciones**, 469 modelos y **cero fechas**; lo declara él
+mismo: *«se incorporarán en una siguiente capa únicamente cuando exista
+evidencia fechada y verificable»*. La tabla de ciclo de vida son 9 filas, 6 de
+clase 3 y 3 de clase 4, sobre cinco fabricantes.
+
+**Se sugirió, para la ronda de datos.** Cuatro «sí» demostrables mostrando
+pantalla —los datos cargan, el n por clase sale impreso, la partición está
+congelada en disco y la métrica está escrita— y el quinto, el plan B, es el
+único que faltaba fechar. Y una advertencia: **entrar con la tabla de nueve
+sería ganar el punto de control y perder la semana**; nueve filas, dos clases y
+una sola variable admisible no sostienen deep learning ni sostienen el clásico.
+La propuesta es entrar con **la capa de fechas que le falta al catálogo**, y que
+el deep learning entre **por el texto** —extraer el hecho fechado de los
+documentos del fabricante—, que es donde hay volumen y es lo que convierte
+nueve filas en ciento treinta. Eso además rompe la circularidad actual, en la
+que la etiqueta se deriva de las mismas fechas que serían las variables.
+**El deep learning va en el extractor, no en el clasificador de riesgo:** ni 35
+ni 130 filas justifican una red para predecir el nivel de obsolescencia.
+
+**Plan B propuesto, con fecha.** Los cinco fabricantes que ya están en la tabla
+—Siemens, Rockwell, Schneider, Mitsubishi y Omron— suman **35 generaciones**:
+pasar de 9 filas a 35 con evidencia fechada, **para el viernes 11 de
+septiembre**, con nombre de quien lo hace.
+
+**Se corrigió el registro.** La figura que el usuario mandó eliminar el 06-08
+**no era de este paper**: se había quedado por error de un ejemplo anterior. No
+hay contradicción con el presupuesto, que pide una Figura 1 de arquitectura en
+«Método propuesto»; hay que **crearla nueva**, en la Semana 3.
+
+**Estado al cerrar.** El paper **no se tocó**: los cuatro `.tex` y los tres ZIP
+siguen como quedaron el 04-09. Nada de hoy está commiteado. La próxima sesión
+es para **completar el paper según estos lineamientos**.
+
+## 2026-09-05 (2.ª parte) · Fuera las siglas, en el paper y en el repo
+
+**Se pidió.** Eliminar las siglas de la maestría: identifican a los
+autores dentro del máster y no tienen por qué viajar en el paper. La orden llegó
+al final de la sesión anterior y **la ventana se cerró antes de aplicarla**.
+
+**Se hizo, primero en el paper.** En los `.tex` la sigla salía en dos sitios y en
+los dos idiomas —la fila de la Tabla II y la etiqueta del eje x de la Fig. 1—;
+en el cuerpo de los paper no aparecía ni una vez. Se corrigieron los cuatro
+`.tex` de la carpeta del paper, sus cuatro gemelos de `docs/figuras` y los
+rótulos de `_tabla_ii.py` y `_figura_comparacion.py`, que es por donde volvería
+a colarse en la siguiente regeneración.
+
+**Y después en el repo entero, a petición del usuario.** 16 archivos: los cinco
+scripts (`_baseline.py`, `_caracteristicas.py`, `_figura_comparacion.py`,
+`_figura_p3.py`, `_tabla_ii.py` — docstrings, comentarios, banners del informe,
+títulos de las vistas previas HTML y textos de `--help` y de consola),
+`ARTIFACT.md`, `PROTOCOLO_VALIDACION.md`, esta misma bitácora y seis documentos
+de `docs/` (incluidas las salidas generadas `baseline_reproducible.md`,
+`caracteristicas_dominio.md`, `tabla_ii_y_configuracion.md` y los `.html`/`.svg`
+de las figuras). Donde la frase quedaba coja, la sigla se sustituyó por **«el
+rubro»** o por **«el rubro»**, que es lo que en realidad asignaba el modelo.
+Las salidas generadas se editaron a mano **igual que las emiten ahora los
+generadores**, así que una regeneración no debería producir diferencia.
+
+**Lo que NO se tocó, a propósito.** `data/fabricantes_cpu.json` contiene números
+de parte de Siemens (`314-6CG23`) donde las mismas dos letras aparecen por
+casualidad: un reemplazo a ciegas habría corrompido el catálogo. Se verificó que
+siguen las dos apariciones intactas.
+
+**Verificado.** Sintaxis correcta en los cinco scripts (`py_compile`) y **cero
+apariciones de la sigla en todo el árbol de trabajo**, descontando `.venv`
+—terceros— y los números de parte. `__pycache__` se regeneró ya limpio.
+
+⚠️ **Queda en el historial de git.** Los objetos de commits anteriores
+(`.git/objects`) conservan la sigla en doce blobs: si el repo se hace público,
+quien navegue el historial la ve. Limpiarlo exige reescribir el historial
+(`git filter-repo`) y forzar el push; **no se hizo**, es decisión del usuario.
+
+**Estado al cerrar.** La limpieza sí quedó **commiteada en local** (ocho
+archivos ya seguidos por git), pero **no empujada**: el usuario decidió que hoy
+no se sube nada y que la rama limpia se empuja en el lanzamiento, la semana del
+7 al 13 de septiembre. Descartadas las otras dos salidas que se le plantearon:
+ni se borra la rama remota mientras tanto, ni se reescribe el historial. Siguen
+sin seguir por git `PROTOCOLO.md`, los tres scripts de figuras y tabla,
+`docs/figuras/`, `docs/tabla_ii_y_configuracion.md` y dos CSV de `data/`.
+
+⚠️ **Ojo con lo que ya está publicado.** El repo es **público** desde el
+21-07 y la rama `catalogo-fabricantes-adaptativo` se empujó el 04-09, así que
+la sigla se lee hoy en github.com en los ocho archivos de esa rama. `main`
+sigue en `55a8f78` y no contiene ninguno de ellos: por ahí está limpio.

@@ -1,4 +1,4 @@
-# Riesgo de datos — el rubro
+# Riesgo de datos
 
 **Actualizado el 2026-09-04.** Qué falta, quién lo consigue y para qué fecha.
 Los hechos están verificados contra el repositorio; las columnas **quién** y

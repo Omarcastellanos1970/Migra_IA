@@ -1,4 +1,4 @@
-"""Baseline reproducible del rubro: riesgo ordinal y prioridad de reemplazo.
+"""Baseline reproducible: riesgo ordinal y prioridad de reemplazo.
 
 QUE ES ESTO
 -----------
@@ -217,7 +217,7 @@ def particionar(datos: list[Plataforma]) -> list[dict]:
 
 def particionar_estratificado(datos: list[Plataforma],
                               k_max: int = 5) -> tuple[list[dict], int, str]:
-    """Esquema asignado al rubro: estratificado por nivel de obsolescencia,
+    """Esquema asignado por el rubro: estratificado por nivel de obsolescencia,
     manteniendo la restriccion de agrupamiento.
 
     La unidad de observacion decide la variante. El rubro habla de agrupar por
@@ -299,7 +299,7 @@ def b0_trivial(entrenamiento: list[Plataforma]) -> int:
 
 
 # --------------------------------------------------------------------------
-# B1: el clasico asignado al rubro -- logistica ordinal
+# B1: el clasico asignado por el rubro -- logistica ordinal
 # --------------------------------------------------------------------------
 
 def _sigmoide(z: float) -> float:
@@ -609,7 +609,7 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
     a("2. PARTICION")
     a("-" * 74)
     a("  Esquema   : estratificada por nivel de obsolescencia, agrupando por marca")
-    a("              (el esquema asignado al rubro)")
+    a("              (el esquema asignado por el rubro)")
     a("  Agrupa por: Fabricante. El rubro dice \"caso de migracion\" porque supone")
     a("              componentes que comparten caso; aqui cada fila es una plataforma")
     a("              independiente y no hay casos, asi que la unidad de agrupamiento equivalente es la")
@@ -640,7 +640,7 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
     a("-" * 74)
     a("  B0 trivial : clase mayoritaria del pliegue de entrenamiento. Sin variables.")
     a("  B1 clasico : regresion logistica ordinal (probabilidades proporcionales)")
-    a("               sobre antiguedad, el modelo asignado al rubro.")
+    a("               sobre antiguedad, el modelo asignado por el rubro.")
     a(f"               L2={L2}, paso={PASO}, iteraciones={ITERACIONES}, inicio en ceros.")
     a("")
     a(f"  RESULTADO DE LA VALIDACION CRUZADA "
@@ -777,7 +777,7 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Baseline reproducible del rubro.")
+    ap = argparse.ArgumentParser(description="Baseline reproducible del proyecto.")
     ap.add_argument("--md", action="store_true", help="escribe docs/baseline_reproducible.md")
     args = ap.parse_args()
 

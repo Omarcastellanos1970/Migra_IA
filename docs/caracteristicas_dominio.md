@@ -1,4 +1,4 @@
-# Caracteristicas de dominio - el rubro
+# Caracteristicas de dominio
 
 Generado por `_caracteristicas.py` leyendo `data/cuestionario.json` y
 `docs/reglas_de_puntuacion.md`, que a su vez se extrae del arbol sintactico
