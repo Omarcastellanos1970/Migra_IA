@@ -5,3 +5,6 @@ casos/*.json
 casos/*.md
 .venv/
 venv/
+
+# la clave del barajado ciego: revela el desenlace de cada caso
+_plantilla_clave.json

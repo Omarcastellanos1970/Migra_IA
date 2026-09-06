@@ -50,6 +50,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import random
 import re
 import statistics
@@ -60,7 +61,32 @@ from migra_ia import conocimiento, interactivo, scoring
 RAIZ = Path(__file__).resolve().parent
 PLANTILLA = RAIZ / "docs" / "plantilla_casos_ciegos.md"
 CLAVE = RAIZ / "_plantilla_clave.json"
-SEMILLA_ORDEN = 20260902
+SEMILLA_ENV = "MIGRA_SEMILLA_ORDEN"
+
+
+def semilla_orden(dada: int | None = None) -> int:
+    """La semilla del barajado NO se guarda en el repositorio.
+
+    Con ella se reproduce el orden de los casos y, por tanto, el mapa de cada
+    caso ciego a su id en la guia: quien la tenga puede deshacer el ciego. Se
+    toma de --semilla, del entorno o de la clave local, que esta en
+    .gitignore; si no hay ninguna, se exige darla.
+    """
+    if dada is not None:
+        return int(dada)
+    del_entorno = os.environ.get(SEMILLA_ENV)
+    if del_entorno:
+        return int(del_entorno)
+    if CLAVE.exists():
+        try:
+            return int(json.loads(CLAVE.read_text(encoding="utf-8"))["semilla_orden"])
+        except (KeyError, ValueError):
+            pass
+    raise SystemExit(
+        "Falta la semilla del barajado. Pasa --semilla N o exporta %s. "
+        "No se escribe aqui a proposito: quien la tenga deshace el ciego."
+        % SEMILLA_ENV)
+
 
 LINEA_RESPUESTA = re.compile(r"^\s*([A-Z][0-9]{2})\s*=\s*(.*?)\s*$")
 CABECERA_CASO = re.compile(r"^##\s+Caso\s+(\d+)\s*$", re.IGNORECASE)
@@ -69,7 +95,7 @@ CABECERA_CASO = re.compile(r"^##\s+Caso\s+(\d+)\s*$", re.IGNORECASE)
 # --------------------------------------------------------------------------- #
 # Generacion de la plantilla
 # --------------------------------------------------------------------------- #
-def casos_ciegos():
+def casos_ciegos(semilla: int):
     """Los 5 casos de la guia, barajados y despojados de lo que revela el final.
 
     Del caso solo sobrevive `situacion`. El titulo se recorta antes de los dos
@@ -78,7 +104,7 @@ def casos_ciegos():
     """
     base = conocimiento.cargar_base()
     casos = list(base["casos_estudio"])
-    random.Random(SEMILLA_ORDEN).shuffle(casos)
+    random.Random(semilla).shuffle(casos)
     salida = []
     for i, c in enumerate(casos, 1):
         contexto = c["titulo"].split(":")[0].strip()
@@ -121,8 +147,9 @@ def bloque_preguntas() -> list[str]:
     return L
 
 
-def generar() -> None:
-    casos = casos_ciegos()
+def generar(semilla_dada: int | None = None) -> None:
+    semilla = semilla_orden(semilla_dada)
+    casos = casos_ciegos(semilla)
     L = [
         "# MIGRA-IA - Valoracion ciega de casos",
         "",
@@ -174,7 +201,7 @@ def generar() -> None:
     PLANTILLA.write_text("\n".join(L), encoding="utf-8")
 
     CLAVE.write_text(json.dumps(
-        {"semilla_orden": SEMILLA_ORDEN,
+        {"semilla_orden": semilla,
          "nota": "NO enviar este archivo a los coautores: mapea cada caso ciego "
                  "a su id en la guia, que revela el desenlace.",
          "mapa": {str(c["n"]): c["id_real"] for c in casos}},
@@ -347,14 +374,17 @@ def comparar(rutas: list[Path], escribir_md: bool) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description="Plantilla ciega de validacion experta")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("generar", help="escribe la plantilla en blanco")
+    g = sub.add_parser("generar", help="escribe la plantilla en blanco")
+    g.add_argument("--semilla", type=int, default=None,
+                   help="semilla del barajado; si falta se busca en %s "
+                        "o en la clave local" % SEMILLA_ENV)
     c = sub.add_parser("comparar", help="lee plantillas rellenadas y mide concordancia")
     c.add_argument("archivos", nargs="+", type=Path)
     c.add_argument("--md", action="store_true")
     args = ap.parse_args()
 
     if args.cmd == "generar":
-        generar()
+        generar(args.semilla)
     else:
         comparar(args.archivos, args.md)
 

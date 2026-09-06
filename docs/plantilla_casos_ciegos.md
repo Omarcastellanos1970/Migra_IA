@@ -173,9 +173,9 @@ Guarde el archivo como `respuestas_SUNOMBRE.md` y devuelvalo.
 
 ## Caso 2
 
-**Contexto:** Skid de proceso
+**Contexto:** Linea de embotellado
 
-**Situacion:** Skid con Quantum, E/S remota, lazos PID y comunicacion Modbus Plus.
+**Situacion:** Linea con CPU S7-300, E/S ET 200M, panel HMI y variadores PROFIBUS con fallas de modulos y dificultad para conseguir repuestos.
 
 ### Cuestionario - Caso 2
 
@@ -316,9 +316,9 @@ Guarde el archivo como `respuestas_SUNOMBRE.md` y devuelvalo.
 
 ## Caso 3
 
-**Contexto:** Linea de embotellado
+**Contexto:** Maquina de motion
 
-**Situacion:** Linea con CPU S7-300, E/S ET 200M, panel HMI y variadores PROFIBUS con fallas de modulos y dificultad para conseguir repuestos.
+**Situacion:** Equipo con CJ, modulos de motion y HMI NS; se requiere mejorar diagnostico y disponibilidad.
 
 ### Cuestionario - Caso 3
 
@@ -459,9 +459,9 @@ Guarde el archivo como `respuestas_SUNOMBRE.md` y devuelvalo.
 
 ## Caso 4
 
-**Contexto:** Maquina de motion
+**Contexto:** Maquina de empaque
 
-**Situacion:** Equipo con CJ, modulos de motion y HMI NS; se requiere mejorar diagnostico y disponibilidad.
+**Situacion:** Maquina con PLC MELSEC-A, modulos de posicionamiento y GOT antiguo.
 
 ### Cuestionario - Caso 4
 
@@ -602,9 +602,9 @@ Guarde el archivo como `respuestas_SUNOMBRE.md` y devuelvalo.
 
 ## Caso 5
 
-**Contexto:** Maquina de empaque
+**Contexto:** Skid de proceso
 
-**Situacion:** Maquina con PLC MELSEC-A, modulos de posicionamiento y GOT antiguo.
+**Situacion:** Skid con Quantum, E/S remota, lazos PID y comunicacion Modbus Plus.
 
 ### Cuestionario - Caso 5
 
