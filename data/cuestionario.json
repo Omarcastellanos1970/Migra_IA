@@ -374,7 +374,11 @@
       {
         "alternativa": "Migracion a plataforma moderna",
         "condiciones_favorables": ["Fin de vida sin soporte ni repuestos (M01, M03, M04)", "Plazo de entrega de repuestos superior a la parada tolerable (M06 frente a C10)", "Fallas en aumento atribuibles al controlador, con causa raiz externa ya descartada (L03, L04)", "Vida util restante de la maquina mayor a 5 anos (Q05)", "Presupuesto disponible o gestionable (Q03) y ventana de intervencion identificada (Q04)", "Existen varias maquinas iguales que permiten un plan por etapas (Q07)"],
-        "advertencias": ["Exige respaldo verificado y plan de retorno antes de tocar nada (Regla 3 y 5).", "El esfuerzo real lo marcan las funciones especiales y los lenguajes (O01-O09), no el numero de E/S.", "Verificar espacio en tablero (P05) y tension de mando (P06): son costos que suelen olvidarse.", "Incluir capacitacion del personal (Q08) en el plan y en el costo.", "Toda funcion de seguridad involucrada exige revision de especialista (Seccion I)."]
+        "advertencias": ["Exige respaldo verificado y plan de retorno antes de tocar nada (Regla 3 y 5).", "El esfuerzo real lo marcan las funciones especiales y los lenguajes (O01-O09), no el numero de E/S.", "Verificar espacio en tablero (P05) y tension de mando (P06): son costos que suelen olvidarse.", "Incluir capacitacion del personal (Q08) en el plan y en el costo.", "Toda funcion de seguridad involucrada exige revision de especialista (Seccion I).", "Tener el programa accesible NO es un argumento para quedarse en un equipo sin repuestos: solo abarata la salida. Si el usuario decide migrar con el codigo en la mano, acatar la decision y pasar directo a la ruta de conversion de su marca."],
+        "variantes_de_ejecucion": [
+          {"id": "conversion_con_codigo_accesible", "disparador": "obsolescencia_con_acceso_al_codigo", "cuando": "Se conocen las contrasenas (N06 'Si, todas' o 'No hay contrasenas', o F16 afirmativa) Y existe copia del programa que abre y compila (F01, F06, F07). El motivo de migrar es la obsolescencia y la falta de repuestos (M01, M04, M06), no la perdida del programa.", "que_cambia": "Es el escenario MAS BARATO Y CORTO de migracion: el programa se CONVIERTE con las herramientas oficiales del fabricante en vez de reescribirse. Los pasos 21 y 22 del procedimiento aplican enteros y la extension P1-P7 va en version ligera. NO se declara la variante 'sin_respaldo'.", "como_se_ejecuta": "Con la ruta de conversion de la marca: `consultar_procedimiento` con tema 'ruta_fabricante'. Para Siemens es STEP 5 -> S5 File Converter -> SIMATIC Manager (STEP 7) -> MigrateProject -> TIA Portal, resolviendo el lenguaje antes de subir a TIA. Si la marca no tiene ruta publicada, se declara y se sigue con el paso 21 generico."},
+          {"id": "reconstruccion_sin_codigo", "disparador": "contrasena_desconocida / sin_acceso_al_programa", "cuando": "No se conocen las contrasenas (N06 'No') o no hay copia utilizable del programa (F01 'No', o F06/F07 negativas).", "que_cambia": "No hay nada que convertir: los pasos 21 y 22 no aplican y el trabajo real es la extension P1-P7. Se dimensiona como desarrollo nuevo, no como migracion."}
+        ]
       },
       {
         "alternativa": "Reconstruccion del programa",
@@ -393,7 +397,8 @@
       "3. Antes de atribuir las fallas a la obsolescencia, descartar causa raiz externa (temperatura, energia, tierra, bateria, cableado).",
       "4. La edad del equipo NO es por si sola un motivo de migracion; el estado de ciclo de vida, los repuestos y el soporte si lo son.",
       "5. Ninguna alternativa es viable si su plazo de ejecucion o de suministro supera el tiempo de parada tolerable de la maquina.",
-      "6. Si faltan datos criticos, la recomendacion se emite como 'preliminar', se listan los datos faltantes y se indica que decision desbloquea cada uno."
+      "6. Si faltan datos criticos, la recomendacion se emite como 'preliminar', se listan los datos faltantes y se indica que decision desbloquea cada uno.",
+      "7. Antes de dimensionar una migracion, comprobar si el programa de origen es accesible (N06, F16, F01, F06, F07). Convertir un programa existente y reescribirlo desde cero son dos trabajos de costo y plazo muy distintos: no se presupuestan igual ni se explican igual."
     ]
   }
 }

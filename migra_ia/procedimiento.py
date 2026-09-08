@@ -112,16 +112,104 @@ def contexto(caso) -> dict:
     mig = getattr(caso, "migracion", None) or {}
     ident = getattr(caso, "equipo_identificado", None) or {}
     destino = mig.get("destino") or {}
+    sin_respaldo = bool(mig.get("sin_respaldo"))
     return {
         "activa": bool(mig.get("activa")),
         "cambio_marca": bool(mig.get("cambio_marca")),
-        "sin_respaldo": bool(mig.get("sin_respaldo")),
+        "sin_respaldo": sin_respaldo,
+        # El reverso de 'sin_respaldo': hay programa que convertir, asi que los pasos
+        # 21 y 22 aplican en su forma plena y la ruta por fabricante esta habilitada.
+        "con_codigo_fuente": (not sin_respaldo) and codigo_accesible(caso)["accesible"],
         "equipo": ident.get("modelo_identificado") or ident.get("familia") or "",
         "marca": ident.get("marca") or "",
         "familia": ident.get("familia") or "",
         "destino": destino.get("familia") or "",
         "marca_destino": destino.get("marca") or "",
     }
+
+
+# --------------------------------------------------------------------------- #
+# Acceso al programa de origen: lo que decide entre convertir y reconstruir
+# --------------------------------------------------------------------------- #
+def _valor(caso, codigo: str) -> str:
+    """Valor normalizado de una respuesta del cuestionario, o cadena vacia."""
+    resp = (getattr(caso, "respuestas", None) or {}).get(codigo) or {}
+    return _norm(resp.get("valor"))
+
+
+def _afirmativa(texto: str) -> bool:
+    return texto.startswith("si") or texto.startswith("sí")
+
+
+def _negativa(texto: str) -> bool:
+    return texto.startswith("no") and not texto.startswith("no se conoce")
+
+
+def codigo_accesible(caso) -> dict:
+    """Determina si el programa de origen se puede abrir y convertir.
+
+    No basta con que exista un archivo: la Regla 3 del cuestionario solo cuenta
+    como respaldo el que ABRE (F06) y COMPILA (F07). Devuelve tambien que
+    evidencia falta, para que el agente lo pida en vez de darlo por hecho.
+    """
+    if caso is None:
+        return {"accesible": False, "evidencia": [], "por_confirmar": [], "motivo": "sin caso"}
+
+    n06, f16 = _valor(caso, "N06"), _valor(caso, "F16")
+    f01, f06, f07 = _valor(caso, "F01"), _valor(caso, "F06"), _valor(caso, "F07")
+
+    contrasena_ok = (
+        n06.startswith("si, todas")
+        or n06.startswith("no hay contrasenas")
+        or _afirmativa(f16)
+    )
+    respaldo_ok = _afirmativa(f01)
+
+    evidencia, por_confirmar = [], []
+    if contrasena_ok:
+        evidencia.append(f"contrasenas conocidas (N06/F16: '{n06 or f16}')")
+    if respaldo_ok:
+        evidencia.append("existe copia del programa (F01)")
+    for cod, val, etiqueta in (("F06", f06, "el respaldo abre"),
+                               ("F07", f07, "el respaldo compila")):
+        if _afirmativa(val):
+            evidencia.append(f"{etiqueta} ({cod})")
+        elif _negativa(val):
+            return {"accesible": False, "evidencia": evidencia, "por_confirmar": [],
+                    "motivo": f"{cod} es negativa: {etiqueta} no se cumple"}
+        else:
+            por_confirmar.append(f"{cod} ({etiqueta})")
+
+    accesible = contrasena_ok and respaldo_ok
+    motivo = "" if accesible else "faltan contrasenas conocidas o copia verificada del programa"
+    return {"accesible": accesible, "evidencia": evidencia,
+            "por_confirmar": por_confirmar, "motivo": motivo}
+
+
+def obsolescencia_sin_repuestos(caso) -> dict:
+    """Senales de fin de vida y de falta de repuestos que justifican migrar."""
+    if caso is None:
+        return {"hay": False, "evidencia": []}
+
+    m01, m04 = _valor(caso, "M01"), _valor(caso, "M04")
+    m05, m06 = _valor(caso, "M05"), _valor(caso, "M06")
+    m09 = _valor(caso, "M09")
+
+    evidencia = []
+    if m01.startswith(("descontinuado", "anuncio de descontinuacion")):
+        evidencia.append(f"estado declarado por el fabricante (M01): '{m01}'")
+    if _negativa(m04):
+        evidencia.append("no se consiguen repuestos nuevos (M04)")
+    elif m04.startswith("solo por pedido") or m04.startswith("si, pero con plazo largo"):
+        evidencia.append(f"repuestos nuevos restringidos (M04: '{m04}')")
+    if _negativa(m05) or m05.startswith("escasos"):
+        evidencia.append(f"mercado secundario insuficiente (M05: '{m05}')")
+    if m06.startswith("no se consigue") or m06.startswith("mas de 8 semanas"):
+        evidencia.append(f"plazo de entrega inviable (M06: '{m06}')")
+    if m09.startswith("vencido") or _negativa(m09):
+        evidencia.append(f"sin contrato de soporte vigente (M09: '{m09}')")
+
+    return {"hay": bool(evidencia), "evidencia": evidencia}
 
 
 def detectar_disparadores(caso) -> list[dict]:
@@ -156,7 +244,21 @@ def detectar_disparadores(caso) -> list[dict]:
             motivo.append(f"el motor de riesgo da '{riesgo.get('clasificacion')}'")
         activos.append({**por_id["cpu_obsoleta"], "evidencia_en_el_caso": "; ".join(motivo)})
 
-    if any(p in todo for p in ("contrasena", "password", "clave de la cpu", "bloqueada")):
+    # Obsolescencia CON el programa accesible: se convierte, no se reconstruye.
+    acceso = codigo_accesible(caso)
+    obsol = obsolescencia_sin_repuestos(caso)
+    if acceso["accesible"] and (obsol["hay"] or any(a["id"] == "cpu_obsoleta" for a in activos)):
+        motivo = list(obsol["evidencia"]) + list(acceso["evidencia"])
+        if acceso["por_confirmar"]:
+            motivo.append("queda por confirmar: " + ", ".join(acceso["por_confirmar"]))
+        activos.append({**por_id["obsolescencia_con_acceso_al_codigo"],
+                        "evidencia_en_el_caso": "; ".join(motivo)})
+
+    # Si el programa es accesible, la mencion suelta de una contrasena en el texto
+    # libre no significa que este perdida: seria justo el diagnostico contrario.
+    if not acceso["accesible"] and any(
+        p in todo for p in ("contrasena", "password", "clave de la cpu", "bloqueada")
+    ):
         activos.append({**por_id["contrasena_desconocida"],
                         "evidencia_en_el_caso": "el expediente menciona una contrasena "
                                                 "desconocida o una CPU bloqueada"})
@@ -495,6 +597,112 @@ def texto_opciones(ident: dict | None, limite_alternativas: int = 6) -> str:
 # --------------------------------------------------------------------------- #
 # Indice compacto para el system prompt
 # --------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------- #
+# Rutas de conversion por fabricante: especializan los pasos 21, 22 y 23
+# --------------------------------------------------------------------------- #
+def rutas_fabricante() -> dict:
+    """Bloque completo de rutas por fabricante, con su condicion de uso."""
+    return cargar().get("rutas_por_fabricante", {})
+
+
+def ruta_fabricante(marca=None, caso=None, ctx: dict | None = None) -> dict | None:
+    """Ruta de conversion de una marca, ya contrastada con el caso.
+
+    Devuelve None si la marca no tiene ruta publicada: eso se declara, no se
+    improvisa. Cuando la familia de origen del caso no coincide con la que la
+    ruta cubre, la devuelve igual pero con el aviso correspondiente.
+    """
+    bloque = rutas_fabricante()
+    ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
+    buscada = _norm(marca or ctx.get("marca"))
+    if not buscada:
+        return None
+
+    for r in bloque.get("rutas", []):
+        if _norm(r["marca"]) != buscada:
+            continue
+        ruta = dict(r)
+        familia = _norm(ctx.get("familia")) or _norm(ctx.get("equipo"))
+        cubre = [_norm(f) for f in r.get("familias_origen", [])]
+        ruta["aplica_a_origen"] = (not familia) or any(
+            f in familia or familia in f for f in cubre
+        )
+        avisos = []
+        if not ruta["aplica_a_origen"]:
+            avisos.append(
+                f"La ruta esta escrita para {', '.join(r['familias_origen'])} y el equipo "
+                f"del caso es '{ctx.get('familia') or ctx.get('equipo')}'. Aplica solo el "
+                "tramo que corresponda; no la presentes completa como si fuera su ruta."
+            )
+        if ctx.get("sin_respaldo"):
+            avisos.append(
+                "El caso corre con la variante 'sin_respaldo': NO hay programa que "
+                "convertir y esta ruta no aplica. Se reconstruye por la extension P1-P7."
+            )
+        if ctx.get("cambio_marca"):
+            avisos.append(
+                "El caso va a otra marca: entre fabricantes distintos no hay herramienta "
+                "de conversion y el programa se reescribe."
+            )
+        ruta["avisos"] = avisos
+        return ruta
+    return None
+
+
+def texto_ruta_fabricante(marca=None, caso=None, ctx: dict | None = None) -> str:
+    """Render en Markdown de la ruta de conversion de una marca."""
+    ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
+    bloque = rutas_fabricante()
+    r = ruta_fabricante(marca, caso, ctx)
+    if r is None:
+        disponibles = ", ".join(x["marca"] for x in bloque.get("rutas", [])) or "ninguna"
+        return (
+            f"No hay ruta de conversion publicada para '{marca or ctx.get('marca') or '?'}'. "
+            f"Marcas con ruta: {disponibles}. Para las demas rige el paso 21 generico "
+            "(usar primero las herramientas oficiales del fabricante) y la limitacion se "
+            "declara al usuario en vez de improvisar una secuencia."
+        )
+
+    lineas = [
+        f"**Ruta de conversion — {r['titulo']} ({r['marca']})**",
+        "",
+        f"> {r['principio']}",
+        "",
+        f"*Especializa los pasos {', '.join(r['aplica_a_pasos'])} del {CITA}.*",
+        "",
+    ]
+    for aviso in r.get("avisos", []):
+        lineas += [f"⚠️ {aviso}", ""]
+
+    ramas = r.get("ramas", {})
+    for p in r["pasos"]:
+        cabecera = f"**{p['n']} — {p['titulo']}**"
+        if p.get("rama"):
+            cabecera += f"  *(solo si {ramas.get(p['rama'], p['rama'])})*"
+        lineas += [
+            cabecera,
+            f"*Especializa el paso {p['especializa_paso']} del procedimiento.*",
+            "",
+            p["detalle"],
+            "",
+            f"**Se da por terminado cuando:** {p['criterio_salida']}",
+        ]
+        if p.get("nota_agente"):
+            lineas.append(f"*Nota: {p['nota_agente']}*")
+        lineas.append("")
+
+    if r.get("reglas"):
+        lineas.append("**Reglas que rigen toda la ruta:**")
+        lineas += [f"- {x['regla']}" for x in r["reglas"]]
+        lineas.append("")
+
+    lineas.append("**Fuentes:**")
+    for f in r.get("fuentes", []):
+        lineas.append(f"- [{f['tipo']}] {f['descripcion']} — {f['url']}")
+    lineas += ["", f"_{CITA}, rutas por fabricante: {r['id']}_"]
+    return "\n".join(lineas)
+
+
 def indice_para_prompt() -> str:
     """Indice del procedimiento: da las claves validas sin volcar el contenido."""
     datos = cargar()
@@ -502,6 +710,10 @@ def indice_para_prompt() -> str:
     fases = "; ".join(f"{f['id']} (pasos {f['pasos'][0]}-{f['pasos'][-1]}, etapa {f['etapa_guia']})"
                       for f in datos["fases"])
     disp = "; ".join(f"{d['id']} = {d['titulo']}" for d in datos["disparadores"])
+    marcas = "; ".join(
+        f"{r['marca']} ({' , '.join(r['familias_origen'])} -> {' / '.join(r['familias_destino'])})"
+        for r in datos.get("rutas_por_fabricante", {}).get("rutas", [])
+    ) or "ninguna publicada todavia"
     titulos = "; ".join(f"{p['etiqueta']}={p['titulo'].rstrip('.')}" for p in datos["pasos"])
     return (
         f"PROCEDIMIENTO DE MIGRACION: {doc['titulo']} ({doc['id']}, "
@@ -510,8 +722,12 @@ def indice_para_prompt() -> str:
         f"Fases: {fases}.\n"
         "Consultalo con `consultar_procedimiento` (tema, clave). Temas: paso (clave = "
         "numero), fase (clave = id), disparadores, opciones_destino (las dos opciones "
-        "de CPU del paso 13), estado (avance del caso), siguiente (paso que toca), "
-        "bloqueos, huecos.\n"
+        "de CPU del paso 13), ruta_fabricante (clave = marca), estado (avance del caso), "
+        "siguiente (paso que toca), bloqueos, huecos.\n"
+        f"RUTAS DE CONVERSION POR MARCA (especializan los pasos 21-23): {marcas}. "
+        "Se usan SOLO cuando el programa de origen es accesible y verificado "
+        "(disparador 'obsolescencia_con_acceso_al_codigo'). Para las demas marcas rige "
+        "el paso 21 generico y esa limitacion SE DECLARA, no se rellena inventando.\n"
         f"Pasos: {titulos}."
     )
 
@@ -550,6 +766,22 @@ def consultar(tema: str, clave=None, caso=None) -> dict:
                 "contenido": opciones_destino(ident),
                 "texto": texto_opciones(ident)}
 
+    if t in ("ruta_fabricante", "ruta", "rutas_por_fabricante", "rutas"):
+        bloque = rutas_fabricante()
+        marca = clave if isinstance(clave, str) else None
+        r = ruta_fabricante(marca, caso, ctx)
+        contenido = {
+            "condicion_de_uso": bloque.get("condicion_de_uso"),
+            "cobertura": bloque.get("cobertura"),
+            "marcas_con_ruta": [x["marca"] for x in bloque.get("rutas", [])],
+            "ruta": r,
+        }
+        if r is None:
+            contenido["acceso_al_codigo"] = codigo_accesible(caso) if caso is not None else None
+        return {"tema": "ruta_fabricante", "cita": f"{CITA}, rutas por fabricante",
+                "contenido": contenido,
+                "texto": texto_ruta_fabricante(marca, caso, ctx)}
+
     if t == "estado":
         if caso is None:
             return {"error": "El tema 'estado' necesita un caso abierto."}
@@ -577,4 +809,5 @@ def consultar(tema: str, clave=None, caso=None) -> dict:
         return {"tema": "documento", "cita": CITA, "contenido": cargar()["documento"]}
 
     return {"error": f"Tema no reconocido: {tema}. Validos: paso, fase, disparadores, "
-                     "opciones_destino, estado, siguiente, bloqueos, huecos, documento."}
+                     "opciones_destino, ruta_fabricante, estado, siguiente, bloqueos, "
+                     "huecos, documento."}

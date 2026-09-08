@@ -35,6 +35,16 @@
       "origen": "usuario, 2026-08-29"
     },
     {
+      "id": "obsolescencia_con_acceso_al_codigo",
+      "titulo": "Obsolescencia sin repuestos, con el programa accesible",
+      "descripcion": "Se conocen las contrasenas (N06, F16) y el programa original se puede abrir y compilar (F01, F06, F07): no hay nada que reconstruir. Aun asi la CPU esta descontinuada y sin repuestos ni soporte (M01, M04, M06) y el usuario decide migrar. Es el escenario MAS FAVORABLE de migracion: el programa existente se CONVIERTE con las herramientas oficiales del fabricante y los pasos 21 y 22 aplican en su forma plena, sin la variante 'sin_respaldo'.",
+      "alternativa_mapa_decision": "Migracion a plataforma moderna",
+      "activa_variante": "con_codigo_fuente",
+      "excluye_variante": "sin_respaldo",
+      "habilita_ruta_por_fabricante": true,
+      "origen": "usuario, 2026-09-07"
+    },
+    {
       "id": "contrasena_desconocida",
       "titulo": "Contrasena de la CPU desconocida",
       "descripcion": "La CPU esta protegida y nadie conoce la contrasena, de modo que el programa no se puede leer ni modificar.",
@@ -1708,6 +1718,142 @@
       "id": "roles_no_declarados",
       "descripcion": "El documento no dice quien ejecuta cada paso. El campo 'rol' es una propuesta para que el agente pueda avisar cuando un paso excede al tecnico de mantenimiento.",
       "estado": "propuesta, pendiente de validacion del autor"
+    },
+    {
+      "id": "ruta_de_conversion_por_marca",
+      "descripcion": "El paso 21 dice 'usar primero las herramientas oficiales del fabricante', pero no dice CUALES ni en que orden. Para un S5 de Siemens la cadena real (STEP 5 -> S5 File Converter -> SIMATIC Manager -> MigrateProject -> TIA Portal) no estaba en ningun lado, y es justo lo que pregunta quien tiene el codigo accesible pero migra por falta de repuestos.",
+      "estado": "CERRADO PARA SIEMENS por el bloque 'rutas_por_fabricante' (2026-09-07). Abierto para las otras 29 marcas del catalogo. Pendiente de validacion del autor."
     }
-  ]
+  ],
+  "rutas_por_fabricante": {
+    "descripcion": "Rutas de conversion especificas por fabricante. NO sustituyen el procedimiento de 57 pasos: lo ESPECIALIZAN en los pasos 21, 22 y 23 (conversion del programa) y condicionan el paso 13 (eleccion de CPU destino) y el 20 (configuracion del hardware nuevo).",
+    "condicion_de_uso": "Solo aplican cuando el programa de origen es ACCESIBLE Y VERIFICADO: respaldo que abre y compila (F01, F06, F07) y contrasenas conocidas (N06, F16). Es el disparador 'obsolescencia_con_acceso_al_codigo'. Si el caso corre con la variante 'sin_respaldo' no hay programa que convertir y estas rutas NO aplican: se reconstruye por la extension P1-P7. El agente sigue sin asistir a eludir protecciones ni licencias.",
+    "cobertura": "Por ahora solo Siemens (S5 -> STEP 7 -> TIA Portal). Las demas marcas del catalogo siguen con el paso 21 generico: 'usar primero las herramientas oficiales del fabricante'. Esta limitacion se declara, no se rellena improvisando una ruta.",
+    "rutas": [
+      {
+        "id": "siemens_s5_a_tia_portal",
+        "marca": "Siemens",
+        "titulo": "SIMATIC S5 hacia STEP 7 y TIA Portal",
+        "familias_origen": [
+          "SIMATIC S5"
+        ],
+        "familias_destino": [
+          "S7-300",
+          "S7-400",
+          "S7-1200",
+          "S7-1500"
+        ],
+        "principio": "La migracion de S5 a TIA Portal NO es directa. La cadena obligatoria es STEP 5 -> STEP 7 (SIMATIC Manager) -> TIA Portal. No existe un salto directo de STEP 5 a TIA Portal.",
+        "aplica_a_pasos": [
+          "13",
+          "20",
+          "21",
+          "22",
+          "23"
+        ],
+        "ramas": {
+          "destino_step7_s7_300_400": "el destino se queda en STEP 7 sobre S7-300 o S7-400",
+          "destino_tia_portal": "el destino sube hasta TIA Portal sobre S7-1200 o S7-1500"
+        },
+        "pasos": [
+          {
+            "n": "S1",
+            "titulo": "Extraer el programa original con el software STEP 5",
+            "detalle": "Subir el programa desde el PLC S5 con STEP 5 y archivar el respaldo antes de tocar cualquier otra cosa. Este respaldo es la unica referencia de lo que la maquina hace hoy: si se pierde, la ruta de conversion se cae y el caso pasa a reconstruccion (extension P1-P7).",
+            "especializa_paso": "21",
+            "criterio_salida": "Respaldo S5 completo, abierto y verificado en STEP 5, archivado con fecha y con copia fuera de la PC de programacion."
+          },
+          {
+            "n": "S2",
+            "titulo": "Convertir el respaldo con la herramienta S5 File Converter",
+            "detalle": "Traducir el respaldo de STEP 5 al entorno SIMATIC Manager (STEP 7) con la herramienta de conversion de archivos S5 de Siemens. Aqui es donde hay que empezar a tener cuidado: la herramienta traduce la logica, NO el hardware.",
+            "especializa_paso": "21",
+            "criterio_salida": "Proyecto abierto en SIMATIC Manager, con el reporte de conversion guardado y la version exacta de la herramienta anotada."
+          },
+          {
+            "n": "S3",
+            "titulo": "Fijar el destino antes de seguir convirtiendo",
+            "detalle": "La ruta se bifurca aqui y el resto de los pasos depende de esta eleccion: quedarse en STEP 7 sobre S7-300/S7-400, o subir hasta TIA Portal sobre S7-1200/S7-1500. Es la decision del paso 13 del procedimiento y la toma el usuario, no el agente.",
+            "especializa_paso": "13",
+            "criterio_salida": "Familia y modelo de CPU destino fijados por el usuario y registrados con `fijar_cpu_destino`."
+          },
+          {
+            "n": "S4",
+            "titulo": "Ajustar hardware, direcciones y rutinas en STEP 7",
+            "detalle": "Una vez migrado, ajustar la configuracion de hardware al modelo elegido, reasignar las direcciones y verificar rutina por rutina que se hayan convertido correctamente. Toda instruccion que no exista en STEP 7 se recrea a mano para que haga exactamente lo mismo que en el proyecto original.",
+            "especializa_paso": "23",
+            "criterio_salida": "Hardware configurado, direcciones reasignadas, cada rutina verificada contra el proyecto S5 original y cada instruccion inexistente recreada y probada.",
+            "rama": "destino_step7_s7_300_400"
+          },
+          {
+            "n": "S5",
+            "titulo": "Resolver el lenguaje ANTES de subir a TIA Portal",
+            "detalle": "Revisar en que lenguaje esta escrita la logica y corregirlo en STEP 7 antes de migrar. Si el destino es S7-1200, hay que convertir toda la logica AWL a KOP/ladder o a bloques, porque TIA Portal no admite programar en AWL para esa familia. Si el destino es S7-1500, AWL si esta admitido: la conversion es mas directa y no exige el cambio previo de lenguaje.",
+            "especializa_paso": "21",
+            "criterio_salida": "Lenguaje del programa compatible con la familia destino, verificado y compilado limpio en STEP 7 ANTES de lanzar la migracion a TIA Portal.",
+            "rama": "destino_tia_portal",
+            "nota_agente": "Es el punto donde mas migraciones se atascan: se lanza MigrateProject con logica AWL destinada a un S7-1200 y el problema se descubre a medio camino."
+          },
+          {
+            "n": "S6",
+            "titulo": "Subir de STEP 7 a TIA Portal con MigrateProject",
+            "detalle": "Utilizar el utilitario MigrateProject, que ya viene integrado dentro del propio TIA Portal, para llevar el proyecto de STEP 7 al entorno TIA.",
+            "especializa_paso": "21",
+            "criterio_salida": "Proyecto abierto en TIA Portal, con el reporte de MigrateProject guardado y clasificado segun el paso 22 del procedimiento.",
+            "rama": "destino_tia_portal"
+          },
+          {
+            "n": "S7",
+            "titulo": "Cerrar la migracion a mano",
+            "detalle": "Una vez migrado, asegurar la compatibilidad de instrucciones, ajustar el hardware y reemplazar manualmente cualquier instruccion que no sea compatible. Ninguna migracion es automatica al 100%: el software solo ayuda con el proceso, el resto es ingenieria.",
+            "especializa_paso": "23",
+            "criterio_salida": "Compilacion limpia en el entorno destino, sin instrucciones incompatibles pendientes, y cada sustitucion manual registrada con su justificacion."
+          }
+        ],
+        "reglas": [
+          {
+            "id": "version_mas_baja",
+            "regla": "Si aun no se conoce el modelo exacto de CPU destino, trabajar con la version MAS BAJA del software compatible. Subir de una version menor a una mayor es sencillo; regresar de una version mayor a una menor no lo es.",
+            "afecta_a_pasos": [
+              "13",
+              "20",
+              "21"
+            ]
+          },
+          {
+            "id": "ninguna_migracion_es_automatica",
+            "regla": "Ninguna migracion es automatica al 100%. La herramienta oficial traduce lo que puede y deja un reporte; lo demas es ingenieria manual y se ejecuta en el paso 23. El agente NUNCA debe presentar la conversion como un tramite.",
+            "afecta_a_pasos": [
+              "21",
+              "22",
+              "23"
+            ]
+          },
+          {
+            "id": "hardware_no_se_convierte",
+            "regla": "Las herramientas de conversion de Siemens traducen la logica del programa, no la configuracion de hardware. El rack, las direcciones y los modulos se rehacen en el paso 20 y se ajustan en S4 y S7.",
+            "afecta_a_pasos": [
+              "20",
+              "23"
+            ]
+          }
+        ],
+        "fuentes": [
+          {
+            "tipo": "fabricante",
+            "descripcion": "Siemens - Migration from S5 to S7",
+            "url": "https://support.industry.siemens.com/cs/attachments/105106251/105106251_Migration_guide_S5_S7_en.pdf",
+            "nota": "Fuente normativa de la cadena STEP 5 -> STEP 7. Ya citada en data/fabricantes_cpu.json."
+          },
+          {
+            "tipo": "fabricante",
+            "descripcion": "Siemens - Guia de migracion S7-300 / S7-1500",
+            "url": "https://support.industry.siemens.com/cs/attachments/109478811/109478811_GuideForMigration_S7-300_S7-1500_V11_en.pdf",
+            "nota": "Fuente normativa del tramo STEP 7 -> TIA Portal. Ya citada en data/fabricantes_cpu.json."
+          }
+        ],
+        "nota_tecnica": "La ruta habla de S7-1200 y no de S7-200 porque la restriccion de lenguaje es de esa familia: TIA Portal no admite AWL para S7-1200, mientras que el S7-1500 si lo admite. De ahi que el paso S5 solo exija convertir AWL a KOP o bloques cuando el destino es un S7-1200. Verificado 2026-09-07."
+      }
+    ]
+  }
 }

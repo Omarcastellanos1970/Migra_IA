@@ -271,9 +271,13 @@ TOOLS = [
             "prerrequisitos y lo que exige antes de tocar la maquina. Usa 'disparadores' "
             "para saber si el caso ya justifica abrir el modo guia; 'opciones_destino' en "
             "el paso 13 para presentar las CPU candidatas del mismo fabricante y las "
-            "plataformas de marcas alternativas; 'siguiente' para saber que paso toca; "
-            "'bloqueos' antes de proponer cualquier intervencion fisica. Cita siempre el "
-            "paso: 'Procedimiento MIGRA-IA-PROC-050, paso N'."
+            "plataformas de marcas alternativas; 'ruta_fabricante' cuando el programa de "
+            "origen SI es accesible (contrasenas conocidas y respaldo que abre y compila) "
+            "y hay que migrar igual por obsolescencia o falta de repuestos: devuelve la "
+            "secuencia concreta de herramientas de esa marca, que especializa los pasos "
+            "21 a 23; 'siguiente' para saber que paso toca; 'bloqueos' antes de proponer "
+            "cualquier intervencion fisica. Cita siempre el paso: 'Procedimiento "
+            "MIGRA-IA-PROC-050, paso N'."
         ),
         "input_schema": {
             "type": "object",
@@ -282,7 +286,8 @@ TOOLS = [
                     "type": "string",
                     "enum": [
                         "paso", "fase", "disparadores", "opciones_destino",
-                        "estado", "siguiente", "bloqueos", "huecos", "documento",
+                        "ruta_fabricante", "estado", "siguiente", "bloqueos",
+                        "huecos", "documento",
                     ],
                     "description": "Parte del procedimiento a consultar.",
                 },
@@ -291,7 +296,9 @@ TOOLS = [
                     "description": (
                         "Numero de paso (1 a 50) para el tema 'paso'; id de fase "
                         "(levantamiento, seleccion_e_ingenieria, conversion, fat, "
-                        "corte_y_puesta_en_marcha, cierre) o numero de paso para 'fase'. "
+                        "corte_y_puesta_en_marcha, cierre) o numero de paso para 'fase'; "
+                        "nombre de la marca para 'ruta_fabricante' (si se omite, se toma "
+                        "la marca del equipo ya identificado en el expediente). "
                         "Omitela en los demas temas."
                     ),
                 },
