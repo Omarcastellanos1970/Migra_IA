@@ -899,3 +899,67 @@ otras 29 marcas** del catálogo: el hueco se declara en
 `ruta_de_conversion_por_marca` en vez de rellenarse improvisando. Y `main`
 todavía no tiene nada de esto; el trabajo vive solo en la rama
 `catalogo-fabricantes-adaptativo`.
+
+---
+
+## 2026-09-07 (2.ª parte) · El agente tiene dos motores, y solo actualicé uno
+
+**Se pidió.** Ver la ruta de Siemens funcionando en el agente del escritorio. El
+recorrido llegó hasta fijar el destino —**SIMATIC S7-1200**, con la pantalla de
+*"Misma marca"*— y ahí no aparecía nada nuevo.
+
+**Devolvió.** El diagnóstico, que era el hallazgo de verdad: **la webapp tiene dos
+motores y yo solo había tocado uno.** `webapp/app.py:64` bifurca según el modo:
+
+- **Chat con clave de Anthropic** → usa el system prompt y las herramientas. Ahí sí
+  estaba la ruta.
+- **Demo interactiva, sin clave** → usa `migra_ia/interactivo.py`, un guion
+  **determinista** de 991 líneas que no consulta al modelo para nada.
+
+El texto que salía en pantalla estaba escrito literalmente en `interactivo.py:826`.
+Y `grep ruta_fabricante migra_ia/interactivo.py` daba **0**: ese motor no pedía la
+ruta en ningún momento. Habría recorrido los 57 pasos y en el 21 habría dicho el
+texto genérico *"usar las herramientas del fabricante"*, sin nombrar nunca el S5
+File Converter ni MigrateProject.
+
+El arreglo, commit `8a29c25` (+98/−1):
+
+- `procedimiento.ruta_para_paso()` y `texto_ruta_para_paso()` devuelven los
+  sub-pasos de la marca que especializan **un** paso concreto, o vacío si no
+  aplica. `texto_ruta_resumen()` anuncia la ruta al fijar el destino.
+- `interactivo.py` los llama en dos sitios: justo después de `fijar_cpu_destino`
+  —que es cuando el usuario decide— y en el render de cada paso.
+- Paso **5b** en el árbol de decisión del prompt, para que las tres capas digan lo
+  mismo. Se numera 5b y no se renumera del 5 al 8 porque `cuestionario.json:221`
+  remite al *"paso 2 del arbol de decision"*.
+
+**Se verificó.** Los pasos **13, 20, 21, 22 y 23** salen con su desglose de marca y
+los otros **52 quedan idénticos** · con destino S7-1200 aparece el aviso de que hay
+que pasar AWL a KOP antes de migrar, y con S7-1500 **no** aparece, que es lo
+correcto porque esa familia sí admite AWL · controles negativos: sin respaldo,
+marca sin ruta publicada y cambio de marca no muestran nada, en vez de mostrar una
+ruta que no aplica · `compileall` limpio · servidor reiniciado a las **22:58:57**,
+respondiendo **HTTP 200**, con los tres archivos modificados a las 22:07, 22:48 y
+22:49, todos anteriores al arranque.
+
+**Se corrigió.** Dos cosas, y la primera es un error de método:
+
+1. **Di por hecho que un motor hereda del otro.** Cablée la ruta en la capa de
+   datos y en el prompt, y asumí que el modo interactivo la recogería. No la
+   recoge: es un guion aparte. La comprobación que faltaba era trivial —un `grep`
+   del nombre de la función en el otro motor— y no la hice. **Regla para la
+   próxima: al añadir una capacidad, comprobar en cuántos motores hay que
+   enchufarla, no en cuántos la definen.**
+2. **Los pasos 20 y 22 se quedaban mudos.** Figuran en `aplica_a_pasos` pero no
+   tienen sub-paso propio, solo una regla que los gobierna. La primera versión
+   devolvía vacío si no había sub-pasos, así que se perdía justo el aviso de que
+   el hardware no se convierte. Lo destapó la prueba, no la lectura del código.
+
+**Por qué no se veía aunque los archivos estuvieran bien.** `webapp/app.py:30`
+construye el system prompt **en el import**, todos los módulos de datos usan
+`@lru_cache` y el servidor arranca con `debug=False`, sin recarga automática.
+Editar un archivo no cambia nada hasta cerrar y reabrir `Iniciar_MIGRA-IA.bat`.
+Conviene recordarlo antes de dar por roto algo que solo está sin recargar.
+
+⏭️ **Queda pendiente.** `main` sigue sin nada de este trabajo: los tres commits
+viven en `catalogo-fabricantes-adaptativo`.
