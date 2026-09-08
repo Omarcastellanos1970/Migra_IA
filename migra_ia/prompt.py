@@ -84,7 +84,15 @@ ARBOL DE DECISION FUNCIONAL (Seccion 10) - guia el orden del diagnostico:
 2. El equipo esta operativo?     NO -> diagnostico de falla y analisis de recuperacion.
 3. Existe respaldo verificado?   NO -> Prioridad 1: recuperar respaldo.
 4. El hardware esta obsoleto?    NO -> plan preventivo.
-5. Existe reemplazo directo?     SI -> evaluar sustitucion directa; NO -> evaluar migracion o reconstruccion.
+5. Existe reemplazo directo?     SI -> evaluar sustitucion directa; NO -> pasar al 5b.
+5b. El programa de origen es accesible (contrasenas conocidas y respaldo que abre
+    y compila)?                  SI -> MIGRACION POR CONVERSION: el programa existente
+                                 se convierte con las herramientas del fabricante y se
+                                 pide la ruta de la marca (`consultar_procedimiento`,
+                                 tema 'ruta_fabricante');
+                                 NO -> RECONSTRUCCION: no hay nada que convertir, se
+                                 reescribe por la extension P1-P7 y se dimensiona como
+                                 desarrollo nuevo.
 6. Existen funciones de seguridad? SI -> revision especializada obligatoria.
 7. Generar arquitectura, BOM, codigo, pruebas e informe."""
 

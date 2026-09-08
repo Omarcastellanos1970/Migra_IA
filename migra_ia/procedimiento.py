@@ -703,6 +703,87 @@ def texto_ruta_fabricante(marca=None, caso=None, ctx: dict | None = None) -> str
     return "\n".join(lineas)
 
 
+def ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> dict | None:
+    """Sub-pasos de la ruta del fabricante que especializan UN paso concreto.
+
+    Devuelve None cuando no hay ruta para la marca, cuando el equipo de origen no
+    es el que la ruta cubre, cuando no hay programa que convertir (`sin_respaldo`)
+    o cuando se cambia de fabricante: en esos casos la ruta no aplica y decirlo a
+    medias seria peor que callarla.
+    """
+    ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
+    if ctx.get("sin_respaldo") or ctx.get("cambio_marca"):
+        return None
+    r = ruta_fabricante(None, caso, ctx)
+    if r is None or not r.get("aplica_a_origen"):
+        return None
+
+    c = _clave(clave)
+    sub = [p for p in r["pasos"] if _clave(p["especializa_paso"]) == c]
+    reglas = [x for x in r.get("reglas", []) if c in [_clave(n) for n in x["afecta_a_pasos"]]]
+    # Los pasos 20 y 22 no tienen sub-paso propio pero si regla que los gobierna:
+    # callarlos seria perder justo el aviso de que el hardware no se convierte.
+    if not sub and not reglas:
+        return None
+    return {"ruta": r, "sub_pasos": sub, "reglas": reglas}
+
+
+def texto_ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> str:
+    """Bloque en Markdown con los sub-pasos de marca de un paso. Vacio si no aplica."""
+    d = ruta_para_paso(clave, caso, ctx)
+    if d is None:
+        return ""
+    r, sub, reglas = d["ruta"], d["sub_pasos"], d["reglas"]
+    ramas = r.get("ramas", {})
+
+    encabezado = (f"*Lo que este paso significa para un {', '.join(r['familias_origen'])}.*"
+                  if sub else
+                  "*Regla de la ruta que gobierna este paso.*")
+    lineas = ["", "---", "",
+              f"**Ruta {r['marca']} — {r['titulo']}**",
+              encabezado,
+              ""]
+    for p in sub:
+        cabecera = f"**{p['n']} · {p['titulo']}**"
+        if p.get("rama"):
+            cabecera += f"  *(solo si {ramas.get(p['rama'], p['rama'])})*"
+        lineas += [cabecera, "", p["detalle"], "",
+                   f"**Se da por terminado cuando:** {p['criterio_salida']}"]
+        if p.get("nota_agente"):
+            lineas.append(f"*Nota: {p['nota_agente']}*")
+        lineas.append("")
+    for x in reglas:
+        lineas += [f"> **Regla de la ruta:** {x['regla']}", ""]
+    return "\n".join(lineas).rstrip()
+
+
+def texto_ruta_resumen(caso=None, ctx: dict | None = None) -> str:
+    """Resumen de la ruta para anunciarla al fijar el destino. Vacio si no aplica."""
+    ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
+    if ctx.get("sin_respaldo") or ctx.get("cambio_marca"):
+        return ""
+    r = ruta_fabricante(None, caso, ctx)
+    if r is None or not r.get("aplica_a_origen"):
+        return ""
+
+    pasos_con_ruta = sorted({_clave(n) for n in r["aplica_a_pasos"]},
+                            key=lambda x: (len(x), x))
+    lineas = [
+        f"**Hay una ruta de conversion publicada para {r['marca']}: {r['titulo']}.**",
+        "",
+        f"> {r['principio']}",
+        "",
+        "La veras desglosada al llegar a los pasos "
+        + ", ".join(pasos_con_ruta) + " del procedimiento.",
+    ]
+    if ctx.get("destino"):
+        avisos = [p for p in r["pasos"]
+                  if p.get("rama") == "destino_tia_portal" and p.get("nota_agente")]
+        if avisos and "1200" in str(ctx.get("destino", "")) + str(ctx.get("equipo", "")):
+            lineas += ["", f"⚠️ {avisos[0]['nota_agente']}"]
+    return "\n".join(lineas)
+
+
 def indice_para_prompt() -> str:
     """Indice del procedimiento: da las claves validas sin volcar el contenido."""
     datos = cargar()

@@ -831,6 +831,11 @@ def _fase_destino(caso: Caso, texto: str, estado: dict) -> dict:
         "**Misma marca.** El procedimiento se mantiene completo: los pasos 21 y 22 si "
         "aplican, con la herramienta oficial de conversion del fabricante."
     )
+    # Si la marca tiene ruta de conversion publicada, se anuncia aqui: es el momento
+    # en que el usuario decide, y saber que la herramienta existe cambia la decision.
+    resumen_ruta = procedimiento.texto_ruta_resumen(caso)
+    if resumen_ruta:
+        aviso += "\n\n" + resumen_ruta
     return _salida(
         f"Destino fijado: **{marca_destino} {destino}**.\n\n{aviso}\n\n---\n\n"
         "Empieza el recorrido de el procedimiento (57 pasos: 50 del documento + P1-P7). Pulsa **Enviar** para el primero.",
@@ -869,6 +874,9 @@ def _fase_guia(caso: Caso, texto: str, estado: dict) -> dict:
     estado["paso_guia"] = siguiente["clave"]
     avance = procedimiento.estado(caso)
     cuerpo = procedimiento.texto_paso(siguiente["clave"], ctx)
+    # Los pasos que la ruta del fabricante especializa (13, 20, 21, 22 y 23 en Siemens)
+    # se muestran con sus sub-pasos concretos; el resto queda igual que siempre.
+    cuerpo += procedimiento.texto_ruta_para_paso(siguiente["clave"], caso, ctx)
     if siguiente.get("prerrequisitos_pendientes"):
         cuerpo += ("\n\n🚧 **Este paso no puede ejecutarse todavia:** faltan los pasos "
                    + ", ".join(str(x) for x in siguiente["prerrequisitos_pendientes"])
