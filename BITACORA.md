@@ -832,3 +832,70 @@ vieja: aparecen en 15 commits. La reescritura está preparada y verificada, pero
 el permiso para ejecutarla lo tiene que dar el usuario. **No es urgente**: sirve
 para el orden viejo, que ya no se usa. Mientras tanto, en el árbol publicado no
 están ni el archivo ni la semilla.
+
+---
+
+## 2026-09-07 · La ruta de conversión de Siemens
+
+**Se pidió.** Que el cuestionario dispare los pasos de migración de Siemens en un
+caso que hasta ahora el agente no distinguía: el usuario **sí** conoce la
+contraseña y **sí** puede acceder al código, pero insiste en migrar porque el
+equipo está descontinuado y sin repuestos. El agente acababa empujando a
+reconstruir un programa que en realidad se puede convertir.
+
+**Devolvió.** La cadena de conversión que el procedimiento de 57 pasos no tenía
+en ningún lado: **STEP 5 → S5 File Converter → SIMATIC Manager (STEP 7) →
+MigrateProject → TIA Portal**, sin saltos directos. Cinco archivos (+441/−14):
+
+- Disparador `obsolescencia_con_acceso_al_codigo`, que se activa leyendo
+  N06/F16, F01/F06/F07 y M01/M04/M06/M09, y **devuelve la cadena de evidencia**
+  que lo sostiene en vez de afirmarlo a secas.
+- Bloque `rutas_por_fabricante` con la ruta de Siemens en siete pasos (S1–S7).
+  No sustituye a los 57: **los especializa** en el 13, 20, 21, 22 y 23.
+- Tema `ruta_fabricante` en `consultar_procedimiento`, su render en Markdown y
+  el bloque correspondiente en el prompt del modo guía.
+- En el cuestionario, las dos variantes de ejecución de la migración y la regla
+  de prioridad 7: convertir un programa y reescribirlo no se presupuestan igual.
+
+**Se verificó.** Corriendo el despachador real `ejecutar_herramienta`, no
+describiéndolo: con el expediente de prueba, `tema='disparadores'` devuelve
+`obsolescencia_con_acceso_al_codigo` con las **siete** respuestas que lo
+sostienen, y `tema='ruta_fabricante'` devuelve los S1–S7 completos ·
+`compileall` limpio en `migra_ia` y `webapp` · controles negativos: Rockwell
+**declara** que no tiene ruta en vez de improvisarla, un caso con `sin_respaldo`
+recibe el aviso de que la ruta no aplica, y un expediente vacío no dispara nada ·
+`total_pasos` sigue en **57** y el cuestionario en **17** secciones · `.env` en
+la línea 1 de `.gitignore`, sin trackear, y `git status --porcelain` sin archivos
+extra antes del push.
+
+**No se pudo verificar.** Las dos guías oficiales de Siemens que la ruta cita
+(`105106251` para S5→S7 y `109478811` para S7-300→S7-1500) ya venían en
+`data/fabricantes_cpu.json`, pero **no se comprobó que sigan resolviendo**: el
+portal responde `403 Forbidden` desde Akamai a cualquier cliente sin navegador.
+Es protección anti-bot, no prueba de enlace muerto, pero tampoco prueba de lo
+contrario. Queda pendiente abrirlas a mano.
+
+**Se corrigió.** Dos cosas:
+
+1. **Un falso positivo que daba el diagnóstico contrario.**
+   `contrasena_desconocida` se disparaba por encontrar la palabra "contrasena"
+   en el texto libre de las respuestas. Responder *"No hay contraseñas"* —que es
+   la mejor noticia posible— activaba **reconstrucción**, que es justo la ruta
+   cara. Ahora queda suprimido cuando el programa es accesible.
+2. **Una reescritura que ensuciaba el diff.** El primer parche volcó
+   `data/cuestionario.json` con `json.dump(indent=2)` y expandió el formato
+   compacto original: **1794 líneas** de diff para dos cambios. Se revirtió con
+   `git checkout --` y se aplicó a mano. El diff final del archivo son **9
+   líneas**.
+
+**Una decisión de ingeniería queda anotada en el propio dato.** La ruta habla de
+**S7-1200** y no de S7-200 porque la restricción de lenguaje es de esa familia:
+TIA Portal no admite AWL para S7-1200 y el S7-1500 sí. Por eso el paso S5 solo
+exige convertir AWL a KOP o bloques cuando el destino es un S7-1200. Está en el
+campo `nota_tecnica` de la ruta, para que nadie lo "corrija" más adelante.
+
+⏭️ **Queda pendiente.** La ruta está **cerrada para Siemens y abierta para las
+otras 29 marcas** del catálogo: el hueco se declara en
+`ruta_de_conversion_por_marca` en vez de rellenarse improvisando. Y `main`
+todavía no tiene nada de esto; el trabajo vive solo en la rama
+`catalogo-fabricantes-adaptativo`.
