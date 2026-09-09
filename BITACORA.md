@@ -1035,3 +1035,30 @@ escribir contra lo que hay, se detiene y enumera lo que se perdería. Probado.
 ⏭️ **Queda pendiente.** El smoke test contra la API no se corrió: la clave devuelve
 **401**. Y `main` sigue sin nada de esto: el trabajo está en la rama
 `ruta-cambio-de-marca`, en local y **sin empujar**.
+
+## 2026-09-08 (2.ª parte) · El triaje llegaba tarde
+
+**Se pidió.** Correr el escenario `otra_marca_con_codigo` y ver el **paso 21
+completo**, no un recorte.
+
+**Lo que se vio.** El paso sale bien —texto original, criterio de salida, el aviso
+de que no aplica y debajo el sub-paso C3 con sus dos reglas—, pero el avance lo
+delataba: **27 de 57**. La extensión P1-P7 se intercala tras el paso 20, así que
+cuando el recorrido llega al 21 el programa nuevo **ya está escrito**. El triaje
+que decide qué se traslada, qué se adapta y qué se reprograma —y de donde sale la
+estimación de esfuerzo— llegaba después de haber hecho el trabajo.
+
+**Se movió**, commit `aac1d20`. C3 pasa a especializar el **paso 11**, junto al
+inventario C1: la clasificación y su estimación quedan cerradas **antes** de
+redactar la especificación en P1. Como el triaje ahora precede a la tabla de
+equivalencia de instrucciones (C2, paso 12), se declara **provisional**: todo
+bloque que dependa de una instrucción sin equivalente pasa a *a reprogramar*
+cuando el 12 cierre, y el criterio de salida de C3 obliga a revisarlo entonces.
+
+El paso 21 sigue en la ruta con sus dos reglas —la fuente es especificación, no
+plantilla; y la titularidad del programa— y su variante remite al triaje ya hecho
+en el 11.
+
+**Se verificó.** Los cinco escenarios de contexto, con el 11 mostrando C1 y C3 y el
+21 solo reglas; la ruta de Siemens intacta; `otra_marca_con_codigo` 57 de 57 y
+`critico` en **85,0**.
