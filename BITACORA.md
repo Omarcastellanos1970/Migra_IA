@@ -963,3 +963,75 @@ Conviene recordarlo antes de dar por roto algo que solo está sin recargar.
 
 ⏭️ **Queda pendiente.** `main` sigue sin nada de este trabajo: los tres commits
 viven en `catalogo-fabricantes-adaptativo`.
+
+## 2026-09-08 · El porte entre marcas, cuando el código sí está
+
+**Se pidió.** Analizar el escenario que faltaba —contraseñas conocidas, programa
+accesible y, aun así, migración a un PLC de **otra marca**— y contrastarlo contra
+una lista de dieciséis pasos de migración entre fabricantes antes de decidir si se
+agregaba algo.
+
+**El mapeo, primero.** De los dieciséis, **doce ya existían** en los 57 pasos, casi
+siempre con más detalle: respaldo *verificado* (5), matriz de equivalencia con la
+prohibición de equivaler por nombre (14), comunicaciones (24), HMI/SCADA (25),
+simulación (30), comparación viejo contra nuevo (32) y FAT/SAT (31, 42). **Dos no
+existían**: la tabla de equivalencia de instrucciones entre fabricantes y el triaje
+de lógica trasladable frente a reprogramable. **Uno estaba a medias**: nada
+inventariaba la memoria interna del programa viejo —marcas, DB, temporizadores,
+contadores— ni censaba en qué lenguaje está escrito cada bloque. Y **uno se
+descartó**: seleccionar la CPU nueva por memoria, velocidad y E/S choca con el
+`limite_duro` del paso 13, porque el catálogo no publica atributos comparables por
+modelo entre marcas y esa decisión es lo que separa este agente de uno que inventa.
+
+**El hueco de verdad estaba en el cruce.** `procedimiento.py:122` ya calculaba
+`con_codigo_fuente` y **ningún dato lo leía**: ocho `variante_cambio_marca`, ocho
+`variante_sin_respaldo` y cero para la combinación de las dos. Con cambio de marca
+ganaba el texto genérico del paso 21 —*«se REESCRIBE desde cero… planificar como
+desarrollo nuevo»*—, que es el de la vía ciega. El disparador que escribí ayer
+declara ese caso *«el escenario MÁS FAVORABLE»*, y en cuanto el usuario elegía otra
+marca el agente le hablaba como si no tuviera nada en la mano.
+
+**Se agregó**, commit `0996576` (+413/−61). Un bloque `ruta_cambio_de_marca` con la
+misma forma que `rutas_por_fabricante`, para que lo sirva la maquinaria de ayer sin
+inventar mecanismo: **C1** inventario de memoria interna y censo de lenguajes (paso
+11), **C2** tabla de equivalencia de instrucciones (paso 12), **C3** triaje
+trasladable / adaptable / a reprogramar (paso 21), **C4** mapeo de direcciones
+desde la tabla de símbolos original (paso 18) y **C5** comparación E/S por E/S y
+secuencia por secuencia (paso 32). Seis reglas, incluidas dos que no estaban en
+ningún sitio: **la lógica de seguridad no se porta por analogía** aunque exista
+instrucción equivalente, y **conocer la contraseña no da derecho** a reimplementar
+la lógica de un tercero en otra plataforma. Es una sola ruta para cualquier par de
+marcas: describe el método, no las equivalencias, que se construyen caso por caso
+contra los manuales de los dos fabricantes.
+
+**Se corrigió el «desde cero» en seis sitios**, porque solo es cierto sin acceso al
+código: la variante del paso 21 y el *en contra* del paso 13 en los datos; el aviso
+al fijar destino, la justificación que se guarda en el expediente y la
+recomendación del informe en `interactivo.py`; la consecuencia de
+`fijar_cpu_destino` en `herramientas.py`; y la opción B en `prompt.py`. También
+entraron las variantes de cambio de marca que faltaban en los pasos 23, 24 y 25: el
+23 hablaba de corregir un reporte de migración que entre marcas no existe.
+
+**Los dos motores, esta vez desde el principio.** La regla de ayer se aplicó antes
+de escribir nada, y valió: además de `ruta_para_paso`, el modo interactivo tenía
+**tres textos cableados a mano** que afirmaban «reescritura completa» sin mirar el
+acceso al código. Con la función sola no habría bastado.
+
+**Se verificó.** Cinco escenarios de contexto: cambio de marca con código (sale la
+ruta en 11, 12, 18, 21 y 32), cambio de marca sin código (nada), `sin_respaldo` más
+cambio de marca (nada), misma marca con código —**la ruta de Siemens intacta**, con
+sus S1-S7 donde siempre— y un par sin ruta publicada, Omron a Mitsubishi, que
+funciona porque la ruta es genérica. De punta a punta con el motor determinista:
+escenario nuevo `otra_marca_con_codigo` en `_interactivo_run.py`, 57 de 57 pasos y
+riesgo 69,2; `critico` sigue dando **85,0** y 57 de 57. `compileall` limpio y el
+system prompt construyéndose en 44.569 caracteres con el tema nuevo, el paso 5c y
+el índice.
+
+**Se blindó el generador.** `_generar_procedimiento.py` reescribe el JSON entero
+desde el `.docx` y no conoce ninguna de las dos rutas: regenerarlo habría borrado en
+silencio el trabajo de ayer y el de hoy, sin decir nada. Ahora compara lo que va a
+escribir contra lo que hay, se detiene y enumera lo que se perdería. Probado.
+
+⏭️ **Queda pendiente.** El smoke test contra la API no se corrió: la clave devuelve
+**401**. Y `main` sigue sin nada de esto: el trabajo está en la rama
+`ruta-cambio-de-marca`, en local y **sin empujar**.
