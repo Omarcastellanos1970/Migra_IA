@@ -1062,3 +1062,51 @@ en el 11.
 **Se verificó.** Los cinco escenarios de contexto, con el 11 mostrando C1 y C3 y el
 21 solo reglas; la ruta de Siemens intacta; `otra_marca_con_codigo` 57 de 57 y
 `critico` en **85,0**.
+
+## 2026-09-08 (3.ª parte) · El cierre de la versión: metadatos, nombres y etiqueta
+
+**Se pidió.** Cerrar la versión: fusionar a `main` el trabajo de la rama, poner al
+día los metadatos de la release, etiquetar la **v0.4.0** y borrar las ramas que ya
+no hacían falta.
+
+**La fusión.** Avance rápido limpio —`main` salía del mismo commit del que nació la
+rama—, sin commit de fusión y sin conflictos.
+
+**Los metadatos**, commit `e22ed79`. Versión y descripción de la 0.4.0, y una
+corrección de afiliación: los **cuatro** autores quedan en Universidad Tecnológica
+de Honduras. El repo le atribuía a Loo una segunda afiliación que no le
+corresponde. `CITATION.cff` y `.zenodo.json` eran los dos únicos archivos con
+campo de afiliación; las tres landings y el BibTeX listan nombres sin ella.
+
+**La tarjeta del artefacto**, commit `6c4ecd0`. `ARTIFACT.md` y `README.md`
+recogen el escenario `otra_marca_con_codigo` y la ruta de porte entre marcas, que
+hasta entonces solo existían en el código y en esta bitácora.
+
+**Los nombres**, commit `85b5121`. El bloque de autores del paper dice **«Julio Noé
+Castillo»** con tilde e **«Isidoro Medina»** sin el segundo nombre; el repo llevaba
+la tilde omitida a propósito en los metadatos —decisión vieja, que se levanta— e
+«Isidoro Emilio Medina» en ocho sitios. Ambos quedan como en el paper. En el
+BibTeX de `docs/GUIA_ZENODO.md` la tilde va como escape de LaTeX, `No\'e`, igual
+que el resto de ese bloque; en la plantilla de subida y en la landing va la tilde
+real. Las tres copias de la landing siguen idénticas por hash. Se hizo **antes** de
+etiquetar a propósito: estos nombres quedan fijos en el registro de Zenodo.
+
+**La etiqueta.** `v0.4.0` **anotada** sobre `85b5121` y empujada a origin, con
+notas al estilo de la de v0.3.0: catálogo de 30 fabricantes y 469 modelos,
+MIGRA-IA-PROC-050, cuestionario de 17 secciones, modo interactivo sin clave, línea
+base del riesgo ordinal y las dos rutas. Conviene saber que `v0.2.0` es ligera y
+que `v0.3.0` y `v0.4.0` son anotadas.
+
+**Las ramas.** Borradas en local y en remoto `ruta-cambio-de-marca` (estaba en
+`11a4906`) y `catalogo-fabricantes-adaptativo` (en `37da610`). Las dos aparecían en
+`git branch --merged main` antes de tocarlas, y sus commits siguen alcanzables
+desde el histórico de `main` y desde la etiqueta. En el repositorio queda **solo
+`main`**.
+
+⏭️ **Queda pendiente.** El **release de GitHub**: la etiqueta sola no dispara el
+webhook de Zenodo, así que la v0.4.0 **todavía no tiene DOI**. El procedimiento
+está en `docs/GUIA_ZENODO.md`, incluido qué hacer si el release sale *Failed* en
+rojo, como ocurrió con la v0.3.0. Cuando el DOI exista habrá que actualizar la
+referencia IEEE y el BibTeX de esa guía, que hoy citan la v0.3.0 con su DOI y
+listan tres autores. Y el **smoke test contra la API sigue sin correrse**: la clave
+devuelve 401.
