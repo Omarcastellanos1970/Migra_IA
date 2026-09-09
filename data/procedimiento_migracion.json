@@ -798,7 +798,7 @@
         "loto": false,
         "especialista_seguridad": false
       },
-      "variante_cambio_marca": "NO APLICA: entre fabricantes distintos no existe herramienta de conversion. Lo que lo sustituye depende del acceso al codigo. Si el programa de origen es ACCESIBLE, el trabajo NO empieza de cero: es un PORTE con el programa original como especificacion y se ejecuta por la ruta de cambio de marca -triaje C3-, apoyandose en la extension P1-P7. Si NO lo es, se reescribe a ciegas a partir de los pasos 6, 7 y 18, y solo entonces se planifica como desarrollo nuevo.",
+      "variante_cambio_marca": "NO APLICA: entre fabricantes distintos no existe herramienta de conversion. Lo que lo sustituye depende del acceso al codigo. Si el programa de origen es ACCESIBLE, el trabajo NO empieza de cero: es un PORTE con el programa original como especificacion ya triado en el paso 11 (sub-paso C3 de la ruta de cambio de marca) y ejecutado por la extension P1-P7, que a esta altura ya esta cerrada. Si NO lo es, se reescribe a ciegas a partir de los pasos 6, 7 y 18, y solo entonces se planifica como desarrollo nuevo.",
       "variante_sin_respaldo": "NO APLICA: sin programa de origen no hay nada que convertir. Se reescribe a partir de la logica levantada en los pasos 6 y 7."
     },
     {
@@ -1894,9 +1894,9 @@
       {
         "n": "C3",
         "titulo": "Separar la logica trasladable de la que hay que reprogramar (triaje)",
-        "detalle": "El paso 21 no aplica entre marcas: no hay herramienta de conversion. Lo que lo sustituye es este triaje, y es el paso que convierte el codigo accesible en un plan. Cada bloque del inventario C1 se clasifica en tres: (a) TRASLADABLE conceptualmente -misma logica, distinta sintaxis-; (b) ADAPTABLE -necesita ajuste por tipos de datos, direccionamiento, temporizacion o funciones de sistema-; (c) A REPROGRAMAR -depende de instrucciones sin equivalente, de hardware propietario o de funciones tecnologicas de la marca origen-. De ahi sale la estimacion de esfuerzo real, que NO es la de un desarrollo desde cero.",
-        "especializa_paso": "21",
-        "criterio_salida": "Cada bloque del programa original clasificado en trasladable, adaptable o a reprogramar, con el motivo, y la estimacion de esfuerzo por categoria a cargo de quien va a hacer el trabajo.",
+        "detalle": "El paso 11 clasifica los bloques por funcion; aqui se los clasifica ademas por lo que va a costar llevarlos a la otra marca. Es lo que sustituye al paso 21 -que entre fabricantes distintos no aplica- y el que convierte el codigo accesible en un plan. Cada bloque del inventario C1 se clasifica en tres: (a) TRASLADABLE conceptualmente -misma logica, distinta sintaxis-; (b) ADAPTABLE -necesita ajuste por tipos de datos, direccionamiento, temporizacion o funciones de sistema-; (c) A REPROGRAMAR -depende de instrucciones sin equivalente, de hardware propietario o de funciones tecnologicas de la marca origen-. De ahi sale la estimacion de esfuerzo real, que NO es la de un desarrollo desde cero. La clasificacion es provisional hasta que C2 cierre la tabla de equivalencia en el paso 12: todo bloque que dependa de una instruccion sin equivalente pasa entonces a 'a reprogramar'. Cerrado el triaje, el trabajo entra por la extension P1-P7.",
+        "especializa_paso": "11",
+        "criterio_salida": "Cada bloque del programa original clasificado en trasladable, adaptable o a reprogramar, con el motivo, y la estimacion de esfuerzo por categoria a cargo de quien va a hacer el trabajo. Revisado tras cerrar la tabla del paso 12.",
         "nota_agente": "Trasladable NO significa traducible renglon a renglon: la logica se reimplementa segun la arquitectura de software de P3, no copiando la estructura del programa viejo."
       },
       {
