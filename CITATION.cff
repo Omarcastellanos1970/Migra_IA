@@ -17,9 +17,13 @@ abstract: >-
   más 7 previos, en 7 fases), el
   cuestionario ampliado a 17 secciones y un modo interactivo que se ejecuta sin
   clave de API; retira el modo de demostración guiada, de modo que la interfaz
-  queda con dos entradas.
+  queda con dos entradas. Incorpora además dos rutas que especializan ese
+  procedimiento según el caso: la del fabricante cuando se permanece en la misma
+  marca, y la de porte entre fabricantes distintos cuando el destino es de otra
+  marca y el programa de origen es accesible, con el límite explícito de que el
+  agente no publica equivalencias de instrucciones que no pueda citar.
 version: "0.4.0"
-date-released: "2026-09-06"
+date-released: "2026-09-08"
 license: MIT
 type: software
 keywords:
@@ -44,4 +48,4 @@ authors:
     affiliation: "Universidad Tecnológica de Honduras"
   - given-names: "Luis"
     family-names: "Loo"
-    affiliation: "Universidad Tecnológica de Honduras; Texas A&M University"
+    affiliation: "Universidad Tecnológica de Honduras"
