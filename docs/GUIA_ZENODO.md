@@ -84,7 +84,7 @@ se generó. Zenodo **no ofrece botón de reintento**. Qué hacer:
    `__pycache__/` (deja `docs/`, el código y los archivos de metadatos).
 2. Entra a https://zenodo.org → **Upload → New upload**.
 3. Sube el ZIP y completa: *Upload type* = **Software**, título, autores
-   (Castellanos, Carlos Omar; Castillo, Julio Noe; Medina, Isidoro Emilio;
+   (Castellanos, Carlos Omar; Castillo, Julio Noé; Medina, Isidoro;
    Loo, Luis),
    descripción, *License* = **MIT**, palabras clave.
 4. **Publish** → Zenodo asigna el DOI.
@@ -104,7 +104,7 @@ DOI ya asignados (verificados en la API de Zenodo):
 Referencia IEEE:
 
 ```
-C. O. Castellanos, J. N. Castillo, e I. E. Medina, "MIGRA-IA: Agente inteligente
+C. O. Castellanos, J. N. Castillo, e I. Medina, "MIGRA-IA: Agente inteligente
 para diagnóstico de obsolescencia y migración de sistemas de automatización
 industrial (v0.3.0)," Zenodo, 2026. doi: 10.5281/zenodo.21659730.
 ```
@@ -114,7 +114,7 @@ no reconoce ese tipo de entrada y la referencia no se renderiza.
 
 ```bibtex
 @misc{migra_ia_2026,
-  author       = {Castellanos, Carlos Omar and Castillo, Julio Noe and Medina, Isidoro Emilio and Loo, Luis},
+  author       = {Castellanos, Carlos Omar and Castillo, Julio No\'e and Medina, Isidoro and Loo, Luis},
   title        = {{MIGRA-IA: Agente inteligente para diagn\'ostico de obsolescencia y migraci\'on de sistemas de automatizaci\'on industrial (v0.3.0)}},
   howpublished = {Zenodo},
   year         = {2026},
