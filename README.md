@@ -37,6 +37,11 @@ intervención sobre equipos reales corresponde a personal autorizado.
   metodológicas, capítulos, rutas de migración por fabricante, biblioteca de
   pruebas, plantillas y anexos de gestión) y **cita la guía** en sus
   recomendaciones.
+- Abre el **procedimiento de migración** *MIGRA-IA-PROC-050* (50 pasos numerados
+  más la extensión P1–P7 de construcción del programa) cuando se decide cambiar la
+  CPU, y lo **especializa** según el caso: con la ruta del fabricante si se sigue
+  en la misma marca, y con la **ruta de porte entre fabricantes** cuando el destino
+  es de otra marca y el programa de origen es accesible.
 - Marca **datos faltantes** y **banderas de seguridad funcional**.
 - Genera un **informe técnico trazable** en Markdown con la estructura estándar
   de la Sección 9.

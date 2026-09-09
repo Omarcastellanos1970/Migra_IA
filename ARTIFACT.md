@@ -84,15 +84,18 @@ agente recorre el procedimiento paso a paso con la CPU destino que elija.
 ### Reproducción exacta por línea de comandos
 
 Para obtener las cifras de referencia sin navegador y sin tener que decidir las
-respuestas, el repositorio incluye tres escenarios con respuestas fijas. Son
-tres recorridos pero **dos casos independientes**: `otra_marca` es `critico` con
-otro destino, con las mismas 24 respuestas, así que su puntuación coincide por
-construcción y no cuenta como evidencia adicional.
+respuestas, el repositorio incluye cuatro escenarios con respuestas fijas. Son
+cuatro recorridos pero **tres casos independientes**: `otra_marca` es `critico`
+con otro destino, con las mismas 24 respuestas, así que su puntuación coincide
+por construcción y no cuenta como evidencia adicional. `otra_marca_con_codigo`
+sí cambia cuatro respuestas —las del acceso al programa: contraseñas conocidas y
+respaldo que abre y compila— y por eso su puntuación es distinta.
 
 ```bash
 python _interactivo_run.py              # caso crítico, misma marca
 python _interactivo_run.py sano         # caso sin obsolescencia
-python _interactivo_run.py otra_marca   # migración con cambio de marca
+python _interactivo_run.py otra_marca   # cambio de marca, sin acceso al programa
+python _interactivo_run.py otra_marca_con_codigo   # cambio de marca con el programa accesible
 ```
 
 **Salidas esperadas** (deterministas):
@@ -102,8 +105,9 @@ python _interactivo_run.py otra_marca   # migración con cambio de marca
 | `critico` | **85.0 → "Riesgo crítico"** | activa, 57 de 57 pasos | Siemens S7-1500 (misma marca) |
 | `sano` | **11.8 → "Riesgo bajo"** | no se abre | — |
 | `otra_marca` | **85.0 → "Riesgo crítico"** (mismas respuestas que `critico`) | activa, con `cambio_marca` | OMRON Sysmac NX |
+| `otra_marca_con_codigo` | **69.2 → "Riesgo alto"** | activa, con `cambio_marca` **y** programa de origen accesible: aplica la ruta de porte | OMRON Sysmac NX |
 
-Los tres cierran con **24 respuestas** registradas, **0 datos faltantes** y **1
+Los cuatro cierran con **24 respuestas** registradas, **0 datos faltantes** y **1
 informe** generado en `casos/`. En la interfaz, el panel derecho debe reflejar
 los mismos valores, además de los activos registrados, los datos faltantes, las
 banderas de seguridad y las aprobaciones humanas pendientes.
@@ -182,6 +186,10 @@ LICENSE          MIT
       abre la migración; `... sano` produce **11.8 / "Riesgo bajo"** y no la abre.
 - [ ] `python _interactivo_run.py otra_marca` marca el cambio de marca y propone
       un destino de otro fabricante (OMRON Sysmac NX).
+- [ ] `python _interactivo_run.py otra_marca_con_codigo` produce **69.2 / "Riesgo
+      alto"** y, al fijar ese mismo destino, anuncia la **ruta de porte entre
+      fabricantes**: los pasos 11, 12, 18 y 32 salen con sus sub-pasos C1–C5 y el
+      21 queda como *no aplica* con sus reglas.
 - [ ] El panel muestra activo, dato faltante, bandera y aprobación pendiente.
 - [ ] Se genera un informe en `casos/` con la misma estructura que
       `docs/informe_ejemplo.md`.
