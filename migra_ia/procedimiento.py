@@ -16,6 +16,15 @@ no en el prompt:
   - `sin_respaldo`: sin programa de origen, el levantamiento funcional (paso 6)
     pasa a ser la fuente principal de la especificacion.
 
+Las dos se cruzan con una tercera condicion, `con_codigo_fuente`, que no es una
+variante sino el reverso de `sin_respaldo`: hay programa que leer. De ese cruce
+salen las dos rutas que ESPECIALIZAN el procedimiento, y son excluyentes:
+  - misma marca + codigo accesible -> `rutas_por_fabricante`: se convierte con las
+    herramientas oficiales de la marca.
+  - otra marca + codigo accesible -> `ruta_cambio_de_marca`: no hay conversor entre
+    fabricantes, asi que se PORTA con el programa original como especificacion.
+Sin codigo accesible no hay ruta: se reconstruye a ciegas por la extension P1-P7.
+
 El detalle NO se vuelca al prompt: el system prompt lleva un indice compacto
 (`indice_para_prompt`) y el agente pide lo que necesita con la herramienta
 `consultar_procedimiento`, que delega en `consultar`.
@@ -406,7 +415,9 @@ def estado(caso) -> dict:
         "bloqueados": por_estado["bloqueado"],
         "siguiente": sig["etiqueta"] if sig else None,
         "fase_actual": (fase(sig["clave"]) or {}).get("nombre") if sig else "procedimiento completo",
-        "variantes": {"cambio_marca": ctx["cambio_marca"], "sin_respaldo": ctx["sin_respaldo"]},
+        "variantes": {"cambio_marca": ctx["cambio_marca"],
+                      "sin_respaldo": ctx["sin_respaldo"],
+                      "con_codigo_fuente": ctx["con_codigo_fuente"]},
     }
 
 
@@ -642,7 +653,9 @@ def ruta_fabricante(marca=None, caso=None, ctx: dict | None = None) -> dict | No
         if ctx.get("cambio_marca"):
             avisos.append(
                 "El caso va a otra marca: entre fabricantes distintos no hay herramienta "
-                "de conversion y el programa se reescribe."
+                "de conversion y esta ruta NO aplica. Con el programa de origen accesible "
+                "el porte se guia por la ruta de cambio de marca (tema "
+                "'ruta_cambio_marca'); sin el, se reconstruye por la extension P1-P7."
             )
         ruta["avisos"] = avisos
         return ruta
@@ -703,19 +716,112 @@ def texto_ruta_fabricante(marca=None, caso=None, ctx: dict | None = None) -> str
     return "\n".join(lineas)
 
 
-def ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> dict | None:
-    """Sub-pasos de la ruta del fabricante que especializan UN paso concreto.
+def ruta_cambio_marca(caso=None, ctx: dict | None = None) -> dict | None:
+    """Ruta de porte hacia otra marca, ya contrastada con el caso.
 
-    Devuelve None cuando no hay ruta para la marca, cuando el equipo de origen no
-    es el que la ruta cubre, cuando no hay programa que convertir (`sin_respaldo`)
-    o cuando se cambia de fabricante: en esos casos la ruta no aplica y decirlo a
-    medias seria peor que callarla.
+    Es UNA sola ruta para cualquier par de marcas, porque describe el metodo y no
+    las equivalencias concretas: esas dependen del par y se construyen contra los
+    manuales de los dos fabricantes. Devuelve None si el caso no cumple las dos
+    condiciones a la vez -destino de otra marca y programa de origen accesible-,
+    que es justo cuando ofrecerla seria enganoso.
     """
     ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
-    if ctx.get("sin_respaldo") or ctx.get("cambio_marca"):
+    if not (ctx.get("cambio_marca") and ctx.get("con_codigo_fuente")):
         return None
+    bloque = cargar().get("ruta_cambio_de_marca")
+    if not bloque:
+        return None
+    ruta = dict(bloque)
+    ruta["aplica_a_origen"] = True
+    avisos = []
+    if ctx.get("marca") and ctx.get("marca_destino"):
+        avisos.append(
+            f"Porte de {ctx['marca']} a {ctx['marca_destino']}: la ruta describe el "
+            "metodo, no las equivalencias de ese par concreto. Las tablas se construyen "
+            "contra los manuales oficiales de las dos marcas."
+        )
+    ruta["avisos"] = avisos
+    return ruta
+
+
+def texto_ruta_cambio_marca(caso=None, ctx: dict | None = None) -> str:
+    """Render en Markdown de la ruta de porte entre fabricantes distintos."""
+    ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
+    bloque = cargar().get("ruta_cambio_de_marca", {})
+    r = ruta_cambio_marca(caso, ctx)
+    if r is None:
+        return (
+            "La ruta de cambio de marca no aplica a este caso: pide las dos condiciones "
+            "a la vez, destino de OTRA marca (paso 13) y programa de origen accesible y "
+            "verificado. Sin acceso al codigo el programa se reconstruye por la extension "
+            "P1-P7; dentro de la misma marca rige la ruta del fabricante (tema "
+            f"'ruta_fabricante'). Condicion de uso: {bloque.get('condicion_de_uso', '')}"
+        )
+
+    lineas = [
+        f"**Ruta de cambio de marca — {r['titulo']}**",
+        "",
+        f"> {r['principio']}",
+        "",
+        f"*Especializa los pasos {', '.join(r['aplica_a_pasos'])} del {CITA}, y se apoya "
+        "en la extension P1-P7 para escribir el programa nuevo.*",
+        "",
+    ]
+    for aviso in r.get("avisos", []):
+        lineas += [f"⚠️ {aviso}", ""]
+
+    for x in r["pasos"]:
+        lineas += [
+            f"**{x['n']} — {x['titulo']}**",
+            f"*Especializa el paso {x['especializa_paso']} del procedimiento.*",
+            "",
+            x["detalle"],
+            "",
+            f"**Se da por terminado cuando:** {x['criterio_salida']}",
+        ]
+        if x.get("nota_agente"):
+            lineas.append(f"*Nota: {x['nota_agente']}*")
+        lineas.append("")
+
+    if r.get("reglas"):
+        lineas.append("**Reglas que rigen toda la ruta:**")
+        lineas += [f"- {x['regla']}" for x in r["reglas"]]
+        lineas.append("")
+    lineas += [f"**Limite duro:** {r.get('limite_duro', '')}", "", "**Fuentes:**"]
+    for f in r.get("fuentes", []):
+        lineas.append(f"- [{f['tipo']}] {f['descripcion']} — {f['url']}")
+    lineas += ["", f"_{CITA}, ruta de cambio de marca: {r['id']}_"]
+    return "\n".join(lineas)
+
+
+def _ruta_del_caso(caso=None, ctx: dict | None = None) -> dict | None:
+    """La ruta que aplica al caso: la de la marca, la de cambio de marca, o ninguna.
+
+    Son excluyentes y el orden importa: si el destino es de otra marca, la ruta del
+    fabricante de origen ya no dice nada util sobre el porte.
+    """
+    ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
+    if ctx.get("sin_respaldo"):
+        return None
+    if ctx.get("cambio_marca"):
+        return ruta_cambio_marca(caso, ctx)
     r = ruta_fabricante(None, caso, ctx)
     if r is None or not r.get("aplica_a_origen"):
+        return None
+    return r
+
+
+def ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> dict | None:
+    """Sub-pasos de la ruta que aplica al caso y especializan UN paso concreto.
+
+    Devuelve None cuando ninguna de las dos rutas aplica: sin programa que leer
+    (`sin_respaldo`), marca sin ruta publicada, equipo de origen que la ruta no
+    cubre, o cambio de marca sin acceso al codigo. En esos casos decirlo a medias
+    seria peor que callarlo.
+    """
+    ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
+    r = _ruta_del_caso(caso, ctx)
+    if r is None:
         return None
 
     c = _clave(clave)
@@ -736,13 +842,16 @@ def texto_ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> str:
     r, sub, reglas = d["ruta"], d["sub_pasos"], d["reglas"]
     ramas = r.get("ramas", {})
 
-    encabezado = (f"*Lo que este paso significa para un {', '.join(r['familias_origen'])}.*"
-                  if sub else
-                  "*Regla de la ruta que gobierna este paso.*")
-    lineas = ["", "---", "",
-              f"**Ruta {r['marca']} — {r['titulo']}**",
-              encabezado,
-              ""]
+    regla_sola = "*Regla de la ruta que gobierna este paso.*"
+    if r.get("tipo") == "cambio_de_marca":
+        titulo = f"**Ruta de cambio de marca — {r['titulo']}**"
+        encabezado = ("*Lo que este paso significa cuando el destino es de otra marca y "
+                      "el programa de origen SI se puede leer.*" if sub else regla_sola)
+    else:
+        titulo = f"**Ruta {r['marca']} — {r['titulo']}**"
+        encabezado = (f"*Lo que este paso significa para un "
+                      f"{', '.join(r['familias_origen'])}.*" if sub else regla_sola)
+    lineas = ["", "---", "", titulo, encabezado, ""]
     for p in sub:
         cabecera = f"**{p['n']} · {p['titulo']}**"
         if p.get("rama"):
@@ -760,22 +869,28 @@ def texto_ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> str:
 def texto_ruta_resumen(caso=None, ctx: dict | None = None) -> str:
     """Resumen de la ruta para anunciarla al fijar el destino. Vacio si no aplica."""
     ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
-    if ctx.get("sin_respaldo") or ctx.get("cambio_marca"):
-        return ""
-    r = ruta_fabricante(None, caso, ctx)
-    if r is None or not r.get("aplica_a_origen"):
+    r = _ruta_del_caso(caso, ctx)
+    if r is None:
         return ""
 
     pasos_con_ruta = sorted({_clave(n) for n in r["aplica_a_pasos"]},
                             key=lambda x: (len(x), x))
+    if r.get("tipo") == "cambio_de_marca":
+        cabecera = ("**El destino es de otra marca y el programa de origen si se puede "
+                    "leer: aplica la ruta de porte entre fabricantes.**")
+    else:
+        cabecera = (f"**Hay una ruta de conversion publicada para {r['marca']}: "
+                    f"{r['titulo']}.**")
     lineas = [
-        f"**Hay una ruta de conversion publicada para {r['marca']}: {r['titulo']}.**",
+        cabecera,
         "",
         f"> {r['principio']}",
         "",
         "La veras desglosada al llegar a los pasos "
         + ", ".join(pasos_con_ruta) + " del procedimiento.",
     ]
+    for aviso in r.get("avisos", []):
+        lineas += ["", f"⚠️ {aviso}"]
     if ctx.get("destino"):
         avisos = [p for p in r["pasos"]
                   if p.get("rama") == "destino_tia_portal" and p.get("nota_agente")]
@@ -803,12 +918,18 @@ def indice_para_prompt() -> str:
         f"Fases: {fases}.\n"
         "Consultalo con `consultar_procedimiento` (tema, clave). Temas: paso (clave = "
         "numero), fase (clave = id), disparadores, opciones_destino (las dos opciones "
-        "de CPU del paso 13), ruta_fabricante (clave = marca), estado (avance del caso), "
-        "siguiente (paso que toca), bloqueos, huecos.\n"
+        "de CPU del paso 13), ruta_fabricante (clave = marca), ruta_cambio_marca, "
+        "estado (avance del caso), siguiente (paso que toca), bloqueos, huecos.\n"
         f"RUTAS DE CONVERSION POR MARCA (especializan los pasos 21-23): {marcas}. "
         "Se usan SOLO cuando el programa de origen es accesible y verificado "
         "(disparador 'obsolescencia_con_acceso_al_codigo'). Para las demas marcas rige "
         "el paso 21 generico y esa limitacion SE DECLARA, no se rellena inventando.\n"
+        "RUTA DE CAMBIO DE MARCA (tema 'ruta_cambio_marca', especializa los pasos 11, 12, "
+        "18, 21 y 32): aplica cuando el destino es de OTRA marca Y el programa de origen "
+        "es accesible. Entre fabricantes no hay conversor, pero con la fuente en la mano "
+        "el trabajo NO empieza de cero: el programa original es la ESPECIFICACION y se "
+        "porta contra ella. El agente NO publica equivalencias de instrucciones entre "
+        "marcas: propone la tabla y pide verificarla contra los manuales de las dos.\n"
         f"Pasos: {titulos}."
     )
 
@@ -863,6 +984,25 @@ def consultar(tema: str, clave=None, caso=None) -> dict:
                 "contenido": contenido,
                 "texto": texto_ruta_fabricante(marca, caso, ctx)}
 
+    if t in ("ruta_cambio_marca", "ruta_cambio_de_marca", "cambio_marca"):
+        bloque = cargar().get("ruta_cambio_de_marca", {})
+        r = ruta_cambio_marca(caso, ctx)
+        contenido = {
+            "condicion_de_uso": bloque.get("condicion_de_uso"),
+            "cobertura": bloque.get("cobertura"),
+            "limite_duro": bloque.get("limite_duro"),
+            "ruta": r,
+        }
+        if r is None:
+            contenido["por_que_no_aplica"] = {
+                "cambio_marca": bool(ctx.get("cambio_marca")),
+                "con_codigo_fuente": bool(ctx.get("con_codigo_fuente")),
+                "acceso_al_codigo": codigo_accesible(caso) if caso is not None else None,
+            }
+        return {"tema": "ruta_cambio_marca", "cita": f"{CITA}, ruta de cambio de marca",
+                "contenido": contenido,
+                "texto": texto_ruta_cambio_marca(caso, ctx)}
+
     if t == "estado":
         if caso is None:
             return {"error": "El tema 'estado' necesita un caso abierto."}
@@ -890,5 +1030,5 @@ def consultar(tema: str, clave=None, caso=None) -> dict:
         return {"tema": "documento", "cita": CITA, "contenido": cargar()["documento"]}
 
     return {"error": f"Tema no reconocido: {tema}. Validos: paso, fase, disparadores, "
-                     "opciones_destino, ruta_fabricante, estado, siguiente, bloqueos, "
-                     "huecos, documento."}
+                     "opciones_destino, ruta_fabricante, ruta_cambio_marca, estado, "
+                     "siguiente, bloqueos, huecos, documento."}

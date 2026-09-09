@@ -94,7 +94,7 @@
           "Rompe la dependencia de un unico fabricante"
         ],
         "en_contra": [
-          "No existe herramienta de conversion: el programa se reescribe completo",
+          "No existe herramienta de conversion entre marcas: el programa se reescribe. Con el programa de origen accesible es un porte contra la especificacion que ese programa ya constituye; sin acceso, es un desarrollo nuevo",
           "Software, licencias y capacitacion nuevos, con su costo y su curva de aprendizaje",
           "Las redes de campo pueden necesitar conversion o pasarela",
           "Cambia el ecosistema de repuestos y el proveedor de servicio"
@@ -798,7 +798,7 @@
         "loto": false,
         "especialista_seguridad": false
       },
-      "variante_cambio_marca": "NO APLICA. Entre fabricantes distintos no existe herramienta de conversion: el programa se REESCRIBE desde cero a partir de los pasos 6, 7, 11 y 18. Planificar el esfuerzo como desarrollo nuevo, no como conversion.",
+      "variante_cambio_marca": "NO APLICA: entre fabricantes distintos no existe herramienta de conversion. Lo que lo sustituye depende del acceso al codigo. Si el programa de origen es ACCESIBLE, el trabajo NO empieza de cero: es un PORTE con el programa original como especificacion y se ejecuta por la ruta de cambio de marca -triaje C3-, apoyandose en la extension P1-P7. Si NO lo es, se reescribe a ciegas a partir de los pasos 6, 7 y 18, y solo entonces se planifica como desarrollo nuevo.",
       "variante_sin_respaldo": "NO APLICA: sin programa de origen no hay nada que convertir. Se reescribe a partir de la logica levantada en los pasos 6 y 7."
     },
     {
@@ -848,7 +848,8 @@
         "maquina_detenida": false,
         "loto": false,
         "especialista_seguridad": false
-      }
+      },
+      "variante_cambio_marca": "No hay reporte del paso 22 que corregir. Lo que se corrige aqui es lo que el triaje marco como adaptable o a reprogramar (ruta de cambio de marca, C3): tipos de datos, temporizadores y contadores, direccionamiento indirecto, funciones de sistema propietarias y bloques tecnologicos de la marca origen. Cada sustitucion se registra contra la fila de la tabla de equivalencia de instrucciones (C2) que la justifica."
     },
     {
       "clave": "24",
@@ -872,7 +873,8 @@
         "maquina_detenida": false,
         "loto": false,
         "especialista_seguridad": false
-      }
+      },
+      "variante_cambio_marca": "Entre marcas distintas la red de campo rara vez se conserva: PROFIBUS, PROFINET, EtherNet/IP, Modbus y OPC UA no son intercambiables entre plataformas. Verificar dispositivo por dispositivo si el destino habla el mismo protocolo y, si no, decidir entre pasarela, cambio de dispositivo o cambio de arquitectura de red. Se presupuesta como trabajo propio, no como ajuste."
     },
     {
       "clave": "25",
@@ -897,7 +899,8 @@
         "maquina_detenida": false,
         "loto": false,
         "especialista_seguridad": false
-      }
+      },
+      "variante_cambio_marca": "El proyecto de HMI/SCADA no se convierte entre marcas: se re-etiqueta entero contra la lista de variables del paso P4 y, si el HMI tambien cambia de marca, se rehace. Las pantallas, la navegacion y los textos de alarma del sistema viejo se conservan como especificacion, y se verifica alarma por alarma que la condicion que la dispara siga siendo la misma."
     },
     {
       "clave": "26",
@@ -1853,6 +1856,132 @@
           }
         ],
         "nota_tecnica": "La ruta habla de S7-1200 y no de S7-200 porque la restriccion de lenguaje es de esa familia: TIA Portal no admite AWL para S7-1200, mientras que el S7-1500 si lo admite. De ahi que el paso S5 solo exija convertir AWL a KOP o bloques cuando el destino es un S7-1200. Verificado 2026-09-07."
+      }
+    ]
+  },
+  "ruta_cambio_de_marca": {
+    "id": "cambio_de_marca_con_codigo_accesible",
+    "tipo": "cambio_de_marca",
+    "titulo": "Porte entre fabricantes distintos con el programa de origen accesible",
+    "descripcion": "Ruta unica, valida para cualquier par de marcas. NO sustituye el procedimiento de 57 pasos: lo ESPECIALIZA en los pasos 11, 12, 18, 21 y 32, y se apoya en la extension P1-P7 para escribir el programa nuevo.",
+    "condicion_de_uso": "Solo aplica cuando se cumplen las dos cosas a la vez: el destino es de OTRA marca (paso 13, opcion 'marca_alternativa') y el programa de origen es ACCESIBLE Y VERIFICADO -contrasenas conocidas (N06, F16) y respaldo que abre y compila (F01, F06, F07)-. Si el caso corre con la variante 'sin_respaldo' esta ruta NO aplica: no hay fuente que leer y el programa se reconstruye a ciegas por la extension P1-P7, a partir de los pasos 6 y 7.",
+    "cobertura": "Describe el METODO, no las equivalencias concretas. Estas dependen del par de marcas y se construyen caso por caso contra los manuales oficiales de los dos fabricantes: el agente no las publica de memoria.",
+    "principio": "Con la fuente en la mano el trabajo NO empieza de cero: el programa original es la ESPECIFICACION de lo que la maquina hace hoy y esto es un PORTE contra esa especificacion. Pero sigue siendo reescritura: entre fabricantes distintos no existe herramienta de conversion y no se traduce renglon a renglon.",
+    "limite_duro": "El agente NO publica equivalencias de instrucciones entre marcas ni afirma equivalencia de CPU modelo a modelo (paso 13): propone la estructura de la tabla, senala lo que hay que verificar y declara lo que no pudo citarse.",
+    "aplica_a_pasos": [
+      "11",
+      "12",
+      "18",
+      "21",
+      "32"
+    ],
+    "pasos": [
+      {
+        "n": "C1",
+        "titulo": "Inventariar la memoria interna y censar los lenguajes del programa",
+        "detalle": "El paso 11 clasifica los bloques por funcion; entre marcas hace falta ademas el inventario de lo que no es E/S: marcas internas, bloques de datos, temporizadores, contadores, valores retentivos, constantes, setpoints, parametros PID, limites de alarma y recetas, con su valor actual LEIDO del programa, no estimado. Y un censo de en que lenguaje esta escrito cada bloque (KOP/LAD, FUP/FBD, AWL/STL, SCL/ST, GRAFCET/SFC): el lenguaje decide cuanta logica se traslada y cuanta se reescribe, porque AWL/STL no tiene equivalente en la mayoria de plataformas.",
+        "especializa_paso": "11",
+        "criterio_salida": "Inventario de memoria interna completo, con el valor actual de cada temporizador, contador, setpoint y parametro leido del programa, y censo de lenguajes por bloque con su conteo."
+      },
+      {
+        "n": "C2",
+        "titulo": "Construir la tabla de equivalencia de instrucciones entre los dos fabricantes",
+        "detalle": "El paso 12 busca instrucciones obsoletas dentro de una misma marca; entre marcas distintas el problema es otro: cada instruccion del programa original necesita su equivalente en el juego del fabricante destino, y la que no lo tiene se marca para reprogramar. La tabla se construye contra los manuales oficiales de LAS DOS marcas -las guias ya registradas en el catalogo de fabricantes son el punto de partida- y cada fila anota su fuente.",
+        "especializa_paso": "12",
+        "criterio_salida": "Tabla instruccion a instruccion con su clasificacion cerrada: equivalente directo, equivalente con ajuste -y cual-, o sin equivalente, que pasa al triaje C3. Ninguna fila sin fuente, y ninguna 'por verificar' sin responsable asignado.",
+        "nota_agente": "Es la tabla que el agente NO debe rellenar de memoria: propone la estructura y pide la verificacion contra los dos manuales."
+      },
+      {
+        "n": "C3",
+        "titulo": "Separar la logica trasladable de la que hay que reprogramar (triaje)",
+        "detalle": "El paso 21 no aplica entre marcas: no hay herramienta de conversion. Lo que lo sustituye es este triaje, y es el paso que convierte el codigo accesible en un plan. Cada bloque del inventario C1 se clasifica en tres: (a) TRASLADABLE conceptualmente -misma logica, distinta sintaxis-; (b) ADAPTABLE -necesita ajuste por tipos de datos, direccionamiento, temporizacion o funciones de sistema-; (c) A REPROGRAMAR -depende de instrucciones sin equivalente, de hardware propietario o de funciones tecnologicas de la marca origen-. De ahi sale la estimacion de esfuerzo real, que NO es la de un desarrollo desde cero.",
+        "especializa_paso": "21",
+        "criterio_salida": "Cada bloque del programa original clasificado en trasladable, adaptable o a reprogramar, con el motivo, y la estimacion de esfuerzo por categoria a cargo de quien va a hacer el trabajo.",
+        "nota_agente": "Trasladable NO significa traducible renglon a renglon: la logica se reimplementa segun la arquitectura de software de P3, no copiando la estructura del programa viejo."
+      },
+      {
+        "n": "C4",
+        "titulo": "Levantar el mapeo de direcciones desde la tabla de simbolos original",
+        "detalle": "Con la fuente accesible, la tabla del paso 18 no se rastrea en campo: se exporta la tabla de simbolos o tags del proyecto original y se cruza contra la lista de E/S del paso 7. Es mas rapido y, sobre todo, no pierde las senales que solo existen en el programa y nunca llegaron a los planos.",
+        "especializa_paso": "18",
+        "criterio_salida": "Tabla de mapeo cuadrada en los dos sentidos -contra el paso 7 y contra la tabla de simbolos original-, con cada diferencia explicada y resuelta antes de redactar la especificacion P1."
+      },
+      {
+        "n": "C5",
+        "titulo": "Comparar contra el programa original, E/S por E/S y secuencia por secuencia",
+        "detalle": "El paso 32 compara el PLC viejo contra el nuevo. Teniendo la fuente, esa comparacion deja de ser observacion y pasa a ser prueba de equivalencia: del programa original se derivan los juegos de entradas -condiciones normales, valores limite, enclavamientos y fallas- y se contrasta la salida de las dos plataformas, secuencia por secuencia.",
+        "especializa_paso": "32",
+        "criterio_salida": "Juego de pruebas derivado del programa original ejecutado en las dos plataformas, con cada diferencia clasificada como deliberada -y justificada- o como defecto ya corregido. Ninguna queda para 'verla en la puesta en marcha'."
+      }
+    ],
+    "reglas": [
+      {
+        "id": "la_fuente_es_especificacion_no_plantilla",
+        "regla": "El programa original es la especificacion de lo que la maquina hace HOY, no una plantilla que se traduce. La especificacion funcional de P1 se redacta a partir del codigo Y de lo documentado en el paso 6: el codigo aporta los numeros exactos -tiempos, setpoints, limites- y el paso 6 aporta la intencion.",
+        "afecta_a_pasos": [
+          "11",
+          "21",
+          "P1",
+          "P5"
+        ]
+      },
+      {
+        "id": "reconciliar_codigo_y_campo",
+        "regla": "Donde el codigo y lo documentado en el paso 6 no coincidan esta lo que ningun otro camino encuentra: parches sin registrar, logica muerta y cambios de operacion nunca documentados. Cada discrepancia se resuelve con operacion y mantenimiento ANTES de escribir P1, y queda registrada.",
+        "afecta_a_pasos": [
+          "6",
+          "11",
+          "18"
+        ]
+      },
+      {
+        "id": "equivalencias_no_se_inventan",
+        "regla": "Ni las instrucciones ni los modelos de CPU se equivalen de memoria ni por parecido de nombre. La tabla C2 se construye contra los manuales de las dos marcas y la matriz del paso 14 se establece por criterio funcional. Lo que no se pueda citar se declara pendiente de verificar, con responsable.",
+        "afecta_a_pasos": [
+          "12",
+          "13",
+          "14",
+          "23"
+        ]
+      },
+      {
+        "id": "seguridad_no_se_porta",
+        "regla": "La logica de seguridad NUNCA se traslada por analogia entre marcas, aunque exista instruccion equivalente en el destino: se rehace desde la especificacion y se recertifica con el especialista del paso 28.",
+        "afecta_a_pasos": [
+          "23",
+          "28"
+        ]
+      },
+      {
+        "id": "redes_y_hmi_se_rehacen",
+        "regla": "Entre marcas distintas la red de campo puede exigir conversion o pasarela y el HMI/SCADA se re-etiqueta entero contra la lista de variables nueva. Ninguno de los dos es un ajuste menor: se presupuestan como trabajo propio, con su tiempo y su costo.",
+        "afecta_a_pasos": [
+          "24",
+          "25"
+        ]
+      },
+      {
+        "id": "titularidad_del_programa",
+        "regla": "Conocer la contrasena no otorga el derecho a reimplementar en otra plataforma la logica de un tercero. Si el programa es de un fabricante de maquina o de un integrador, verificar la titularidad y las condiciones de licencia ANTES de reutilizar su contenido. El agente lo advierte y no asiste a eludir protecciones ni licencias.",
+        "afecta_a_pasos": [
+          "3",
+          "11",
+          "21"
+        ]
+      }
+    ],
+    "fuentes": [
+      {
+        "tipo": "procedimiento",
+        "descripcion": "MIGRA-IA-PROC-050: pasos 11, 12, 18, 21 y 32, y extension de construccion del programa P1-P7",
+        "url": "data/procedimiento_migracion.json",
+        "nota": "Esta ruta especializa el procedimiento; no lo sustituye."
+      },
+      {
+        "tipo": "catalogo",
+        "descripcion": "Guias y manuales oficiales de cada fabricante ya registrados en el catalogo de CPU",
+        "url": "data/fabricantes_cpu.json",
+        "nota": "Son la fuente contra la que se construye la tabla de equivalencia de instrucciones (C2). El catalogo no publica atributos comparables por modelo entre marcas: por eso el paso 13 remite a la herramienta oficial de seleccion del fabricante."
       }
     ]
   }

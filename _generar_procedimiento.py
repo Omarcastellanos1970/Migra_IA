@@ -784,6 +784,29 @@ def main() -> int:
         for e in errores:
             print("  -", e)
         return 1
+    # El JSON se sigue manteniendo a mano despues de generarlo: las rutas por
+    # fabricante, la ruta de cambio de marca y algunas variantes no salen del .docx y
+    # este script no las produce. Regenerar encima las borraria en silencio, asi que
+    # aqui se detiene y dice exactamente que se perderia.
+    if DESTINO.exists():
+        actual = json.loads(DESTINO.read_text(encoding="utf-8"))
+        generados = {p["clave"]: p for p in datos["pasos"]}
+        bloques = [k for k in actual if k not in datos]
+        variantes = [
+            p["clave"] for p in actual.get("pasos", [])
+            if any(k.startswith("variante_") for k in p)
+            and not any(k.startswith("variante_")
+                        for k in generados.get(p["clave"], {}))
+        ]
+        if bloques or variantes:
+            print("NO SE ESCRIBE NADA. El archivo actual tiene contenido que este script")
+            print("no genera y que se perderia al regenerarlo:")
+            if bloques:
+                print("  bloques que solo existen en el archivo:", ", ".join(bloques))
+            if variantes:
+                print("  pasos con variantes anadidas a mano:", ", ".join(variantes))
+            print("Llevalos a este script antes de regenerar, o escribe a otro archivo.")
+            return 1
     DESTINO.write_text(json.dumps(datos, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"OK  {DESTINO}")
     print(f"    pasos: {len(datos['pasos'])}   fases: {len(datos['fases'])}"

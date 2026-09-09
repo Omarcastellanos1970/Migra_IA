@@ -809,9 +809,15 @@ def _fase_destino(caso: Caso, texto: str, estado: dict) -> dict:
         fam = elegida["familias_actuales"][0]
         marca_destino, destino = elegida["marca"], fam["familia"]
         fuente = (fam.get("fuentes") or [{}])[0].get("url", "")
-        justificacion = ("Eleccion del usuario: plataforma actual de otro fabricante. "
-                         "Implica reescritura completa del programa, software y licencias "
-                         "nuevos y capacitacion del personal.")
+        porte = procedimiento.contexto(caso).get("con_codigo_fuente")
+        justificacion = (
+            "Eleccion del usuario: plataforma actual de otro fabricante. Implica "
+            "reescribir el programa, software y licencias nuevos y capacitacion del "
+            "personal. "
+            + ("El programa de origen es accesible: la reescritura es un porte contra la "
+               "especificacion que ese programa ya constituye, no un desarrollo desde cero."
+               if porte else
+               "Sin acceso al programa de origen se dimensiona como desarrollo nuevo."))
     else:
         return _salida("No entendi la eleccion. Escribe `A` para la misma marca, o `B` y "
                        "el nombre de la marca alternativa.", caso, estado)
@@ -822,15 +828,31 @@ def _fase_destino(caso: Caso, texto: str, estado: dict) -> dict:
     }, aprobador_pendiente)
 
     cambio = (caso.migracion or {}).get("cambio_marca")
+    con_codigo = procedimiento.contexto(caso).get("con_codigo_fuente")
     estado["fase"] = F_GUIA
-    aviso = (
-        "**Cambio de marca registrado.** Los pasos 21 y 22 (migrar con la herramienta "
-        "oficial y revisar su reporte) quedan marcados como **no aplicables**: entre "
-        "fabricantes distintos no existe conversion, el programa se reescribe desde cero."
-        if cambio else
-        "**Misma marca.** El procedimiento se mantiene completo: los pasos 21 y 22 si "
-        "aplican, con la herramienta oficial de conversion del fabricante."
-    )
+    # Cambiar de marca no significa lo mismo con el programa de origen en la mano que
+    # sin el: en el primer caso hay especificacion de la que partir y en el segundo no.
+    if cambio and con_codigo:
+        aviso = (
+            "**Cambio de marca registrado.** Los pasos 21 y 22 (migrar con la herramienta "
+            "oficial y revisar su reporte) quedan marcados como **no aplicables**: entre "
+            "fabricantes distintos no existe conversion. Pero el programa de origen SI se "
+            "puede leer, asi que esto **no empieza de cero**: es un porte con el programa "
+            "original como especificacion."
+        )
+    elif cambio:
+        aviso = (
+            "**Cambio de marca registrado.** Los pasos 21 y 22 (migrar con la herramienta "
+            "oficial y revisar su reporte) quedan marcados como **no aplicables**: entre "
+            "fabricantes distintos no existe conversion y, sin acceso al programa de "
+            "origen, el sistema se reconstruye por la extension P1-P7 y se dimensiona "
+            "como desarrollo nuevo."
+        )
+    else:
+        aviso = (
+            "**Misma marca.** El procedimiento se mantiene completo: los pasos 21 y 22 si "
+            "aplican, con la herramienta oficial de conversion del fabricante."
+        )
     # Si la marca tiene ruta de conversion publicada, se anuncia aqui: es el momento
     # en que el usuario decide, y saber que la herramienta existe cambia la decision.
     resumen_ruta = procedimiento.texto_ruta_resumen(caso)
@@ -874,8 +896,9 @@ def _fase_guia(caso: Caso, texto: str, estado: dict) -> dict:
     estado["paso_guia"] = siguiente["clave"]
     avance = procedimiento.estado(caso)
     cuerpo = procedimiento.texto_paso(siguiente["clave"], ctx)
-    # Los pasos que la ruta del fabricante especializa (13, 20, 21, 22 y 23 en Siemens)
-    # se muestran con sus sub-pasos concretos; el resto queda igual que siempre.
+    # Los pasos que la ruta del caso especializa se muestran con sus sub-pasos
+    # concretos: 13, 20, 21, 22 y 23 con la ruta Siemens; 11, 12, 18, 21 y 32 con la
+    # ruta de cambio de marca. El resto queda igual que siempre.
     cuerpo += procedimiento.texto_ruta_para_paso(siguiente["clave"], caso, ctx)
     if siguiente.get("prerrequisitos_pendientes"):
         cuerpo += ("\n\n🚧 **Este paso no puede ejecutarse todavia:** faltan los pasos "
@@ -923,7 +946,10 @@ def _fase_fin(caso: Caso, estado: dict) -> dict:
         f"## 8. Alternativas\n{ruta}\n\n"
         "## 9. Recomendacion principal\n"
         + (f"Migrar a **{destino.get('marca')} {destino.get('familia')}**"
-           + (" (cambio de marca: reescritura completa del programa)"
+           + ((" (cambio de marca con el programa de origen accesible: porte contra la "
+                "especificacion que ese programa constituye)"
+                if procedimiento.contexto(caso).get("con_codigo_fuente") else
+                " (cambio de marca sin acceso al programa: reescritura completa)")
               if mig.get("cambio_marca") else " (misma marca: conversion con herramienta oficial)")
            if destino else "No procede cambiar la CPU con los datos actuales.")
         + "\n\n"

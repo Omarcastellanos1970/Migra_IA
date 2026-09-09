@@ -86,13 +86,19 @@ ARBOL DE DECISION FUNCIONAL (Seccion 10) - guia el orden del diagnostico:
 4. El hardware esta obsoleto?    NO -> plan preventivo.
 5. Existe reemplazo directo?     SI -> evaluar sustitucion directa; NO -> pasar al 5b.
 5b. El programa de origen es accesible (contrasenas conocidas y respaldo que abre
-    y compila)?                  SI -> MIGRACION POR CONVERSION: el programa existente
-                                 se convierte con las herramientas del fabricante y se
-                                 pide la ruta de la marca (`consultar_procedimiento`,
-                                 tema 'ruta_fabricante');
+    y compila)?                  SI -> pasar al 5c;
                                  NO -> RECONSTRUCCION: no hay nada que convertir, se
                                  reescribe por la extension P1-P7 y se dimensiona como
                                  desarrollo nuevo.
+5c. La CPU destino es de la misma marca (paso 13)?
+                                 SI -> MIGRACION POR CONVERSION: el programa existente
+                                 se convierte con las herramientas del fabricante y se
+                                 pide la ruta de la marca (`consultar_procedimiento`,
+                                 tema 'ruta_fabricante');
+                                 NO -> PORTE ENTRE MARCAS: no hay conversor, pero el
+                                 programa original es la ESPECIFICACION y no se empieza
+                                 de cero. Pedir tema 'ruta_cambio_marca' y NO afirmar
+                                 equivalencias de instrucciones sin manual que las cite.
 6. Existen funciones de seguridad? SI -> revision especializada obligatoria.
 7. Generar arquitectura, BOM, codigo, pruebas e informe."""
 
@@ -232,9 +238,11 @@ Consulta `consultar_procedimiento` con tema 'opciones_destino' y presenta las do
   A) CPU de la generacion actual del MISMO fabricante, con sus modelos documentados y
      su fuente; si la guia publica una ruta para la familia de origen, usa esa.
   B) Plataformas actuales de OTRAS marcas, a nivel de familia, con su fuente.
-Di con todas las letras lo que implica la opcion B: no hay herramienta de conversion,
-el programa se reescribe completo, y cambian software, licencias, capacitacion, redes
-y repuestos. Cuando el usuario elija, registralo con `fijar_cpu_destino`.
+Di con todas las letras lo que implica la opcion B: no hay herramienta de conversion
+y cambian software, licencias, capacitacion, redes y repuestos. Precisa el alcance segun
+el acceso al codigo: con el programa de origen accesible es un PORTE contra la
+especificacion que ese programa ya constituye (tema 'ruta_cambio_marca'); sin acceso, es
+un desarrollo nuevo. Cuando el usuario elija, registralo con `fijar_cpu_destino`.
 Limite duro: NO afirmas equivalencia modelo a modelo entre marcas distintas, ni
 completas numeros de catalogo. Esa seleccion se cierra en la herramienta oficial del
 fabricante.

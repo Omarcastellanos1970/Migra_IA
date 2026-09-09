@@ -6,7 +6,8 @@ de riesgo, mapa de decision, eleccion de CPU destino y procedimiento de 50 pasos
 
     python _interactivo_run.py                 # caso critico, misma marca
     python _interactivo_run.py sano            # caso sin obsolescencia
-    python _interactivo_run.py otra_marca      # migracion con cambio de marca
+    python _interactivo_run.py otra_marca      # cambio de marca sin acceso al codigo
+    python _interactivo_run.py otra_marca_con_codigo   # cambio de marca con el codigo
 """
 
 from __future__ import annotations
@@ -81,6 +82,16 @@ ESCENARIOS = {
     },
 }
 ESCENARIOS["otra_marca"] = {**ESCENARIOS["critico"], "destino": "B OMRON"}
+
+# Mismo equipo descontinuado, pero con las contrasenas y el programa en la mano, y
+# aun asi se migra a otra marca. Es el cruce que activa la ruta de cambio de marca:
+# no hay conversor entre fabricantes, pero tampoco se empieza de cero.
+ESCENARIOS["otra_marca_con_codigo"] = {
+    **ESCENARIOS["critico"],
+    "destino": "B OMRON",
+    "respuestas": {**ESCENARIOS["critico"]["respuestas"],
+                   "F01": "Si", "F06": "Si", "F07": "Si", "N06": "Si, todas"},
+}
 
 
 def main() -> None:

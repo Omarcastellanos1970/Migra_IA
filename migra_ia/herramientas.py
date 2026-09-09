@@ -275,7 +275,10 @@ TOOLS = [
             "origen SI es accesible (contrasenas conocidas y respaldo que abre y compila) "
             "y hay que migrar igual por obsolescencia o falta de repuestos: devuelve la "
             "secuencia concreta de herramientas de esa marca, que especializa los pasos "
-            "21 a 23; 'siguiente' para saber que paso toca; 'bloqueos' antes de proponer "
+            "21 a 23; 'ruta_cambio_marca' cuando el destino elegido es de OTRA marca y "
+            "el programa de origen SI es accesible: devuelve el metodo de porte, que "
+            "especializa los pasos 11, 12, 18, 21 y 32; 'siguiente' para saber que paso "
+            "toca; 'bloqueos' antes de proponer "
             "cualquier intervencion fisica. Cita siempre el paso: 'Procedimiento "
             "MIGRA-IA-PROC-050, paso N'."
         ),
@@ -286,8 +289,8 @@ TOOLS = [
                     "type": "string",
                     "enum": [
                         "paso", "fase", "disparadores", "opciones_destino",
-                        "ruta_fabricante", "estado", "siguiente", "bloqueos",
-                        "huecos", "documento",
+                        "ruta_fabricante", "ruta_cambio_marca", "estado", "siguiente",
+                        "bloqueos", "huecos", "documento",
                     ],
                     "description": "Parte del procedimiento a consultar.",
                 },
@@ -555,16 +558,28 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
                 fuente=entrada.get("fuente", ""),
             )
             cambio = caso.migracion.get("cambio_marca", False)
+            con_codigo = procedimiento.contexto(caso).get("con_codigo_fuente", False)
+            if cambio and con_codigo:
+                consecuencia = (
+                    "Cambio de marca CON el programa de origen accesible: los pasos 21 y 22 "
+                    "dejan de aplicar, pero el trabajo NO empieza de cero. Pide el tema "
+                    "'ruta_cambio_marca': el programa original es la especificacion y la "
+                    "ruta especializa los pasos 11, 12, 18, 21 y 32. Revisa tambien las "
+                    "variantes de los pasos 14, 19, 23, 24, 25 y 48.")
+            elif cambio:
+                consecuencia = (
+                    "Cambio de marca SIN acceso al programa de origen: los pasos 21 y 22 "
+                    "dejan de aplicar y el sistema se reconstruye por la extension P1-P7, "
+                    "como desarrollo nuevo. Revisa las variantes de los pasos 14, 19 y 48.")
+            else:
+                consecuencia = (
+                    "Misma marca: el procedimiento sigue completo, con herramienta oficial "
+                    "de conversion en los pasos 21 y 22.")
             resultado = json.dumps(
                 {"estado": "ok",
                  "destino": destino,
                  "cambio_marca": cambio,
-                 "consecuencia": (
-                     "Cambio de marca: los pasos 21 y 22 dejan de aplicar y el programa "
-                     "se reescribe desde cero. Revisa las variantes de los pasos 14, 19 y 48."
-                     if cambio else
-                     "Misma marca: el procedimiento sigue completo, con herramienta oficial "
-                     "de conversion en los pasos 21 y 22."),
+                 "consecuencia": consecuencia,
                  "avance": procedimiento.estado(caso)},
                 ensure_ascii=False,
             )
