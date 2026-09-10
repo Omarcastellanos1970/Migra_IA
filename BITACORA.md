@@ -1110,3 +1110,44 @@ rojo, como ocurrió con la v0.3.0. Cuando el DOI exista habrá que actualizar la
 referencia IEEE y el BibTeX de esa guía, que hoy citan la v0.3.0 con su DOI y
 listan tres autores. Y el **smoke test contra la API sigue sin correrse**: la clave
 devuelve 401.
+
+## 2026-09-09 · El agente, por fin, en línea
+
+**Se pidió.** Relanzar el agente evacuando los pendientes uno a uno. El primero de
+la lista era el más viejo: el requisito, declarado en julio y reafirmado el 29 de
+ese mes, de que *cualquiera* pueda **abrir, descargar e interactuar**. Abrir y
+descargar estaban cumplidos desde que el repositorio se hizo público; interactuar
+exigía instalar Python, y por eso no lo estaba.
+
+**Se desplegó.** Servicio web en Render creado desde el Blueprint que lee el
+`render.yaml` del repositorio, plan gratuito, rama `main`, sincronizando el commit
+`40c15a3`. La variable `ANTHROPIC_API_KEY` se dejó **vacía** a propósito: así la
+página pública ofrece solo la demo interactiva, que no toca la API, y ningún
+visitante puede consumir la cuenta de nadie. Dirección:
+**https://migra-ia.onrender.com**
+
+**Se verificó**, contra el servicio en vivo y no contra la copia local:
+
+- La página responde **HTTP 200** y sirve la **0.4.0**, con sus dos entradas.
+- `POST /api/nuevo {"interactivo": true}` abre expediente sin credencial alguna.
+- Respondiendo **«Siemens S7-300»**, el agente identifica marca Siemens, familia
+  **SIMATIC S7-300** —etapa intermedia, posición 4 de 7 en la cronología— y lista
+  las seis CPU documentadas de esa generación. El catálogo de 30 fabricantes viaja
+  entero al servidor.
+- Respondiendo un dato basura (**«1»**), se niega: *«no voy a asimilarlo a la marca
+  más parecida»*. La regla de no inventar equivalencias se comporta igual en la
+  nube que en la máquina del autor.
+
+**Se corrigió.** El enlace no aparecía en ninguna parte: se añadió al `README.md`,
+a `ARTIFACT.md` y a las **tres copias de la landing**, que siguen idénticas por
+hash. En `ARTIFACT.md` queda acotado qué permite y qué no: la vía en línea basta
+para comprobar las afirmaciones de la sección 1, pero **no** reproduce las salidas
+deterministas ni el expediente en `casos/`, que siguen exigiendo la ejecución
+local. Y `render.yaml` aún describía la clave vacía como «Modo demo», el guion
+narrado que se retiró el 4 de septiembre; ahora dice «Demo interactiva».
+
+⏭ **Queda pendiente.** El plan gratuito **duerme el servicio** tras un rato sin
+visitas: la primera carga puede tardar cerca de un minuto en despertar, y conviene
+decirlo a quien reciba el enlace. Siguen abiertos el **release de GitHub** —que es
+lo que acuña el DOI de la versión— y el **smoke test contra la API**, cuya clave
+devuelve 401.
