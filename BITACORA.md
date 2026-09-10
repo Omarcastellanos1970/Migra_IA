@@ -1195,3 +1195,16 @@ tabla lista los cuatro DOI, y la referencia IEEE y el BibTeX van con la 0.4.0 y 
 cuatro autores. Se añadió la excepción del proyecto —paper y landing citan el
 concept DOI a propósito— porque la propia guía recomendaba lo contrario y esa
 contradicción había que dejarla escrita.
+
+**Cierre del día — la ficha de Zenodo no anunciaba el agente.** Recorrida la cadena
+como la vería un desconocido, apareció un hueco: el DOI resuelve, la ficha ofrece el
+ZIP y un enlace al repositorio, y el README de GitHub sí muestra el aviso de probarlo
+en línea —dos clics—, pero **la descripción del depósito no menciona que el agente
+esté en marcha**: se redactó antes de que existiera la URL y quedó congelada al
+publicar. Quien solo lea esa pantalla entiende que hay que instalar.
+
+Se añadió la frase al principio de la descripción de **`.zenodo.json`**, de modo que
+**toda release futura la lleve sola**. Ojo: eso **no cambia el depósito 22683608 ya
+publicado**; los archivos de un registro son inmutables, aunque **los metadatos sí se
+pueden editar** desde *Edit* en la página del registro. Esa edición queda **pendiente
+del usuario**, que es quien tiene la sesión de Zenodo.
