@@ -7,6 +7,11 @@ Este documento es la **guía de evaluación del artefacto** que acompaña al art
 Está pensado para que un revisor pueda ejecutar y verificar el sistema en su
 propia máquina, **sin necesidad de una clave de API y sin costo**, en ~10–15 min.
 
+**También se puede evaluar en línea, sin instalar nada:** <https://migra-ia.onrender.com>
+Es la misma demo interactiva, sin cuenta y sin clave de API, y basta para comprobar
+las afirmaciones de la sección 1. Para reproducir las salidas deterministas y el
+expediente en `casos/` sigue haciendo falta la ejecución local que se describe abajo.
+
 ---
 
 ## 1. Qué es y qué demuestra

@@ -15,6 +15,10 @@ intervención sobre equipos reales corresponde a personal autorizado.
 **Autores:** Carlos Omar Castellanos · Julio Noé Castillo · Isidoro Medina · Luis Loo
 **Licencia:** MIT · **DOI (todas las versiones):** [10.5281/zenodo.21480949](https://doi.org/10.5281/zenodo.21480949) — resuelve siempre a la última versión publicada en Zenodo.
 
+> **Pruébalo ahora, sin instalar nada:** <https://migra-ia.onrender.com>
+> — la demo interactiva, en el navegador, **sin cuenta y sin clave de API**.
+> Si la primera carga tarda, es el plan gratuito despertando el servicio (~50 s).
+
 > **¿Eres revisor?** El proyecto se puede evaluar **sin clave de API y sin costo**
 > con la *demo interactiva*. Sigue [`ARTIFACT.md`](ARTIFACT.md).
 

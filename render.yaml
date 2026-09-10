@@ -15,7 +15,7 @@ services:
       - key: PYTHON_VERSION
         value: "3.12.7"
       # La clave NO se guarda en el repositorio: Render la pedira al desplegar.
-      #   - Dejala VACIA  -> demo publica gratis (solo "Modo demo", sin costo).
+      #   - Dejala VACIA  -> demo publica gratis (solo "Demo interactiva", sin costo).
       #   - Ponla         -> habilita el agente IA real (consume API por visitante).
       - key: ANTHROPIC_API_KEY
         sync: false
