@@ -1208,3 +1208,9 @@ Se añadió la frase al principio de la descripción de **`.zenodo.json`**, de m
 publicado**; los archivos de un registro son inmutables, aunque **los metadatos sí se
 pueden editar** desde *Edit* en la página del registro. Esa edición queda **pendiente
 del usuario**, que es quien tiene la sesión de Zenodo.
+
+**Y el usuario lo hizo el mismo día.** La descripción del depósito 22683608 ya
+abre anunciando el agente en línea. Verificado contra la API: el **DOI no cambió**
+—sigue siendo `10.5281/zenodo.22683608` y resuelve con 302—, el estado sigue *done*,
+la versión 0.4.0, los cuatro autores y el ZIP intactos. Queda demostrado que **editar
+los metadatos de un registro publicado no acuña un DOI nuevo ni toca los archivos**.
