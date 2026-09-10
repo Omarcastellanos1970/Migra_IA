@@ -97,16 +97,17 @@ DOI ya asignados (verificados en la API de Zenodo):
 
 | Alcance | DOI |
 | --- | --- |
-| Version v0.3.0 (la que se cita en el paper) | `10.5281/zenodo.21659730` |
+| Version v0.4.0 (la ultima publicada) | `10.5281/zenodo.22683608` |
+| Version v0.3.0 | `10.5281/zenodo.21659730` |
 | Version v0.2.0 | `10.5281/zenodo.21480950` |
 | Concept (resuelve siempre a la ultima) | `10.5281/zenodo.21480949` |
 
 Referencia IEEE:
 
 ```
-C. O. Castellanos, J. N. Castillo, e I. Medina, "MIGRA-IA: Agente inteligente
-para diagnóstico de obsolescencia y migración de sistemas de automatización
-industrial (v0.3.0)," Zenodo, 2026. doi: 10.5281/zenodo.21659730.
+C. O. Castellanos, J. N. Castillo, I. Medina y L. Loo, "MIGRA-IA: Agente
+inteligente para diagnóstico de obsolescencia y migración de sistemas de
+automatización industrial (v0.4.0)," Zenodo, 2026. doi: 10.5281/zenodo.22683608.
 ```
 
 En LaTeX (IEEEtran), en tu `.bib`. Usa `@misc` y **no** `@software`: `IEEEtran.bst`
@@ -115,16 +116,21 @@ no reconoce ese tipo de entrada y la referencia no se renderiza.
 ```bibtex
 @misc{migra_ia_2026,
   author       = {Castellanos, Carlos Omar and Castillo, Julio No\'e and Medina, Isidoro and Loo, Luis},
-  title        = {{MIGRA-IA: Agente inteligente para diagn\'ostico de obsolescencia y migraci\'on de sistemas de automatizaci\'on industrial (v0.3.0)}},
+  title        = {{MIGRA-IA: Agente inteligente para diagn\'ostico de obsolescencia y migraci\'on de sistemas de automatizaci\'on industrial (v0.4.0)}},
   howpublished = {Zenodo},
   year         = {2026},
-  doi          = {10.5281/zenodo.21659730},
-  url          = {https://doi.org/10.5281/zenodo.21659730}
+  doi          = {10.5281/zenodo.22683608},
+  url          = {https://doi.org/10.5281/zenodo.22683608}
 }
 ```
 
 > Cita el DOI de la **version**, no el concept: fija el codigo exacto que describe
 > el articulo aunque despues se publique una version nueva.
+
+> **Excepcion decidida en este proyecto:** el paper y la landing citan el **concept
+> DOI** `10.5281/zenodo.21480949`, que resuelve siempre a la ultima version. Se
+> eligio asi para que ninguna release futura obligue a editar el articulo ni la
+> pagina; por eso el paper NO hay que tocarlo al publicar una version nueva.
 
 > Coherente con la práctica del proyecto: **el DOI debe existir y verificarse**
 > antes de citarlo en `ref.bib`.
