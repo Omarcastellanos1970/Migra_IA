@@ -1151,3 +1151,47 @@ visitas: la primera carga puede tardar cerca de un minuto en despertar, y convie
 decirlo a quien reciba el enlace. Siguen abiertos el **release de GitHub** —que es
 lo que acuña el DOI de la versión— y el **smoke test contra la API**, cuya clave
 devuelve 401.
+
+## 2026-09-09 (2.ª parte) · El release, el DOI y la etiqueta que hubo que mover
+
+**Se pidió.** Cerrar el relanzamiento: publicar el release de GitHub, que es lo que
+dispara el webhook de Zenodo, y comprobar el DOI resultante.
+
+**Primero hubo que mover la etiqueta.** `v0.4.0` apuntaba a `85b5121` y `main` ya iba
+dos commits por delante, con el enlace del agente y la entrada anterior de esta
+bitácora. Publicar desde ahí habría archivado bajo un DOI **permanente** una copia
+que no menciona que el agente está en línea —y eso no se corrige después—. Se dejó
+la etiqueta de respaldo `respaldo-etiqueta-v0.4.0-en-85b5121` y se reetiquetó sobre
+`736d436`. Ningún commit quedó huérfano: `main` avanzó en línea recta, así que
+`85b5121` sigue en su historial. La ventana para hacerlo era esta: con el DOI ya
+acuñado, mover la etiqueta habría dejado la cita apuntando a un contenido distinto
+del archivado.
+
+**Se publicó el release.** Las tres entregas del webhook repiten el patrón de la
+v0.3.0: `release/created` **202 OK** —esa es la que archiva— y `published` y
+`released` **409**, que significa *ya atendido*, no fallo. Conviene no volver a
+alarmarse con eso.
+
+**El DOI de la versión es `10.5281/zenodo.22683608`.** Verificado en la API: estado
+*done*, tipo Software, licencia MIT, versión 0.4.0, los cuatro autores con
+afiliación UTH y el ZIP de 366,1 KB. Resuelve en doi.org con **302**, que es la
+única prueba de que quedó registrado en DataCite. El **concept DOI**
+`10.5281/zenodo.21480949` ya apunta a este registro, de modo que el paper y la
+landing citan la 0.4.0 **sin tocar una sola línea**.
+
+**Se verificó el contenido archivado**, descargando el ZIP del propio depósito: el
+enlace `migra-ia.onrender.com` aparece en `README.md`, `ARTIFACT.md`,
+`DESPLIEGUE_RENDER.md` y las tres copias de la landing, y la entrada de hoy está en
+la bitácora. Era exactamente lo que motivó mover la etiqueta.
+
+**El smoke test sí se corrió, y sigue en 401.** `API key is invalid`. Importa lo que
+funcionó antes de fallar: se leyó el `.env`, se creó el cliente, se abrió el
+expediente `CAS-2026-043736`, se construyó el prompt con sus herramientas y se envió
+la petición. **El fallo es de credencial, no de código**; la clave del `.env` sigue
+siendo un marcador de posición. Queda pendiente de una clave real.
+
+**Se corrigió.** `docs/GUIA_ZENODO.md` citaba la v0.3.0 con tres autores: ahora la
+tabla lista los cuatro DOI, y la referencia IEEE y el BibTeX van con la 0.4.0 y sus
+cuatro autores. Se añadió la excepción del proyecto —paper y landing citan el
+concept DOI a propósito— porque la propia guía recomendaba lo contrario y esa
+contradicción había que dejarla escrita.
