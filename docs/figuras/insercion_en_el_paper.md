@@ -24,7 +24,7 @@ es la Figura A.
 ## Figura A — comparación de modelos en P1 *(la que responde al requisito)*
 
 Archivos: `Figura_P1_comparacion_ES.tex` · `Figure_P1_comparison_EN.tex`
-Generador: `_figura_comparacion.py` · Etiqueta: `fig:comparacion`
+Generador: `_figure_comparison.py` · Etiqueta: `fig:comparacion`
 
 Tres barras sobre la misma partición congelada (n=9, k=2), en la métrica que
 decide, el $F_1$ macro:
@@ -179,7 +179,7 @@ No se edita a mano ningún `.tex` de figura. La ruta de salida es la carpeta
 del paper de cada quien: sustituir la marca por la suya.
 
 ```
-python _figura_comparacion.py --salida "RUTA\DE\LA\CARPETA\DEL\PAPER\Figures"
+python _figure_comparison.py --salida "RUTA\DE\LA\CARPETA\DEL\PAPER\Figures"
 python _figura_p3.py          --salida "RUTA\DE\LA\CARPETA\DEL\PAPER\Figures"
 ```
 

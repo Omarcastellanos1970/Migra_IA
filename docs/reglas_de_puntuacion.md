@@ -1,6 +1,6 @@
 # Reglas de puntuacion de los 8 factores
 
-Extraido automaticamente de `migra_ia/interactivo.py` por `_reglas_puntuacion.py`. Si el codigo cambia, este documento cambia.
+Extraido automaticamente de `migra_ia/interactivo.py` por `_scoring_rules.py`. Si el codigo cambia, este documento cambia.
 
 Cada factor produce un valor 0-100 (mayor = mas riesgo). El riesgo total es la media ponderada de los ocho, con los pesos de la Seccion 6.
 
@@ -206,5 +206,5 @@ Segun `C10`:
 
 ## Lo que estas tablas no dicen
 
-Todas estas constantes estan puestas a mano, igual que los pesos. El analisis de sensibilidad de `_evaluacion.py` perturba **solo los ocho pesos**, no estas constantes: la estabilidad del 100% que reporta vale para la ponderacion, no para las reglas. Es el siguiente hueco de la misma familia.
+Todas estas constantes estan puestas a mano, igual que los pesos. El analisis de sensibilidad de `_evaluation.py` perturba **solo los ocho pesos**, no estas constantes: la estabilidad del 100% que reporta vale para la ponderacion, no para las reglas. Es el siguiente hueco de la misma familia.
 

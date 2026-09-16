@@ -1,6 +1,6 @@
 # Caracteristicas de dominio
 
-Generado por `_caracteristicas.py` leyendo `data/cuestionario.json` y
+Generado por `_features.py` leyendo `data/es/questionnaire.json` y
 `docs/reglas_de_puntuacion.md`, que a su vez se extrae del arbol sintactico
 del motor. Si un factor deja de leer un codigo, este documento cambia solo.
 
@@ -69,7 +69,7 @@ como tal.
 
 Lo anterior es el cuestionario, que es donde vive el conocimiento de dominio
 del proyecto. El conjunto tabular con el que se entrena el baseline de P1 es
-otro -`data/ciclo_vida_plataformas.csv`, nueve plataformas- y ahi la
+otro -`data/platform_lifecycle.csv`, nueve plataformas- y ahi la
 auditoria de fuga deja **una sola variable admisible: la antiguedad**. No es
 una eleccion de modelado: las demas columnas o definen la etiqueta o son
 metadato del proceso de recoleccion. Ver la seccion 6 de

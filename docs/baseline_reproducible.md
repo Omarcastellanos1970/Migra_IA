@@ -12,7 +12,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
 
 1. CONJUNTO DE DATOS
 --------------------------------------------------------------------------
-  Archivo   : data/ciclo_vida_plataformas.csv
+  Archivo   : data/platform_lifecycle.csv
   Origen    : Tabla 2 de 'tabla de frecuencias' (fila agregada MEDIA excluida)
   Muestras  : 9 plataformas
   Marcas    : 5 fabricantes
@@ -84,7 +84,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
               independiente y no hay casos, asi que la unidad
               que agrupa es la marca: comparten politica de soporte.
   Estratifica: cada pliegue de prueba contiene las dos clases presentes.
-  Guardada  : data/particion_ciclo_vida.json
+  Guardada  : data/lifecycle_partition.json
   Pliegues  : 2
      [0] prueba = Mitsubishi + Schneider + Siemens (5 muestras)  entrenamiento = 4
      [1] prueba = Omron + Rockwell             (4 muestras)  entrenamiento = 5
@@ -239,8 +239,8 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
        y el destino de 'otra_marca' (Omron NX) la del caso ciego 26.5:
        el conjunto de desarrollo pisa el de prueba.
      - En modo agente con API, la herramienta query_guide alcanza
-       data/base_conocimiento.json, que contiene los cinco casos ciegos con
-       su estrategia. En modo determinista no: interactivo.py no importa
+       data/es/knowledge_base.json, que contiene los cinco casos ciegos con
+       su estrategia. En modo determinista no: interactive.py no importa
        conocimiento. La fuga existe y depende del modo.
 
   CONJUNTO DE PRUEBA APARTADO: los cinco casos de estudio de la guia y las
@@ -261,7 +261,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
   Lo que hace falta para desbloquearlo, en orden de coste:
      1. Un orden de prioridad por juicio experto sobre estas 9 plataformas,
         emitido por los coautores sin ver la salida del motor. Es el mismo
-        procedimiento de _plantilla_ciega.py y se puede pedir en una sesion.
+        procedimiento de _blind_template.py y se puede pedir en una sesion.
      2. Ampliar la tabla de ciclo de vida a las 130 generaciones del
         catalogo, que es lo que daria un conjunto donde el boosting tenga
         sentido. Trabajo de extraccion y verificacion en fuentes oficiales.

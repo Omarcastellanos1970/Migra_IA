@@ -1,6 +1,6 @@
 # Tabla II y párrafo de configuración experimental
 
-Generado por `_tabla_ii.py`. Ningún número está escrito a mano: salen de correr
+Generado por `_table_ii.py`. Ningún número está escrito a mano: salen de correr
 `_baseline.py` sobre la partición congelada, y el coste de medir la inferencia
 aquí mismo.
 
@@ -42,9 +42,9 @@ Cada dato del párrafo, contra el código y contra la tabla.
 
 | Dato | Valor | De dónde sale | ¿Coincide? |
 |---|---|---|---|
-| Plataformas | 9 | len(cargar()) sobre data/ciclo_vida_plataformas.csv | sí |
+| Plataformas | 9 | len(cargar()) sobre data/platform_lifecycle.csv | sí |
 | Fabricantes | 5 | Mitsubishi, Omron, Rockwell, Schneider, Siemens | sí |
-| Unidad de observacion | la plataforma | particion_ciclo_vida.json: agrupamiento = Fabricante | sí |
+| Unidad de observacion | la plataforma | lifecycle_partition.json: agrupamiento = Fabricante | sí |
 | k | 2 | particionar_estratificado(); json k=2 | sí |
 | Agrupamiento | Fabricante | ningun fabricante en train y test a la vez | sí |
 | Semilla | 42 | _baseline.SEMILLA; json semilla=42 | sí |

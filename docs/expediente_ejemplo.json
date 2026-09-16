@@ -720,7 +720,7 @@
   "informes": [
     {
       "id": "INF-2026-000001",
-      "ruta": "casos/CAS-2026-506650_INF-2026-000001.md",
+      "ruta": "cases/CAS-2026-506650_INF-2026-000001.md",
       "resumen": "Riesgo critico; ruta de decision aplicada sobre las respuestas del usuario.",
       "ts": "2026-09-04T20:05:06-06:00"
     }
@@ -1414,7 +1414,7 @@
       "accion": "registrar_informe",
       "detalle": {
         "id": "INF-2026-000001",
-        "ruta": "casos/CAS-2026-506650_INF-2026-000001.md"
+        "ruta": "cases/CAS-2026-506650_INF-2026-000001.md"
       }
     }
   ],

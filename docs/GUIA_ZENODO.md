@@ -80,7 +80,7 @@ se generó. Zenodo **no ofrece botón de reintento**. Qué hacer:
 
 ## Vía B — Subida directa del ZIP (sin GitHub)
 
-1. Comprime la carpeta del proyecto **sin** `.venv/`, `.env`, `casos/*` ni
+1. Comprime la carpeta del proyecto **sin** `.venv/`, `.env`, `cases/*` ni
    `__pycache__/` (deja `docs/`, el código y los archivos de metadatos).
 2. Entra a https://zenodo.org → **Upload → New upload**.
 3. Sube el ZIP y completa: *Upload type* = **Software**, título, autores

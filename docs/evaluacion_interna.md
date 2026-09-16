@@ -1,6 +1,6 @@
 # Verificacion interna del motor MIGRA-IA
 
-Generado por `_evaluacion.py`. Reproducible: mismas respuestas, mismos numeros, sin clave de API.
+Generado por `_evaluation.py`. Reproducible: mismas respuestas, mismos numeros, sin clave de API.
 
 Semilla Monte Carlo: `42` - muestras: `5000`.
 

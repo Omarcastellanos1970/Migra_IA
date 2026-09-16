@@ -60,7 +60,7 @@ cambio empieza un protocolo nuevo y el conjunto deja de ser válido para él.
 
 **Unidad de observación:** la plataforma de control (una CPU y su familia), no
 el componente ni la planta. Nueve unidades en
-`data/ciclo_vida_plataformas.csv`, derivadas de la Tabla 2 de obsolescencia.
+`data/platform_lifecycle.csv`, derivadas de la Tabla 2 de obsolescencia.
 
 **Restricción de agrupamiento:** el **fabricante**. Dos plataformas de una misma
 marca comparten política de ciclo de vida, de modo que repartirlas entre
@@ -78,7 +78,7 @@ el ajuste arranca en ceros, el paso y las iteraciones son fijos, y no hay
 barajado ni muestreo. Se dice explícitamente en vez de sugerir que la
 reproducibilidad depende de ella.
 
-**Índices guardados:** `data/particion_ciclo_vida.json`, con el esquema, la *k*,
+**Índices guardados:** `data/lifecycle_partition.json`, con el esquema, la *k*,
 el motivo del techo de *k*, el ámbito del preprocesamiento y las etiquetas.
 
 **Fecha de referencia:** `2026-09-04`, fija. Las clases se derivan comparando
@@ -150,7 +150,7 @@ La tabla por pliegue se publica junto al resumen: es lo que enseña la
 dispersión que una media sola esconde.
 
 **Toda cifra va acompañada de la procedencia de su etiqueta.** Mientras el campo
-`procedencia` de `data/etiquetas_p1_p2.json` diga `provisional_regla`, ningún
+`procedencia` de `data/labels_p1_p2.json` diga `provisional_regla`, ningún
 número derivado de ella puede presentarse como validación.
 
 ### 6. La regla del conjunto de prueba

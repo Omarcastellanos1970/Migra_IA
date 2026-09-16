@@ -4,7 +4,7 @@
 Sustituye al protocolo escrito como documento aparte: se pega casi literal en
 Overleaf, y lo que dice aquí manda sobre lo que digan los resultados después.
 
-Generado por `_tabla_ii.py`. Ningún dato está escrito a mano: salen de correr
+Generado por `_table_ii.py`. Ningún dato está escrito a mano: salen de correr
 `_baseline.py`, de medir los tiempos y de consultar la máquina al sistema. Para
 actualizarlo se vuelve a ejecutar el script, no se edita este archivo.
 

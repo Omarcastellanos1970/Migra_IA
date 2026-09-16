@@ -10,7 +10,7 @@ propia máquina, **sin necesidad de una clave de API y sin costo**, en ~10–15 
 **También se puede evaluar en línea, sin instalar nada:** <https://migra-ia.onrender.com>
 Es la misma demo interactiva, sin cuenta y sin clave de API, y basta para comprobar
 las afirmaciones de la sección 1. Para reproducir las salidas deterministas y el
-expediente en `casos/` sigue haciendo falta la ejecución local que se describe abajo.
+expediente en `cases/` sigue haciendo falta la ejecución local que se describe abajo.
 
 ---
 
@@ -37,7 +37,7 @@ Afirmaciones respaldadas por el artefacto (verificables con la demo interactiva)
 7. **Base de conocimiento citable** (*MIGRA-IA-GUIA-001*): el agente estructura el
    diagnóstico por las seis etapas de la metodología y **cita la guía** al
    fundamentar sus recomendaciones, consultándola con la herramienta
-   `query_guide` (`data/base_conocimiento.json`).
+   `query_guide` (`data/es/knowledge_base.json`).
 
 ---
 
@@ -97,10 +97,10 @@ sí cambia cuatro respuestas —las del acceso al programa: contraseñas conocid
 respaldo que abre y compila— y por eso su puntuación es distinta.
 
 ```bash
-python _interactivo_run.py              # caso crítico, misma marca
-python _interactivo_run.py sano         # caso sin obsolescencia
-python _interactivo_run.py otra_marca   # cambio de marca, sin acceso al programa
-python _interactivo_run.py otra_marca_con_codigo   # cambio de marca con el programa accesible
+python _interactive_run.py              # caso crítico, misma marca
+python _interactive_run.py sano         # caso sin obsolescencia
+python _interactive_run.py otra_marca   # cambio de marca, sin acceso al programa
+python _interactive_run.py otra_marca_con_codigo   # cambio de marca con el programa accesible
 ```
 
 **Salidas esperadas** (deterministas):
@@ -113,7 +113,7 @@ python _interactivo_run.py otra_marca_con_codigo   # cambio de marca con el prog
 | `otra_marca_con_codigo` | **69.2 → "Riesgo alto"** | activa, con `cambio_marca` **y** programa de origen accesible: aplica la ruta de porte | OMRON Sysmac NX |
 
 Los cuatro cierran con **24 respuestas** registradas, **0 datos faltantes** y **1
-informe** generado en `casos/`. En la interfaz, el panel derecho debe reflejar
+informe** generado en `cases/`. En la interfaz, el panel derecho debe reflejar
 los mismos valores, además de los activos registrados, los datos faltantes, las
 banderas de seguridad y las aprobaciones humanas pendientes.
 
@@ -121,7 +121,7 @@ banderas de seguridad y las aprobaciones humanas pendientes.
 - `docs/informe_ejemplo.md` — informe técnico generado por el motor.
 - `docs/expediente_ejemplo.json` — expediente trazable con auditoría.
 
-Ambas proceden del escenario `critico` de `python _interactivo_run.py`, de modo
+Ambas proceden del escenario `critico` de `python _interactive_run.py`, de modo
 que el revisor puede regenerarlas y compararlas: el informe cierra en **85.0 →
 "Riesgo crítico"** con las 24 respuestas del escenario y el detalle de los ocho
 factores, cada uno citando los códigos de pregunta que lo sustentan.
@@ -142,7 +142,7 @@ Para probar el agente conversacional completo (razonamiento adaptativo con Claud
 
 1. Copie `.env.example` a `.env` y coloque una `ANTHROPIC_API_KEY` válida
    (servicio de pago de Anthropic; no requerido para evaluar el artefacto).
-2. `python -m webapp.app` → **"Caso real (API)"**, o consola: `python -m migra_ia.agente`.
+2. `python -m webapp.app` → **"Caso real (API)"**, o consola: `python -m migra_ia.agent`.
 
 La demo interactiva es suficiente para verificar todas las afirmaciones
 estructurales; la clave solo habilita el razonamiento en lenguaje natural sobre
@@ -154,13 +154,13 @@ datos arbitrarios.
 
 ```
 migra_ia/        Motor: prompt, scoring (Sec. 6), expediente trazable, tools
-                 interactivo.py — demo interactiva, sin modelo de lenguaje
-                 conocimiento.py — consultas a la base de conocimiento
+                 interactive.py — demo interactiva, sin modelo de lenguaje
+                 knowledge.py — consultas a la base de conocimiento
 webapp/          App web (Flask): servidor + interfaz de chat
-data/            cuestionario.json (catálogo A–K con reglas adaptativas)
-                 base_conocimiento.json (guía MIGRA-IA-GUIA-001)
+data/            questionnaire.json (catálogo A–K con reglas adaptativas)
+                 knowledge_base.json (guía MIGRA-IA-GUIA-001)
 docs/            informe_ejemplo.md, expediente_ejemplo.json, guía Zenodo
-casos/           Expedientes e informes generados en ejecución
+cases/           Expedientes e informes generados en ejecución
 INSTALAR.bat     Instalación asistida en Windows (doble clic)
 Iniciar_MIGRA-IA.bat  Arranque del agente en Windows (doble clic)
 EMPIEZA_AQUI.txt Instrucciones paso a paso para usuarios no técnicos
@@ -170,10 +170,10 @@ BITACORA.md      Registro de las sesiones asistidas: que se pidio, que devolvio,
 _baseline.py     Baseline reproducible (P1 riesgo ordinal): dataset,
                  particion agrupada, trivial vs clasico y auditoria de fuga
 requirements-freeze.txt  Entorno exacto con el que se produjo ese informe
-_etiquetado.py   Etiquetas de P1/P2 (provisionales, por regla) y formulario
+_labeling.py   Etiquetas de P1/P2 (provisionales, por regla) y formulario
                  de etiquetado ciego para el panel de expertos
 PROTOCOLO_VALIDACION.md  Los seis puntos del protocolo, firmados y congelados
-_caracteristicas.py  Contrasta las caracteristicas de dominio del rubro con
+_features.py  Contrasta las caracteristicas de dominio del rubro con
                  las que el motor realmente usa (genera docs/)
 CITATION.cff     Metadatos de cita
 .zenodo.json     Metadatos para el DOI de Zenodo
@@ -187,16 +187,16 @@ LICENSE          MIT
 - [ ] La instalación finaliza sin errores (`INSTALAR.bat` en Windows, o
       `pip install -r requirements.txt`).
 - [ ] La app arranca en http://127.0.0.1:5000.
-- [ ] `python _interactivo_run.py` produce riesgo **85.0 / "Riesgo crítico"** y
+- [ ] `python _interactive_run.py` produce riesgo **85.0 / "Riesgo crítico"** y
       abre la migración; `... sano` produce **11.8 / "Riesgo bajo"** y no la abre.
-- [ ] `python _interactivo_run.py otra_marca` marca el cambio de marca y propone
+- [ ] `python _interactive_run.py otra_marca` marca el cambio de marca y propone
       un destino de otro fabricante (OMRON Sysmac NX).
-- [ ] `python _interactivo_run.py otra_marca_con_codigo` produce **69.2 / "Riesgo
+- [ ] `python _interactive_run.py otra_marca_con_codigo` produce **69.2 / "Riesgo
       alto"** y, al fijar ese mismo destino, anuncia la **ruta de porte entre
       fabricantes**: los pasos 11, 12, 18 y 32 salen con sus sub-pasos C1–C5 y el
       21 queda como *no aplica* con sus reglas.
 - [ ] El panel muestra activo, dato faltante, bandera y aprobación pendiente.
-- [ ] Se genera un informe en `casos/` con la misma estructura que
+- [ ] Se genera un informe en `cases/` con la misma estructura que
       `docs/informe_ejemplo.md`.
 - [ ] La demo muestra alternativas, equivalencias y procedimiento de migración.
 
