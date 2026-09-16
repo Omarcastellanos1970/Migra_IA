@@ -54,7 +54,7 @@ def docx_path() -> Path:
 
 TECHNICIAN = "tecnico"
 ENGINEERING = "ingenieria"
-SPECIALIST = "safety_specialist"
+SPECIALIST = "especialista_seguridad"
 MANAGER = "responsable"
 
 

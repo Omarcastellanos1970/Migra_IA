@@ -687,7 +687,7 @@ def manufacturer_route_text(brand=None, case=None, ctx: dict | None = None) -> s
     for aviso in r.get("avisos", []):
         lineas += [f"⚠️ {aviso}", ""]
 
-    ramas = r.get("ramas", {})
+    ramas = r.get("branches", {})
     for p in r["steps"]:
         cabecera = f"**{p['n']} — {p['title']}**"
         if p.get("branch"):
@@ -840,7 +840,7 @@ def route_for_step_text(key, case=None, ctx: dict | None = None) -> str:
     if d is None:
         return ""
     r, sub, rules = d["route"], d["sub_pasos"], d["rules"]
-    ramas = r.get("ramas", {})
+    ramas = r.get("branches", {})
 
     regla_sola = "*Regla de la ruta que gobierna este paso.*"
     if r.get("type") == "cambio_de_marca":

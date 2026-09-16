@@ -9,21 +9,7 @@
     "total_steps": 57,
     "annotated_layer": {
       "description": "El titulo y el detalle de cada paso son literales del documento fuente. Los campos criterio_salida, evidencia, rol, requiere, prerrequisitos, nota_agente, variante_cambio_marca y variante_sin_respaldo son una PROPUESTA de MIGRA-IA, pendiente de validacion del autor.",
-      "proposed_fields": [
-        "fase",
-        "etapa_guia",
-        "rol",
-        "criterio_salida",
-        "evidencia",
-        "prerrequisitos",
-        "requiere",
-        "cubierto_por_cuestionario",
-        "nota_agente",
-        "variante_cambio_marca",
-        "variante_sin_respaldo",
-        "bloqueante",
-        "punto_de_decision_cpu"
-      ]
+      "proposed_fields": ["phase", "guide_stage", "role", "exit_criterion", "evidence", "prerequisites", "requires", "covered_by_questionnaire", "agent_note", "brand_change_variant", "no_backup_variant", "blocking", "cpu_decision_point"]
     }
   },
   "triggers": [
@@ -1754,9 +1740,9 @@
           "22",
           "23"
         ],
-        "ramas": {
-          "target_step7_s7_300_400": "el destino se queda en STEP 7 sobre S7-300 o S7-400",
-          "target_tia_portal": "el destino sube hasta TIA Portal sobre S7-1200 o S7-1500"
+        "branches": {
+          "destino_step7_s7_300_400": "el destino se queda en STEP 7 sobre S7-300 o S7-400",
+          "destino_tia_portal": "el destino sube hasta TIA Portal sobre S7-1200 o S7-1500"
         },
         "steps": [
           {
