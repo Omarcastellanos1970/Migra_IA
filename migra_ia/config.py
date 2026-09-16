@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import contextvars
+import json
 import os
+from functools import lru_cache
 from pathlib import Path
 
 # --- Identidad del agente (Seccion 1 del documento de diseno) ---
@@ -44,7 +46,8 @@ DEFAULT_LANGUAGE = os.environ.get("MIGRA_IA_LANG", "es").strip().lower()
 # en data/<idioma>/ deja cada archivo escrito en una sola lengua.
 CONTENT_FILES = ("questionnaire.json", "knowledge_base.json",
                  "cpu_manufacturers.json", "migration_procedure.json",
-                 "system_prompt.md", "initial_message.txt")
+                 "system_prompt.md", "initial_message.txt",
+                 "prompt_labels.json")
 
 _language: contextvars.ContextVar[str] = contextvars.ContextVar(
     "migra_ia_language", default=DEFAULT_LANGUAGE)
@@ -114,6 +117,27 @@ def system_prompt_path(lang: str | None = None) -> Path:
 
 def initial_message_path(lang: str | None = None) -> Path:
     return content_dir(lang) / "initial_message.txt"
+
+
+def prompt_labels_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "prompt_labels.json"
+
+
+@lru_cache(maxsize=len(LANGUAGES))
+def _labels(lang: str) -> dict:
+    with open(prompt_labels_path(lang), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def labels() -> dict:
+    """Rotulos con los que el codigo arma los indices del prompt.
+
+    El contenido sale de los archivos de datos; esto es el andamiaje que lo
+    rodea ---'que decide:', 'BASE DE REFERENCIA:'--- y por eso tambien
+    depende del idioma: si se quedara fijo en el codigo, el prompt ingles
+    saldria con contenido en ingles y rotulos en castellano.
+    """
+    return _labels(language())
 
 
 def available_languages() -> tuple[str, ...]:

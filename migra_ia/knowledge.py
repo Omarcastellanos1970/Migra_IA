@@ -61,19 +61,10 @@ def prompt_index() -> str:
     plantillas = "; ".join(f"{t['id']}={t['name']}" for t in base["templates"])
     anexos = "; ".join(f"{a['id']} {a['name']}" for a in base["management_annexes"])
     cases = "; ".join(f"{c['id']} {c['title']}" for c in base["case_studies"])
-    return (
-        f"BASE DE REFERENCIA: {g['title']} ({g['code']} v{g['version']}). "
-        f"Citala como '{g['citation']}, cap. N' o por seccion.\n"
-        "Consultala con la herramienta `query_guide` (tema, clave). Temas y claves:\n"
-        f"- metodologia: seis etapas (diagnostico, ingenieria, construccion, fat, corte_sat, cierre).\n"
-        f"- etapa (clave = id o numero): detalle de una etapa.\n"
-        f"- capitulo (clave = numero o titulo). Capitulos: {capitulos}.\n"
-        f"- fabricante (clave = marca): {manufacturers}. Ademas 'matriz_fabricantes'.\n"
-        f"- prueba (clave = id o dispositivo): {pruebas}.\n"
-        f"- plantilla (clave = letra o nombre): {plantillas}.\n"
-        f"- anexo (clave = id o nombre): {anexos}.\n"
-        f"- caso (clave = id o titulo): {cases}.\n"
-        f"- principios | entregables | guia: informacion transversal."
+    return config.labels()["knowledge_index"].format(
+        title=g["title"], code=g["code"], version=g["version"],
+        citation=g["citation"], chapters=capitulos, manufacturers=manufacturers,
+        tests=pruebas, templates=plantillas, annexes=anexos, cases=cases,
     )
 
 

@@ -1,0 +1,1 @@
+Start the case. Introduce yourself in one or two lines and begin the guided step-by-step diagnosis: ask first about the user's identification and their authorization, and then move on according to my answers. Ask few questions at a time.

@@ -2,7 +2,7 @@
  "document": {
   "title": "PLC MANUFACTURERS AND EVOLUTION OF CPU MODELS",
   "subtitle": "Documentary base for a thesis on hardware obsolescence in industrial automation",
-  "version": "Versión ampliada: 25 de agosto de 2026",
+  "version": "Extended version: 25 August 2026",
   "rigor_criterion": "CRITERION OF RIGOR. This document lists real CPU and controller models in technological order, from older generations to recent ones. No years, part numbers or EOL statuses are invented. Where an official public source does not show the exact part number of a generation, the document says so expressly instead of filling the data in by approximation. For the IPC manufacturers (Advantech, Kontron and AAEON), industrial computer models and their processor platform are listed, because they are not PLCs with an equivalent modular CPU.",
   "how_to_read": [
    "The order of the rows within each manufacturer runs from older generations towards more recent ones, according to the technical documentation consulted.",

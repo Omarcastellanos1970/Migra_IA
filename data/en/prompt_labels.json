@@ -1,0 +1,15 @@
+{
+ "_nota": "Labels with which the code assembles the indexes that travel in the prompt. The content comes from the other files; this is the scaffolding around it, and that is why it depends on the language too.",
+ "what_decides": "     what it decides: {text}",
+ "alternatives_header": "  ALTERNATIVES, in the order in which they must be assessed:",
+ "in_favor": "      in favor: {text}",
+ "watch_out": "      watch out: {text}",
+ "knowledge_index": "REFERENCE BASE: {title} ({code} v{version}). Cite it as '{citation}, ch. N' or by section.\nConsult it with the `query_guide` tool (topic, key). Topics and keys:\n- metodologia: six stages (diagnostico, ingenieria, construccion, fat, corte_sat, cierre).\n- etapa (key = id or number): detail of one stage.\n- capitulo (key = number or title). Chapters: {chapters}.\n- fabricante (key = brand): {manufacturers}. Also 'matriz_fabricantes'.\n- prueba (key = id or device): {tests}.\n- plantilla (key = letter or name): {templates}.\n- anexo (key = id or name): {annexes}.\n- caso (key = id or title): {cases}.\n- principios | entregables | guia: cross-cutting information.",
+ "manufacturers_header": "MANUFACTURER AND CPU CATALOG: {title} ({version}). {n_manufacturers} manufacturers, {n_generations} generations documented with real models and an official source.",
+ "manufacturers_howto": "Resolve whatever the user says with `identify_cpu` (free text from the nameplate) and extend it with `query_catalog` (brand, family). Brands and families:",
+ "manufacturers_footer": "If the user's equipment is NOT in this list, say so explicitly and ask for the nameplate: do not liken it to the closest brand.",
+ "procedure_phase_item": "{id} (steps {first}-{last}, stage {stage})",
+ "procedure_no_routes": "none published yet",
+ "procedure_index": "MIGRATION PROCEDURE: {title} ({id}, {total_steps} steps). Cite it as '{citation}, step N'.\nWHEN IT OPENS: when changing the CPU is decided. Triggers: {triggers}.\nPhases: {phases}.\nConsult it with `query_procedure` (topic, key). Topics: paso (key = number), fase (key = id), disparadores, opciones_destino (the two CPU options of step 13), ruta_fabricante (key = brand), ruta_cambio_marca, estado (progress of the case), siguiente (the step that comes next), bloqueos, huecos.\nPER-BRAND CONVERSION ROUTES (they specialize steps 21-23): {routes}. They are used ONLY when the source program is accessible and verified (trigger 'obsolescencia_con_acceso_al_codigo'). For the other brands the generic step 21 applies, and that limitation IS DECLARED, not filled in by inventing.\nBRAND CHANGE ROUTE (topic 'ruta_cambio_marca', specializes steps 11, 12, 18, 21 and 32): it applies when the target is from ANOTHER brand AND the source program is accessible. Between manufacturers there is no converter, but with the source in hand the work does NOT start from scratch: the original program is the SPECIFICATION and it is ported against it. The agent does NOT publish instruction equivalences between brands: it proposes the table and asks for it to be verified against the manuals of both.\nSteps: {steps}.",
+ "code_range_fields": "fields per record"
+}

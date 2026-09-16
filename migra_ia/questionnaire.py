@@ -94,7 +94,7 @@ def _code_range(items: list[dict]) -> str:
     """Etiqueta compacta del rango de codigos de una seccion (p. ej. 'M01-M10')."""
     codigos = [i["code"] for i in items if i.get("code")]
     if not codigos:
-        return "campos por registro"
+        return config.labels()["code_range_fields"]
     if len(codigos) == 1:
         return codigos[0]
     return f"{codigos[0]}-{codigos[-1]}"
@@ -112,7 +112,7 @@ def prompt_index() -> str:
         lineas.append(f"[{sec['id']}] {sec['title']} ({_code_range(items)}, {len(items)} items)")
         que_decide = sec.get("what_it_decides")
         if que_decide:
-            lineas.append(f"     que decide: {que_decide}")
+            lineas.append(config.labels()["what_decides"].format(text=que_decide))
     return "\n".join(lineas)
 
 
@@ -123,16 +123,17 @@ def prompt_criteria() -> str:
     for regla in mapa.get("priority_rules", []):
         lineas.append(f"  {regla}")
     lineas.append("")
-    lineas.append("  ALTERNATIVAS, en el orden en que deben evaluarse:")
+    L = config.labels()
+    lineas.append(L["alternatives_header"])
     for alt in mapa.get("alternative_criteria", []):
         brand = "  *" if alt.get("evaluate_first") else "  -"
         lineas.append(f"{brand} {alt['alternative']}")
         favorables = "; ".join(alt.get("favorable_conditions", []))
         if favorables:
-            lineas.append(f"      a favor: {favorables}")
+            lineas.append(L["in_favor"].format(text=favorables))
         advertencias = " ".join(alt.get("advertencias", []))
         if advertencias:
-            lineas.append(f"      ojo: {advertencias}")
+            lineas.append(L["watch_out"].format(text=advertencias))
     return "\n".join(lineas)
 
 

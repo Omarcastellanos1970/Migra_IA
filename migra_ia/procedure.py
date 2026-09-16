@@ -910,34 +910,20 @@ def prompt_index() -> str:
     """Indice del procedimiento: da las claves validas sin volcar el contenido."""
     data = load()
     doc = data["document"]
-    phases = "; ".join(f"{f['id']} (pasos {f['steps'][0]}-{f['steps'][-1]}, etapa {f['guide_stage']})"
-                      for f in data["phases"])
+    L = config.labels()
+    phases = "; ".join(
+        L["procedure_phase_item"].format(
+            id=f["id"], first=f["steps"][0], last=f["steps"][-1], stage=f["guide_stage"])
+        for f in data["phases"])
     disp = "; ".join(f"{d['id']} = {d['title']}" for d in data["triggers"])
     marcas = "; ".join(
         f"{r['brand']} ({' , '.join(r['source_families'])} -> {' / '.join(r['target_families'])})"
         for r in data.get("routes_by_manufacturer", {}).get("routes", [])
-    ) or "ninguna publicada todavia"
+    ) or L["procedure_no_routes"]
     titulos = "; ".join(f"{p['label']}={p['title'].rstrip('.')}" for p in data["steps"])
-    return (
-        f"PROCEDIMIENTO DE MIGRACION: {doc['title']} ({doc['id']}, "
-        f"{doc['total_steps']} pasos). Citalo como '{CITA}, paso N'.\n"
-        f"CUANDO SE ABRE: al decidir cambiar la CPU. Disparadores: {disp}.\n"
-        f"Fases: {phases}.\n"
-        "Consultalo con `query_procedure` (tema, clave). Temas: paso (clave = "
-        "numero), fase (clave = id), disparadores, opciones_destino (las dos opciones "
-        "de CPU del paso 13), ruta_fabricante (clave = marca), ruta_cambio_marca, "
-        "estado (avance del caso), siguiente (paso que toca), bloqueos, huecos.\n"
-        f"RUTAS DE CONVERSION POR MARCA (especializan los pasos 21-23): {marcas}. "
-        "Se usan SOLO cuando el programa de origen es accesible y verificado "
-        "(disparador 'obsolescencia_con_acceso_al_codigo'). Para las demas marcas rige "
-        "el paso 21 generico y esa limitacion SE DECLARA, no se rellena inventando.\n"
-        "RUTA DE CAMBIO DE MARCA (tema 'ruta_cambio_marca', especializa los pasos 11, 12, "
-        "18, 21 y 32): aplica cuando el destino es de OTRA marca Y el programa de origen "
-        "es accesible. Entre fabricantes no hay conversor, pero con la fuente en la mano "
-        "el trabajo NO empieza de cero: el programa original es la ESPECIFICACION y se "
-        "porta contra ella. El agente NO publica equivalencias de instrucciones entre "
-        "marcas: propone la tabla y pide verificarla contra los manuales de las dos.\n"
-        f"Pasos: {titulos}."
+    return L["procedure_index"].format(
+        title=doc["title"], id=doc["id"], total_steps=doc["total_steps"],
+        citation=CITA, triggers=disp, phases=phases, routes=marcas, steps=titulos,
     )
 
 

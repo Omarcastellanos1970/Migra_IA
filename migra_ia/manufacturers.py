@@ -567,20 +567,17 @@ def prompt_index() -> str:
     """Marcas y familias que el agente puede reconocer, sin volcar 469 modelos."""
     catalog = load_catalog()
     doc = catalog["document"]
+    L = config.labels()
     lineas = [
-        f"CATALOGO DE FABRICANTES Y CPU: {doc['title']} ({doc['version']}). "
-        f"{len(catalog['manufacturers'])} fabricantes, "
-        f"{sum(len(f['generations']) for f in catalog['manufacturers'])} generaciones "
-        f"documentadas con modelos reales y fuente oficial.",
-        "Resuelve lo que diga el usuario con `identify_cpu` (texto libre de placa) y "
-        "amplia con `query_catalog` (marca, familia). Marcas y familias:",
+        L["manufacturers_header"].format(
+            title=doc["title"], version=doc["version"],
+            n_manufacturers=len(catalog["manufacturers"]),
+            n_generations=sum(len(f["generations"]) for f in catalog["manufacturers"])),
+        L["manufacturers_howto"],
     ]
     for fab in catalog["manufacturers"]:
         fams = "; ".join(_clean_family(g["family"]) for g in fab["generations"])
         lineas.append(f"- {fab['brand']} [{fab['classification']}]: {fams}")
-    lineas.append(
-        "Si el equipo del usuario NO esta en esta lista, dilo explicitamente y pide la "
-        "placa: no lo asimiles a la marca mas parecida."
-    )
+    lineas.append(L["manufacturers_footer"])
     return "\n".join(lineas)
 
