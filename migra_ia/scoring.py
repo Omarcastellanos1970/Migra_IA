@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 # Pesos iniciales (Seccion 6). Suma = 1.0
-PESOS: dict[str, float] = {
+WEIGHTS: dict[str, float] = {
     "estado_ciclo_vida": 0.20,
     "disponibilidad_repuestos": 0.15,
     "soporte_fabricante": 0.15,
@@ -21,7 +21,7 @@ PESOS: dict[str, float] = {
     "criticidad_productiva": 0.10,
 }
 
-ETIQUETAS_FACTOR: dict[str, str] = {
+FACTOR_LABELS: dict[str, str] = {
     "estado_ciclo_vida": "Estado del ciclo de vida",
     "disponibilidad_repuestos": "Disponibilidad de repuestos",
     "soporte_fabricante": "Soporte del fabricante",
@@ -34,33 +34,33 @@ ETIQUETAS_FACTOR: dict[str, str] = {
 
 
 @dataclass
-class ResultadoRiesgo:
-    puntuacion: float
-    clasificacion: str
-    detalle_factores: list[dict]
+class RiskResult:
+    score: float
+    classification: str
+    factor_detail: list[dict]
 
     def to_dict(self) -> dict:
         return {
-            "puntuacion": self.puntuacion,
-            "classification": self.clasificacion,
-            "detalle_factores": self.detalle_factores,
+            "puntuacion": self.score,
+            "classification": self.classification,
+            "detalle_factores": self.factor_detail,
         }
 
 
-def clasificar(puntuacion: float) -> str:
+def classify(score: float) -> str:
     """Traduce una puntuacion 0-100 a su clasificacion textual (Seccion 6)."""
-    if puntuacion <= 20:
+    if score <= 20:
         return "Riesgo bajo"
-    if puntuacion <= 40:
+    if score <= 40:
         return "Riesgo moderado"
-    if puntuacion <= 60:
+    if score <= 60:
         return "Riesgo importante"
-    if puntuacion <= 80:
+    if score <= 80:
         return "Riesgo alto"
     return "Riesgo critico"
 
 
-def calcular_riesgo(factores: dict[str, dict]) -> ResultadoRiesgo:
+def compute_risk(factors: dict[str, dict]) -> RiskResult:
     """Calcula el riesgo de obsolescencia ponderado.
 
     `factores` es un dict con claves de PESOS. Cada valor es un dict con:
@@ -71,17 +71,17 @@ def calcular_riesgo(factores: dict[str, dict]) -> ResultadoRiesgo:
     factores disponibles, para no penalizar por informacion faltante. El
     conjunto de factores usados se reporta en el detalle.
     """
-    detalle: list[dict] = []
+    detail: list[dict] = []
     suma_pesos = 0.0
     suma_ponderada = 0.0
 
-    for clave, peso in PESOS.items():
-        entrada = factores.get(clave)
-        if entrada is None:
-            detalle.append(
+    for key, peso in WEIGHTS.items():
+        entry = factors.get(key)
+        if entry is None:
+            detail.append(
                 {
-                    "factor": ETIQUETAS_FACTOR[clave],
-                    "key": clave,
+                    "factor": FACTOR_LABELS[key],
+                    "key": key,
                     "peso": peso,
                     "value": None,
                     "justificacion": "Sin datos suficientes (no incluido en el calculo).",
@@ -89,29 +89,29 @@ def calcular_riesgo(factores: dict[str, dict]) -> ResultadoRiesgo:
             )
             continue
 
-        valor = float(entrada.get("value", 0))
-        valor = max(0.0, min(100.0, valor))  # acotar 0-100
-        justif = str(entrada.get("justificacion", "")).strip() or "(sin justificacion)"
+        value = float(entry.get("value", 0))
+        value = max(0.0, min(100.0, value))  # acotar 0-100
+        justif = str(entry.get("justificacion", "")).strip() or "(sin justificacion)"
 
         suma_pesos += peso
-        suma_ponderada += peso * valor
-        detalle.append(
+        suma_ponderada += peso * value
+        detail.append(
             {
-                "factor": ETIQUETAS_FACTOR[clave],
-                "key": clave,
+                "factor": FACTOR_LABELS[key],
+                "key": key,
                 "peso": peso,
-                "value": valor,
+                "value": value,
                 "justificacion": justif,
             }
         )
 
     if suma_pesos == 0:
-        puntuacion = 0.0
+        score = 0.0
     else:
-        puntuacion = round(suma_ponderada / suma_pesos, 1)
+        score = round(suma_ponderada / suma_pesos, 1)
 
-    return ResultadoRiesgo(
-        puntuacion=puntuacion,
-        clasificacion=clasificar(puntuacion),
-        detalle_factores=detalle,
+    return RiskResult(
+        score=score,
+        classification=classify(score),
+        factor_detail=detail,
     )

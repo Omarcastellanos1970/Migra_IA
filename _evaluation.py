@@ -51,10 +51,10 @@ import statistics
 from contextlib import contextmanager
 from pathlib import Path
 
-from migra_ia import interactivo, scoring
-from _interactivo_run import ESCENARIOS
+from migra_ia import interactive, scoring
+from _interactive_run import ESCENARIOS
 
-RAIZ = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent
 UMBRALES = [20, 40, 60, 80]
 
 # Valores de referencia publicados en ARTIFACT.md. Si el motor deja de
@@ -65,110 +65,110 @@ ESPERADO = {"critico": 85.0, "sano": 11.8}
 # --------------------------------------------------------------------------- #
 # Resolucion de escenarios: de lo que el usuario escribe al dict que ve el motor
 # --------------------------------------------------------------------------- #
-def resolver(esc: dict) -> dict:
+def resolve(esc: dict) -> dict:
     """Traduce las entradas del escenario al dict de respuestas del motor.
 
     Reutiliza `_interpretar` del propio modulo interactivo, de modo que no hay
     una segunda interpretacion que pueda divergir de la real.
     """
     resueltas: dict = {}
-    for codigo, texto in esc["answers"].items():
-        p = interactivo._pregunta(codigo)
+    for code, text in esc["answers"].items():
+        p = interactive._question(code)
         if p is None:
-            raise SystemExit("El codigo " + codigo + " no existe en questionnaire.json")
-        valor = interactivo._interpretar(p, texto)
-        if valor is None:
-            raise SystemExit("No se pudo interpretar " + codigo + "=" + repr(texto))
-        resueltas[codigo] = valor
+            raise SystemExit("El codigo " + code + " no existe en questionnaire.json")
+        value = interactive._interpret(p, text)
+        if value is None:
+            raise SystemExit("No se pudo interpretar " + code + "=" + repr(text))
+        resueltas[code] = value
     return resueltas
 
 
 @contextmanager
-def pesos(nuevos):
+def weights(nuevos):
     """Ejecuta el bloque con otro juego de pesos y restaura los originales."""
     if nuevos is None:
         yield
         return
-    originales = scoring.PESOS
-    scoring.PESOS = nuevos
+    originales = scoring.WEIGHTS
+    scoring.WEIGHTS = nuevos
     try:
         yield
     finally:
-        scoring.PESOS = originales
+        scoring.WEIGHTS = originales
 
 
-def puntuar(respuestas: dict, w=None):
+def score(answers: dict, w=None):
     """Puntuacion, clasificacion y factores omitidos, con los pesos indicados."""
-    with pesos(w):
-        calculados, omitidos = interactivo.factores(respuestas)
-        r = scoring.calcular_riesgo(calculados)
-    return r.puntuacion, r.clasificacion, omitidos
+    with weights(w):
+        calculados, omitidos = interactive.factors(answers)
+        r = scoring.compute_risk(calculados)
+    return r.score, r.classification, omitidos
 
 
-def migra(respuestas: dict, punt: float, clas: str) -> bool:
+def migrate(answers: dict, punt: float, clas: str) -> bool:
     """Decision del mapa de decision para este caso."""
-    d = interactivo.decidir(respuestas, {"puntuacion": punt, "classification": clas})
+    d = interactive.decide(answers, {"puntuacion": punt, "classification": clas})
     return bool(d["migrar"])
 
 
 # --------------------------------------------------------------------------- #
 # Baselines
 # --------------------------------------------------------------------------- #
-PESOS_UNIFORMES = {k: 1.0 / len(scoring.PESOS) for k in scoring.PESOS}
+PESOS_UNIFORMES = {k: 1.0 / len(scoring.WEIGHTS) for k in scoring.WEIGHTS}
 
 # B0: la regla que se le ocurre a cualquiera en cinco minutos. Un solo dato.
-_M01_MIGRAR = {"Descontinuado, aun con soporte y repuestos",
+_M01_MIGRATE = {"Descontinuado, aun con soporte y repuestos",
                "Descontinuado y sin soporte (fin de vida)"}
 
 
-def baseline_trivial(respuestas: dict):
+def trivial_baseline(answers: dict):
     """B0: solo mira M01. Puntuacion = valor del factor de ciclo de vida."""
-    f = interactivo._f_ciclo_vida(respuestas)
+    f = interactive._f_lifecycle(answers)
     punt = None if f is None else float(f["value"])
-    return punt, respuestas.get("M01") in _M01_MIGRAR
+    return punt, answers.get("M01") in _M01_MIGRATE
 
 
 # --------------------------------------------------------------------------- #
 # Analisis
 # --------------------------------------------------------------------------- #
-def margen_umbral(punt: float):
+def threshold_margin(punt: float):
     """Distancia al umbral de clasificacion mas cercano."""
     dist, u = min((abs(punt - u), u) for u in UMBRALES)
     return round(dist, 1), str(u)
 
 
-def sensibilidad_individual(respuestas: dict, base_clas: str):
+def individual_sensitivity(answers: dict, base_clas: str):
     """Mueve un peso a la vez y observa si cambia la clasificacion."""
     filas = []
-    for clave in list(scoring.PESOS):
-        fila = {"factor": clave, "peso": scoring.PESOS[clave], "cambios": []}
+    for key in list(scoring.WEIGHTS):
+        row = {"factor": key, "peso": scoring.WEIGHTS[key], "cambios": []}
         for pct in (-50, -20, 20, 50):
-            w = dict(scoring.PESOS)
-            w[clave] = max(0.0, w[clave] * (1 + pct / 100))
-            punt, clas, _ = puntuar(respuestas, w)
-            fila["%+d%%" % pct] = punt
+            w = dict(scoring.WEIGHTS)
+            w[key] = max(0.0, w[key] * (1 + pct / 100))
+            punt, clas, _ = score(answers, w)
+            row["%+d%%" % pct] = punt
             if clas != base_clas:
-                fila["cambios"].append("%+d%% -> %s" % (pct, clas))
-        filas.append(fila)
+                row["cambios"].append("%+d%% -> %s" % (pct, clas))
+        filas.append(row)
     return filas
 
 
-def sensibilidad_montecarlo(respuestas: dict, base_clas: str,
-                            muestras: int, semilla: int):
+def montecarlo_sensitivity(answers: dict, base_clas: str,
+                            samples: int, seed: int):
     """Perturba los ocho pesos a la vez, uniforme en [0.5, 1.5], y renormaliza."""
-    rnd = random.Random(semilla)
+    rnd = random.Random(seed)
     puntos, estables = [], 0
-    for _ in range(muestras):
-        w = {k: v * rnd.uniform(0.5, 1.5) for k, v in scoring.PESOS.items()}
+    for _ in range(samples):
+        w = {k: v * rnd.uniform(0.5, 1.5) for k, v in scoring.WEIGHTS.items()}
         total = sum(w.values())
         w = {k: v / total for k, v in w.items()}
-        punt, clas, _ = puntuar(respuestas, w)
+        punt, clas, _ = score(answers, w)
         puntos.append(punt)
         if clas == base_clas:
             estables += 1
     return {
-        "muestras": muestras,
-        "estabilidad": round(100.0 * estables / muestras, 1),
+        "muestras": samples,
+        "estabilidad": round(100.0 * estables / samples, 1),
         "min": round(min(puntos), 1),
         "max": round(max(puntos), 1),
         "mean": round(statistics.mean(puntos), 1),
@@ -176,22 +176,22 @@ def sensibilidad_montecarlo(respuestas: dict, base_clas: str,
     }
 
 
-def influencia_por_pregunta(respuestas: dict):
+def influence_by_question(answers: dict):
     """Barre todas las opciones de cada pregunta y mide el rango que produce."""
     filas = []
-    for codigo, actual in respuestas.items():
-        p = interactivo._pregunta(codigo)
-        opciones = (p or {}).get("options") or []
-        if not opciones:
+    for code, actual in answers.items():
+        p = interactive._question(code)
+        options = (p or {}).get("options") or []
+        if not options:
             continue
         vals = []
-        for op in opciones:
-            prueba = dict(respuestas)
-            prueba[codigo] = [op] if p.get("type") == "seleccion_multiple" else op
-            punt, _, _ = puntuar(prueba)
+        for op in options:
+            test = dict(answers)
+            test[code] = [op] if p.get("type") == "seleccion_multiple" else op
+            punt, _, _ = score(test)
             vals.append(punt)
         filas.append({
-            "code": codigo,
+            "code": code,
             "text": (p or {}).get("text", ""),
             "actual": ", ".join(actual) if isinstance(actual, list) else actual,
             "min": min(vals), "max": max(vals),
@@ -215,59 +215,59 @@ ORDINALES = [
 ]
 
 
-def ruta_decision(respuestas: dict):
+def decision_route(answers: dict):
     """Secuencia de alternativas que el mapa de decision propone para este caso."""
-    punt, clas, _ = puntuar(respuestas)
-    d = interactivo.decidir(respuestas, {"puntuacion": punt, "classification": clas})
+    punt, clas, _ = score(answers)
+    d = interactive.decide(answers, {"puntuacion": punt, "classification": clas})
     return tuple(a["alternative"] for a in d["route"])
 
 
-def influencia_en_decision(respuestas: dict):
+def decision_influence(answers: dict):
     """Codigos cuyo cambio de opcion altera la ruta del mapa de decision.
 
     Complementa el barrido de puntuacion: una pregunta puede no mover el numero
     y aun asi cambiar la recomendacion, o al reves.
     """
     mueven, inertes = [], []
-    for codigo in respuestas:
-        p = interactivo._pregunta(codigo)
-        opciones = (p or {}).get("options") or []
-        if not opciones:
+    for code in answers:
+        p = interactive._question(code)
+        options = (p or {}).get("options") or []
+        if not options:
             continue
         rutas, puntos = set(), set()
-        for op in opciones:
-            prueba = dict(respuestas)
-            prueba[codigo] = [op] if p.get("type") == "seleccion_multiple" else op
-            punt, _, _ = puntuar(prueba)
+        for op in options:
+            test = dict(answers)
+            test[code] = [op] if p.get("type") == "seleccion_multiple" else op
+            punt, _, _ = score(test)
             puntos.add(punt)
-            rutas.add(ruta_decision(prueba))
+            rutas.add(decision_route(test))
         if len(rutas) > 1:
-            mueven.append((codigo, len(rutas)))
+            mueven.append((code, len(rutas)))
         elif len(puntos) == 1:
-            inertes.append(codigo)
+            inertes.append(code)
     return mueven, inertes
 
 
-def monotonia(respuestas: dict):
+def monotonicity(answers: dict):
     """Al empeorar una respuesta ordinal, el riesgo no deberia ir al reves."""
     filas = []
-    for codigo, escala, direccion in ORDINALES:
-        p = interactivo._pregunta(codigo)
+    for code, escala, direction in ORDINALES:
+        p = interactive._question(code)
         documentadas = (p or {}).get("options") or []
         faltan = [op for op in escala if op not in documentadas]
-        serie, violaciones = [], []
+        serie, violations = [], []
         for op in escala:
-            prueba = dict(respuestas)
-            prueba[codigo] = op
-            punt, _, _ = puntuar(prueba)
+            test = dict(answers)
+            test[code] = op
+            punt, _, _ = score(test)
             serie.append((op, punt))
         for (a, va), (b, vb) in zip(serie, serie[1:]):
-            if direccion == "sube" and vb < va - 1e-9:
-                violaciones.append("'%s' (%s) -> '%s' (%s): baja" % (a, va, b, vb))
-            if direccion == "baja" and vb > va + 1e-9:
-                violaciones.append("'%s' (%s) -> '%s' (%s): sube" % (a, va, b, vb))
-        filas.append({"code": codigo, "direccion": direccion, "serie": serie,
-                      "violaciones": violaciones, "no_documentadas": faltan})
+            if direction == "sube" and vb < va - 1e-9:
+                violations.append("'%s' (%s) -> '%s' (%s): baja" % (a, va, b, vb))
+            if direction == "baja" and vb > va + 1e-9:
+                violations.append("'%s' (%s) -> '%s' (%s): sube" % (a, va, b, vb))
+        filas.append({"code": code, "direccion": direction, "serie": serie,
+                      "violaciones": violations, "no_documentadas": faltan})
     return filas
 
 
@@ -277,11 +277,11 @@ def monotonia(respuestas: dict):
 def main() -> None:
     ap = argparse.ArgumentParser(description="Verificacion interna del motor MIGRA-IA")
     ap.add_argument("--md", action="store_true", help="escribe docs/evaluacion_interna.md")
-    ap.add_argument("--muestras", type=int, default=5000)
-    ap.add_argument("--semilla", type=int, default=42)
+    ap.add_argument("--samples", type=int, default=5000)
+    ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
 
-    casos = {n: resolver(e) for n, e in ESCENARIOS.items()}
+    cases = {n: resolve(e) for n, e in ESCENARIOS.items()}
     L = []
 
     def w(linea=""):
@@ -297,11 +297,11 @@ def main() -> None:
     # --- 0. Anclaje contra las cifras publicadas -------------------------- #
     w("0. ANCLAJE CONTRA ARTIFACT.md")
     w("-" * 74)
-    for nombre, esperado in ESPERADO.items():
-        punt, clas, _ = puntuar(casos[nombre])
+    for name, esperado in ESPERADO.items():
+        punt, clas, _ = score(cases[name])
         ok = abs(punt - esperado) < 1e-9
         w("  %-8s %-12s %6.1f  esperado %s  (%s)"
-          % ("OK" if ok else "DIFIERE", nombre, punt, esperado, clas))
+          % ("OK" if ok else "DIFIERE", name, punt, esperado, clas))
         if not ok:
             raise SystemExit("El motor ya no reproduce las cifras publicadas en "
                              "ARTIFACT.md. Revisa el cambio antes de seguir.")
@@ -317,16 +317,16 @@ def main() -> None:
     w("")
     w("  %-12s %12s %13s %11s   decision" % ("case", "B0 trivial", "B1 uniforme", "propuesta"))
     tabla_base = []
-    for nombre, resp in casos.items():
-        p_prop, c_prop, _ = puntuar(resp)
-        p_uni, c_uni, _ = puntuar(resp, PESOS_UNIFORMES)
-        p_triv, m_triv = baseline_trivial(resp)
-        m_prop = migra(resp, p_prop, c_prop)
-        tabla_base.append({"case": nombre, "b1": p_uni, "prop": p_prop})
+    for name, resp in cases.items():
+        p_prop, c_prop, _ = score(resp)
+        p_uni, c_uni, _ = score(resp, PESOS_UNIFORMES)
+        p_triv, m_triv = trivial_baseline(resp)
+        m_prop = migrate(resp, p_prop, c_prop)
+        tabla_base.append({"case": name, "b1": p_uni, "prop": p_prop})
         d = ("migrar" if m_prop else "no migrar")
         if m_triv != m_prop:
             d += "  (B0 dice: %s)" % ("migrar" if m_triv else "no migrar")
-        w("  %-12s %12s %13.1f %11.1f   %s" % (nombre, p_triv, p_uni, p_prop, d))
+        w("  %-12s %12s %13.1f %11.1f   %s" % (name, p_triv, p_uni, p_prop, d))
     w("")
     dif = [f for f in tabla_base if abs(f["b1"] - f["prop"]) >= 0.05]
     if dif:
@@ -341,17 +341,17 @@ def main() -> None:
     # --- 2. Sensibilidad -------------------------------------------------- #
     w("2. SENSIBILIDAD DE LOS PESOS")
     w("-" * 74)
-    for nombre, resp in casos.items():
-        if nombre == "otra_marca":
+    for name, resp in cases.items():
+        if name == "otra_marca":
             continue  # identico a 'critico' en puntuacion; solo cambia el destino
-        p_base, c_base, _ = puntuar(resp)
-        w("  [%s]  base = %s (%s)" % (nombre, p_base, c_base))
-        for fila in sensibilidad_individual(resp, c_base):
-            marca = "  <-- cambia de clase" if fila["cambios"] else ""
+        p_base, c_base, _ = score(resp)
+        w("  [%s]  base = %s (%s)" % (name, p_base, c_base))
+        for row in individual_sensitivity(resp, c_base):
+            brand = "  <-- cambia de clase" if row["cambios"] else ""
             w("    %-26s peso %.2f  -50%%:%6.1f  -20%%:%6.1f  +20%%:%6.1f  +50%%:%6.1f%s"
-              % (fila["factor"], fila["peso"], fila["-50%"], fila["-20%"],
-                 fila["+20%"], fila["+50%"], marca))
-        m = sensibilidad_montecarlo(resp, c_base, args.muestras, args.semilla)
+              % (row["factor"], row["peso"], row["-50%"], row["-20%"],
+                 row["+20%"], row["+50%"], brand))
+        m = montecarlo_sensitivity(resp, c_base, args.samples, args.seed)
         w("    Monte Carlo (%d muestras, pesos x U(0.5,1.5) renormalizados):"
           % m["muestras"])
         w("      puntuacion %s .. %s   media %s   sd %s"
@@ -362,7 +362,7 @@ def main() -> None:
     # --- 3. Influencia ---------------------------------------------------- #
     w("3. INFLUENCIA DE CADA PREGUNTA (escenario 'critico')")
     w("-" * 74)
-    infl = influencia_por_pregunta(casos["critico"])
+    infl = influence_by_question(cases["critico"])
     w("  %-5s %7s %7s %7s  pregunta" % ("cod", "rango", "min", "max"))
     for f in infl[:12]:
         w("  %-5s %7.1f %7.1f %7.1f  %s" % (f["code"], f["rango"], f["min"],
@@ -378,18 +378,18 @@ def main() -> None:
     w("4. INFLUENCIA SOBRE LA RUTA DE DECISION")
     w("-" * 74)
     w("  Una pregunta puede no mover el numero y aun asi cambiar la recomendacion.")
-    inertes_por_caso = {}
-    for nombre, resp in casos.items():
-        if nombre == "otra_marca":
+    inert_per_case = {}
+    for name, resp in cases.items():
+        if name == "otra_marca":
             continue
-        mueven, inertes = influencia_en_decision(resp)
-        inertes_por_caso[nombre] = set(inertes)
-        w("  [%s] ruta base: %s" % (nombre, " > ".join(ruta_decision(resp))))
+        mueven, inertes = decision_influence(resp)
+        inert_per_case[name] = set(inertes)
+        w("  [%s] ruta base: %s" % (name, " > ".join(decision_route(resp))))
         w("    cambian la ruta: " + (", ".join("%s (%d rutas)" % m for m in mueven)
                                      if mueven else "ninguna"))
         w("    no mueven ni puntuacion ni ruta: "
           + (", ".join(inertes) if inertes else "ninguna"))
-    comunes = set.intersection(*inertes_por_caso.values()) if inertes_por_caso else set()
+    comunes = set.intersection(*inert_per_case.values()) if inert_per_case else set()
     if comunes:
         w("")
         w("  Inertes en TODOS los escenarios probados: " + ", ".join(sorted(comunes)))
@@ -399,7 +399,7 @@ def main() -> None:
     # --- 5. Monotonia ----------------------------------------------------- #
     w("5. MONOTONIA SOBRE ESCALAS ORDINALES (escenario 'critico')")
     w("-" * 74)
-    for f in monotonia(casos["critico"]):
+    for f in monotonicity(cases["critico"]):
         flecha = "riesgo debe subir" if f["direccion"] == "sube" else "riesgo debe bajar"
         w("  [%s] %s" % (f["code"], flecha))
         w("    " + " -> ".join(str(v) for _, v in f["serie"]))
@@ -413,35 +413,35 @@ def main() -> None:
     # --- 6. Margen -------------------------------------------------------- #
     w("6. MARGEN HASTA EL UMBRAL MAS CERCANO (20/40/60/80)")
     w("-" * 74)
-    for nombre, resp in casos.items():
-        punt, clas, _ = puntuar(resp)
-        dist, u = margen_umbral(punt)
-        w("  %-12s %6.1f (%s) a %s puntos del umbral %s" % (nombre, punt, clas, dist, u))
+    for name, resp in cases.items():
+        punt, clas, _ = score(resp)
+        dist, u = threshold_margin(punt)
+        w("  %-12s %6.1f (%s) a %s puntos del umbral %s" % (name, punt, clas, dist, u))
     w("")
 
     # --- 7. Relacion puntuacion / decision -------------------------------- #
     w("7. RELACION ENTRE LA PUNTUACION Y LA DECISION")
     w("-" * 74)
     w("  Se fuerza la puntuacion a los extremos dejando las respuestas intactas.")
-    resp = casos["critico"]
-    p0, c0, _ = puntuar(resp)
-    for etiqueta, pp in (("puntuacion real", p0), ("forzada a 0", 0.0),
+    resp = cases["critico"]
+    p0, c0, _ = score(resp)
+    for label, pp in (("puntuacion real", p0), ("forzada a 0", 0.0),
                          ("forzada a 100", 100.0)):
         w("    %-18s (%s) -> migrar = %s"
-          % (etiqueta, scoring.clasificar(pp), migra(resp, pp, scoring.clasificar(pp))))
+          % (label, scoring.classify(pp), migrate(resp, pp, scoring.classify(pp))))
     w("")
 
     print("")
     if args.md:
-        destino = RAIZ / "docs" / "evaluacion_interna.md"
-        destino.write_text(
+        target = ROOT / "docs" / "evaluacion_interna.md"
+        target.write_text(
             "# Verificacion interna del motor MIGRA-IA\n\n"
             "Generado por `_evaluacion.py`. Reproducible: mismas respuestas, "
             "mismos numeros, sin clave de API.\n\n"
-            "Semilla Monte Carlo: `%d` - muestras: `%d`.\n\n" % (args.semilla, args.muestras)
+            "Semilla Monte Carlo: `%d` - muestras: `%d`.\n\n" % (args.seed, args.samples)
             + "```\n" + "\n".join(L) + "\n```\n",
             encoding="utf-8")
-        print("Informe escrito en " + str(destino))
+        print("Informe escrito en " + str(target))
 
 
 if __name__ == "__main__":

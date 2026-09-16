@@ -10,9 +10,9 @@ from __future__ import annotations
 import json
 from datetime import datetime
 
-from .caso import Caso
-from .scoring import calcular_riesgo, PESOS
-from . import config, conocimiento, cuestionario, fabricantes, procedimiento
+from .case import Case
+from .scoring import compute_risk, WEIGHTS
+from . import config, knowledge, questionnaire, manufacturers, procedure
 
 NIVELES = ["confirmado", "alta_confianza", "confianza_media", "baja_confianza", "no_determinado"]
 
@@ -21,7 +21,7 @@ NIVELES = ["confirmado", "alta_confianza", "confianza_media", "baja_confianza", 
 # --------------------------------------------------------------------------- #
 TOOLS = [
     {
-        "name": "guardar_respuestas",
+        "name": "save_answers",
         "description": (
             "Registra una o varias respuestas del cuestionario en el expediente. "
             "Usala cada vez que el usuario aporte datos relevantes. Cada respuesta "
@@ -50,7 +50,7 @@ TOOLS = [
         },
     },
     {
-        "name": "registrar_activo",
+        "name": "register_asset",
         "description": (
             "Registra un activo del sistema (CPU/PLC, modulo de E/S, HMI, variador, "
             "servo, sensor, actuador, etc.) con sus datos de placa. Devuelve el ID "
@@ -72,7 +72,7 @@ TOOLS = [
         },
     },
     {
-        "name": "registrar_evidencia",
+        "name": "register_evidence",
         "description": "Registra una evidencia aportada por el usuario (fotografia, manual, plano, respaldo, lista de E/S). Devuelve el ID unico (EVD-...).",
         "input_schema": {
             "type": "object",
@@ -85,7 +85,7 @@ TOOLS = [
         },
     },
     {
-        "name": "registrar_dato_faltante",
+        "name": "register_missing_data",
         "description": "Registra un dato critico ausente que impide o limita una recomendacion final (Seccion 11).",
         "input_schema": {
             "type": "object",
@@ -97,7 +97,7 @@ TOOLS = [
         },
     },
     {
-        "name": "registrar_bandera_seguridad",
+        "name": "register_safety_flag",
         "description": "Registra una bandera de seguridad, p. ej. cuando la migracion puede afectar funciones de seguridad y se requiere revision de un especialista en seguridad funcional.",
         "input_schema": {
             "type": "object",
@@ -106,7 +106,7 @@ TOOLS = [
         },
     },
     {
-        "name": "calcular_riesgo_obsolescencia",
+        "name": "compute_obsolescence_risk",
         "description": (
             "Calcula la puntuacion de riesgo de obsolescencia (0-100) ponderando los "
             "ocho factores de la Seccion 6. Provee solo los factores para los que tengas "
@@ -118,7 +118,7 @@ TOOLS = [
             "properties": {
                 "factors": {
                     "type": "object",
-                    "description": "Claves validas: " + ", ".join(PESOS.keys()),
+                    "description": "Claves validas: " + ", ".join(WEIGHTS.keys()),
                     "additionalProperties": {
                         "type": "object",
                         "properties": {
@@ -133,12 +133,12 @@ TOOLS = [
         },
     },
     {
-        "name": "resumen_caso",
+        "name": "case_summary",
         "description": "Devuelve el estado actual del expediente (respuestas, activos, evidencias, datos faltantes, banderas, riesgo). Usala para recordar que informacion ya esta registrada.",
         "input_schema": {"type": "object", "properties": {}},
     },
     {
-        "name": "consultar_guia",
+        "name": "query_guide",
         "description": (
             "Consulta la base de referencia interna (Guia MIGRA-IA-GUIA-001) para "
             "conducir el diagnostico de forma estructurada y FUNDAMENTAR Y CITAR cada "
@@ -175,7 +175,7 @@ TOOLS = [
         },
     },
     {
-        "name": "identificar_cpu",
+        "name": "identify_cpu",
         "description": (
             "PRIMERA HERRAMIENTA a usar en cuanto el usuario mencione un equipo. "
             "Resuelve texto libre de placa ('un Allen Bradley SLC 5/04', 'CJ1M-CPU13', "
@@ -202,7 +202,7 @@ TOOLS = [
         },
     },
     {
-        "name": "consultar_catalogo",
+        "name": "query_catalog",
         "description": (
             "Consulta el catalogo de fabricantes y CPU: la cronologia completa de una "
             "marca (de la generacion mas antigua a la actual) o el detalle de una de sus "
@@ -226,7 +226,7 @@ TOOLS = [
         },
     },
     {
-        "name": "consultar_cuestionario",
+        "name": "query_questionnaire",
         "description": (
             "Consulta el cuestionario maestro adaptativo: el detalle exacto de las "
             "preguntas (texto, opciones y regla adaptativa) y, sobre todo, el mapa de "
@@ -253,8 +253,8 @@ TOOLS = [
                     "description": (
                         "Identificador dentro del tema: letra o titulo de seccion (p. ej. "
                         "'M' o 'ciclo de vida'); codigo de pregunta (p. ej. 'M06'); clave del "
-                        "factor de riesgo (" + ", ".join(PESOS.keys()) + "); nombre de la "
-                        "alternativa (p. ej. 'migracion'); o texto libre para 'buscar'. "
+                        "factor de riesgo (" + ", ".join(WEIGHTS.keys()) + "); nombre de la "
+                        "alternativa (p. ej. 'migration'); o texto libre para 'buscar'. "
                         "Omitela para obtener el indice del tema."
                     ),
                 },
@@ -263,7 +263,7 @@ TOOLS = [
         },
     },
     {
-        "name": "consultar_procedimiento",
+        "name": "query_procedure",
         "description": (
             "Consulta el procedimiento de migracion de 50 pasos (MIGRA-IA-PROC-050): el "
             "paso a paso que se sigue UNA VEZ QUE SE DECIDE cambiar la CPU. Cada paso trae "
@@ -310,7 +310,7 @@ TOOLS = [
         },
     },
     {
-        "name": "iniciar_guia_migracion",
+        "name": "start_migration_guide",
         "description": (
             "Abre el modo guia del procedimiento de 50 pasos. Llamala en el momento en que "
             "se decide cambiar la CPU: por obsolescencia, por contrasena desconocida, "
@@ -342,7 +342,7 @@ TOOLS = [
         },
     },
     {
-        "name": "fijar_cpu_destino",
+        "name": "set_target_cpu",
         "description": (
             "Registra la CPU de reemplazo que ELIGIO EL USUARIO en el paso 13, con su "
             "justificacion y su fuente. Nunca la elijas tu: presenta antes las opciones con "
@@ -367,7 +367,7 @@ TOOLS = [
         },
     },
     {
-        "name": "marcar_paso_migracion",
+        "name": "mark_migration_step",
         "description": (
             "Registra el estado de un paso del procedimiento en el expediente, con la "
             "evidencia que lo sustenta. Marca 'completado' solo cuando se cumple el criterio "
@@ -396,7 +396,7 @@ TOOLS = [
         },
     },
     {
-        "name": "solicitar_aprobacion_humana",
+        "name": "request_human_approval",
         "description": (
             "Solicita aprobacion explicita del personal autorizado ANTES de entregar "
             "instrucciones de intervencion sobre el equipo real (Regla 11). Presenta la "
@@ -413,7 +413,7 @@ TOOLS = [
         },
     },
     {
-        "name": "generar_informe",
+        "name": "generate_report",
         "description": (
             "Genera y guarda el informe tecnico trazable en formato Markdown siguiendo "
             "la estructura de la Seccion 9. Devuelve la ruta del archivo. Incluye el "
@@ -440,7 +440,7 @@ def _ok(**kwargs) -> str:
     return json.dumps({"status": "ok", **kwargs}, ensure_ascii=False)
 
 
-def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None) -> str:
+def run_tool(case: Case, name: str, entry: dict, approver=None) -> str:
     """Ejecuta una herramienta sobre el expediente y persiste el resultado.
 
     `aprobador` es un callable opcional (caso, entrada) -> bool usado por la
@@ -448,118 +448,118 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
     Devuelve una cadena JSON que se envia al modelo como tool_result.
     """
     try:
-        if nombre == "guardar_respuestas":
+        if name == "save_answers":
             codigos = []
-            for r in entrada.get("answers", []):
-                caso.guardar_respuesta(
-                    seccion=r.get("section", ""),
-                    codigo=r["code"],
-                    pregunta=r.get("question", ""),
-                    valor=r.get("value", ""),
-                    nivel_confianza=r.get("confidence_level", "confianza_media"),
-                    fuente=r.get("source", ""),
+            for r in entry.get("answers", []):
+                case.save_answer(
+                    section=r.get("section", ""),
+                    code=r["code"],
+                    question=r.get("question", ""),
+                    value=r.get("value", ""),
+                    confidence_level=r.get("confidence_level", "confianza_media"),
+                    source=r.get("source", ""),
                 )
                 codigos.append(r["code"])
             resultado = _ok(registradas=codigos)
 
-        elif nombre == "registrar_activo":
-            aid = caso.registrar_activo(entrada)
+        elif name == "register_asset":
+            aid = case.register_asset(entry)
             # Anclaje automatico: si el activo es la CPU/PLC, se identifica contra el
             # catalogo y la ficha viaja de vuelta al modelo en el mismo tool_result.
             # Asi la adaptacion a la marca no depende de que el modelo decida consultar.
             extra = {}
-            if entrada.get("type", "").lower() in ("cpu", "plc", "controlador", "pac"):
-                texto = " ".join(
-                    str(entrada.get(c, ""))
+            if entry.get("type", "").lower() in ("cpu", "plc", "controlador", "pac"):
+                text = " ".join(
+                    str(entry.get(c, ""))
                     for c in ("manufacturer", "model", "catalog_reference", "description")
                 ).strip()
-                ident = fabricantes.identificar(texto)
-                caso.fijar_equipo(ident)
+                ident = manufacturers.identify(text)
+                case.set_equipment(ident)
                 extra = {
                     "identificacion_catalogo": ident,
-                    "anclaje": fabricantes.anclaje(ident),
+                    "anclaje": manufacturers.anchor(ident),
                 }
-            resultado = _ok(id_activo=aid, **extra)
+            resultado = _ok(asset_id=aid, **extra)
 
-        elif nombre == "identificar_cpu":
-            ident = fabricantes.identificar(entrada.get("text", ""))
-            caso.fijar_equipo(ident)
+        elif name == "identify_cpu":
+            ident = manufacturers.identify(entry.get("text", ""))
+            case.set_equipment(ident)
             resultado = json.dumps(
                 {"status": "ok", "identificacion": ident,
-                 "anclaje": fabricantes.anclaje(ident)},
+                 "anclaje": manufacturers.anchor(ident)},
                 ensure_ascii=False,
             )
 
-        elif nombre == "consultar_catalogo":
-            res = fabricantes.ficha(entrada.get("brand", ""), entrada.get("family"))
+        elif name == "query_catalog":
+            res = manufacturers.profile(entry.get("brand", ""), entry.get("family"))
             resultado = json.dumps(res, ensure_ascii=False)
 
-        elif nombre == "registrar_evidencia":
-            eid = caso.registrar_evidencia(entrada)
-            resultado = _ok(id_evidencia=eid)
+        elif name == "register_evidence":
+            eid = case.register_evidence(entry)
+            resultado = _ok(evidence_id=eid)
 
-        elif nombre == "registrar_dato_faltante":
-            caso.registrar_dato_faltante(entrada["description"], entrada.get("impacto", ""))
-            resultado = _ok(mensaje="dato faltante registrado")
+        elif name == "register_missing_data":
+            case.register_missing_data(entry["description"], entry.get("impacto", ""))
+            resultado = _ok(message="dato faltante registrado")
 
-        elif nombre == "registrar_bandera_seguridad":
-            caso.registrar_bandera(entrada["text"])
-            resultado = _ok(mensaje="bandera registrada")
+        elif name == "register_safety_flag":
+            case.register_flag(entry["text"])
+            resultado = _ok(message="bandera registrada")
 
-        elif nombre == "calcular_riesgo_obsolescencia":
-            res = calcular_riesgo(entrada.get("factors", {}))
-            caso.guardar_riesgo(res.to_dict())
+        elif name == "compute_obsolescence_risk":
+            res = compute_risk(entry.get("factors", {}))
+            case.save_risk(res.to_dict())
             resultado = _ok(**res.to_dict())
 
-        elif nombre == "resumen_caso":
-            resultado = json.dumps(caso.resumen(), ensure_ascii=False)
+        elif name == "case_summary":
+            resultado = json.dumps(case.summary(), ensure_ascii=False)
 
-        elif nombre == "consultar_guia":
-            res = conocimiento.consultar(entrada.get("tema", ""), entrada.get("key"))
+        elif name == "query_guide":
+            res = knowledge.query(entry.get("tema", ""), entry.get("key"))
             resultado = json.dumps(res, ensure_ascii=False)
 
-        elif nombre == "consultar_cuestionario":
-            res = cuestionario.consultar(entrada.get("tema", ""), entrada.get("key"))
+        elif name == "query_questionnaire":
+            res = questionnaire.query(entry.get("tema", ""), entry.get("key"))
             resultado = json.dumps(res, ensure_ascii=False)
 
-        elif nombre == "consultar_procedimiento":
-            res = procedimiento.consultar(
-                entrada.get("tema", ""), entrada.get("key"), caso=caso
+        elif name == "query_procedure":
+            res = procedure.query(
+                entry.get("tema", ""), entry.get("key"), case=case
             )
             resultado = json.dumps(res, ensure_ascii=False)
 
-        elif nombre == "iniciar_guia_migracion":
-            caso.iniciar_migracion(
-                disparador=entrada["trigger"],
-                motivo=entrada.get("motivo", ""),
-                decidido_por=entrada.get("decidido_por", "usuario"),
+        elif name == "start_migration_guide":
+            case.start_migration(
+                trigger=entry["trigger"],
+                motivo=entry.get("motivo", ""),
+                decided_by=entry.get("decidido_por", "usuario"),
             )
-            if entrada.get("sin_respaldo"):
-                caso.declarar_sin_respaldo(True)
+            if entry.get("sin_respaldo"):
+                case.declare_without_backup(True)
             # El primer paso viaja de vuelta en el mismo tool_result: el modo guia
             # arranca sin depender de que el modelo decida hacer otra consulta.
-            sig = procedimiento.siguiente(caso)
+            sig = procedure.next_step(case)
             resultado = json.dumps(
                 {"status": "ok",
-                 "migracion": caso.migracion,
-                 "avance": procedimiento.estado(caso),
+                 "migration": case.migration,
+                 "avance": procedure.status(case),
                  "primer_paso": sig,
-                 "texto_primer_paso": procedimiento.texto_paso(
-                     sig["key"], procedimiento.contexto(caso)) if sig else ""},
+                 "texto_primer_paso": procedure.step_text(
+                     sig["key"], procedure.context(case)) if sig else ""},
                 ensure_ascii=False,
             )
 
-        elif nombre == "fijar_cpu_destino":
-            destino = caso.fijar_destino(
-                marca=entrada["brand"],
-                familia=entrada["family"],
-                modelo=entrada.get("model", ""),
-                justificacion=entrada.get("justificacion", ""),
-                fuente=entrada.get("source", ""),
+        elif name == "set_target_cpu":
+            target = case.set_target(
+                brand=entry["brand"],
+                family=entry["family"],
+                modelo=entry.get("model", ""),
+                justification=entry.get("justificacion", ""),
+                source=entry.get("source", ""),
             )
-            cambio = caso.migracion.get("cambio_marca", False)
-            con_codigo = procedimiento.contexto(caso).get("con_codigo_fuente", False)
-            if cambio and con_codigo:
+            cambio = case.migration.get("cambio_marca", False)
+            with_code = procedure.context(case).get("con_codigo_fuente", False)
+            if cambio and with_code:
                 consecuencia = (
                     "Cambio de marca CON el programa de origen accesible: los pasos 21 y 22 "
                     "dejan de aplicar, pero el trabajo NO empieza de cero. Pide el tema "
@@ -577,31 +577,31 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
                     "de conversion en los pasos 21 y 22.")
             resultado = json.dumps(
                 {"status": "ok",
-                 "destino": destino,
+                 "destino": target,
                  "cambio_marca": cambio,
                  "consecuencia": consecuencia,
-                 "avance": procedimiento.estado(caso)},
+                 "avance": procedure.status(case)},
                 ensure_ascii=False,
             )
 
-        elif nombre == "marcar_paso_migracion":
-            n = str(entrada["step"]).strip()
-            ctx = procedimiento.contexto(caso)
-            p = procedimiento.paso(n, ctx)
+        elif name == "mark_migration_step":
+            n = str(entry["step"]).strip()
+            ctx = procedure.context(case)
+            p = procedure.step(n, ctx)
             if p is None:
                 resultado = json.dumps(
                     {"status": "error",
                      "mensaje": f"El paso {n} no existe. Validos: 1 a 50, y P1 a P7.",
-                     "validos": procedimiento.orden()},
+                     "validos": procedure.order()},
                     ensure_ascii=False,
                 )
             else:
                 pendientes = [
                     r for r in p["prerequisites"]
-                    if (caso.migracion or {}).get("steps", {}).get(str(r), {}).get("status")
+                    if (case.migration or {}).get("steps", {}).get(str(r), {}).get("status")
                     not in ("completado", "no_aplica")
                 ]
-                if entrada["status"] == "completado" and pendientes:
+                if entry["status"] == "completado" and pendientes:
                     # No se cierra un paso saltandose sus prerrequisitos: la
                     # dependencia es del procedimiento, no criterio del modelo.
                     resultado = json.dumps(
@@ -612,36 +612,36 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
                         ensure_ascii=False,
                     )
                 else:
-                    caso.marcar_paso(n, entrada["status"], entrada.get("note", ""),
-                                     entrada.get("evidence"))
-                    sig = procedimiento.siguiente(caso)
+                    case.mark_step(n, entry["status"], entry.get("note", ""),
+                                     entry.get("evidence"))
+                    sig = procedure.next_step(case)
                     resultado = json.dumps(
                         {"status": "ok",
-                         "avance": procedimiento.estado(caso),
+                         "avance": procedure.status(case),
                          "siguiente_paso": sig["label"] if sig else None,
-                         "texto_siguiente_paso": procedimiento.texto_paso(
+                         "texto_siguiente_paso": procedure.step_text(
                              sig["key"], ctx) if sig else "Todos los pasos estan cerrados."},
                         ensure_ascii=False,
                     )
 
-        elif nombre == "solicitar_aprobacion_humana":
-            aprob = aprobador or _aprobacion_consola
-            aprobado = bool(aprob(caso, entrada))
-            caso.auditoria.append(
+        elif name == "request_human_approval":
+            aprob = approver or _console_approval
+            aprobado = bool(aprob(case, entry))
+            case.audit.append(
                 {
                     "ts": datetime.now().astimezone().isoformat(timespec="seconds"),
                     "accion": "human_approval",
-                    "detail": {"accion": entrada.get("accion_propuesta"), "aprobado": aprobado},
+                    "detail": {"accion": entry.get("accion_propuesta"), "aprobado": aprobado},
                 }
             )
             resultado = _ok(aprobado=aprobado)
 
-        elif nombre == "generar_informe":
-            resultado = _generar_informe(caso, entrada)
+        elif name == "generate_report":
+            resultado = _generate_report(case, entry)
 
         else:
             resultado = json.dumps(
-                {"status": "error", "mensaje": f"herramienta desconocida: {nombre}"},
+                {"status": "error", "mensaje": f"herramienta desconocida: {name}"},
                 ensure_ascii=False,
             )
     except Exception as exc:  # noqa: BLE001 - devolver el error al modelo, no romper el bucle
@@ -650,39 +650,39 @@ def ejecutar_herramienta(caso: Caso, nombre: str, entrada: dict, aprobador=None)
             ensure_ascii=False,
         )
 
-    caso.guardar()
+    case.save()
     return resultado
 
 
-def _aprobacion_consola(caso: Caso, entrada: dict) -> bool:
+def _console_approval(case: Case, entry: dict) -> bool:
     """Aprobador por defecto: pide confirmacion explicita en consola (CLI)."""
     print("\n" + "=" * 68)
     print("  SOLICITUD DE APROBACION HUMANA (personal autorizado)")
     print("=" * 68)
-    print(f"Accion propuesta: {entrada.get('accion_propuesta', '')}")
-    print(f"Riesgos:          {entrada.get('risks', '')}")
-    if entrada.get("puede_detener_produccion"):
+    print(f"Accion propuesta: {entry.get('accion_propuesta', '')}")
+    print(f"Riesgos:          {entry.get('risks', '')}")
+    if entry.get("puede_detener_produccion"):
         print("ADVERTENCIA: esta accion PODRIA DETENER LA PRODUCCION.")
-    respuesta = input("Aprueba esta accion? [s/N]: ").strip().lower()
-    return respuesta in ("s", "si", "sí", "y", "yes")
+    answer = input("Aprueba esta accion? [s/N]: ").strip().lower()
+    return answer in ("s", "si", "sí", "y", "yes")
 
 
-def _generar_informe(caso: Caso, entrada: dict) -> str:
+def _generate_report(case: Case, entry: dict) -> str:
     """Escribe el informe tecnico en Markdown y lo registra en el expediente."""
-    iid_previo = f"INF-{datetime.now().year}-{len(caso.informes) + 1:06d}"
-    nombre_archivo = f"{caso.case_id}_{iid_previo}.md"
-    ruta = config.DIR_CASOS / nombre_archivo
+    iid_previo = f"INF-{datetime.now().year}-{len(case.reports) + 1:06d}"
+    file_name = f"{case.case_id}_{iid_previo}.md"
+    path = config.CASES_DIR / file_name
 
     encabezado = (
-        f"# {entrada.get('title', 'Informe tecnico MIGRA-IA')}\n\n"
-        f"- Caso: {caso.case_id}\n"
-        f"- Agente: {config.AGENTE_NOMBRE} v{config.AGENTE_VERSION}\n"
+        f"# {entry.get('title', 'Informe tecnico MIGRA-IA')}\n\n"
+        f"- Caso: {case.case_id}\n"
+        f"- Agente: {config.AGENT_NAME} v{config.AGENT_VERSION}\n"
         f"- Fecha: {datetime.now().astimezone().isoformat(timespec='seconds')}\n"
-        f"- Nivel de confianza global: {entrada.get('nivel_confianza_global', 'no_determinado')}\n"
+        f"- Nivel de confianza global: {entry.get('nivel_confianza_global', 'no_determinado')}\n"
         f"- Aprobacion humana: PENDIENTE (este informe es una asistencia tecnica; "
         f"debe ser verificado por personal autorizado antes de intervenir).\n\n"
         "---\n\n"
     )
-    ruta.write_text(encabezado + entrada.get("cuerpo_markdown", ""), encoding="utf-8")
-    iid = caso.registrar_informe(str(ruta), entrada.get("resumen", ""))
-    return _ok(id_informe=iid, ruta=str(ruta))
+    path.write_text(encabezado + entry.get("cuerpo_markdown", ""), encoding="utf-8")
+    iid = case.register_report(str(path), entry.get("resumen", ""))
+    return _ok(report_id=iid, path=str(path))

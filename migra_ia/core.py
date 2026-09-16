@@ -7,38 +7,38 @@ ambos comparten el mismo prompt, herramientas y expediente.
 from __future__ import annotations
 
 from . import config
-from .caso import Caso
-from .herramientas import TOOLS, ejecutar_herramienta
+from .case import Case
+from .tools import TOOLS, run_tool
 
 
-def aprobador_pendiente(caso: Caso, entrada: dict) -> bool:
+def pending_approver(case: Case, entry: dict) -> bool:
     """Aprobador para la web: por seguridad, NO aprueba automaticamente.
 
     Registra la solicitud como pendiente para que la interfaz la muestre y el
     operador la confirme por otra via. El default seguro es 'no aprobado'.
     """
-    caso.aprobaciones_pendientes.append(
-        {"accion": entrada.get("accion_propuesta"), "risks": entrada.get("risks")}
+    case.pending_approvals.append(
+        {"accion": entry.get("accion_propuesta"), "risks": entry.get("risks")}
     )
     return False
 
 
-def ejecutar_turno(client, system: str, messages: list, caso: Caso, aprobador=None) -> dict:
+def run_turn(client, system: str, messages: list, case: Case, approver=None) -> dict:
     """Ejecuta un turno completo (encadenando herramientas) y devuelve el resultado.
 
     Muta `messages` in place. Devuelve:
         {"text": <respuesta del agente>, "acciones": [nombres de herramientas],
          "resumen": <resumen del expediente>}
     """
-    if aprobador is None:
-        aprobador = aprobador_pendiente
+    if approver is None:
+        approver = pending_approver
 
     textos: list[str] = []
-    acciones: list[str] = []
+    actions: list[str] = []
 
     while True:
-        respuesta = client.messages.create(
-            model=config.MODELO,
+        answer = client.messages.create(
+            model=config.MODEL,
             max_tokens=config.MAX_TOKENS,
             system=system,
             thinking=config.THINKING,
@@ -46,34 +46,34 @@ def ejecutar_turno(client, system: str, messages: list, caso: Caso, aprobador=No
             tools=TOOLS,
             messages=messages,
         )
-        messages.append({"role": "assistant", "content": respuesta.content})
+        messages.append({"role": "assistant", "content": answer.content})
 
-        for bloque in respuesta.content:
+        for bloque in answer.content:
             if bloque.type == "text":
                 textos.append(bloque.text)
 
-        if respuesta.stop_reason != "tool_use":
+        if answer.stop_reason != "tool_use":
             break
 
         resultados = []
-        for bloque in respuesta.content:
+        for bloque in answer.content:
             if bloque.type == "tool_use":
-                acciones.append(bloque.name)
-                salida = ejecutar_herramienta(caso, bloque.name, bloque.input, aprobador)
+                actions.append(bloque.name)
+                output = run_tool(case, bloque.name, bloque.input, approver)
                 resultados.append(
-                    {"type": "tool_result", "tool_use_id": bloque.id, "content": salida}
+                    {"type": "tool_result", "tool_use_id": bloque.id, "content": output}
                 )
         messages.append({"role": "user", "content": resultados})
 
-    caso.guardar()
+    case.save()
     return {
         "text": "\n\n".join(t for t in textos if t.strip()),
-        "acciones": acciones,
-        "resumen": caso.resumen(),
+        "acciones": actions,
+        "resumen": case.summary(),
     }
 
 
-def nuevo_cliente():
+def new_client():
     """Crea el cliente de Anthropic (lee ANTHROPIC_API_KEY del entorno)."""
     import anthropic  # import perezoso: el motor se puede importar sin el paquete
 

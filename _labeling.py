@@ -40,17 +40,17 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from _baseline import CLASES, FECHA_REF, cargar          # noqa: E402
+from _baseline import CLASES, FECHA_REF, load          # noqa: E402
 
-RAIZ = Path(__file__).resolve().parent
-ETIQUETAS = RAIZ / "data" / "labels_p1_p2.json"
-FORMULARIO = RAIZ / "docs" / "formulario_etiquetado.md"
+ROOT = Path(__file__).resolve().parent
+LABELS = ROOT / "data" / "labels_p1_p2.json"
+FORMULARIO = ROOT / "docs" / "formulario_etiquetado.md"
 
 # Criterio de prioridad de reemplazo, escrito antes de mirar los datos para que
 # no se pueda acomodar al resultado. Ordena por urgencia de suministro, que es
 # lo unico que esta tabla soporta: no trae criticidad de proceso ni coste de
 # parada, que son las otras dos mitades de la decision real.
-CRITERIO_P2 = [
+P2_CRITERION = [
     "1. Primero las que YA no tienen repuestos: fin de reparacion publicado y pasado.",
     "2. Despues aquellas cuyo fin de repuestos NO esta publicado. Es un riesgo de "
     "suministro no confirmado y no se cuenta como si ya hubiera terminado.",
@@ -60,33 +60,33 @@ CRITERIO_P2 = [
 ]
 
 
-def _anios_restantes(p) -> float | None:
+def _years_left(p) -> float | None:
     """Anios desde FECHA_REF hasta el fin de repuestos. Negativo si ya paso.
 
     None cuando el fabricante no lo publica. NO se sustituye por el peor caso:
     decir "sin repuestos ya" de un dato que nadie publico es inventarlo, y el
     proyecto marca el hueco en vez de suponerlo.
     """
-    if p.fin_repuestos is None:
+    if p.end_of_spare_parts is None:
         return None
-    return (p.fin_repuestos[0] - FECHA_REF[0]) + (p.fin_repuestos[1] - FECHA_REF[1]) / 12
+    return (p.end_of_spare_parts[0] - FECHA_REF[0]) + (p.end_of_spare_parts[1] - FECHA_REF[1]) / 12
 
 
-def _banda(p) -> int:
+def _band(p) -> int:
     """0 = sin repuestos confirmado, 1 = fin no publicado, 2 = con repuestos."""
-    r = _anios_restantes(p)
+    r = _years_left(p)
     if r is None:
         return 1
     return 0 if r <= 0 else 2
 
 
 def provisional() -> dict:
-    datos = cargar()
-    orden = sorted(
-        datos,
-        key=lambda p: (_banda(p),
-                       _anios_restantes(p) if _anios_restantes(p) is not None else 0.0,
-                       -p.antiguedad, p.plataforma),
+    data = load()
+    order = sorted(
+        data,
+        key=lambda p: (_band(p),
+                       _years_left(p) if _years_left(p) is not None else 0.0,
+                       -p.age_years, p.platform),
     )
     return {
         "provenance": "provisional_regla",
@@ -97,21 +97,21 @@ def provisional() -> dict:
         ),
         "reference_date": "%04d-%02d-%02d" % FECHA_REF,
         "raters": [],
-        "p2_criterion": CRITERIO_P2,
-        "p1_class": {p.plataforma: p.clase for p in datos},
+        "p2_criterion": P2_CRITERION,
+        "p1_class": {p.platform: p.class_label for p in data},
         "p1_rule": ("derivada de las fechas contra la fecha de referencia; por eso "
                      "las columnas de fecha quedan excluidas como variable en "
                      "_baseline.py. Ver la auditoria de fuga."),
-        "p2_ranking": [p.plataforma for p in orden],
+        "p2_ranking": [p.platform for p in order],
         "p2_detail": [
-            {"rank": i + 1, "platform": p.plataforma,
-             "spare_parts_years_left": (None if _anios_restantes(p) is None
-                                           else round(_anios_restantes(p), 1)),
-             "age_years": p.antiguedad,
+            {"rank": i + 1, "platform": p.platform,
+             "spare_parts_years_left": (None if _years_left(p) is None
+                                           else round(_years_left(p), 1)),
+             "age_years": p.age_years,
              "spare_parts_status": ["sin repuestos confirmado",
                                   "fin de repuestos NO publicado",
-                                  "con repuestos"][_banda(p)]}
-            for i, p in enumerate(orden)
+                                  "con repuestos"][_band(p)]}
+            for i, p in enumerate(order)
         ],
     }
 
@@ -120,7 +120,7 @@ def provisional() -> dict:
 # Metricas de P2: importa el orden
 # --------------------------------------------------------------------------
 
-def metricas_ranking(propuesto: list[str], referencia: list[str],
+def ranking_metrics(propuesto: list[str], referencia: list[str],
                      ks: tuple[int, ...] = (1, 3, 5)) -> dict:
     """Compara un orden propuesto contra el de referencia.
 
@@ -166,15 +166,15 @@ def metricas_ranking(propuesto: list[str], referencia: list[str],
     return res
 
 
-def orden_por_antiguedad(datos) -> list[str]:
+def order_by_age(data) -> list[str]:
     """Orden trivial de P2: la mas antigua primero. Es el B0 del ordenamiento,
     el suelo contra el que cualquier propuesta tiene que ganar."""
-    return [p.plataforma for p in sorted(datos, key=lambda x: (-x.antiguedad,
-                                                              x.plataforma))]
+    return [p.platform for p in sorted(data, key=lambda x: (-x.age_years,
+                                                              x.platform))]
 
 
-def escribir_formulario() -> None:
-    datos = cargar()
+def write_form() -> None:
+    data = load()
     L = ["# Formulario de etiquetado por juicio experto",
          "",
          "Para: coautores del trabajo. Tiempo estimado: 20-30 minutos.",
@@ -202,13 +202,13 @@ def escribir_formulario() -> None:
           "dato faltante declarado vale mas que una clase inventada.",
           ""]
 
-    for p in datos:
-        L += [f"### {p.plataforma}  ({p.fabricante})",
+    for p in data:
+        L += [f"### {p.platform}  ({p.manufacturer})",
               "",
-              f"- Lanzamiento: **{p.lanzamiento}**",
-              f"- Anuncio de fin de vida: **{_fmt(p.anuncio)}**",
-              f"- Fin de comercializacion: **{_fmt(p.fin_comercializacion)}**",
-              f"- Fin de repuestos y reparacion: **{_fmt(p.fin_repuestos)}**",
+              f"- Lanzamiento: **{p.release}**",
+              f"- Anuncio de fin de vida: **{_fmt(p.announcement)}**",
+              f"- Fin de comercializacion: **{_fmt(p.end_of_manufacturing)}**",
+              f"- Fin de repuestos y reparacion: **{_fmt(p.end_of_spare_parts)}**",
               "",
               "Clase (1-4, o NS): `____`    Comentario: `______________________________`",
               ""]
@@ -222,8 +222,8 @@ def escribir_formulario() -> None:
           "compiten por el mismo presupuesto. Usa el criterio que usarias en tu planta;",
           "no hay respuesta oficial.",
           ""]
-    for p in sorted(datos, key=lambda x: x.plataforma):
-        L.append(f"- `____`  {p.plataforma}  ({p.fabricante})")
+    for p in sorted(data, key=lambda x: x.platform):
+        L.append(f"- `____`  {p.platform}  ({p.manufacturer})")
     L += ["",
           "En una linea, que peso le diste a cada cosa (obsolescencia, criticidad,",
           "coste, riesgo de parada):",
@@ -231,79 +231,79 @@ def escribir_formulario() -> None:
           "`__________________________________________________________________`",
           ""]
     FORMULARIO.write_text("\n".join(L), encoding="utf-8")
-    print(f"Escrito {FORMULARIO.relative_to(RAIZ).as_posix()} "
-          f"({len(datos)} plataformas, sin salida del motor)")
+    print(f"Escrito {FORMULARIO.relative_to(ROOT).as_posix()} "
+          f"({len(data)} plataformas, sin salida del motor)")
 
 
 def _fmt(f) -> str:
     return "no publicado" if f is None else "%04d-%02d" % (f[0], f[1])
 
 
-def comparar(archivos: list[Path]) -> None:
+def compare(files: list[Path]) -> None:
     """Lee formularios rellenados y mide el acuerdo. El resultado con valor
     cientifico es el acuerdo ENTRE expertos: si dos ingenieros leen los mismos
     datos y clasifican distinto, el problema no es el motor sino que el criterio
     admite lecturas distintas."""
-    base = json.loads(ETIQUETAS.read_text(encoding="utf-8")) if ETIQUETAS.exists() else {}
-    respuestas: dict[str, dict[str, str]] = {}
-    for a in archivos:
-        texto = a.read_text(encoding="utf-8")
+    base = json.loads(LABELS.read_text(encoding="utf-8")) if LABELS.exists() else {}
+    answers: dict[str, dict[str, str]] = {}
+    for a in files:
+        text = a.read_text(encoding="utf-8")
         clases = {}
         actual = None
-        for linea in texto.splitlines():
+        for linea in text.splitlines():
             m = re.match(r"^###\s+(.+?)\s+\(", linea)
             if m:
                 actual = m.group(1).strip()
             m = re.search(r"Clase \(1-4, o NS\):\s*`?\s*([1-4]|NS)\s*`?", linea)
             if m and actual:
                 clases[actual] = m.group(1)
-        respuestas[a.stem] = clases
+        answers[a.stem] = clases
         print(f"{a.name}: {len(clases)} clases leidas")
 
-    nombres = list(respuestas)
+    nombres = list(answers)
     if len(nombres) >= 2:
-        comunes = set.intersection(*(set(respuestas[n]) for n in nombres))
-        acuerdos = sum(len({respuestas[n][p] for n in nombres}) == 1 for p in comunes)
+        comunes = set.intersection(*(set(answers[n]) for n in nombres))
+        acuerdos = sum(len({answers[n][p] for n in nombres}) == 1 for p in comunes)
         print(f"\nAcuerdo entre {len(nombres)} evaluadores: {acuerdos}/{len(comunes)} "
               f"plataformas con clase identica")
         for p in sorted(comunes):
-            votos = {n: respuestas[n][p] for n in nombres}
+            votos = {n: answers[n][p] for n in nombres}
             if len(set(votos.values())) > 1:
                 print(f"  DESACUERDO {p}: {votos}")
 
     if base.get("p1_class"):
         print("\nDistancia contra la regla provisional (no es una nota, es un contraste):")
         for n in nombres:
-            comunes = set(respuestas[n]) & set(base["p1_class"])
-            iguales = sum(str(base["p1_class"][p]) == respuestas[n][p] for p in comunes)
+            comunes = set(answers[n]) & set(base["p1_class"])
+            iguales = sum(str(base["p1_class"][p]) == answers[n][p] for p in comunes)
             print(f"  {n}: {iguales}/{len(comunes)} coinciden con la regla")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Etiquetado de P1 y P2.")
-    ap.add_argument("accion", choices=["provisional", "formulario", "comparar", "p2"])
+    ap.add_argument("accion", choices=["provisional", "form", "compare", "p2"])
     ap.add_argument("archivos", nargs="*", type=Path)
     args = ap.parse_args()
 
-    if args.accion == "provisional":
+    if args.action == "provisional":
         d = provisional()
-        ETIQUETAS.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"Escrito {ETIQUETAS.relative_to(RAIZ).as_posix()}")
+        LABELS.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"Escrito {LABELS.relative_to(ROOT).as_posix()}")
         print(f"procedencia = {d['provenance']}  <-- NO es juicio experto")
         print("\nOrden de prioridad provisional (P2):")
         for e in d["p2_detail"]:
-            estado = e["spare_parts_status"]
+            status = e["spare_parts_status"]
             restan = e["spare_parts_years_left"]
             if restan is not None and restan > 0:
-                estado += f" ({restan} anios)"
-            print(f"  {e['rank']}. {e['platform']:<30s} antig {e['age_years']:>2d}  {estado}")
-    elif args.accion == "formulario":
-        escribir_formulario()
-    elif args.accion == "p2":
-        if not ETIQUETAS.exists():
+                status += f" ({restan} anios)"
+            print(f"  {e['rank']}. {e['platform']:<30s} antig {e['age_years']:>2d}  {status}")
+    elif args.action == "form":
+        write_form()
+    elif args.action == "p2":
+        if not LABELS.exists():
             ap.error("falta data/labels_p1_p2.json; corre primero 'provisional'")
-        ref = json.loads(ETIQUETAS.read_text(encoding="utf-8"))
-        datos = cargar()
+        ref = json.loads(LABELS.read_text(encoding="utf-8"))
+        data = load()
         print("=" * 70)
         print("P2 PRIORIDAD DE REEMPLAZO - METRICAS DE ORDENAMIENTO")
         print("=" * 70)
@@ -312,8 +312,8 @@ def main() -> None:
             print("AVISO: la referencia NO es juicio experto. Lo que sigue mide")
             print("coherencia interna, no acierto. No publicar como validacion.")
         print()
-        trivial = orden_por_antiguedad(datos)
-        m = metricas_ranking(trivial, ref["p2_ranking"])
+        trivial = order_by_age(data)
+        m = ranking_metrics(trivial, ref["p2_ranking"])
         print("B0 trivial: ordenar por antiguedad, la mas vieja primero")
         for k, v in m["precision_en_k"].items():
             pm = m["posicion_media_en_k"][k]
@@ -325,9 +325,9 @@ def main() -> None:
         print("sigue sin haber un orden de referencia de juicio experto. En cuanto")
         print("lleguen los formularios, este mismo comando lo mide.")
     else:
-        if not args.archivos:
+        if not args.files:
             ap.error("comparar necesita al menos un formulario rellenado")
-        comparar(args.archivos)
+        compare(args.files)
 
 
 if __name__ == "__main__":

@@ -25,19 +25,19 @@ from pathlib import Path
 
 from migra_ia import scoring
 
-RAIZ = Path(__file__).resolve().parent
-FUENTE = RAIZ / "migra_ia" / "interactivo.py"
+ROOT = Path(__file__).resolve().parent
+SOURCE = ROOT / "migra_ia" / "interactive.py"
 
 # Nombre de la funcion que implementa cada factor de scoring.PESOS.
-FUNCION = {
-    "estado_ciclo_vida": "_f_ciclo_vida",
-    "disponibilidad_repuestos": "_f_repuestos",
-    "soporte_fabricante": "_f_soporte",
+FUNCTION = {
+    "estado_ciclo_vida": "_f_lifecycle",
+    "disponibilidad_repuestos": "_f_spare_parts",
+    "soporte_fabricante": "_f_support",
     "disponibilidad_software": "_f_software",
-    "disponibilidad_respaldo": "_f_respaldo",
-    "compatibilidad_sistemas": "_f_compatibilidad",
-    "historial_fallas": "_f_historial",
-    "criticidad_productiva": "_f_criticidad",
+    "disponibilidad_respaldo": "_f_backup",
+    "compatibilidad_sistemas": "_f_compatibility",
+    "historial_fallas": "_f_history",
+    "criticidad_productiva": "_f_criticality",
 }
 
 NOTAS = {
@@ -112,7 +112,7 @@ NOTAS = {
 }
 
 
-def _numero(nodo):
+def _number(nodo):
     """Valor numerico de un literal, incluido el negativo (UnaryOp USub)."""
     if isinstance(nodo, ast.Constant) and isinstance(nodo.value, (int, float)):
         return nodo.value
@@ -123,7 +123,7 @@ def _numero(nodo):
     return None
 
 
-def _codigo_leido(nodo):
+def _code_read(nodo):
     """Codigo de pregunta del argumento de `.get(...)`, si se puede determinar."""
     if isinstance(nodo, ast.Constant) and isinstance(nodo.value, str):
         return nodo.value
@@ -132,7 +132,7 @@ def _codigo_leido(nodo):
     return None
 
 
-def tablas_de(nombre_funcion: str):
+def tables_of(function_name: str):
     """Tablas literales respuesta -> numero, con su valor por defecto.
 
     Se recorren los nodos `Call` de la forma `{...}.get(x)` o `{...}.get(x, N)`,
@@ -140,9 +140,9 @@ def tablas_de(nombre_funcion: str):
     posicion en dos listas separadas los desalinea en cuanto una tabla no lleva
     defecto, que es justo lo que pasa en soporte y en criticidad.
     """
-    arbol = ast.parse(FUENTE.read_text(encoding="utf-8"))
+    arbol = ast.parse(SOURCE.read_text(encoding="utf-8"))
     fn = next((n for n in ast.walk(arbol)
-               if isinstance(n, ast.FunctionDef) and n.name == nombre_funcion), None)
+               if isinstance(n, ast.FunctionDef) and n.name == function_name), None)
     if fn is None:
         return []
     encontradas = []
@@ -153,27 +153,27 @@ def tablas_de(nombre_funcion: str):
         d = nodo.func.value
         filas, ok = [], True
         for k, v in zip(d.keys, d.values):
-            valor = _numero(v)
-            if not (isinstance(k, ast.Constant) and isinstance(k.value, str)) or valor is None:
+            value = _number(v)
+            if not (isinstance(k, ast.Constant) and isinstance(k.value, str)) or value is None:
                 ok = False
                 break
-            filas.append((k.value, valor))
+            filas.append((k.value, value))
         if not ok or not filas:
             continue
-        defecto = _numero(nodo.args[1]) if len(nodo.args) > 1 else None
+        defecto = _number(nodo.args[1]) if len(nodo.args) > 1 else None
         encontradas.append({
             "filas": filas,
             "defecto": defecto,
-            "code": _codigo_leido(nodo.args[0]) if nodo.args else None,
+            "code": _code_read(nodo.args[0]) if nodo.args else None,
         })
     return encontradas
 
 
-def codigos_de(nombre_funcion: str):
+def codes_of(function_name: str):
     """Codigos de pregunta que la funcion lee."""
-    arbol = ast.parse(FUENTE.read_text(encoding="utf-8"))
+    arbol = ast.parse(SOURCE.read_text(encoding="utf-8"))
     fn = next((n for n in ast.walk(arbol)
-               if isinstance(n, ast.FunctionDef) and n.name == nombre_funcion), None)
+               if isinstance(n, ast.FunctionDef) and n.name == function_name), None)
     vistos = []
     if fn is None:
         return vistos
@@ -206,15 +206,15 @@ def main() -> None:
       "es la media ponderada de los ocho, con los pesos de la Seccion 6.")
     w("")
 
-    for clave, peso in scoring.PESOS.items():
-        etiqueta = scoring.ETIQUETAS_FACTOR[clave]
-        fn = FUNCION[clave]
-        w("## %s" % etiqueta)
+    for key, peso in scoring.WEIGHTS.items():
+        label = scoring.FACTOR_LABELS[key]
+        fn = FUNCTION[key]
+        w("## %s" % label)
         w("")
         w("**Peso %.2f** - implementado en `%s()` - lee: %s"
-          % (peso, fn, ", ".join("`%s`" % c for c in codigos_de(fn)) or "(ninguno)"))
+          % (peso, fn, ", ".join("`%s`" % c for c in codes_of(fn)) or "(ninguno)"))
         w("")
-        tablas = tablas_de(fn)
+        tablas = tables_of(fn)
         if tablas:
             for t in tablas:
                 if len(tablas) > 1:
@@ -222,8 +222,8 @@ def main() -> None:
                     w("")
                 w("| Respuesta | Valor |")
                 w("|---|---|")
-                for texto, valor in t["filas"]:
-                    w("| %s | %s |" % (texto, ("%+g" % valor) if valor < 0 else "%g" % valor))
+                for text, value in t["filas"]:
+                    w("| %s | %s |" % (text, ("%+g" % value) if value < 0 else "%g" % value))
                 if t["defecto"] is not None:
                     w("| *(cualquier otra / no se conoce)* | %g |" % t["defecto"])
                 else:
@@ -232,7 +232,7 @@ def main() -> None:
         else:
             w("*Sin tabla de consulta: la regla es condicional. Ver notas.*")
             w("")
-        w("**Notas:** %s" % NOTAS[clave])
+        w("**Notas:** %s" % NOTAS[key])
         w("")
 
     w("---")
@@ -247,10 +247,10 @@ def main() -> None:
     w("")
 
     if args.md:
-        destino = RAIZ / "docs" / "reglas_de_puntuacion.md"
-        destino.write_text("\n".join(L) + "\n", encoding="utf-8")
+        target = ROOT / "docs" / "reglas_de_puntuacion.md"
+        target.write_text("\n".join(L) + "\n", encoding="utf-8")
         print("")
-        print("Escrito en %s" % destino)
+        print("Escrito en %s" % target)
 
 
 if __name__ == "__main__":

@@ -7,9 +7,9 @@ confianza (Sec. 7), la estructura de respuesta (Sec. 9), el arbol de decision
 
 from __future__ import annotations
 
-from . import config, conocimiento, cuestionario, fabricantes, procedimiento
+from . import config, knowledge, questionnaire, manufacturers, procedure
 
-ADAPTACION_AL_EQUIPO = """\
+EQUIPMENT_ADAPTATION = """\
 ADAPTACION AL EQUIPO (regla de maxima prioridad: se aplica ANTES que cualquier otra):
 Tu asesoria se refiere SIEMPRE al equipo concreto que consulta el usuario. No tienes
 marca por defecto ni caso de ejemplo. Siemens NO es tu referencia: es una de treinta.
@@ -32,11 +32,11 @@ marca por defecto ni caso de ejemplo. Siemens NO es tu referencia: es una de tre
    ('CJ2M-CPU11 a CPU15'), NO completes los codigos intermedios: eso seria inventar
    numeros de parte (Regla 13).
 8. Antes de cerrar cualquier recomendacion, comprueba con `resumen_caso` que sigues
-   hablando del equipo anclado en 'equipo_identificado'."""
+   hablando del equipo anclado en 'equipment_identified'."""
 
 # Mensaje que arranca la conversacion (el agente habla primero). Lo comparten el
 # CLI y la app web.
-MENSAJE_INICIAL_USUARIO = (
+INITIAL_USER_MESSAGE = (
     "Inicia el caso. Presentate en una o dos lineas y comienza el diagnostico "
     "guiado paso a paso: pregunta primero por la identificacion del usuario y su "
     "autorizacion, y luego avanza segun mis respuestas. Haz pocas preguntas a la vez."
@@ -67,7 +67,7 @@ NIVELES DE CONFIANZA (Seccion 7) - etiqueta cada dato y cada recomendacion:
 - baja_confianza:  depende de datos no verificados.
 - no_determinado:  faltan datos criticos."""
 
-DATOS_MINIMOS = """\
+MINIMUM_DATA = """\
 DATOS MINIMOS ANTES DE UNA RECOMENDACION FINAL (Seccion 11):
 marca/familia/modelo exacto de CPU; lista de modulos y estaciones remotas;
 cantidad y tipo de E/S; tensiones, corrientes y clases de senales; redes y
@@ -102,7 +102,7 @@ ARBOL DE DECISION FUNCIONAL (Seccion 10) - guia el orden del diagnostico:
 6. Existen funciones de seguridad? SI -> revision especializada obligatoria.
 7. Generar arquitectura, BOM, codigo, pruebas e informe."""
 
-ESTRUCTURA_RESPUESTA = """\
+ANSWER_STRUCTURE = """\
 ESTRUCTURA DEL INFORME (Seccion 9) - usala al generar el informe tecnico:
 1. Identificacion del caso, equipo, fecha y version del agente.
 2. Resumen ejecutivo del problema.
@@ -120,7 +120,7 @@ ESTRUCTURA DEL INFORME (Seccion 9) - usala al generar el informe tecnico:
 13. Nivel de confianza y fuentes consultadas."""
 
 
-GUIAS_PASO_A_PASO = """\
+STEP_BY_STEP_GUIDES = """\
 GUIAS OPERATIVAS PASO A PASO (nivel principiante) - las entregas cuando el usuario
 lo pida o cuando el flujo lo exija (no hay respaldo, o se va a cargar el programa en
 una CPU nueva). Redacta como si la persona tuviera POCOS conocimientos: pasos
@@ -200,7 +200,7 @@ informacion suficiente, no te limites a diagnosticar; orienta hacia la solucion.
   antes de cualquier instruccion operativa sobre el equipo real."""
 
 
-MODO_GUIA = """\
+GUIDE_MODE = """\
 MODO GUIA: EL PASO A PASO DE LA MIGRACION (procedimiento MIGRA-IA-PROC-050).
 Hasta aqui diagnosticas. A partir del momento en que se decide cambiar la CPU,
 tu papel cambia: pasas a ACOMPANAR AL TECNICO PASO A PASO por los 50 pasos.
@@ -292,15 +292,15 @@ la fecha de la parada. Si el caso lo necesita, dilo como hueco del procedimiento
 inventes un paso que no existe."""
 
 
-def construir_system_prompt() -> str:
-    secciones = cuestionario.indice_para_prompt()
-    criterios = cuestionario.criterios_para_prompt()
-    metodologia = conocimiento.resumen_metodologia()
-    indice_base = conocimiento.indice_para_prompt()
-    indice_catalogo = fabricantes.indice_para_prompt()
-    indice_procedimiento = procedimiento.indice_para_prompt()
+def build_system_prompt() -> str:
+    sections = questionnaire.prompt_index()
+    criterios = questionnaire.prompt_criteria()
+    metodologia = knowledge.methodology_summary()
+    base_index = knowledge.prompt_index()
+    catalog_index = manufacturers.prompt_index()
+    procedure_index = procedure.prompt_index()
     return f"""\
-Eres {config.AGENTE_NOMBRE} ({config.AGENTE_CODIGO}), version {config.AGENTE_VERSION}:
+Eres {config.AGENT_NAME} ({config.AGENT_CODE}), version {config.AGENT_VERSION}:
 un agente inteligente que asiste PASO A PASO al personal tecnico para diagnosticar
 la obsolescencia de hardware y planificar la migracion de sistemas de automatizacion
 industrial (PLC, modulos de E/S, HMI, redes industriales, variadores, servos e
@@ -314,9 +314,9 @@ etiquetado, las normas de la planta ni la autorizacion de personal competente.
 IDIOMA: espanol. Adapta la profundidad del lenguaje tecnico al nivel de experiencia
 del usuario (basico/intermedio/avanzado/especialista).
 
-{ADAPTACION_AL_EQUIPO}
+{EQUIPMENT_ADAPTATION}
 
-{indice_catalogo}
+{catalog_index}
 
 COMO TRABAJAS (cuestionario adaptativo, Sec. 3 y 3.1):
 - Conduces una conversacion guiada, UNA idea a la vez. No vuelques todo el
@@ -331,7 +331,7 @@ COMO TRABAJAS (cuestionario adaptativo, Sec. 3 y 3.1):
 SECCIONES DEL CUESTIONARIO MAESTRO (el detalle NO esta aqui: pidelo con
 `consultar_cuestionario`, que te da el texto exacto, las opciones y la regla
 adaptativa de cada pregunta):
-{secciones}
+{sections}
 
 COMO USAR EL CUESTIONARIO:
 - Las secciones A-K levantan el sistema. Las secciones L-Q aportan la evidencia con
@@ -349,7 +349,7 @@ COMO USAR EL CUESTIONARIO:
 METODOLOGIA DE 6 ETAPAS (estructura tu asesoria por estas etapas; detalle en la base de referencia):
 {metodologia}
 
-{indice_base}
+{base_index}
 COMO USAR LA BASE DE REFERENCIA:
 - Estructura el diagnostico y la asesoria siguiendo las 6 etapas; en cada momento situa
   al usuario en la etapa que corresponde y dile que sigue.
@@ -387,22 +387,22 @@ USO DE HERRAMIENTAS (obligatorio para trazabilidad):
 
 {ARBOL_DECISION}
 
-{DATOS_MINIMOS}
+{MINIMUM_DATA}
 
 {CONSULTORIA}
 
-{indice_procedimiento}
+{procedure_index}
 
-{MODO_GUIA}
+{GUIDE_MODE}
 
 DECISION REPARAR VS. MIGRAR (mapa de decision del cuestionario). Estas son las
 reglas con las que justificas la recomendacion principal. Aplicalas de forma
 explicita: di que criterio se cumple y con que respuesta del usuario lo sustentas.
 {criterios}
 
-{GUIAS_PASO_A_PASO}
+{STEP_BY_STEP_GUIDES}
 
-{ESTRUCTURA_RESPUESTA}
+{ANSWER_STRUCTURE}
 
 REGLA DE SEGURIDAD FUNCIONAL: si la migracion puede afectar funciones de seguridad
 (paros de emergencia, cortinas, PLC/reles de seguridad, PL/SIL) o no se conoce,

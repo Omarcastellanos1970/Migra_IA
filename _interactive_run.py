@@ -15,8 +15,8 @@ from __future__ import annotations
 import json
 import sys
 
-from migra_ia.caso import Caso
-from migra_ia import interactivo
+from migra_ia.case import Case
+from migra_ia import interactive
 
 # Respuestas por codigo. Lo que un usuario elegiria en cada escenario.
 ESCENARIOS = {
@@ -95,61 +95,61 @@ ESCENARIOS["otra_marca_con_codigo"] = {
 
 
 def main() -> None:
-    nombre = sys.argv[1] if len(sys.argv) > 1 else "critico"
-    esc = ESCENARIOS.get(nombre)
+    name = sys.argv[1] if len(sys.argv) > 1 else "critico"
+    esc = ESCENARIOS.get(name)
     if esc is None:
-        print(f"Escenario desconocido: {nombre}. Validos: {', '.join(ESCENARIOS)}")
+        print(f"Escenario desconocido: {name}. Validos: {', '.join(ESCENARIOS)}")
         return
 
-    caso = Caso()
-    caso.guardar()
+    case = Case()
+    case.save()
     print("=" * 70)
-    print(f"DEMO INTERACTIVA — escenario '{nombre}'")
-    print("Caso:  ", caso.case_id)
+    print(f"DEMO INTERACTIVA — escenario '{name}'")
+    print("Caso:  ", case.case_id)
     print("Equipo:", esc["equipo"])
     print("=" * 70)
 
-    apertura = interactivo.iniciar()
-    estado = apertura["status"]
+    apertura = interactive.start()
+    status = apertura["status"]
     print("\n[apertura]", apertura["text"].splitlines()[0])
 
     entradas = [esc["equipo"]]
-    turno = 0
+    turn = 0
     while True:
-        turno += 1
-        if turno > 120:
+        turn += 1
+        if turn > 120:
             print("\n!! demasiados turnos, se corta")
             break
-        entrada = entradas.pop(0) if entradas else _siguiente_entrada(estado, esc)
-        paso = interactivo.responder(caso, entrada, estado)
-        estado = paso["status"]
-        cabecera = paso["text"].strip().splitlines()[0]
-        marca = f" -> {', '.join(paso['acciones'])}" if paso["acciones"] else ""
-        print(f"[{turno:>3}] entrada={entrada!r:<42} {cabecera[:70]}{marca}")
-        if paso["fin"]:
+        entry = entradas.pop(0) if entradas else _next_entry(status, esc)
+        step = interactive.answer(case, entry, status)
+        status = step["status"]
+        cabecera = step["text"].strip().splitlines()[0]
+        brand = f" -> {', '.join(step['acciones'])}" if step["acciones"] else ""
+        print(f"[{turn:>3}] entrada={entry!r:<42} {cabecera[:70]}{brand}")
+        if step["fin"]:
             break
 
     print("\n" + "=" * 70)
     print("RESULTADO (motor real, sin modelo de lenguaje)")
     print("=" * 70)
-    r = caso.resumen()
+    r = case.summary()
     print("riesgo    :", r["risk"]["puntuacion"], "-", r["risk"]["classification"])
     print("respuestas:", len(r["respuestas_registradas"]))
-    print("faltantes :", len(r["datos_faltantes"]))
-    print("migracion :", json.dumps(r["migracion"], ensure_ascii=False)
-          if r["migracion"] else "no abierta")
+    print("faltantes :", len(r["missing_data"]))
+    print("migracion :", json.dumps(r["migration"], ensure_ascii=False)
+          if r["migration"] else "no abierta")
     print("informes  :", r["num_informes"])
 
 
-def _siguiente_entrada(estado: dict, esc: dict) -> str:
+def _next_entry(status: dict, esc: dict) -> str:
     """Lo que 'escribiria' el usuario, segun la fase y la pregunta en curso."""
-    fase = estado.get("phase")
-    if fase == interactivo.F_PREGUNTAS:
-        codigo = estado.get("actual")
-        return esc["answers"].get(codigo, "1")
-    if fase == interactivo.F_DESTINO:
-        return esc["destino"] if estado.get("opciones_mostradas") else "continuar"
-    if fase == interactivo.F_GUIA:
+    phase = status.get("phase")
+    if phase == interactive.F_PREGUNTAS:
+        code = status.get("actual")
+        return esc["answers"].get(code, "1")
+    if phase == interactive.F_TARGET:
+        return esc["destino"] if status.get("opciones_mostradas") else "continuar"
+    if phase == interactive.F_GUIDE:
         return "hecho"
     return "continuar"
 

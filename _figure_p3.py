@@ -47,12 +47,12 @@ import argparse
 import os
 import sys
 
-RUTA_CSV = os.path.join("data", "figure_p3_verifier.csv")
-SALIDA_POR_DEFECTO = os.path.join("docs", "figuras")
+CSV_PATH = os.path.join("data", "figure_p3_verifier.csv")
+DEFAULT_OUTPUT = os.path.join("docs", "figuras")
 
 # Referencias externas publicadas. Clave de cita tal como esta en ref.bib.
-REF_SIN_VERIFICADOR = 47.0
-REF_CON_VERIFICACION = 72.0
+REF_WITHOUT_VERIFIER = 47.0
+REF_WITH_VERIFICATION = 72.0
 REF_CITA = "fakih2024llm4plc"
 
 # Una iteracion "deja de subir" cuando gana menos de esto respecto a la previa.
@@ -63,13 +63,13 @@ UMBRAL_MESETA = 2.0
 # Lectura y validacion
 # --------------------------------------------------------------------------
 
-def leer_csv(ruta):
+def read_csv(path):
     """Devuelve [(iteracion, pasan, total)] con None donde no hay medida."""
-    if not os.path.exists(ruta):
-        raise SystemExit("ERROR: no existe %s" % ruta)
+    if not os.path.exists(path):
+        raise SystemExit("ERROR: no existe %s" % path)
     filas = []
     cabecera = None
-    with open(ruta, "r", encoding="utf-8") as fh:
+    with open(path, "r", encoding="utf-8") as fh:
         for numero, linea in enumerate(fh, 1):
             linea = linea.strip()
             if not linea or linea.startswith("#"):
@@ -91,7 +91,7 @@ def leer_csv(ruta):
     return filas
 
 
-def validar(filas):
+def validate(filas):
     """Lista de problemas que impiden emitir la figura. Vacia = todo bien."""
     problemas = []
     esperado = 0
@@ -123,13 +123,13 @@ def validar(filas):
     return problemas
 
 
-def puntos_medidos(filas):
+def measured_points(filas):
     """[(iteracion, porcentaje)] solo de las iteraciones ya medidas."""
     return [(it, 100.0 * pasan / total)
             for it, pasan, total in filas if pasan is not None]
 
 
-def buscar_meseta(puntos, umbral=UMBRAL_MESETA):
+def find_plateau(puntos, umbral=UMBRAL_MESETA):
     """Primera iteracion cuya mejora sobre la anterior no llega al umbral."""
     for i in range(1, len(puntos)):
         if puntos[i][1] - puntos[i - 1][1] < umbral:
@@ -217,7 +217,7 @@ TEXTOS = {
 # LaTeX
 # --------------------------------------------------------------------------
 
-CABECERA_TEX = r"""%% %(title)s
+TEX_HEADER = r"""%% %(title)s
 %% -------------------------------------------------------------------------
 %% GENERADO POR _figura_p3.py DEL REPOSITORIO MIGRA-IA. NO EDITAR A MANO:
 %% cualquier cambio se pierde al regenerar. Los numeros salen de
@@ -284,7 +284,7 @@ BLOQUE_PENDIENTE = r"""%% --- Curva propia: PENDIENTE. No se dibuja nada inventa
 \addlegendentry{%(leyenda_ref_propia)s}
 """
 
-BLOQUE_DATOS = r"""%% --- Linea de referencia propia: la iteracion cero, sin verificador -------
+DATA_BLOCK = r"""%% --- Linea de referencia propia: la iteracion cero, sin verificador -------
 \addplot[dashed, black!70, line width=0.8pt]
   coordinates {(-0.2,%(base)s) (%(xmax)s,%(base)s)};
 \addlegendentry{%(leyenda_ref_propia)s}
@@ -295,7 +295,7 @@ BLOQUE_DATOS = r"""%% --- Linea de referencia propia: la iteracion cero, sin ver
 \addlegendentry{%(leyenda_curva)s}
 %(meseta)s%(aviso)s"""
 
-MARCA_MESETA = r"""
+PLATEAU_MARK = r"""
 %% --- Iteracion en la que la mejora se agota -------------------------------
 \draw[gray!60, dashed, line width=0.5pt]
   (axis cs:%(x)s,0) -- (axis cs:%(x)s,%(y)s);
@@ -309,7 +309,7 @@ AVISO_PARCIAL = r"""
 """
 
 
-def construir_tex(idioma, filas, puntos, meseta):
+def build_tex(idioma, filas, puntos, meseta):
     t = TEXTOS[idioma]
     xmax = filas[-1][0] + 0.2
     xtick = ",".join(str(it) for it, _, _ in filas)
@@ -317,7 +317,7 @@ def construir_tex(idioma, filas, puntos, meseta):
     completo = len(puntos) == len(filas)
 
     if not puntos:
-        estado = "MODO DISENO: el CSV no tiene ninguna medida todavia."
+        status = "MODO DISENO: el CSV no tiene ninguna medida todavia."
         bloque = BLOQUE_PENDIENTE % {
             "centro_x": centro_x,
             "pendiente": t["pendiente"],
@@ -326,13 +326,13 @@ def construir_tex(idioma, filas, puntos, meseta):
         }
         caption = t["caption_diseno"]
     else:
-        estado = ("%d de %d iteraciones medidas." % (len(puntos), len(filas))
+        status = ("%d de %d iteraciones medidas." % (len(puntos), len(filas))
                   + ("" if completo else " Figura AUN INCOMPLETA."))
         coords = " ".join("(%g,%.1f)" % (it, v) for it, v in puntos)
-        marca = ""
+        brand = ""
         if meseta is not None:
             y_meseta = dict(puntos)[meseta]
-            marca = MARCA_MESETA % {
+            brand = PLATEAU_MARK % {
                 "x": meseta,
                 "y": "%.1f" % y_meseta,
                 "y_etq": "%.1f" % min(y_meseta + 2.0, 94.0),
@@ -340,36 +340,36 @@ def construir_tex(idioma, filas, puntos, meseta):
             }
         aviso = "" if completo else AVISO_PARCIAL % {
             "centro_x": centro_x, "pendiente": t["pendiente"]}
-        bloque = BLOQUE_DATOS % {
+        bloque = DATA_BLOCK % {
             "base": "%.1f" % puntos[0][1],
             "xmax": xmax,
             "leyenda_ref_propia": t["leyenda_ref_propia"],
             "leyenda_curva": t["leyenda_curva"],
             "coordenadas": coords,
-            "meseta": marca,
+            "meseta": brand,
             "aviso": aviso,
         }
         caption = t["caption_datos"]
         if meseta is not None:
             caption += t["caption_meseta"] % (meseta, ("%g" % UMBRAL_MESETA))
 
-    cabecera = CABECERA_TEX % {"title": t["titulo_comentario"],
-                               "status": estado}
+    cabecera = TEX_HEADER % {"title": t["titulo_comentario"],
+                               "status": status}
     cuerpo = CUERPO_TEX % {
         "xlabel": t["xlabel"],
         "ylabel": t["ylabel"],
         "xmax": xmax,
         "xtick": xtick,
-        "ref_con": REF_CON_VERIFICACION,
-        "ref_sin": REF_SIN_VERIFICADOR,
-        "ref_con_etq": REF_CON_VERIFICACION + 3.0,
-        "ref_sin_etq": REF_SIN_VERIFICADOR + 3.0,
+        "ref_con": REF_WITH_VERIFICATION,
+        "ref_sin": REF_WITHOUT_VERIFIER,
+        "ref_con_etq": REF_WITH_VERIFICATION + 3.0,
+        "ref_sin_etq": REF_WITHOUT_VERIFIER + 3.0,
         "leyenda_ref_con": t["leyenda_ref_con"],
         "leyenda_ref_sin": t["leyenda_ref_sin"],
         "bloque_datos": bloque,
         "caption": caption,
     }
-    return cabecera + cuerpo, estado
+    return cabecera + cuerpo, status
 
 
 # --------------------------------------------------------------------------
@@ -377,18 +377,18 @@ def construir_tex(idioma, filas, puntos, meseta):
 # --------------------------------------------------------------------------
 
 SVG_ANCHO, SVG_ALTO = 660, 420
-M_IZQ, M_DER, M_SUP, M_INF = 78, 24, 26, 58
+M_IZQ, M_RIGHT, M_SUP, M_INF = 78, 24, 26, 58
 
 
 def _px(it, it_max):
-    return M_IZQ + (it / float(it_max)) * (SVG_ANCHO - M_IZQ - M_DER)
+    return M_IZQ + (it / float(it_max)) * (SVG_ANCHO - M_IZQ - M_RIGHT)
 
 
-def _py(valor):
-    return M_SUP + (1.0 - valor / 100.0) * (SVG_ALTO - M_SUP - M_INF)
+def _py(value):
+    return M_SUP + (1.0 - value / 100.0) * (SVG_ALTO - M_SUP - M_INF)
 
 
-def construir_svg(filas, puntos, meseta):
+def build_svg(filas, puntos, meseta):
     it_max = filas[-1][0]
     x0, x1 = _px(0, it_max), _px(it_max, it_max)
     y0, y1 = _py(0), _py(100)
@@ -421,15 +421,15 @@ def construir_svg(filas, puntos, meseta):
              'fill="#222" text-anchor="middle">Programas que pasan el '
              'verificador (%%)</text>' % ((y0 + y1) / 2.0))
 
-    for valor, etiqueta in ((REF_CON_VERIFICACION,
+    for value, label in ((REF_WITH_VERIFICATION,
                              "Fakih et al.: con verificacion (72%)"),
-                            (REF_SIN_VERIFICADOR,
+                            (REF_WITHOUT_VERIFIER,
                              "Fakih et al.: sin verificacion (47%)")):
-        y = _py(valor)
+        y = _py(value)
         p.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#999" '
                  'stroke-width="1.2" stroke-dasharray="2,3"/>' % (x0, y, x1, y))
         p.append('<text x="%.1f" y="%.1f" font-size="11" fill="#999">%s</text>'
-                 % (x0 + 6, y - 5, etiqueta))
+                 % (x0 + 6, y - 5, label))
 
     if puntos:
         base = puntos[0][1]
@@ -502,24 +502,24 @@ PIE_VISTA = ("Proporcion de programas generados que pasan el verificador frente 
 def main():
     ap = argparse.ArgumentParser(
         description="Genera la figura principal (verificador en el lazo)")
-    ap.add_argument("--salida", action="append", default=None,
+    ap.add_argument("--output", action="append", default=None,
                     help="carpeta donde escribir los .tex; se puede repetir")
-    ap.add_argument("--csv", default=RUTA_CSV)
+    ap.add_argument("--csv", default=CSV_PATH)
     args = ap.parse_args()
 
     # docs/figuras es la vista oficial del proyecto: solo se toca cuando los
     # datos son los canonicos. Con un --csv de prueba, la salida va unicamente
     # a donde diga --salida, para no ensuciar la vista previa buena.
-    canonico = os.path.abspath(args.csv) == os.path.abspath(RUTA_CSV)
-    destinos = list(args.salida or [])
-    if canonico and SALIDA_POR_DEFECTO not in destinos:
-        destinos.append(SALIDA_POR_DEFECTO)
+    canonico = os.path.abspath(args.csv) == os.path.abspath(CSV_PATH)
+    destinos = list(args.output or [])
+    if canonico and DEFAULT_OUTPUT not in destinos:
+        destinos.append(DEFAULT_OUTPUT)
     if not destinos:
-        destinos.append(SALIDA_POR_DEFECTO)
-    destino_vista = SALIDA_POR_DEFECTO if canonico else destinos[0]
+        destinos.append(DEFAULT_OUTPUT)
+    view_target = DEFAULT_OUTPUT if canonico else destinos[0]
 
-    filas = leer_csv(args.csv)
-    problemas = validar(filas)
+    filas = read_csv(args.csv)
+    problemas = validate(filas)
     if problemas:
         print("La figura NO se genero. El CSV tiene %d problema(s):"
               % len(problemas))
@@ -527,15 +527,15 @@ def main():
             print("  - %s" % p)
         return 1
 
-    puntos = puntos_medidos(filas)
-    meseta = buscar_meseta(puntos)
+    puntos = measured_points(filas)
+    meseta = find_plateau(puntos)
 
     print("Figura principal: el verificador en el lazo (P3)")
     print("  eje X  iteraciones de correccion: 0 a %d" % filas[-1][0])
     print("  eje Y  programas que pasan el verificador, 0 a 100 %")
     print("  referencia propia   la iteracion cero, sin verificador")
     print("  referencia externa  %g %% y %g %% de Fakih et al. (%s)"
-          % (REF_SIN_VERIFICADOR, REF_CON_VERIFICACION, REF_CITA))
+          % (REF_WITHOUT_VERIFIER, REF_WITH_VERIFICATION, REF_CITA))
     print("  medidas en el CSV   %d de %d iteraciones"
           % (len(puntos), len(filas)))
     if meseta is not None:
@@ -544,28 +544,28 @@ def main():
     print("")
 
     escritos = []
-    for destino in destinos:
-        if not os.path.isdir(destino):
-            os.makedirs(destino)
+    for target in destinos:
+        if not os.path.isdir(target):
+            os.makedirs(target)
         for idioma in ("ES", "EN"):
-            texto, estado = construir_tex(idioma, filas, puntos, meseta)
-            ruta = os.path.join(destino, TEXTOS[idioma]["archivo"])
-            with open(ruta, "w", encoding="utf-8") as fh:
-                fh.write(texto)
-            escritos.append(ruta)
+            text, status = build_tex(idioma, filas, puntos, meseta)
+            path = os.path.join(target, TEXTOS[idioma]["archivo"])
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(text)
+            escritos.append(path)
 
-    svg = construir_svg(filas, puntos, meseta)
-    _, estado = construir_tex("ES", filas, puntos, meseta)
-    ruta_svg = os.path.join(destino_vista, "figura_p3_verificador.svg")
-    with open(ruta_svg, "w", encoding="utf-8") as fh:
+    svg = build_svg(filas, puntos, meseta)
+    _, status = build_tex("ES", filas, puntos, meseta)
+    svg_path = os.path.join(view_target, "figura_p3_verificador.svg")
+    with open(svg_path, "w", encoding="utf-8") as fh:
         fh.write(svg)
-    escritos.append(ruta_svg)
-    ruta_html = os.path.join(destino_vista, "figura_p3_verificador.html")
-    with open(ruta_html, "w", encoding="utf-8") as fh:
-        fh.write(VISTA_HTML % {"svg": svg, "pie": PIE_VISTA, "status": estado})
-    escritos.append(ruta_html)
+    escritos.append(svg_path)
+    html_path = os.path.join(view_target, "figura_p3_verificador.html")
+    with open(html_path, "w", encoding="utf-8") as fh:
+        fh.write(VISTA_HTML % {"svg": svg, "pie": PIE_VISTA, "status": status})
+    escritos.append(html_path)
 
-    print("Estado: %s" % estado)
+    print("Estado: %s" % status)
     print("Escritos %d archivos:" % len(escritos))
     for r in escritos:
         print("  %s" % r)

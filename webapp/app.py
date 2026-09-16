@@ -20,118 +20,118 @@ except Exception:  # noqa: BLE001
 
 from flask import Flask, request, jsonify, render_template
 
-from migra_ia import config, interactivo
-from migra_ia.caso import Caso
-from migra_ia.prompt import construir_system_prompt, MENSAJE_INICIAL_USUARIO
-from migra_ia.nucleo import ejecutar_turno, nuevo_cliente
+from migra_ia import config, interactive
+from migra_ia.case import Case
+from migra_ia.prompt import build_system_prompt, INITIAL_USER_MESSAGE
+from migra_ia.core import run_turn, new_client
 
 app = Flask(__name__)
 
-SYSTEM = construir_system_prompt()
+SYSTEM = build_system_prompt()
 
 # Sesiones en memoria: case_id -> {"messages": [...], "case": Caso}.
 # El expediente se persiste en disco; el historial de conversacion vive mientras
 # el servidor este activo (suficiente para el prototipo).
 SESIONES: dict[str, dict] = {}
 
-_CLIENTE = None
+_CLIENT = None
 
 
-def _cliente():
-    global _CLIENTE
-    if _CLIENTE is None:
-        _CLIENTE = nuevo_cliente()
-    return _CLIENTE
+def _client():
+    global _CLIENT
+    if _CLIENT is None:
+        _CLIENT = new_client()
+    return _CLIENT
 
 
 @app.route("/")
 def index():
     return render_template(
-        "index.html", agente=config.AGENTE_NOMBRE, version=config.AGENTE_VERSION
+        "index.html", agent=config.AGENT_NAME, version=config.AGENT_VERSION
     )
 
 
 @app.post("/api/nuevo")
-def nuevo_caso():
+def new_case():
     data = request.get_json(force=True, silent=True) or {}
-    es_interactivo = bool(data.get("interactivo"))
+    is_interactive = bool(data.get("interactivo"))
 
-    caso = Caso()
-    caso.guardar()
+    case = Case()
+    case.save()
 
     # Demo interactiva: no usa la API. LEE cada respuesta del usuario y hace
     # trabajar al motor real con ella, de modo que el resultado es suyo.
-    if es_interactivo:
-        apertura = interactivo.iniciar()
-        SESIONES[caso.case_id] = {
-            "messages": [], "case": caso, "interactivo": True,
+    if is_interactive:
+        apertura = interactive.start()
+        SESIONES[case.case_id] = {
+            "messages": [], "case": case, "interactivo": True,
             "status": apertura["status"],
         }
-        return jsonify(case_id=caso.case_id, texto=apertura["text"],
-                       acciones=[], resumen=caso.resumen(), interactivo=True)
+        return jsonify(case_id=case.case_id, text=apertura["text"],
+                       actions=[], summary=case.summary(), interactive=True)
 
-    messages: list[dict] = [{"role": "user", "content": MENSAJE_INICIAL_USUARIO}]
+    messages: list[dict] = [{"role": "user", "content": INITIAL_USER_MESSAGE}]
     try:
-        res = ejecutar_turno(_cliente(), SYSTEM, messages, caso)
+        res = run_turn(_client(), SYSTEM, messages, case)
     except Exception as exc:  # noqa: BLE001
-        return jsonify(error=_msg_error(exc)), 500
-    SESIONES[caso.case_id] = {"messages": messages, "case": caso}
+        return jsonify(error=_error_msg(exc)), 500
+    SESIONES[case.case_id] = {"messages": messages, "case": case}
     return jsonify(
-        case_id=caso.case_id,
-        texto=res["text"],
-        acciones=res["acciones"],
-        resumen=res["resumen"],
+        case_id=case.case_id,
+        text=res["text"],
+        actions=res["acciones"],
+        summary=res["resumen"],
     )
 
 
 @app.post("/api/mensaje")
-def mensaje():
+def message():
     data = request.get_json(force=True, silent=True) or {}
     cid = data.get("case_id")
-    texto_usuario = (data.get("mensaje") or "").strip()
+    user_text = (data.get("mensaje") or "").strip()
 
     ses = SESIONES.get(cid)
     if ses is None:
         return jsonify(error="Caso no encontrado o sesion expirada. Abre un caso nuevo."), 404
-    if not texto_usuario:
+    if not user_text:
         return jsonify(error="Mensaje vacio."), 400
 
     # Demo interactiva: cada respuesta entra al expediente y mueve el motor.
     if ses.get("interactivo"):
-        paso = interactivo.responder(ses["case"], texto_usuario, ses.get("status"))
-        ses["status"] = paso.pop("status", ses.get("status"))
-        return jsonify(**paso)
+        step = interactive.answer(ses["case"], user_text, ses.get("status"))
+        ses["status"] = step.pop("status", ses.get("status"))
+        return jsonify(**step)
 
-    ses["messages"].append({"role": "user", "content": texto_usuario})
+    ses["messages"].append({"role": "user", "content": user_text})
     try:
-        res = ejecutar_turno(_cliente(), SYSTEM, ses["messages"], ses["case"])
+        res = run_turn(_client(), SYSTEM, ses["messages"], ses["case"])
     except Exception as exc:  # noqa: BLE001
-        return jsonify(error=_msg_error(exc)), 500
-    return jsonify(texto=res["text"], acciones=res["acciones"], resumen=res["resumen"])
+        return jsonify(error=_error_msg(exc)), 500
+    return jsonify(text=res["text"], actions=res["acciones"], summary=res["resumen"])
 
 
 @app.get("/api/resumen/<case_id>")
-def resumen(case_id: str):
+def summary(case_id: str):
     ses = SESIONES.get(case_id)
     if ses is not None:
-        return jsonify(ses["case"].resumen())
+        return jsonify(ses["case"].summary())
     try:
-        return jsonify(Caso.cargar(case_id).resumen())
+        return jsonify(Case.load(case_id).summary())
     except Exception:  # noqa: BLE001
         return jsonify(error="Caso no encontrado."), 404
 
 
-def _msg_error(exc: Exception) -> str:
-    nombre = type(exc).__name__
-    if "Authentication" in nombre or "api_key" in str(exc).lower():
+def _error_msg(exc: Exception) -> str:
+    name = type(exc).__name__
+    if "Authentication" in name or "api_key" in str(exc).lower():
         return (
             "No hay credencial valida de Anthropic. Configura ANTHROPIC_API_KEY "
             "en el archivo .env (ver .env.example)."
         )
-    return f"{nombre}: {exc}"
+    return f"{name}: {exc}"
 
 
 if __name__ == "__main__":
-    print(config.MENSAJE_BIENVENIDA)
+    print(config.WELCOME_MESSAGE)
     print("\nAbre http://127.0.0.1:5000 en tu navegador.\n")
     app.run(host="127.0.0.1", port=5000, debug=False)

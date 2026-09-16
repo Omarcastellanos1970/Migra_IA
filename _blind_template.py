@@ -56,15 +56,15 @@ import re
 import statistics
 from pathlib import Path
 
-from migra_ia import conocimiento, interactivo, scoring
+from migra_ia import knowledge, interactive, scoring
 
-RAIZ = Path(__file__).resolve().parent
-PLANTILLA = RAIZ / "docs" / "plantilla_casos_ciegos.md"
-CLAVE = RAIZ / "_plantilla_clave.json"
-SEMILLA_ENV = "MIGRA_SEMILLA_ORDEN"
+ROOT = Path(__file__).resolve().parent
+TEMPLATE = ROOT / "docs" / "plantilla_casos_ciegos.md"
+KEY = ROOT / "_plantilla_clave.json"
+SEED_ENV = "MIGRA_SEMILLA_ORDEN"
 
 
-def semilla_orden(dada: int | None = None) -> int:
+def order_seed(given: int | None = None) -> int:
     """La semilla del barajado NO se guarda en el repositorio.
 
     Con ella se reproduce el orden de los casos y, por tanto, el mapa de cada
@@ -72,84 +72,84 @@ def semilla_orden(dada: int | None = None) -> int:
     toma de --semilla, del entorno o de la clave local, que esta en
     .gitignore; si no hay ninguna, se exige darla.
     """
-    if dada is not None:
-        return int(dada)
-    del_entorno = os.environ.get(SEMILLA_ENV)
+    if given is not None:
+        return int(given)
+    del_entorno = os.environ.get(SEED_ENV)
     if del_entorno:
         return int(del_entorno)
-    if CLAVE.exists():
+    if KEY.exists():
         try:
-            return int(json.loads(CLAVE.read_text(encoding="utf-8"))["semilla_orden"])
+            return int(json.loads(KEY.read_text(encoding="utf-8"))["semilla_orden"])
         except (KeyError, ValueError):
             pass
     raise SystemExit(
         "Falta la semilla del barajado. Pasa --semilla N o exporta %s. "
         "No se escribe aqui a proposito: quien la tenga deshace el ciego."
-        % SEMILLA_ENV)
+        % SEED_ENV)
 
 
-LINEA_RESPUESTA = re.compile(r"^\s*([A-Z][0-9]{2})\s*=\s*(.*?)\s*$")
-CABECERA_CASO = re.compile(r"^##\s+Caso\s+(\d+)\s*$", re.IGNORECASE)
+ANSWER_LINE = re.compile(r"^\s*([A-Z][0-9]{2})\s*=\s*(.*?)\s*$")
+CASE_HEADER = re.compile(r"^##\s+Caso\s+(\d+)\s*$", re.IGNORECASE)
 
 
 # --------------------------------------------------------------------------- #
 # Generacion de la plantilla
 # --------------------------------------------------------------------------- #
-def casos_ciegos(semilla: int):
+def blind_cases(seed: int):
     """Los 5 casos de la guia, barajados y despojados de lo que revela el final.
 
     Del caso solo sobrevive `situacion`. El titulo se recorta antes de los dos
     puntos porque la parte de la derecha nombra el destino ("S7-300 a S7-1500"),
     y `estrategia`, `riesgos` y `pruebas` se descartan enteros.
     """
-    base = conocimiento.cargar_base()
-    casos = list(base["case_studies"])
-    random.Random(semilla).shuffle(casos)
-    salida = []
-    for i, c in enumerate(casos, 1):
-        contexto = c["title"].split(":")[0].strip()
-        salida.append({
+    base = knowledge.load_base()
+    cases = list(base["case_studies"])
+    random.Random(seed).shuffle(cases)
+    output = []
+    for i, c in enumerate(cases, 1):
+        context = c["title"].split(":")[0].strip()
+        output.append({
             "n": i,
             "id_real": c["id"],
-            "contexto": contexto,
+            "contexto": context,
             "situation": c["situation"],
         })
-    return salida
+    return output
 
 
-def bloque_preguntas() -> list[str]:
+def question_block() -> list[str]:
     """Las preguntas del guion real del motor, con sus opciones numeradas."""
     L = []
-    for codigo, condicion in interactivo.GUION:
-        p = interactivo._pregunta(codigo)
+    for code, condition in interactive.GUION:
+        p = interactive._question(code)
         if p is None:
             continue
-        nota = ""
-        if codigo in ("F06", "F07"):
-            nota = "   *(responda solo si F01 = Si)*"
-        elif codigo in ("F12", "F13"):
-            nota = "   *(responda solo si F01 = No o No se conoce)*"
-        L.append("**%s.** %s%s" % (codigo, p.get("text", ""), nota))
-        tipo = p.get("type")
-        opciones = p.get("options") or []
-        if tipo == "numero":
+        note = ""
+        if code in ("F06", "F07"):
+            note = "   *(responda solo si F01 = Si)*"
+        elif code in ("F12", "F13"):
+            note = "   *(responda solo si F01 = No o No se conoce)*"
+        L.append("**%s.** %s%s" % (code, p.get("text", ""), note))
+        kind = p.get("type")
+        options = p.get("options") or []
+        if kind == "numero":
             L.append("  _escriba un numero_")
-        elif not opciones:
+        elif not options:
             L.append("  _escriba su respuesta_")
         else:
-            enum = "  ".join("%d) %s" % (i, op) for i, op in enumerate(opciones, 1))
+            enum = "  ".join("%d) %s" % (i, op) for i, op in enumerate(options, 1))
             L.append("  " + enum)
-            if tipo == "seleccion_multiple":
+            if kind == "seleccion_multiple":
                 L.append("  _puede marcar varias, separadas por coma (ej. 1,3)_")
         L.append("")
-        L.append("`%s = `" % codigo)
+        L.append("`%s = `" % code)
         L.append("")
     return L
 
 
-def generar(semilla_dada: int | None = None) -> None:
-    semilla = semilla_orden(semilla_dada)
-    casos = casos_ciegos(semilla)
+def generate(given_seed: int | None = None) -> None:
+    seed = order_seed(given_seed)
+    cases = blind_cases(seed)
     L = [
         "# MIGRA-IA - Valoracion ciega de casos",
         "",
@@ -182,8 +182,8 @@ def generar(semilla_dada: int | None = None) -> None:
         "---",
         "",
     ]
-    preguntas = bloque_preguntas()
-    for c in casos:
+    questions = question_block()
+    for c in cases:
         L += [
             "## Caso %d" % c["n"],
             "",
@@ -194,24 +194,24 @@ def generar(semilla_dada: int | None = None) -> None:
             "### Cuestionario - Caso %d" % c["n"],
             "",
         ]
-        L += preguntas
+        L += questions
         L += ["---", ""]
 
-    PLANTILLA.parent.mkdir(parents=True, exist_ok=True)
-    PLANTILLA.write_text("\n".join(L), encoding="utf-8")
+    TEMPLATE.parent.mkdir(parents=True, exist_ok=True)
+    TEMPLATE.write_text("\n".join(L), encoding="utf-8")
 
-    CLAVE.write_text(json.dumps(
-        {"semilla_orden": semilla,
+    KEY.write_text(json.dumps(
+        {"semilla_orden": seed,
          "note": "NO enviar este archivo a los coautores: mapea cada caso ciego "
                  "a su id en la guia, que revela el desenlace.",
-         "mapa": {str(c["n"]): c["id_real"] for c in casos}},
+         "mapa": {str(c["n"]): c["id_real"] for c in cases}},
         ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print("Plantilla   : %s" % PLANTILLA)
-    print("Clave local : %s   (NO enviar)" % CLAVE)
+    print("Plantilla   : %s" % TEMPLATE)
+    print("Clave local : %s   (NO enviar)" % KEY)
     print("")
     print("Casos incluidos, en el orden barajado:")
-    for c in casos:
+    for c in cases:
         print("  Caso %d  <- guia %s  (%s)" % (c["n"], c["id_real"], c["contexto"]))
     print("")
     print("Se ocultan: titulo completo, estrategia, riesgos y pruebas de cada caso.")
@@ -220,62 +220,62 @@ def generar(semilla_dada: int | None = None) -> None:
 # --------------------------------------------------------------------------- #
 # Lectura de plantillas rellenadas
 # --------------------------------------------------------------------------- #
-def leer_plantilla(ruta: Path):
+def read_template(path: Path):
     """Devuelve {n_caso: {codigo: valor_resuelto}} a partir de un archivo lleno."""
-    texto = ruta.read_text(encoding="utf-8", errors="replace")
-    casos: dict[int, dict] = {}
+    text = path.read_text(encoding="utf-8", errors="replace")
+    cases: dict[int, dict] = {}
     actual = None
-    for linea in texto.splitlines():
-        m = CABECERA_CASO.match(linea.strip())
+    for linea in text.splitlines():
+        m = CASE_HEADER.match(linea.strip())
         if m:
             actual = int(m.group(1))
-            casos.setdefault(actual, {})
+            cases.setdefault(actual, {})
             continue
         if actual is None:
             continue
         cuerpo = linea.strip().strip("`").strip()
-        m = LINEA_RESPUESTA.match(cuerpo)
+        m = ANSWER_LINE.match(cuerpo)
         if not m:
             continue
-        codigo, crudo = m.group(1), m.group(2).strip()
+        code, crudo = m.group(1), m.group(2).strip()
         if not crudo:
             continue  # sin responder
-        p = interactivo._pregunta(codigo)
+        p = interactive._question(code)
         if p is None:
             continue
-        valor = interactivo._interpretar(p, crudo)
-        if valor is None:
+        value = interactive._interpret(p, crudo)
+        if value is None:
             # No se adivina: la respuesta se descarta y queda como no contestada,
             # que es justo lo que el motor sabe tratar como dato faltante.
             n_ops = len(p.get("options") or [])
             rango = ("1 a %d" % n_ops) if n_ops else "texto libre"
             print("  aviso: %s, caso %d, %s = %r no es valido (opciones: %s). "
-                  "Queda sin responder." % (ruta.name, actual, codigo, crudo, rango))
+                  "Queda sin responder." % (path.name, actual, code, crudo, rango))
             continue
-        casos[actual][codigo] = valor
-    return casos
+        cases[actual][code] = value
+    return cases
 
 
-def evaluar(respuestas: dict):
+def evaluate(answers: dict):
     """Puntuacion, clasificacion, ruta y decision del motor para esas respuestas."""
-    calculados, omitidos = interactivo.factores(respuestas)
-    r = scoring.calcular_riesgo(calculados)
-    d = interactivo.decidir(respuestas, {"puntuacion": r.puntuacion,
-                                         "classification": r.clasificacion})
+    calculados, omitidos = interactive.factors(answers)
+    r = scoring.compute_risk(calculados)
+    d = interactive.decide(answers, {"puntuacion": r.score,
+                                         "classification": r.classification})
     return {
-        "puntuacion": r.puntuacion,
-        "classification": r.clasificacion,
+        "puntuacion": r.score,
+        "classification": r.classification,
         "migrar": bool(d["migrar"]),
         "route": [a["alternative"] for a in d["route"]],
         "omitidos": omitidos,
-        "respondidas": len(respuestas),
+        "respondidas": len(answers),
     }
 
 
-def comparar(rutas: list[Path], escribir_md: bool) -> None:
+def compare(rutas: list[Path], write_md: bool) -> None:
     if not rutas:
         raise SystemExit("Indique al menos un archivo de respuestas.")
-    clave = json.loads(CLAVE.read_text(encoding="utf-8"))["mapa"] if CLAVE.exists() else {}
+    key = json.loads(KEY.read_text(encoding="utf-8"))["mapa"] if KEY.exists() else {}
 
     L = []
 
@@ -284,10 +284,10 @@ def comparar(rutas: list[Path], escribir_md: bool) -> None:
         L.append(linea)
 
     lecturas = {}
-    for ruta in rutas:
-        if not ruta.exists():
-            raise SystemExit("No existe: %s" % ruta)
-        lecturas[ruta.stem] = leer_plantilla(ruta)
+    for path in rutas:
+        if not path.exists():
+            raise SystemExit("No existe: %s" % path)
+        lecturas[path.stem] = read_template(path)
 
     w("=" * 74)
     w("CONCORDANCIA ENTRE EXPERTOS - MIGRA-IA")
@@ -296,18 +296,18 @@ def comparar(rutas: list[Path], escribir_md: bool) -> None:
     w("")
 
     numeros = sorted({n for c in lecturas.values() for n in c})
-    resumen_acuerdo = []
+    agreement_summary = []
 
     for n in numeros:
-        w("CASO %d%s" % (n, "   (guia %s)" % clave.get(str(n), "?") if clave else ""))
+        w("CASO %d%s" % (n, "   (guia %s)" % key.get(str(n), "?") if key else ""))
         w("-" * 74)
         evals = {}
-        for quien, casos in lecturas.items():
-            resp = casos.get(n)
+        for quien, cases in lecturas.items():
+            resp = cases.get(n)
             if not resp:
                 w("  %-14s sin responder" % quien)
                 continue
-            e = evaluar(resp)
+            e = evaluate(resp)
             evals[quien] = e
             w("  %-14s %5.1f  %-18s migrar=%-5s  respondidas=%d  omitidos=%d"
               % (quien, e["puntuacion"], e["classification"], e["migrar"],
@@ -330,7 +330,7 @@ def comparar(rutas: list[Path], escribir_md: bool) -> None:
                                        else "DISCREPA"))
             w("  ruta         : %s" % ("unanime" if len(rutas_d) == 1
                                        else "%d rutas distintas" % len(rutas_d)))
-            resumen_acuerdo.append({
+            agreement_summary.append({
                 "case": n, "amplitud": max(puntos) - min(puntos),
                 "clase_unanime": len(clases) == 1,
                 "decision_unanime": len(migrars) == 1,
@@ -339,54 +339,54 @@ def comparar(rutas: list[Path], escribir_md: bool) -> None:
             })
         w("")
 
-    if resumen_acuerdo:
+    if agreement_summary:
         w("=" * 74)
         w("RESUMEN")
         w("=" * 74)
-        tot = len(resumen_acuerdo)
+        tot = len(agreement_summary)
         w("  A. Concordancia entre expertos (lo que discrimina)")
         w("     clasificacion unanime : %d de %d casos"
-          % (sum(r["clase_unanime"] for r in resumen_acuerdo), tot))
+          % (sum(r["clase_unanime"] for r in agreement_summary), tot))
         w("     decision unanime      : %d de %d casos"
-          % (sum(r["decision_unanime"] for r in resumen_acuerdo), tot))
+          % (sum(r["decision_unanime"] for r in agreement_summary), tot))
         w("     ruta unanime          : %d de %d casos"
-          % (sum(r["ruta_unanime"] for r in resumen_acuerdo), tot))
+          % (sum(r["ruta_unanime"] for r in agreement_summary), tot))
         w("     amplitud media de puntuacion: %.1f puntos"
-          % statistics.mean(r["amplitud"] for r in resumen_acuerdo))
+          % statistics.mean(r["amplitud"] for r in agreement_summary))
         w("")
         w("  B. Concordancia con el desenlace documentado (los 5 casos migraron)")
         w("     el motor propone migrar para todos los expertos: %d de %d casos"
-          % (sum(r["migrar_todos"] for r in resumen_acuerdo), tot))
+          % (sum(r["migrar_todos"] for r in agreement_summary), tot))
         w("     AVISO: los 5 casos comparten desenlace, asi que B no discrimina.")
         w("     Un motor que dijera 'migrar' siempre sacaria el mismo resultado.")
         w("")
 
-    if escribir_md:
-        destino = RAIZ / "docs" / "concordancia_expertos.md"
-        destino.write_text(
+    if write_md:
+        target = ROOT / "docs" / "concordancia_expertos.md"
+        target.write_text(
             "# Concordancia entre expertos - MIGRA-IA\n\n"
             "Generado por `_plantilla_ciega.py comparar`.\n\n"
             "```\n" + "\n".join(L) + "\n```\n", encoding="utf-8")
-        print("Informe escrito en %s" % destino)
+        print("Informe escrito en %s" % target)
 
 
 # --------------------------------------------------------------------------- #
 def main() -> None:
     ap = argparse.ArgumentParser(description="Plantilla ciega de validacion experta")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    g = sub.add_parser("generar", help="escribe la plantilla en blanco")
-    g.add_argument("--semilla", type=int, default=None,
+    g = sub.add_parser("generate", help="escribe la plantilla en blanco")
+    g.add_argument("--seed", type=int, default=None,
                    help="semilla del barajado; si falta se busca en %s "
-                        "o en la clave local" % SEMILLA_ENV)
-    c = sub.add_parser("comparar", help="lee plantillas rellenadas y mide concordancia")
+                        "o en la clave local" % SEED_ENV)
+    c = sub.add_parser("compare", help="lee plantillas rellenadas y mide concordancia")
     c.add_argument("archivos", nargs="+", type=Path)
     c.add_argument("--md", action="store_true")
     args = ap.parse_args()
 
-    if args.cmd == "generar":
-        generar(args.semilla)
+    if args.cmd == "generate":
+        generate(args.seed)
     else:
-        comparar(args.archivos, args.md)
+        compare(args.files, args.md)
 
 
 if __name__ == "__main__":

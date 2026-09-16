@@ -39,44 +39,44 @@ import sys
 
 import _baseline as bl
 
-RUTA_PROPUESTA = os.path.join("data", "figure_comparison_proposal.csv")
-SALIDA_POR_DEFECTO = os.path.join("docs", "figuras")
+PROPOSAL_PATH = os.path.join("data", "figure_comparison_proposal.csv")
+DEFAULT_OUTPUT = os.path.join("docs", "figuras")
 
 # Color distintivo de la propuesta. El resto de la figura es gris, para que la
 # barra nuestra se lea sola incluso impresa en blanco y negro (es la unica con
 # contorno grueso y trama).
-COLOR_PROPUESTA = "1F4E9C"
+PROPOSAL_COLOR = "1F4E9C"
 
-METRICA = "f1_macro"
+METRIC = "f1_macro"
 
 
 # --------------------------------------------------------------------------
 # Datos
 # --------------------------------------------------------------------------
 
-def medir():
+def measure():
     """Corre la validacion cruzada de _baseline.py y devuelve lo que se pinta."""
-    datos = bl.cargar()
-    pliegues, k, _nota = bl.particionar_estratificado(datos)
-    res = bl.evaluar(datos, pliegues)
+    data = bl.load()
+    pliegues, k, _nota = bl.stratified_partition(data)
+    res = bl.evaluate(data, pliegues)
     cv = res["cv"]
     return {
         "k": k,
-        "n": len(datos),
-        "trivial": cv["b0"][METRICA],
-        "clasico": cv["b1"][METRICA],
+        "n": len(data),
+        "trivial": cv["b0"][METRIC],
+        "clasico": cv["b1"][METRIC],
         "exactitud": (cv["b0"]["exactitud"], cv["b1"]["exactitud"]),
         "ordinal": (cv["b0"]["error_ordinal_medio"],
                     cv["b1"]["error_ordinal_medio"]),
     }
 
 
-def leer_propuesta(ruta):
+def read_proposal(path):
     """(media, sd) de la propuesta, o None si todavia no se ha medido."""
-    if not os.path.exists(ruta):
+    if not os.path.exists(path):
         return None
     cabecera = None
-    with open(ruta, "r", encoding="utf-8") as fh:
+    with open(path, "r", encoding="utf-8") as fh:
         for linea in fh:
             linea = linea.strip()
             if not linea or linea.startswith("#"):
@@ -85,7 +85,7 @@ def leer_propuesta(ruta):
             if cabecera is None:
                 cabecera = campos
                 continue
-            if campos[0] != METRICA:
+            if campos[0] != METRIC:
                 continue
             if len(campos) < 3 or campos[1] == "":
                 return None
@@ -161,7 +161,7 @@ TEXTOS = {
 # LaTeX
 # --------------------------------------------------------------------------
 
-CABECERA_TEX = r"""%% %(title)s
+TEX_HEADER = r"""%% %(title)s
 %% -------------------------------------------------------------------------
 %% GENERADO POR _figura_comparacion.py DEL REPOSITORIO MIGRA-IA.
 %% NO EDITAR A MANO: cualquier cambio se pierde al regenerar.
@@ -239,22 +239,22 @@ PROPUESTA_MEDIDA = r"""%% --- La propuesta, en color distintivo ----------------
 """
 
 
-def construir_tex(idioma, med, propuesta):
+def build_tex(idioma, med, proposal):
     t = TEXTOS[idioma]
     ref = med["trivial"][0]
-    if propuesta is None:
-        estado = ("MODO DISENO: la propuesta aun no esta medida; su barra va "
+    if proposal is None:
+        status = ("MODO DISENO: la propuesta aun no esta medida; su barra va "
                   "como hueco.")
         bloque = PROPUESTA_PENDIENTE % {"pendiente": t["pendiente"]}
         cierre = t["cierre_pendiente"]
     else:
-        estado = "Propuesta medida: %.3f +-%.3f" % propuesta
-        bloque = PROPUESTA_MEDIDA % {"value": "%.3f" % propuesta[0],
-                                     "sd": "%.3f" % propuesta[1]}
+        status = "Propuesta medida: %.3f +-%.3f" % proposal
+        bloque = PROPUESTA_MEDIDA % {"value": "%.3f" % proposal[0],
+                                     "sd": "%.3f" % proposal[1]}
         cierre = t["cierre_medida"]
 
-    cabecera = CABECERA_TEX % {"title": t["title"], "status": estado,
-                               "color": COLOR_PROPUESTA}
+    cabecera = TEX_HEADER % {"title": t["title"], "status": status,
+                               "color": PROPOSAL_COLOR}
     cuerpo = CUERPO_TEX % {
         "ylabel": t["ylabel"],
         "etq_trivial": t["trivial"],
@@ -271,7 +271,7 @@ def construir_tex(idioma, med, propuesta):
         "caption": t["caption"] % {"n": med["n"], "k": med["k"],
                                    "cierre": cierre},
     }
-    return cabecera + cuerpo, estado
+    return cabecera + cuerpo, status
 
 
 # --------------------------------------------------------------------------
@@ -279,7 +279,7 @@ def construir_tex(idioma, med, propuesta):
 # --------------------------------------------------------------------------
 
 SVG_ANCHO, SVG_ALTO = 660, 430
-M_IZQ, M_DER, M_SUP, M_INF = 82, 26, 26, 78
+M_IZQ, M_RIGHT, M_SUP, M_INF = 82, 26, 26, 78
 ANCHO_BARRA = 78
 
 
@@ -287,11 +287,11 @@ def _py(v):
     return M_SUP + (1.0 - v) * (SVG_ALTO - M_SUP - M_INF)
 
 
-def construir_svg(med, propuesta):
-    x0, x1 = M_IZQ, SVG_ANCHO - M_DER
+def build_svg(med, proposal):
+    x0, x1 = M_IZQ, SVG_ANCHO - M_RIGHT
     y0, y1 = _py(0.0), _py(1.0)
     centros = [x0 + (x1 - x0) * f for f in (0.18, 0.5, 0.82)]
-    color = "#" + COLOR_PROPUESTA
+    color = "#" + PROPOSAL_COLOR
 
     p = ['<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" '
          'viewBox="0 0 %d %d" font-family="Georgia, serif">'
@@ -313,15 +313,15 @@ def construir_svg(med, propuesta):
              'fill="#222" text-anchor="middle">F1 macro</text>'
              % ((y0 + y1) / 2.0))
 
-    def barra(cx, valor, sd, relleno, borde, grosor, discontinua=False):
-        h = (y0 - _py(valor))
+    def bar(cx, value, sd, relleno, borde, thickness, discontinua=False):
+        h = (y0 - _py(value))
         trazo = ' stroke-dasharray="6,4"' if discontinua else ''
         p.append('<rect x="%.1f" y="%.1f" width="%d" height="%.1f" fill="%s" '
                  'stroke="%s" stroke-width="%s"%s/>'
-                 % (cx - ANCHO_BARRA / 2.0, _py(valor), ANCHO_BARRA, h,
-                    relleno, borde, grosor, trazo))
+                 % (cx - ANCHO_BARRA / 2.0, _py(value), ANCHO_BARRA, h,
+                    relleno, borde, thickness, trazo))
         if sd:
-            arriba, abajo = _py(min(valor + sd, 1.0)), _py(max(valor - sd, 0.0))
+            arriba, abajo = _py(min(value + sd, 1.0)), _py(max(value - sd, 0.0))
             p.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" '
                      'stroke="#777" stroke-width="1.3"/>'
                      % (cx, arriba, cx, abajo))
@@ -330,16 +330,16 @@ def construir_svg(med, propuesta):
                          'stroke="#777" stroke-width="1.3"/>'
                          % (cx - 9, y, cx + 9, y))
 
-    barra(centros[0], med["trivial"][0], med["trivial"][1], "#d9d9d9", "#666", "1")
-    barra(centros[1], med["clasico"][0], med["clasico"][1], "#a8a8a8", "#444", "1")
-    if propuesta is None:
-        barra(centros[2], 1.0, 0.0, "#f2f5fb", color, "2", True)
+    bar(centros[0], med["trivial"][0], med["trivial"][1], "#d9d9d9", "#666", "1")
+    bar(centros[1], med["clasico"][0], med["clasico"][1], "#a8a8a8", "#444", "1")
+    if proposal is None:
+        bar(centros[2], 1.0, 0.0, "#f2f5fb", color, "2", True)
         p.append('<text transform="translate(%.1f,%.1f) rotate(-90)" '
                  'font-size="13" fill="%s" font-style="italic" '
                  'text-anchor="middle">pendiente</text>'
                  % (centros[2] + 4, _py(0.5), color))
     else:
-        barra(centros[2], propuesta[0], propuesta[1], color, color, "2")
+        bar(centros[2], proposal[0], proposal[1], color, color, "2")
 
     yref = _py(med["trivial"][0])
     p.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#444" '
@@ -389,7 +389,7 @@ pgfplots, generado por este mismo script.</p>
 """
 
 
-def pie_vista(med):
+def view_caption(med):
     return ("Comparacion de modelos en el subproblema P1, sobre la misma "
             "particion estratificada y agrupada por fabricante (n=%d, k=%d). "
             "La metrica es el F1 macro, la que decide. La raya discontinua es "
@@ -404,20 +404,20 @@ def pie_vista(med):
 def main():
     ap = argparse.ArgumentParser(
         description="Figura de comparacion de modelos en P1")
-    ap.add_argument("--salida", action="append", default=None)
-    ap.add_argument("--propuesta", default=RUTA_PROPUESTA)
+    ap.add_argument("--output", action="append", default=None)
+    ap.add_argument("--proposal", default=PROPOSAL_PATH)
     args = ap.parse_args()
 
-    canonico = os.path.abspath(args.propuesta) == os.path.abspath(RUTA_PROPUESTA)
-    destinos = list(args.salida or [])
-    if canonico and SALIDA_POR_DEFECTO not in destinos:
-        destinos.append(SALIDA_POR_DEFECTO)
+    canonico = os.path.abspath(args.proposal) == os.path.abspath(PROPOSAL_PATH)
+    destinos = list(args.output or [])
+    if canonico and DEFAULT_OUTPUT not in destinos:
+        destinos.append(DEFAULT_OUTPUT)
     if not destinos:
-        destinos.append(SALIDA_POR_DEFECTO)
-    destino_vista = SALIDA_POR_DEFECTO if canonico else destinos[0]
+        destinos.append(DEFAULT_OUTPUT)
+    view_target = DEFAULT_OUTPUT if canonico else destinos[0]
 
-    med = medir()
-    propuesta = leer_propuesta(args.propuesta)
+    med = measure()
+    proposal = read_proposal(args.proposal)
 
     print("Figura de comparacion de P1")
     print("  metrica que decide  F1 macro")
@@ -426,41 +426,41 @@ def main():
     print("  trivial   %.3f +-%.3f   <- linea de referencia"
           % med["trivial"])
     print("  clasico   %.3f +-%.3f" % med["clasico"])
-    if propuesta is None:
+    if proposal is None:
         print("  propuesta SIN MEDIR: barra en hueco, color distintivo #%s"
-              % COLOR_PROPUESTA)
+              % PROPOSAL_COLOR)
     else:
         print("  propuesta %.3f +-%.3f   color distintivo #%s"
-              % (propuesta[0], propuesta[1], COLOR_PROPUESTA))
+              % (proposal[0], proposal[1], PROPOSAL_COLOR))
     print("  secundarias  exactitud %.3f vs %.3f | error ordinal %.3f vs %.3f"
           % (med["exactitud"][0][0], med["exactitud"][1][0],
              med["ordinal"][0][0], med["ordinal"][1][0]))
     print("")
 
     escritos = []
-    for destino in destinos:
-        if not os.path.isdir(destino):
-            os.makedirs(destino)
+    for target in destinos:
+        if not os.path.isdir(target):
+            os.makedirs(target)
         for idioma in ("ES", "EN"):
-            texto, estado = construir_tex(idioma, med, propuesta)
-            ruta = os.path.join(destino, TEXTOS[idioma]["archivo"])
-            with open(ruta, "w", encoding="utf-8") as fh:
-                fh.write(texto)
-            escritos.append(ruta)
+            text, status = build_tex(idioma, med, proposal)
+            path = os.path.join(target, TEXTOS[idioma]["archivo"])
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(text)
+            escritos.append(path)
 
-    svg = construir_svg(med, propuesta)
-    _, estado = construir_tex("ES", med, propuesta)
-    ruta_svg = os.path.join(destino_vista, "figura_p1_comparacion.svg")
-    with open(ruta_svg, "w", encoding="utf-8") as fh:
+    svg = build_svg(med, proposal)
+    _, status = build_tex("ES", med, proposal)
+    svg_path = os.path.join(view_target, "figura_p1_comparacion.svg")
+    with open(svg_path, "w", encoding="utf-8") as fh:
         fh.write(svg)
-    escritos.append(ruta_svg)
-    ruta_html = os.path.join(destino_vista, "figura_p1_comparacion.html")
-    with open(ruta_html, "w", encoding="utf-8") as fh:
-        fh.write(VISTA_HTML % {"svg": svg, "pie": pie_vista(med),
-                               "status": estado})
-    escritos.append(ruta_html)
+    escritos.append(svg_path)
+    html_path = os.path.join(view_target, "figura_p1_comparacion.html")
+    with open(html_path, "w", encoding="utf-8") as fh:
+        fh.write(VISTA_HTML % {"svg": svg, "pie": view_caption(med),
+                               "status": status})
+    escritos.append(html_path)
 
-    print("Estado: %s" % estado)
+    print("Estado: %s" % status)
     print("Escritos %d archivos:" % len(escritos))
     for r in escritos:
         print("  %s" % r)

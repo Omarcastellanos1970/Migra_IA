@@ -25,10 +25,10 @@ import re
 import unicodedata
 from functools import lru_cache
 
-from . import config, conocimiento
+from . import config, knowledge
 
 # Prefijos cronologicos que el documento antepone al nombre de la familia.
-_PREFIJOS_ETAPA = ("historica - ", "historico - ", "legado - ", "actual - ")
+_STAGE_PREFIXES = ("historica - ", "historico - ", "legado - ", "actual - ")
 
 # Un token de modelo mas corto que esto no se busca como subcadena suelta: "084"
 # o "184" (Modicon) generarian falsos positivos dentro de cualquier numero.
@@ -36,52 +36,52 @@ _MIN_LARGO_SUBCADENA = 5
 
 # Alias frecuentes que el personal tecnico usa y que no aparecen literalmente en
 # el nombre de la marca. Solo abreviaturas de marca reales, no modelos.
-_ALIAS_MARCA = {
+_BRAND_ALIAS = {
     "Rockwell Automation / Allen-Bradley": ["allen bradley", "allenbradley"],
     "Emerson (legado GE Fanuc / GE Intelligent Platforms)": ["ge fanuc", "gefanuc"],
     "B&R Industrial Automation": ["b r", "br automation", "bernecker"],
 }
 
 
-def _sin_acentos(texto: str) -> str:
+def _strip_accents(text: str) -> str:
     return "".join(
-        c for c in unicodedata.normalize("NFD", texto) if unicodedata.category(c) != "Mn"
+        c for c in unicodedata.normalize("NFD", text) if unicodedata.category(c) != "Mn"
     )
 
 
-def _norm(texto: str) -> str:
+def _norm(text: str) -> str:
     """Minusculas sin acentos, con separadores unificados a un espacio."""
-    t = _sin_acentos((texto or "").lower())
+    t = _strip_accents((text or "").lower())
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", t)).strip()
 
 
-def _compacto(texto: str) -> str:
+def _compact(text: str) -> str:
     """Solo letras y digitos: 'CPU 315-2 DP' y 'cpu315-2dp' colapsan al mismo valor."""
-    return re.sub(r"[^a-z0-9]", "", _sin_acentos((texto or "").lower()))
+    return re.sub(r"[^a-z0-9]", "", _strip_accents((text or "").lower()))
 
 
 @lru_cache(maxsize=1)
-def cargar_catalogo() -> dict:
+def load_catalog() -> dict:
     """Carga y cachea el catalogo de fabricantes desde disco."""
-    with open(config.RUTA_FABRICANTES_CPU, encoding="utf-8") as fh:
+    with open(config.CPU_MANUFACTURERS_PATH, encoding="utf-8") as fh:
         return json.load(fh)
 
 
-def _familia_limpia(familia: str) -> str:
+def _clean_family(family: str) -> str:
     """Quita el prefijo de etapa: 'Actual - SIMATIC S7-1500' -> 'SIMATIC S7-1500'.
 
     Compara sin acentos: el documento escribe 'Histórica - ...' con tilde.
     """
-    bajo = _sin_acentos(familia.lower())
-    for pref in _PREFIJOS_ETAPA:
+    bajo = _strip_accents(family.lower())
+    for pref in _STAGE_PREFIXES:
         if bajo.startswith(pref):
-            return familia[len(pref):].strip()
-    return familia.strip()
+            return family[len(pref):].strip()
+    return family.strip()
 
 
-def _etapa(familia: str) -> str:
+def _stage(family: str) -> str:
     """Clasifica la generacion segun el prefijo que use el documento."""
-    bajo = _sin_acentos(familia.lower())
+    bajo = _strip_accents(family.lower())
     if bajo.startswith(("historica - ", "historico - ", "legado - ")):
         return "historica"
     if bajo.startswith("actual - "):
@@ -90,19 +90,19 @@ def _etapa(familia: str) -> str:
 
 
 @lru_cache(maxsize=1)
-def _alias_por_marca() -> dict[str, list[str]]:
+def _alias_by_brand() -> dict[str, list[str]]:
     """Deriva los alias de cada marca de su propio nombre, mas los manuales.
 
     'Emerson (legado GE Fanuc / GE Intelligent Platforms)' produce
     ['emerson', 'ge fanuc', 'ge intelligent platforms', ...].
     """
     alias: dict[str, list[str]] = {}
-    for fab in cargar_catalogo()["manufacturers"]:
-        marca = fab["brand"]
-        crudos = {marca}
+    for fab in load_catalog()["manufacturers"]:
+        brand = fab["brand"]
+        crudos = {brand}
         # Texto fuera y dentro de los parentesis, por separado.
-        fuera = re.sub(r"\([^)]*\)", " ", marca)
-        dentro = " ".join(re.findall(r"\(([^)]*)\)", marca))
+        fuera = re.sub(r"\([^)]*\)", " ", brand)
+        dentro = " ".join(re.findall(r"\(([^)]*)\)", brand))
         for bloque in (fuera, dentro):
             bloque = re.sub(r"\b(legado|legacy)\b", " ", bloque, flags=re.IGNORECASE)
             crudos.update(p for p in bloque.split("/"))
@@ -111,17 +111,17 @@ def _alias_por_marca() -> dict[str, list[str]]:
         if primera and len(primera[0]) >= 4:
             crudos.add(primera[0])
         normalizados = {_norm(c) for c in crudos}
-        normalizados.update(_ALIAS_MARCA.get(marca, []))
-        alias[marca] = sorted((a for a in normalizados if len(a) >= 3), key=len, reverse=True)
+        normalizados.update(_BRAND_ALIAS.get(brand, []))
+        alias[brand] = sorted((a for a in normalizados if len(a) >= 3), key=len, reverse=True)
     return alias
 
 
-def _fuentes_de(etiquetas) -> list[dict]:
+def _sources_of(etiquetas) -> list[dict]:
     """Convierte etiquetas [S1d] en fichas citables con descripcion y URL."""
-    catalogo = cargar_catalogo()
+    catalog = load_catalog()
     fichas = []
     for et in etiquetas or []:
-        f = catalogo["sources"].get(et)
+        f = catalog["sources"].get(et)
         if f:
             fichas.append({"label": et, "description": f["description"], "url": f["url"]})
         else:
@@ -133,14 +133,14 @@ def _fuentes_de(etiquetas) -> list[dict]:
 # Identificacion: texto libre -> marca / familia / modelo
 # --------------------------------------------------------------------------- #
 @lru_cache(maxsize=1)
-def _indice_modelos() -> list[tuple[str, str, int, str]]:
+def _model_index() -> list[tuple[str, str, int, str]]:
     """(modelo_compacto, marca, indice_generacion, modelo_original), mas largo primero.
 
     Buscar del token mas largo al mas corto evita que 'CPU 314' se lleve la
     coincidencia cuando el usuario escribio 'CPU 314ST - 314-6CF23'.
     """
     entradas = []
-    for fab in cargar_catalogo()["manufacturers"]:
+    for fab in load_catalog()["manufacturers"]:
         for i, gen in enumerate(fab["generations"]):
             for modelo in gen["models"]:
                 # El documento escribe algunos modelos con su equivalencia entre
@@ -150,19 +150,19 @@ def _indice_modelos() -> list[tuple[str, str, int, str]]:
                 variantes.add(re.sub(r"\([^)]*\)", " ", modelo))
                 variantes.update(re.findall(r"\(([^)]*)\)", modelo))
                 for variante in variantes:
-                    comp = _compacto(variante)
+                    comp = _compact(variante)
                     if comp:
                         entradas.append((comp, fab["brand"], i, modelo))
     return sorted(entradas, key=lambda e: len(e[0]), reverse=True)
 
 
 @lru_cache(maxsize=1)
-def _indice_familias() -> list[tuple[str, str, int, str]]:
+def _family_index() -> list[tuple[str, str, int, str]]:
     """(familia_normalizada, marca, indice_generacion, familia_limpia), mas larga primero."""
     entradas = []
-    for fab in cargar_catalogo()["manufacturers"]:
+    for fab in load_catalog()["manufacturers"]:
         for i, gen in enumerate(fab["generations"]):
-            limpia = _familia_limpia(gen["family"])
+            limpia = _clean_family(gen["family"])
             # La familia puede venir compuesta: 'SIMATIC S5-135U / S5-155U'.
             partes = [limpia] + limpia.split("/")
             # El usuario suele citar solo el designador: 'M580' por 'Modicon M580',
@@ -177,95 +177,95 @@ def _indice_familias() -> list[tuple[str, str, int, str]]:
     return sorted(entradas, key=lambda e: len(e[0]), reverse=True)
 
 
-def _buscar_marca(consulta_norm: str) -> str | None:
+def _find_brand(consulta_norm: str) -> str | None:
     """Devuelve la marca cuyo alias mas largo aparezca en la consulta."""
-    mejor, largo = None, 0
-    for marca, alias in _alias_por_marca().items():
+    best, largo = None, 0
+    for brand, alias in _alias_by_brand().items():
         for a in alias:
             if len(a) > largo and re.search(rf"(?<![a-z0-9]){re.escape(a)}(?![a-z0-9])", consulta_norm):
-                mejor, largo = marca, len(a)
-    return mejor
+                best, largo = brand, len(a)
+    return best
 
 
-def _por_marca(marca: str) -> dict:
-    for fab in cargar_catalogo()["manufacturers"]:
-        if fab["brand"] == marca:
+def _by_brand(brand: str) -> dict:
+    for fab in load_catalog()["manufacturers"]:
+        if fab["brand"] == brand:
             return fab
-    raise KeyError(marca)
+    raise KeyError(brand)
 
 
-def _describir_generacion(fab: dict, indice: int) -> dict:
+def _describe_generation(fab: dict, index_: int) -> dict:
     """Ficha de una generacion con su lugar en la cronologia del fabricante."""
     gens = fab["generations"]
-    gen = gens[indice]
+    gen = gens[index_]
     posteriores = [
-        {"family": _familia_limpia(g["family"]), "stage": _etapa(g["family"]),
+        {"family": _clean_family(g["family"]), "stage": _stage(g["family"]),
          "models_text": g["models_text"]}
-        for g in gens[indice + 1:]
+        for g in gens[index_ + 1:]
     ]
     actuales = [
-        {"family": _familia_limpia(g["family"]), "models_text": g["models_text"],
-         "sources": _fuentes_de(g["sources"])}
-        for g in gens if _etapa(g["family"]) == "actual"
+        {"family": _clean_family(g["family"]), "models_text": g["models_text"],
+         "sources": _sources_of(g["sources"])}
+        for g in gens if _stage(g["family"]) == "actual"
     ]
     # Cuatro fabricantes del documento no marcan ninguna generacion como 'Actual'.
     # Se ofrece la ultima listada, diciendo expresamente que la fuente no la declara
     # vigente: es un indicio cronologico, no una afirmacion de estado comercial.
-    nota_actual = ""
+    current_note = ""
     if not actuales and gens:
         ultima = gens[-1]
-        actuales = [{"family": _familia_limpia(ultima["family"]),
+        actuales = [{"family": _clean_family(ultima["family"]),
                      "models_text": ultima["models_text"],
-                     "sources": _fuentes_de(ultima["sources"])}]
-        nota_actual = ("El documento fuente no marca ninguna generacion de este "
+                     "sources": _sources_of(ultima["sources"])}]
+        current_note = ("El documento fuente no marca ninguna generacion de este "
                        "fabricante como 'Actual'; se muestra la ultima de la "
                        "cronologia. Verifica el estado comercial con el fabricante.")
     return {
-        "family": _familia_limpia(gen["family"]),
+        "family": _clean_family(gen["family"]),
         "familia_documento": gen["family"],
-        "stage": _etapa(gen["family"]),
-        "posicion": f"{indice + 1} de {len(gens)}",
+        "stage": _stage(gen["family"]),
+        "posicion": f"{index_ + 1} de {len(gens)}",
         "modelos_documentados": gen["models_text"],
         "remark": gen["remark"],
-        "sources": _fuentes_de(gen["sources"]),
+        "sources": _sources_of(gen["sources"]),
         "generaciones_posteriores": posteriores,
         "generaciones_actuales_del_fabricante": actuales,
-        "nota_generacion_actual": nota_actual,
+        "nota_generacion_actual": current_note,
     }
 
 
-def _destino_documentado(contenido: dict, familia: str | None) -> dict | None:
+def _documented_target(contenido: dict, family: str | None) -> dict | None:
     """Ruta de migracion que la guia publica para la familia de ORIGEN concreta.
 
     Es mas precisa que 'la generacion actual del fabricante': la guia distingue,
     por ejemplo, S7-200 -> S7-1200 de S7-300/400 -> S7-1500, y SLC 500 ->
     CompactLogix 5380 de PLC-5 -> ControlLogix.
     """
-    if not familia:
+    if not family:
         return None
-    fam = _norm(familia)
-    for origen in contenido.get("origins") or []:
-        if not isinstance(origen, dict):
+    fam = _norm(family)
+    for origin in contenido.get("origins") or []:
+        if not isinstance(origin, dict):
             continue
-        for parte in origen["origin"].split("/"):
+        for parte in origin["origin"].split("/"):
             p = _norm(parte)
             if len(p) >= 3 and re.search(rf"(?<![a-z0-9]){re.escape(p)}(?![a-z0-9])", fam):
                 return {
-                    "origen_en_guia": origen["origin"],
-                    "destino": origen["route"],
-                    "critical_aspects": origen.get("critical_aspects", ""),
+                    "origen_en_guia": origin["origin"],
+                    "destino": origin["route"],
+                    "critical_aspects": origin.get("critical_aspects", ""),
                 }
     return None
 
 
-def _ruta_guia(marca: str, familia: str | None = None) -> dict | None:
+def _guide_route(brand: str, family: str | None = None) -> dict | None:
     """Cruza la marca del catalogo con la ruta metodologica de MIGRA-IA-GUIA-001.
 
     El catalogo dice QUE existe y en que orden; la guia dice COMO se migra. Solo
     5 de las 30 marcas tienen ruta publicada en la guia.
     """
-    for alias in _alias_por_marca().get(marca, []):
-        res = conocimiento.consultar("manufacturer", alias)
+    for alias in _alias_by_brand().get(brand, []):
+        res = knowledge.query("manufacturer", alias)
         contenido = res.get("contenido")
         if isinstance(contenido, dict) and "brand" in contenido:
             return {
@@ -274,71 +274,71 @@ def _ruta_guia(marca: str, familia: str | None = None) -> dict | None:
                 "target_software": contenido.get("target_software"),
                 "legacy_networks": contenido.get("legacy_networks"),
                 "typical_risk": contenido.get("typical_risk"),
-                "destino_documentado": _destino_documentado(contenido, familia),
+                "destino_documentado": _documented_target(contenido, family),
                 "citation": res.get("citation"),
             }
     return None
 
 
-def identificar(texto: str) -> dict:
+def identify(text: str) -> dict:
     """Resuelve texto libre a marca / familia / modelo del catalogo.
 
     Busca de lo mas especifico a lo mas general (modelo -> familia -> marca) y
     NUNCA aproxima: si no hay coincidencia devuelve 'no_catalogado' con la
     advertencia correspondiente.
     """
-    consulta = (texto or "").strip()
+    consulta = (text or "").strip()
     if not consulta:
         return {"consulta": consulta, "status": "sin_consulta",
                 "confidence_level": "no_determinado",
                 "warning": "No se recibio texto que identificar."}
 
     norm = _norm(consulta)
-    comp = _compacto(consulta)
-    catalogo = cargar_catalogo()
-    base = {"consulta": consulta, "cita_catalogo": catalogo["document"]["title"],
-            "version_catalogo": catalogo["document"]["version"]}
+    comp = _compact(consulta)
+    catalog = load_catalog()
+    base = {"consulta": consulta, "cita_catalogo": catalog["document"]["title"],
+            "version_catalogo": catalog["document"]["version"]}
 
     # 1) Modelo exacto de CPU.
-    for modelo_comp, marca, i, modelo in _indice_modelos():
+    for modelo_comp, brand, i, modelo in _model_index():
         coincide = modelo_comp == comp or (
             len(modelo_comp) >= _MIN_LARGO_SUBCADENA and modelo_comp in comp
         )
         if coincide:
-            fab = _por_marca(marca)
-            desc = _describir_generacion(fab, i)
+            fab = _by_brand(brand)
+            desc = _describe_generation(fab, i)
             return {**base, "status": "modelo_exacto", "confidence_level": "alta_confianza",
-                    "brand": marca, "classification": fab["classification"],
+                    "brand": brand, "classification": fab["classification"],
                     "modelo_identificado": modelo,
                     **desc,
-                    "ruta_migracion_guia": _ruta_guia(marca, desc["family"]),
+                    "ruta_migracion_guia": _guide_route(brand, desc["family"]),
                     "nota_verificacion": "Confirmar el numero de parte contra la placa "
                                          "fisica y la fuente oficial antes de especificar."}
 
     # 2) Familia / generacion.
-    for familia_norm, marca, i, familia in _indice_familias():
-        if re.search(rf"(?<![a-z0-9]){re.escape(familia_norm)}(?![a-z0-9])", norm):
-            fab = _por_marca(marca)
-            desc = _describir_generacion(fab, i)
+    for family_norm, brand, i, family in _family_index():
+        if re.search(rf"(?<![a-z0-9]){re.escape(family_norm)}(?![a-z0-9])", norm):
+            fab = _by_brand(brand)
+            desc = _describe_generation(fab, i)
             return {**base, "status": "family", "confidence_level": "confianza_media",
-                    "brand": marca, "classification": fab["classification"],
-                    "familia_identificada": familia,
+                    "brand": brand, "classification": fab["classification"],
+                    "familia_identificada": family,
                     **desc,
-                    "ruta_migracion_guia": _ruta_guia(marca, desc["family"]),
+                    "ruta_migracion_guia": _guide_route(brand, desc["family"]),
                     "dato_faltante": "Modelo exacto de CPU: pedirlo o solicitar foto de la placa."}
 
     # 3) Solo marca.
-    marca = _buscar_marca(norm)
-    if marca:
-        fab = _por_marca(marca)
+    brand = _find_brand(norm)
+    if brand:
+        fab = _by_brand(brand)
         return {**base, "status": "brand", "confidence_level": "confianza_media",
-                "brand": marca, "classification": fab["classification"],
+                "brand": brand, "classification": fab["classification"],
                 "generations": [
-                    {"n": g["n"], "family": _familia_limpia(g["family"]),
-                     "stage": _etapa(g["family"]), "models_text": g["models_text"]}
+                    {"n": g["n"], "family": _clean_family(g["family"]),
+                     "stage": _stage(g["family"]), "models_text": g["models_text"]}
                     for g in fab["generations"]
                 ],
-                "ruta_migracion_guia": _ruta_guia(marca),
+                "ruta_migracion_guia": _guide_route(brand),
                 "dato_faltante": "Familia y modelo exacto de CPU: pedirlos o solicitar "
                                  "foto de la placa."}
 
@@ -349,19 +349,19 @@ def identificar(texto: str) -> dict:
                            "fabricantes. NO infieras una equivalencia: pide la placa, "
                            "declara el dato como no verificado y remite a la "
                            "documentacion oficial del fabricante.",
-            "marcas_disponibles": [f["brand"] for f in catalogo["manufacturers"]]}
+            "marcas_disponibles": [f["brand"] for f in catalog["manufacturers"]]}
 
 
-def ficha(marca: str, familia: str | None = None) -> dict:
+def profile(brand: str, family: str | None = None) -> dict:
     """Cronologia completa de una marca, o el detalle de una de sus generaciones."""
-    consulta = f"{marca} {familia}" if familia else marca
-    res = identificar(consulta)
+    consulta = f"{brand} {family}" if family else brand
+    res = identify(consulta)
     if res["status"] == "no_catalogado":
         return res
     return res
 
 
-def generaciones_actuales(marca: str) -> dict:
+def current_generations(brand: str) -> dict:
     """Familias vigentes de una marca, con sus modelos documentados y sus fuentes.
 
     `identificar()` solo devuelve esta informacion cuando ademas reconoce una
@@ -370,30 +370,30 @@ def generaciones_actuales(marca: str) -> dict:
     fabricantes como alternativa.
     """
     try:
-        fab = _por_marca(marca)
+        fab = _by_brand(brand)
     except KeyError:
-        return {"brand": marca, "families": [],
-                "error": f"'{marca}' no figura en el catalogo de fabricantes."}
+        return {"brand": brand, "families": [],
+                "error": f"'{brand}' no figura en el catalogo de fabricantes."}
     gens = fab["generations"]
-    actuales = [g for g in gens if _etapa(g["family"]) == "actual"]
-    nota = ""
+    actuales = [g for g in gens if _stage(g["family"]) == "actual"]
+    note = ""
     if not actuales and gens:
         # Mismo criterio que `_describir_generacion`: se ofrece la ultima de la
         # cronologia diciendo que la fuente no la declara vigente.
         actuales = [gens[-1]]
-        nota = ("El documento fuente no marca ninguna generacion de este fabricante "
+        note = ("El documento fuente no marca ninguna generacion de este fabricante "
                 "como 'Actual'; se muestra la ultima de la cronologia. Verifica el "
                 "estado comercial con el fabricante.")
     return {
         "brand": fab["brand"],
         "classification": fab["classification"],
         "families": [
-            {"family": _familia_limpia(g["family"]),
+            {"family": _clean_family(g["family"]),
              "modelos_documentados": g["models_text"],
-             "sources": _fuentes_de(g["sources"])}
+             "sources": _sources_of(g["sources"])}
             for g in actuales
         ],
-        "note": nota,
+        "note": note,
     }
 
 
@@ -404,7 +404,7 @@ _PALABRAS_VACIAS = {
 }
 
 
-def sugerencias(texto: str, limite: int = 6) -> list[dict]:
+def suggestions(text: str, limite: int = 6) -> list[dict]:
     """Familias del catalogo que comparten algo con lo que escribio el usuario.
 
     Sirve para el caso en que `identificar()` no reconoce el equipo: en vez de
@@ -413,7 +413,7 @@ def sugerencias(texto: str, limite: int = 6) -> list[dict]:
     ninguna ni completa nada: solo pregunta. Un error de tecleo tipo 'S7 1300'
     devuelve asi las familias S7 que si existen.
     """
-    tokens = {t for t in _norm(texto).split() if len(t) >= 2 and t not in _PALABRAS_VACIAS}
+    tokens = {t for t in _norm(text).split() if len(t) >= 2 and t not in _PALABRAS_VACIAS}
     if not tokens:
         return []
     # Si el usuario escribio algun nombre ('micrologix', 's7'), la coincidencia
@@ -421,10 +421,10 @@ def sugerencias(texto: str, limite: int = 6) -> list[dict]:
     # SIMATIC S7-1200 solo porque ambos llevan el numero 1200: una pista falsa.
     con_letras = {t for t in tokens if not t.isdigit()}
     puntuadas: list[tuple[int, dict]] = []
-    for fab in cargar_catalogo()["manufacturers"]:
+    for fab in load_catalog()["manufacturers"]:
         for gen in fab["generations"]:
-            familia = _familia_limpia(gen["family"])
-            campo = _norm(f"{fab['brand']} {familia} {gen['models_text']}")
+            family = _clean_family(gen["family"])
+            campo = _norm(f"{fab['brand']} {family} {gen['models_text']}")
             propios = set(campo.split())
             comunes = tokens & propios
             if not comunes:
@@ -433,11 +433,11 @@ def sugerencias(texto: str, limite: int = 6) -> list[dict]:
                 continue
             # Un token que ademas es parte del nombre de la familia pesa mas que
             # uno que solo aparece en la lista de modelos.
-            peso = len(comunes) + sum(1 for t in comunes if t in _norm(familia).split())
+            peso = len(comunes) + sum(1 for t in comunes if t in _norm(family).split())
             puntuadas.append((peso, {
                 "brand": fab["brand"],
-                "family": familia,
-                "stage": _etapa(gen["family"]),
+                "family": family,
+                "stage": _stage(gen["family"]),
                 "modelos_documentados": gen["models_text"],
                 "coincide_en": sorted(comunes),
             }))
@@ -445,14 +445,14 @@ def sugerencias(texto: str, limite: int = 6) -> list[dict]:
     return [d for _, d in puntuadas[:limite]]
 
 
-def tipo_de_producto(clasificacion: str) -> str:
+def product_type(classification: str) -> str:
     """Agrupa las clasificaciones del catalogo para comparar cosas comparables.
 
     El catalogo usa etiquetas finas ('PLC', 'PLC/PAC', 'IPC / Industrial
     Computer'). Para ofrecer alternativas basta distinguir el controlador de
     programa almacenado del equipo basado en PC.
     """
-    c = _norm(clasificacion)
+    c = _norm(classification)
     if "plc" in c or "pac" in c:
         return "plc"
     if "ipc" in c or "pc" in c or "embedded" in c:
@@ -463,7 +463,7 @@ def tipo_de_producto(clasificacion: str) -> str:
 # --------------------------------------------------------------------------- #
 # Anclaje: bloque que fija el equipo en consulta para el resto del dialogo
 # --------------------------------------------------------------------------- #
-def anclaje(ident: dict) -> str:
+def anchor(ident: dict) -> str:
     """Texto compacto que se inyecta en el contexto tras identificar el equipo.
 
     Es la pieza que impide que el agente responda con la marca del ejemplo por
@@ -504,8 +504,8 @@ def anclaje(ident: dict) -> str:
             lineas.append(f"- Observacion del catalogo: {ident['remark']}")
         actuales = ident.get("generaciones_actuales_del_fabricante") or []
         if actuales:
-            destino = "; ".join(f"{a['family']} ({a['models_text']})" for a in actuales)
-            lineas.append(f"- Generacion actual del MISMO fabricante: {destino}")
+            target = "; ".join(f"{a['family']} ({a['models_text']})" for a in actuales)
+            lineas.append(f"- Generacion actual del MISMO fabricante: {target}")
         if ident.get("nota_generacion_actual"):
             lineas.append(f"- AVISO: {ident['nota_generacion_actual']}")
     elif ident.get("generations"):
@@ -519,19 +519,19 @@ def anclaje(ident: dict) -> str:
             "actualizacion de firmware o ampliacion, no una migracion de plataforma."
         )
 
-    ruta = ident.get("ruta_migracion_guia")
-    if ruta:
-        destino_doc = ruta.get("destino_documentado")
-        if destino_doc:
+    path = ident.get("ruta_migracion_guia")
+    if path:
+        doc_target = path.get("destino_documentado")
+        if doc_target:
             lineas.append(
                 f"- Ruta de migracion documentada para esta familia de origen "
-                f"('{destino_doc['origen_en_guia']}'): -> {destino_doc['destino']}. "
-                f"{destino_doc['critical_aspects']}"
+                f"('{doc_target['origen_en_guia']}'): -> {doc_target['destino']}. "
+                f"{doc_target['critical_aspects']}"
             )
         lineas.append(
-            f"- Ruta metodologica ({ruta['citation']}): software {ruta['legacy_software']} -> "
-            f"{ruta['target_software']}; redes heredadas {ruta['legacy_networks']}; "
-            f"riesgo tipico: {ruta['typical_risk']}"
+            f"- Ruta metodologica ({path['citation']}): software {path['legacy_software']} -> "
+            f"{path['target_software']}; redes heredadas {path['legacy_networks']}; "
+            f"riesgo tipico: {path['typical_risk']}"
         )
     else:
         lineas.append(
@@ -556,20 +556,20 @@ def anclaje(ident: dict) -> str:
 # --------------------------------------------------------------------------- #
 # Indice compacto para el system prompt
 # --------------------------------------------------------------------------- #
-def indice_para_prompt() -> str:
+def prompt_index() -> str:
     """Marcas y familias que el agente puede reconocer, sin volcar 469 modelos."""
-    catalogo = cargar_catalogo()
-    doc = catalogo["document"]
+    catalog = load_catalog()
+    doc = catalog["document"]
     lineas = [
         f"CATALOGO DE FABRICANTES Y CPU: {doc['title']} ({doc['version']}). "
-        f"{len(catalogo['manufacturers'])} fabricantes, "
-        f"{sum(len(f['generations']) for f in catalogo['manufacturers'])} generaciones "
+        f"{len(catalog['manufacturers'])} fabricantes, "
+        f"{sum(len(f['generations']) for f in catalog['manufacturers'])} generaciones "
         f"documentadas con modelos reales y fuente oficial.",
         "Resuelve lo que diga el usuario con `identificar_cpu` (texto libre de placa) y "
         "amplia con `consultar_catalogo` (marca, familia). Marcas y familias:",
     ]
-    for fab in catalogo["manufacturers"]:
-        fams = "; ".join(_familia_limpia(g["family"]) for g in fab["generations"])
+    for fab in catalog["manufacturers"]:
+        fams = "; ".join(_clean_family(g["family"]) for g in fab["generations"])
         lineas.append(f"- {fab['brand']} [{fab['classification']}]: {fams}")
     lineas.append(
         "Si el equipo del usuario NO esta en esta lista, dilo explicitamente y pide la "

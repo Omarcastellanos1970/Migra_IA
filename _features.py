@@ -19,10 +19,10 @@ import json
 import re
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parent
-CUESTIONARIO = RAIZ / "data" / "es" / "questionnaire.json"
-REGLAS = RAIZ / "docs" / "reglas_de_puntuacion.md"
-SALIDA = RAIZ / "docs" / "caracteristicas_dominio.md"
+ROOT = Path(__file__).resolve().parent
+QUESTIONNAIRE = ROOT / "data" / "es" / "questionnaire.json"
+REGLAS = ROOT / "docs" / "reglas_de_puntuacion.md"
+OUTPUT = ROOT / "docs" / "caracteristicas_dominio.md"
 
 # Lo que el rubro nombra como caracteristicas candidatas, y el codigo del
 # cuestionario que las recoge. Escrito a mano porque es la correspondencia entre
@@ -47,25 +47,25 @@ CANDIDATAS = [
 ]
 
 
-def codigos_usados() -> dict[str, tuple[list[str], str]]:
+def used_codes() -> dict[str, tuple[list[str], str]]:
     """Factor -> codigos que lee, extraido del documento que genera el codigo."""
-    texto = REGLAS.read_text(encoding="utf-8")
-    factores: dict[str, list[str]] = {}
+    text = REGLAS.read_text(encoding="utf-8")
+    factors: dict[str, list[str]] = {}
     actual = None
-    for linea in texto.splitlines():
+    for linea in text.splitlines():
         m = re.match(r"^## (.+)$", linea)
         if m:
             actual = m.group(1).strip()
         m = re.search(r"lee: (.+)$", linea)
         if m and actual:
             peso = re.search(r"Peso ([\d.]+)", linea)
-            factores[actual] = (re.findall(r"[A-Q]\d{2}", m.group(1)),
+            factors[actual] = (re.findall(r"[A-Q]\d{2}", m.group(1)),
                                 peso.group(1) if peso else "?")
-    return factores
+    return factors
 
 
-def preguntas() -> dict[str, str]:
-    d = json.loads(CUESTIONARIO.read_text(encoding="utf-8"))
+def questions() -> dict[str, str]:
+    d = json.loads(QUESTIONNAIRE.read_text(encoding="utf-8"))
     fuera: dict[str, str] = {}
 
     def rec(o):
@@ -82,10 +82,10 @@ def preguntas() -> dict[str, str]:
     return fuera
 
 
-def informe() -> str:
-    factores = codigos_usados()
-    usados = {c for cs, _ in factores.values() for c in cs}
-    textos = preguntas()
+def report() -> str:
+    factors = used_codes()
+    usados = {c for cs, _ in factors.values() for c in cs}
+    textos = questions()
 
     L: list[str] = []
     a = L.append
@@ -105,21 +105,21 @@ def informe() -> str:
     a("| Caracteristica | Codigos | Estado |")
     a("|---|---|---|")
     huerfanas: list[tuple[str, list[str]]] = []
-    for nombre, codigos, _ in CANDIDATAS:
+    for name, codigos, _ in CANDIDATAS:
         dentro = [c for c in codigos if c in usados]
         fuera = [c for c in codigos if c not in usados and c in textos]
         if dentro:
-            estado = f"**Usada** por el motor ({', '.join(dentro)})"
+            status = f"**Usada** por el motor ({', '.join(dentro)})"
             if fuera:
-                estado += f"; {', '.join(fuera)} se preguntan y no se usan"
-                huerfanas.append((nombre, fuera))
+                status += f"; {', '.join(fuera)} se preguntan y no se usan"
+                huerfanas.append((name, fuera))
         else:
-            estado = f"**Se pregunta y NO se usa** ({', '.join(fuera)})"
-            huerfanas.append((nombre, fuera))
-        a(f"| {nombre} | {', '.join(codigos)} | {estado} |")
+            status = f"**Se pregunta y NO se usa** ({', '.join(fuera)})"
+            huerfanas.append((name, fuera))
+        a(f"| {name} | {', '.join(codigos)} | {status} |")
     a("")
-    for nombre, codigos, justificacion in CANDIDATAS:
-        a(f"**{nombre}.** {justificacion}")
+    for name, codigos, justification in CANDIDATAS:
+        a(f"**{name}.** {justification}")
         a("")
 
     a("## Los ocho factores del motor y lo que leen")
@@ -129,7 +129,7 @@ def informe() -> str:
     a("")
     a("| Factor | Peso | Codigos que lee |")
     a("|---|---|---|")
-    for factor, (cs, peso) in factores.items():
+    for factor, (cs, peso) in factors.items():
         a(f"| {factor} | {peso} | {', '.join(cs)} |")
     a("")
 
@@ -140,9 +140,9 @@ def informe() -> str:
         a("y **ningun factor los lee**. Es la misma clase de defecto que F12, pero")
         a("sobre las dos caracteristicas que el rubro nombra primero:")
         a("")
-        for nombre, codigos in huerfanas:
+        for name, codigos in huerfanas:
             for c in codigos:
-                a(f"- `{c}` — {textos.get(c, '(sin texto)')[:88]}  \\[{nombre}\\]")
+                a(f"- `{c}` — {textos.get(c, '(sin texto)')[:88]}  \\[{name}\\]")
         a("")
         a("Cerrarlo obliga a tocar `scoring.py`, cuyos ocho factores y pesos son los")
         a("que describe el paper. Es decision editorial, no tecnica, y esta anotada")
@@ -171,11 +171,11 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--md", action="store_true")
     args = ap.parse_args()
-    texto = informe()
-    print(texto)
+    text = report()
+    print(text)
     if args.md:
-        SALIDA.write_text(texto + "\n", encoding="utf-8")
-        print(f"\nEscrito {SALIDA.relative_to(RAIZ).as_posix()}")
+        OUTPUT.write_text(text + "\n", encoding="utf-8")
+        print(f"\nEscrito {OUTPUT.relative_to(ROOT).as_posix()}")
 
 
 if __name__ == "__main__":
