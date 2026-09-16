@@ -47,7 +47,8 @@ DEFAULT_LANGUAGE = os.environ.get("MIGRA_IA_LANG", "es").strip().lower()
 CONTENT_FILES = ("questionnaire.json", "knowledge_base.json",
                  "cpu_manufacturers.json", "migration_procedure.json",
                  "system_prompt.md", "initial_message.txt",
-                 "prompt_labels.json", "ui.json")
+                 "prompt_labels.json", "ui.json",
+                 "tool_descriptions.json")
 
 _language: contextvars.ContextVar[str] = contextvars.ContextVar(
     "migra_ia_language", default=DEFAULT_LANGUAGE)
@@ -125,6 +126,21 @@ def prompt_labels_path(lang: str | None = None) -> Path:
 
 def ui_path(lang: str | None = None) -> Path:
     return content_dir(lang) / "ui.json"
+
+
+def tool_descriptions_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "tool_descriptions.json"
+
+
+@lru_cache(maxsize=len(LANGUAGES))
+def _tool_descriptions(lang: str) -> dict:
+    with open(tool_descriptions_path(lang), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def tool_descriptions() -> dict:
+    """Descripciones de las herramientas en el idioma de esta peticion."""
+    return _tool_descriptions(language())
 
 
 @lru_cache(maxsize=len(LANGUAGES))

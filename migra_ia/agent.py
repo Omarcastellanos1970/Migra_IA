@@ -25,7 +25,7 @@ import anthropic
 from . import config
 from .case import Case
 from .prompt import build_system_prompt, initial_user_message
-from .tools import TOOLS, run_tool
+from .tools import tools, run_tool
 
 _SEED = initial_user_message()
 
@@ -44,7 +44,7 @@ def _agent_turn(client, system, messages, case) -> None:
             system=system,
             thinking=config.THINKING,
             output_config={"effort": config.EFFORT},
-            tools=TOOLS,
+            tools=tools(),
             messages=messages,
         ) as stream:
             for text in stream.text_stream:

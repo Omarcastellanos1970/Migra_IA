@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from . import config
 from .case import Case
-from .tools import TOOLS, run_tool
+from .tools import tools, run_tool
 
 
 def pending_approver(case: Case, entry: dict) -> bool:
@@ -43,7 +43,7 @@ def run_turn(client, system: str, messages: list, case: Case, approver=None) -> 
             system=system,
             thinking=config.THINKING,
             output_config={"effort": config.EFFORT},
-            tools=TOOLS,
+            tools=tools(),
             messages=messages,
         )
         messages.append({"role": "assistant", "content": answer.content})

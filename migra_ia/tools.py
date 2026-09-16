@@ -7,6 +7,9 @@ un resultado en texto JSON que el modelo lee en el siguiente turno.
 
 from __future__ import annotations
 
+import copy
+from functools import lru_cache
+
 import json
 from datetime import datetime
 
@@ -431,6 +434,43 @@ TOOLS = [
         },
     },
 ]
+
+
+
+# --------------------------------------------------------------------------- #
+# Esquema por idioma
+# --------------------------------------------------------------------------- #
+def _apply_descriptions(nodo, pref, textos):
+    """Superpone sobre el esquema la descripcion del idioma, por su ruta."""
+    if isinstance(nodo, dict):
+        for k, v in list(nodo.items()):
+            if k == "description" and isinstance(v, str):
+                nodo[k] = textos.get(pref, v)
+            else:
+                _apply_descriptions(v, (pref + "." + k) if pref else k, textos)
+    elif isinstance(nodo, list):
+        for i, v in enumerate(nodo):
+            _apply_descriptions(v, "%s[%d]" % (pref, i), textos)
+    return nodo
+
+
+@lru_cache(maxsize=len(config.LANGUAGES))
+def _tools(lang: str) -> list:
+    textos = config._tool_descriptions(lang)
+    esquema = copy.deepcopy(TOOLS)
+    for h in esquema:
+        _apply_descriptions(h, h["name"], textos)
+    return esquema
+
+
+def tools() -> list:
+    """Esquema de las 17 herramientas en el idioma de esta peticion.
+
+    Los nombres de herramienta y de parametro NO cambian: son la API que el
+    modelo invoca. Lo que cambia es lo que el modelo lee para decidir cuando
+    usarlas.
+    """
+    return _tools(config.language())
 
 
 # --------------------------------------------------------------------------- #

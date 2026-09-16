@@ -1,0 +1,62 @@
+{
+ "save_answers": "Records one or more questionnaire answers in the case file. Use it every time the user provides relevant data. Each answer must be labeled with its confidence level and its source.",
+ "save_answers.input_schema.properties.answers.items.properties.section": "Letter of the section, e.g. 'D'",
+ "save_answers.input_schema.properties.answers.items.properties.code": "Code of the question, e.g. 'D03'",
+ "save_answers.input_schema.properties.answers.items.properties.value": "The user's answer",
+ "save_answers.input_schema.properties.answers.items.properties.source": "Nameplate, manual, photograph, verbal, etc.",
+
+ "register_asset": "Records an asset of the system (CPU/PLC, I/O module, HMI, drive, servo, sensor, actuator, etc.) with its nameplate data. Returns the unique ID of the asset (AST-...). Never invent catalog numbers.",
+ "register_asset.input_schema.properties.type": "cpu | modulo_io | hmi | variador | servo | sensor | actuador | red | otro",
+
+ "register_evidence": "Records a piece of evidence provided by the user (photograph, manual, drawing, backup, I/O list). Returns the unique ID (EVD-...).",
+ "register_evidence.input_schema.properties.type": "foto | manual | plano | respaldo | lista_io | otro",
+
+ "register_missing_data": "Records a missing critical piece of data that prevents or limits a final recommendation (Section 11).",
+ "register_missing_data.input_schema.properties.impacto": "Which decision is blocked or degraded without this data",
+
+ "register_safety_flag": "Records a safety flag, for example when the migration may affect safety functions and review by a functional safety specialist is required.",
+
+ "compute_obsolescence_risk": "Computes the obsolescence risk score (0-100) by weighting the eight factors of Section 6. Provide only the factors for which you have real justification; the ones omitted are not penalized. Each factor needs a value from 0 to 100 (higher = more risk) and a justification.",
+ "compute_obsolescence_risk.input_schema.properties.factors": "Valid keys: estado_ciclo_vida, disponibilidad_repuestos, soporte_fabricante, disponibilidad_software, disponibilidad_respaldo, compatibilidad_sistemas, historial_fallas, criticidad_productiva",
+
+ "case_summary": "Returns the current state of the case file (answers, assets, evidence, missing data, flags, risk). Use it to recall what information is already recorded.",
+
+ "query_guide": "Consults the internal reference base (Guide MIGRA-IA-GUIA-001) in order to conduct the diagnosis in a structured way and to GROUND AND CITE every recommendation. It contains: the 6-stage methodology (diagnosis, engineering, construction, FAT, changeover/SAT, closure), 24 chapters, migration routes per manufacturer (Siemens, Rockwell, Mitsubishi, Schneider, Omron), a library of 20 tests, 22 templates and management annexes. It returns the fragment requested together with its citation. Consult it before proposing alternatives, per-manufacturer equivalences or test plans.",
+ "query_guide.input_schema.properties.tema": "The part of the guide to consult.",
+ "query_guide.input_schema.properties.key": "Identifier within the topic: number or title of a chapter; id or number of a stage; id or device of a test; letter or name of a template or annex; id or title of a case; brand or family of a manufacturer (e.g. 'Siemens' or 'S7-300'). Omit it to get the index of the topic.",
+
+ "identify_cpu": "THE FIRST TOOL to use as soon as the user mentions a piece of equipment. It resolves free nameplate text ('an Allen Bradley SLC 5/04', 'CJ1M-CPU13', 'schneider m580') against the catalog of 30 manufacturers, 130 generations and 469 real CPU models. It returns brand, family/generation, position in the manufacturer's timeline, documented models of that generation, the current generation of the SAME manufacturer, and the official sources that can be cited. It anchors the case: from its result onwards, EVERY answer must refer to that equipment. If it returns 'no_catalogado', say so and ask for the nameplate; do not approximate to the closest brand.",
+ "identify_cpu.input_schema.properties.text": "What the user said about the equipment, verbatim: brand, family and/or model. It can be a whole sentence.",
+
+ "query_catalog": "Consults the manufacturer and CPU catalog: the complete timeline of a brand (from the oldest generation to the current one) or the detail of one of its generations, with documented models and official sources. Use it to place the equipment in its life cycle, to find out which generation of the SAME manufacturer is the current one, and to cite the source. Do not invent models that it does not return.",
+ "query_catalog.input_schema.properties.brand": "Brand from the catalog, e.g. 'Siemens', 'OMRON', 'Fuji Electric'.",
+ "query_catalog.input_schema.properties.family": "Optional: a specific family or generation, e.g. 'S7-300', 'MELSEC-Q', 'PFC200'.",
+
+ "query_questionnaire": "Consults the adaptive master questionnaire: the exact detail of the questions (text, options and adaptive rule) and, above all, the decision map that links each answer to the risk factor it feeds and to the criteria of each alternative (root cause correction, repair, direct spare part, equivalent hardware, migration, rebuilding, temporary operation). Consult it BEFORE opening a new section of the diagnosis, so as to ask with the real options and apply its adaptive rule, and BEFORE scoring a factor or proposing an alternative, so as to justify it on criteria.",
+ "query_questionnaire.input_schema.properties.tema": "The part of the questionnaire to consult.",
+ "query_questionnaire.input_schema.properties.key": "Identifier within the topic: letter or title of a section (e.g. 'M' or 'ciclo de vida'); question code (e.g. 'M06'); key of the risk factor (estado_ciclo_vida, disponibilidad_repuestos, soporte_fabricante, disponibilidad_software, disponibilidad_respaldo, compatibilidad_sistemas, historial_fallas, criticidad_productiva); name of the alternative (e.g. 'migration'); or free text for 'buscar'. Omit it to get the index of the topic.",
+
+ "query_procedure": "Consults the 50-step migration procedure (MIGRA-IA-PROC-050): the step by step that is followed ONCE CHANGING THE CPU IS DECIDED. Each step comes with its exit criterion, the evidence that must be left, who carries it out, its prerequisites and what it demands before touching the machine. Use 'triggers' to find out whether the case already justifies opening guide mode; 'opciones_destino' at step 13 to present the candidate CPUs from the same manufacturer and the platforms of alternative brands; 'ruta_fabricante' when the source program IS accessible (passwords known and a backup that opens and compiles) and the migration goes ahead anyway because of obsolescence or lack of spare parts: it returns the specific tool sequence of that brand, which specializes steps 21 to 23; 'ruta_cambio_marca' when the chosen target is from ANOTHER brand and the source program IS accessible: it returns the porting method, which specializes steps 11, 12, 18, 21 and 32; 'siguiente' to find out which step comes next; 'bloqueos' before proposing any physical intervention. Always cite the step: 'Procedure MIGRA-IA-PROC-050, step N'.",
+ "query_procedure.input_schema.properties.tema": "The part of the procedure to consult.",
+ "query_procedure.input_schema.properties.key": "Step number (1 to 50) for the topic 'step'; phase id (levantamiento, seleccion_e_ingenieria, conversion, fat, corte_y_puesta_en_marcha, cierre) or step number for 'phase'; name of the brand for 'ruta_fabricante' (if it is omitted, the brand of the equipment already identified in the case file is used). Omit it for the other topics.",
+
+ "start_migration_guide": "Opens guide mode for the 50-step procedure. Call it at the moment changing the CPU is decided: because of obsolescence, because the password is unknown, because the previous program cannot be copied or opened, or because the user decides so. From this call onwards the agent stops diagnosing and accompanies step by step. Declare `sin_respaldo` when there is no recoverable source program: that changes the content of several steps.",
+ "start_migration_guide.input_schema.properties.motivo": "Why it is opened, in one line.",
+ "start_migration_guide.input_schema.properties.decidido_por": "Who took the decision to change the CPU.",
+ "start_migration_guide.input_schema.properties.sin_respaldo": "True if there is no recoverable or verifiable source program.",
+
+ "set_target_cpu": "Records the replacement CPU THE USER CHOSE at step 13, with its justification and its source. Never choose it yourself: present the options first with `query_procedure` (topic 'opciones_destino') and wait for the decision. If the brand chosen is different from the source one, the procedure activates only the brand change variant (steps 21 and 22 stop applying).",
+ "set_target_cpu.input_schema.properties.family": "Target family or platform.",
+ "set_target_cpu.input_schema.properties.model": "Exact model ONLY if the catalog documents it or the user provides it. Do not complete codes.",
+ "set_target_cpu.input_schema.properties.source": "URL or citation of the official source.",
+
+ "mark_migration_step": "Records the status of a step of the procedure in the case file, with the evidence that supports it. Mark 'completado' only when the exit criterion of the step is met; 'no_aplica' when a variant disables it; 'bloqueado' when a prerequisite is missing.",
+ "mark_migration_step.input_schema.properties.step": "Key of the step: '1' to '50' from the document, or 'P1' to 'P7' from the program construction extension.",
+ "mark_migration_step.input_schema.properties.evidence": "Evidence provided by the user to close the step.",
+
+ "request_human_approval": "Requests explicit approval from authorized personnel BEFORE delivering instructions that involve intervening on real equipment (Rule 11). It presents the proposed action and its risks; the operator approves or rejects it at the console.",
+
+ "generate_report": "Generates and saves the traceable technical report in Markdown, following the structure of Section 9. Returns the path of the file. It includes the full body of the report already written.",
+ "generate_report.input_schema.properties.cuerpo_markdown": "Complete report in Markdown, with the 13 sections of the standard structure.",
+ "generate_report.input_schema.properties.resumen": "One-line summary of the report."
+}
