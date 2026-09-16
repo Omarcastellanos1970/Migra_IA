@@ -1764,7 +1764,7 @@
             "title": "Fijar el destino antes de seguir convirtiendo",
             "detail": "La ruta se bifurca aqui y el resto de los pasos depende de esta eleccion: quedarse en STEP 7 sobre S7-300/S7-400, o subir hasta TIA Portal sobre S7-1200/S7-1500. Es la decision del paso 13 del procedimiento y la toma el usuario, no el agente.",
             "specializes_step": "13",
-            "exit_criterion": "Familia y modelo de CPU destino fijados por el usuario y registrados con `fijar_cpu_destino`."
+            "exit_criterion": "Familia y modelo de CPU destino fijados por el usuario y registrados con `set_target_cpu`."
           },
           {
             "n": "S4",

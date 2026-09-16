@@ -346,7 +346,7 @@ TOOLS = [
         "description": (
             "Registra la CPU de reemplazo que ELIGIO EL USUARIO en el paso 13, con su "
             "justificacion y su fuente. Nunca la elijas tu: presenta antes las opciones con "
-            "`consultar_procedimiento` (tema 'opciones_destino') y espera la decision. Si la "
+            "`query_procedure` (tema 'opciones_destino') y espera la decision. Si la "
             "marca elegida es distinta a la de origen, el procedimiento activa solo la "
             "variante de cambio de marca (los pasos 21 y 22 dejan de aplicar)."
         ),

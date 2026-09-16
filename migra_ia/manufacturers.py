@@ -15,7 +15,7 @@ Reglas de rigor (heredadas del documento fuente):
 
 El detalle NO se vuelca al prompt: el system prompt lleva un indice compacto
 (`indice_para_prompt`) y el agente pide el resto con las herramientas
-`identificar_cpu` y `consultar_catalogo`, que delegan en `identificar` y `ficha`.
+`identify_cpu` y `query_catalog`, que delegan en `identificar` y `ficha`.
 """
 
 from __future__ import annotations
@@ -565,8 +565,8 @@ def prompt_index() -> str:
         f"{len(catalog['manufacturers'])} fabricantes, "
         f"{sum(len(f['generations']) for f in catalog['manufacturers'])} generaciones "
         f"documentadas con modelos reales y fuente oficial.",
-        "Resuelve lo que diga el usuario con `identificar_cpu` (texto libre de placa) y "
-        "amplia con `consultar_catalogo` (marca, familia). Marcas y familias:",
+        "Resuelve lo que diga el usuario con `identify_cpu` (texto libre de placa) y "
+        "amplia con `query_catalog` (marca, familia). Marcas y familias:",
     ]
     for fab in catalog["manufacturers"]:
         fams = "; ".join(_clean_family(g["family"]) for g in fab["generations"])

@@ -238,7 +238,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
      - 'critico' (S7-300 -> S7-1500) reproduce la ruta del caso ciego 26.1,
        y el destino de 'otra_marca' (Omron NX) la del caso ciego 26.5:
        el conjunto de desarrollo pisa el de prueba.
-     - En modo agente con API, la herramienta consultar_guia alcanza
+     - En modo agente con API, la herramienta query_guide alcanza
        data/base_conocimiento.json, que contiene los cinco casos ciegos con
        su estrategia. En modo determinista no: interactivo.py no importa
        conocimiento. La fuga existe y depende del modo.

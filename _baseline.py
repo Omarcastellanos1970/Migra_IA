@@ -743,7 +743,7 @@ def report(data, pliegues, res, fuga, versiones, k_note="") -> str:
     a("     - 'critico' (S7-300 -> S7-1500) reproduce la ruta del caso ciego 26.1,")
     a("       y el destino de 'otra_marca' (Omron NX) la del caso ciego 26.5:")
     a("       el conjunto de desarrollo pisa el de prueba.")
-    a("     - En modo agente con API, la herramienta consultar_guia alcanza")
+    a("     - En modo agente con API, la herramienta query_guide alcanza")
     a("       data/es/knowledge_base.json, que contiene los cinco casos ciegos con")
     a("       su estrategia. En modo determinista no: interactivo.py no importa")
     a("       conocimiento. La fuga existe y depende del modo.")

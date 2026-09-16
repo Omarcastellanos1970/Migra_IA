@@ -27,7 +27,7 @@ Sin codigo accesible no hay ruta: se reconstruye a ciegas por la extension P1-P7
 
 El detalle NO se vuelca al prompt: el system prompt lleva un indice compacto
 (`indice_para_prompt`) y el agente pide lo que necesita con la herramienta
-`consultar_procedimiento`, que delega en `consultar`.
+`query_procedure`, que delega en `consultar`.
 """
 
 from __future__ import annotations
@@ -916,7 +916,7 @@ def prompt_index() -> str:
         f"{doc['total_steps']} pasos). Citalo como '{CITA}, paso N'.\n"
         f"CUANDO SE ABRE: al decidir cambiar la CPU. Disparadores: {disp}.\n"
         f"Fases: {phases}.\n"
-        "Consultalo con `consultar_procedimiento` (tema, clave). Temas: paso (clave = "
+        "Consultalo con `query_procedure` (tema, clave). Temas: paso (clave = "
         "numero), fase (clave = id), disparadores, opciones_destino (las dos opciones "
         "de CPU del paso 13), ruta_fabricante (clave = marca), ruta_cambio_marca, "
         "estado (avance del caso), siguiente (paso que toca), bloqueos, huecos.\n"

@@ -7,7 +7,7 @@ por fabricante, biblioteca de pruebas, plantillas y anexos de gestion).
 
 El detalle NO se vuelca al prompt: el system prompt lleva solo un indice compacto
 (`indice_para_prompt`) y el agente pide el detalle bajo demanda con la herramienta
-`consultar_guia`, que delega en `consultar`.
+`query_guide`, que delega en `consultar`.
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ def methodology_summary() -> str:
 
 
 def prompt_index() -> str:
-    """Indice compacto de lo que el agente puede consultar con `consultar_guia`.
+    """Indice compacto de lo que el agente puede consultar con `query_guide`.
 
     Da al modelo las CLAVES validas sin volcar el contenido completo.
     """
@@ -57,7 +57,7 @@ def prompt_index() -> str:
     return (
         f"BASE DE REFERENCIA: {g['title']} ({g['code']} v{g['version']}). "
         f"Citala como '{g['citation']}, cap. N' o por seccion.\n"
-        "Consultala con la herramienta `consultar_guia` (tema, clave). Temas y claves:\n"
+        "Consultala con la herramienta `query_guide` (tema, clave). Temas y claves:\n"
         f"- metodologia: seis etapas (diagnostico, ingenieria, construccion, fat, corte_sat, cierre).\n"
         f"- etapa (clave = id o numero): detalle de una etapa.\n"
         f"- capitulo (clave = numero o titulo). Capitulos: {capitulos}.\n"
@@ -71,7 +71,7 @@ def prompt_index() -> str:
 
 
 # --------------------------------------------------------------------------- #
-# Consulta (usada por la herramienta consultar_guia)
+# Consulta (usada por la herramienta query_guide)
 # --------------------------------------------------------------------------- #
 def _find_chapter(base: dict, key):
     if key in (None, ""):
@@ -178,7 +178,7 @@ def query(tema: str, key=None) -> dict:
     """Devuelve el fragmento de la guia pedido. Estructura estable para el modelo.
 
     `tema` (obligatorio) y `clave` (opcional) provienen de la herramienta
-    `consultar_guia`. Siempre devuelve un dict con 'citation' para trazabilidad.
+    `query_guide`. Siempre devuelve un dict con 'citation' para trazabilidad.
     """
     base = load_base()
     cita = base["guide"]["citation"]

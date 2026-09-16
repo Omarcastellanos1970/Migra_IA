@@ -37,7 +37,7 @@ Afirmaciones respaldadas por el artefacto (verificables con la demo interactiva)
 7. **Base de conocimiento citable** (*MIGRA-IA-GUIA-001*): el agente estructura el
    diagnóstico por las seis etapas de la metodología y **cita la guía** al
    fundamentar sus recomendaciones, consultándola con la herramienta
-   `consultar_guia` (`data/base_conocimiento.json`).
+   `query_guide` (`data/base_conocimiento.json`).
 
 ---
 

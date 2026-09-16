@@ -9,7 +9,7 @@ equivalente, migrar, reconstruir, operacion temporal).
 Igual que la base de conocimiento, el detalle NO se vuelca al prompt: el system
 prompt lleva un indice compacto (`indice_para_prompt`) mas los criterios de
 decision (`criterios_para_prompt`), y el agente pide el detalle bajo demanda con
-la herramienta `consultar_cuestionario`, que delega en `consultar`.
+la herramienta `query_questionnaire`, que delega en `consultar`.
 """
 
 from __future__ import annotations
@@ -128,7 +128,7 @@ def prompt_criteria() -> str:
 
 
 # --------------------------------------------------------------------------- #
-# Consulta (usada por la herramienta consultar_cuestionario)
+# Consulta (usada por la herramienta query_questionnaire)
 # --------------------------------------------------------------------------- #
 def _find_section(cuest: dict, key):
     sections = cuest["sections"]
@@ -226,7 +226,7 @@ def query(tema: str, key=None) -> dict:
     """Devuelve el fragmento del cuestionario pedido, con estructura estable.
 
     `tema` (obligatorio) y `clave` (opcional) provienen de la herramienta
-    `consultar_cuestionario`.
+    `query_questionnaire`.
     """
     cuest = load()
     cita = f"Cuestionario maestro MIGRA-IA v{cuest['version']}"

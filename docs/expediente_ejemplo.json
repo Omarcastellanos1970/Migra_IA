@@ -739,7 +739,7 @@
     },
     {
       "ts": "2026-09-04T20:05:06-06:00",
-      "accion": "registrar_activo",
+      "accion": "register_asset",
       "detalle": {
         "id": "AST-2026-000001",
         "tipo": "cpu"
