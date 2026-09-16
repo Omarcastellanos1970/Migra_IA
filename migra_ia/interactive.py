@@ -661,7 +661,7 @@ def _phase_risk(case: Case, status: dict, actions=None) -> dict:
 
     for key in omitidos:
         run_tool(case, "register_missing_data", {
-            "description": f"Factor '{scoring.FACTOR_LABELS.get(key, key)}' sin datos "
+            "description": f"Factor '{scoring.factor_labels().get(key, key)}' sin datos "
                            "suficientes para puntuarlo",
             "impacto": "El factor se omite y los pesos se renormalizan; la recomendacion "
                        "queda como preliminar en ese aspecto.",
@@ -687,7 +687,7 @@ def _phase_risk(case: Case, status: dict, actions=None) -> dict:
     )
     if omitidos:
         text += ("\n\n**Factores omitidos por falta de datos:** "
-                  + ", ".join(scoring.FACTOR_LABELS.get(o, o) for o in omitidos)
+                  + ", ".join(scoring.factor_labels().get(o, o) for o in omitidos)
                   + ". Los pesos se renormalizan sobre los factores disponibles: no se "
                     "penaliza ni se inventa lo que no se sabe, y el hueco queda "
                     "registrado como dato faltante en el expediente.")

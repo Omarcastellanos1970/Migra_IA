@@ -11,5 +11,22 @@
  "procedure_phase_item": "{id} (steps {first}-{last}, stage {stage})",
  "procedure_no_routes": "none published yet",
  "procedure_index": "MIGRATION PROCEDURE: {title} ({id}, {total_steps} steps). Cite it as '{citation}, step N'.\nWHEN IT OPENS: when changing the CPU is decided. Triggers: {triggers}.\nPhases: {phases}.\nConsult it with `query_procedure` (topic, key). Topics: paso (key = number), fase (key = id), disparadores, opciones_destino (the two CPU options of step 13), ruta_fabricante (key = brand), ruta_cambio_marca, estado (progress of the case), siguiente (the step that comes next), bloqueos, huecos.\nPER-BRAND CONVERSION ROUTES (they specialize steps 21-23): {routes}. They are used ONLY when the source program is accessible and verified (trigger 'obsolescencia_con_acceso_al_codigo'). For the other brands the generic step 21 applies, and that limitation IS DECLARED, not filled in by inventing.\nBRAND CHANGE ROUTE (topic 'ruta_cambio_marca', specializes steps 11, 12, 18, 21 and 32): it applies when the target is from ANOTHER brand AND the source program is accessible. Between manufacturers there is no converter, but with the source in hand the work does NOT start from scratch: the original program is the SPECIFICATION and it is ported against it. The agent does NOT publish instruction equivalences between brands: it proposes the table and asks for it to be verified against the manuals of both.\nSteps: {steps}.",
- "code_range_fields": "fields per record"
+ "code_range_fields": "fields per record",
+ "factor_labels": {
+  "estado_ciclo_vida": "Life cycle status",
+  "disponibilidad_repuestos": "Spare parts availability",
+  "soporte_fabricante": "Manufacturer support",
+  "criticidad_productiva": "Production criticality",
+  "disponibilidad_software": "Software availability",
+  "disponibilidad_respaldo": "Backup availability",
+  "compatibilidad_sistemas": "Compatibility with current systems",
+  "historial_fallas": "Fault history"
+ },
+ "risk_classes": {
+  "Riesgo bajo": "Low risk",
+  "Riesgo moderado": "Moderate risk",
+  "Riesgo importante": "Significant risk",
+  "Riesgo alto": "High risk",
+  "Riesgo critico": "Critical risk"
+ }
 }

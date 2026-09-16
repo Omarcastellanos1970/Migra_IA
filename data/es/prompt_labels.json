@@ -11,5 +11,22 @@
  "procedure_phase_item": "{id} (pasos {first}-{last}, etapa {stage})",
  "procedure_no_routes": "ninguna publicada todavia",
  "procedure_index": "PROCEDIMIENTO DE MIGRACION: {title} ({id}, {total_steps} pasos). Citalo como '{citation}, paso N'.\nCUANDO SE ABRE: al decidir cambiar la CPU. Disparadores: {triggers}.\nFases: {phases}.\nConsultalo con `query_procedure` (tema, clave). Temas: paso (clave = numero), fase (clave = id), disparadores, opciones_destino (las dos opciones de CPU del paso 13), ruta_fabricante (clave = marca), ruta_cambio_marca, estado (avance del caso), siguiente (paso que toca), bloqueos, huecos.\nRUTAS DE CONVERSION POR MARCA (especializan los pasos 21-23): {routes}. Se usan SOLO cuando el programa de origen es accesible y verificado (disparador 'obsolescencia_con_acceso_al_codigo'). Para las demas marcas rige el paso 21 generico y esa limitacion SE DECLARA, no se rellena inventando.\nRUTA DE CAMBIO DE MARCA (tema 'ruta_cambio_marca', especializa los pasos 11, 12, 18, 21 y 32): aplica cuando el destino es de OTRA marca Y el programa de origen es accesible. Entre fabricantes no hay conversor, pero con la fuente en la mano el trabajo NO empieza de cero: el programa original es la ESPECIFICACION y se porta contra ella. El agente NO publica equivalencias de instrucciones entre marcas: propone la tabla y pide verificarla contra los manuales de las dos.\nPasos: {steps}.",
- "code_range_fields": "campos por registro"
+ "code_range_fields": "campos por registro",
+ "factor_labels": {
+  "estado_ciclo_vida": "Estado del ciclo de vida",
+  "disponibilidad_repuestos": "Disponibilidad de repuestos",
+  "soporte_fabricante": "Soporte del fabricante",
+  "criticidad_productiva": "Criticidad productiva",
+  "disponibilidad_software": "Disponibilidad del software",
+  "disponibilidad_respaldo": "Disponibilidad de respaldo",
+  "compatibilidad_sistemas": "Compatibilidad con sistemas actuales",
+  "historial_fallas": "Historial de fallas"
+ },
+ "risk_classes": {
+  "Riesgo bajo": "Riesgo bajo",
+  "Riesgo moderado": "Riesgo moderado",
+  "Riesgo importante": "Riesgo importante",
+  "Riesgo alto": "Riesgo alto",
+  "Riesgo critico": "Riesgo critico"
+ }
 }

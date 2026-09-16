@@ -81,6 +81,7 @@ def index():
         version=config.AGENT_VERSION,
         lang=config.language(),
         languages=config.available_languages(),
+        ui=config.ui(),
     )
 
 

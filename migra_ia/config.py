@@ -47,7 +47,7 @@ DEFAULT_LANGUAGE = os.environ.get("MIGRA_IA_LANG", "es").strip().lower()
 CONTENT_FILES = ("questionnaire.json", "knowledge_base.json",
                  "cpu_manufacturers.json", "migration_procedure.json",
                  "system_prompt.md", "initial_message.txt",
-                 "prompt_labels.json")
+                 "prompt_labels.json", "ui.json")
 
 _language: contextvars.ContextVar[str] = contextvars.ContextVar(
     "migra_ia_language", default=DEFAULT_LANGUAGE)
@@ -121,6 +121,21 @@ def initial_message_path(lang: str | None = None) -> Path:
 
 def prompt_labels_path(lang: str | None = None) -> Path:
     return content_dir(lang) / "prompt_labels.json"
+
+
+def ui_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "ui.json"
+
+
+@lru_cache(maxsize=len(LANGUAGES))
+def _ui(lang: str) -> dict:
+    with open(ui_path(lang), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def ui() -> dict:
+    """Textos de la interfaz web en el idioma de esta peticion."""
+    return _ui(language())
 
 
 @lru_cache(maxsize=len(LANGUAGES))

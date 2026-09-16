@@ -18,7 +18,7 @@ import json
 from functools import lru_cache
 
 from . import config
-from .scoring import FACTOR_LABELS, WEIGHTS
+from .scoring import factor_labels, WEIGHTS
 
 # Claves donde viven listas de preguntas dentro de una seccion. Las secciones de
 # inventario (E, J) usan en su lugar listas de campos por registro.
@@ -189,7 +189,7 @@ def _find_factor(cuest: dict, key):
             detail.append({"code": code, "text": p.get("text", "") if p else "(codigo no encontrado)"})
         return {
             "key": f["key"],
-            "label": FACTOR_LABELS.get(f["key"], f["key"]),
+            "label": factor_labels().get(f["key"], f["key"]),
             "peso": WEIGHTS.get(f["key"]),
             "guide": f.get("guide", ""),
             "questions": detail,
@@ -199,7 +199,7 @@ def _find_factor(cuest: dict, key):
         return [_expand(f) for f in factors]
     k = _norm(str(key))
     for f in factors:
-        if k == _norm(f["key"]) or k in _norm(FACTOR_LABELS.get(f["key"], "")):
+        if k == _norm(f["key"]) or k in _norm(factor_labels().get(f["key"], "")):
             return _expand(f)
     return None
 

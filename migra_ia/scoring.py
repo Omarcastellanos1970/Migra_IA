@@ -47,6 +47,27 @@ class RiskResult:
         }
 
 
+def factor_labels() -> dict[str, str]:
+    """Etiqueta visible de cada factor, en el idioma de esta peticion.
+
+    Las CLAVES son el identificador estable del factor y no cambian nunca; lo
+    que cambia es como se muestra.
+    """
+    from . import config
+    return config.labels().get("factor_labels", FACTOR_LABELS)
+
+
+def risk_label(classification: str) -> str:
+    """Traduce la clasificacion al idioma de esta peticion.
+
+    `classify` sigue devolviendo el valor canonico en castellano, que es el que
+    se guarda en el expediente: traducir el dato almacenado romperia el historial
+    de 188 casos. Lo que se traduce es la presentacion.
+    """
+    from . import config
+    return config.labels().get("risk_classes", {}).get(classification, classification)
+
+
 def classify(score: float) -> str:
     """Traduce una puntuacion 0-100 a su clasificacion textual (Seccion 6)."""
     if score <= 20:
@@ -80,7 +101,7 @@ def compute_risk(factors: dict[str, dict]) -> RiskResult:
         if entry is None:
             detail.append(
                 {
-                    "factor": FACTOR_LABELS[key],
+                    "factor": factor_labels()[key],
                     "key": key,
                     "peso": peso,
                     "value": None,
@@ -97,7 +118,7 @@ def compute_risk(factors: dict[str, dict]) -> RiskResult:
         suma_ponderada += peso * value
         detail.append(
             {
-                "factor": FACTOR_LABELS[key],
+                "factor": factor_labels()[key],
                 "key": key,
                 "peso": peso,
                 "value": value,
