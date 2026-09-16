@@ -15,6 +15,13 @@ from pathlib import Path
 from . import config
 
 
+def M(key: str) -> str:
+    """Mensaje de este modulo en el idioma de esta peticion."""
+    from . import config
+    return config.messages().get(key, key)
+
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
 
@@ -221,7 +228,7 @@ class Case:
         """Marca que no hay programa de origen recuperable (contrasena, sin acceso)."""
         if not self.migration:
             self.start_migration("sin_acceso_al_programa",
-                                   "Declarado sin respaldo verificado")
+                                   M("cs002"))
         self.migration["sin_respaldo"] = bool(without_backup)
         self._touch("declarar_sin_respaldo", {"sin_respaldo": bool(without_backup)})
 
@@ -229,7 +236,7 @@ class Case:
                       justification: str = "", source: str = "") -> dict:
         """Registra la CPU destino elegida (paso 13) y deduce si cambia la marca."""
         if not self.migration:
-            self.start_migration("decision_del_usuario", "Eleccion de CPU destino")
+            self.start_migration("decision_del_usuario", M("cs003"))
         origin = (self.equipment_identified or {}).get("brand") or ""
         cambio = bool(origin) and not _same_brand(brand, origin)
         self.migration["destino"] = {
@@ -253,7 +260,7 @@ class Case:
         de construccion del programa: no se fuerza a entero.
         """
         if not self.migration:
-            self.start_migration("decision_del_usuario", "Avance del procedimiento")
+            self.start_migration("decision_del_usuario", M("cs004"))
         text = str(key).strip()
         c = text if not text.isdigit() else str(int(text))
         registro = {
@@ -314,7 +321,7 @@ class Case:
             "cambio_marca": self.migration.get("cambio_marca", False),
             "sin_respaldo": self.migration.get("sin_respaldo", False),
             "pasos_cerrados": cerrados,
-            "avance": f"{len(cerrados)} de 57",
+            "avance": f"{len(cerrados)}{M('cs001')}",
         }
 
     def file_path(self) -> Path:

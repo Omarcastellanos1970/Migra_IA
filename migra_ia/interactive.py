@@ -31,6 +31,23 @@ from .tools import run_tool
 from .core import pending_approver
 from . import questionnaire, manufacturers, procedure, scoring
 
+
+def T(key: str) -> str:
+    """Texto de la demo en el idioma de esta peticion.
+
+    La demo interactiva no pasa por el modelo: este modulo escribe su texto, asi
+    que tambien es contenido y vive en data/<idioma>/interactive.json.
+    """
+    from . import config
+    return config.interactive_text().get(key, key)
+
+
+def C(key: str) -> tuple:
+    """Palabras que el usuario puede teclear para un mando, en su idioma."""
+    return tuple(s.strip().lower() for s in T(key).split(","))
+
+
+
 CITA = "Cuestionario maestro MIGRA-IA (Secciones A-Q)"
 
 # Fases de la sesion interactiva.
@@ -42,12 +59,13 @@ F_TARGET = "destino"
 F_GUIDE = "guide"
 F_FIN = "fin"
 
-_DESCONOCIDO = {"no se conoce", "no se ha consultado", "no se ha medido",
-                "no se lleva registro", "no se ha probado"}
+def _unknown_values():
+    return {T("i035"), T("i036"), T("i037"),
+                T("i038"), T("i039")}
 
 
 def _is_unknown(value) -> bool:
-    return str(value or "").strip().lower() in _DESCONOCIDO
+    return str(value or "").strip().lower() in _unknown_values()
 
 
 # --------------------------------------------------------------------------- #
@@ -60,10 +78,10 @@ GUION: list[tuple[str, object]] = [
     ("C08", None), ("C10", None), ("Q04", None),
     ("M01", None), ("M04", None), ("M06", None), ("M09", None), ("M07", None),
     ("F01", None),
-    ("F06", lambda r: r.get("F01") == "Si"),
-    ("F07", lambda r: r.get("F01") == "Si"),
-    ("F12", lambda r: r.get("F01") in ("No", "No se conoce")),
-    ("F13", lambda r: r.get("F01") in ("No", "No se conoce")),
+    ("F06", lambda r: r.get("F01") == T("yes")),
+    ("F07", lambda r: r.get("F01") == T("yes")),
+    ("F12", lambda r: r.get("F01") in (T("no"), T("i098"))),
+    ("F13", lambda r: r.get("F01") in (T("no"), T("i099"))),
     ("N02", None), ("N03", None), ("N05", None), ("N06", None),
     ("G01", None), ("O07", None), ("O08", None), ("O02", None),
     ("L01", None), ("L03", None), ("L07", None),
@@ -72,7 +90,8 @@ GUION: list[tuple[str, object]] = [
 
 # Preguntas de rama que el cuestionario declara sin opciones: son de si/no y se
 # presentan con las opciones estandar, sin inventarles texto.
-_YES_NO_OPTIONS = ["Si", "No", "No se conoce"]
+def _yes_no_options():
+    return [T("yes"), T("no"), T("i040")]
 
 
 def _question(code: str) -> dict | None:
@@ -81,7 +100,7 @@ def _question(code: str) -> dict | None:
         return None
     p = dict(p)
     if not p.get("options") and p.get("type") not in ("numero", "text"):
-        p["options"] = list(_YES_NO_OPTIONS)
+        p["options"] = list(_yes_no_options())
     return p
 
 
@@ -129,7 +148,7 @@ def _f_lifecycle(r: dict) -> dict | None:
         # y se registra el dato faltante, en lugar de suponer un estado.
         return None
     return {"value": tabla[m01],
-            "justificacion": f"M01: estado declarado por el fabricante = '{m01}'."}
+            "justificacion": f"{T('i001')}{m01}'."}
 
 
 def _f_spare_parts(r: dict) -> dict | None:
@@ -143,16 +162,14 @@ def _f_spare_parts(r: dict) -> dict | None:
     partes = [f"M04: '{m04}'."]
     # La guia exige contrastar el plazo de entrega con la parada tolerable: un
     # repuesto que llega despues de lo que la planta aguanta no cubre el riesgo.
-    escala_m06 = ["En existencia en la planta o local", "Menos de 2 semanas",
-                  "De 2 a 8 semanas", "Mas de 8 semanas", "No se consigue"]
-    escala_c10 = ["Menos de 1 hora", "1 a 4 horas", "4 a 12 horas",
-                  "12 a 24 horas", "Mas de 24 horas"]
+    escala_m06 = [T("i041"), T("i042"),
+                  T("i043"), T("i044"), T("i045")]
+    escala_c10 = [T("i046"), "1 a 4 horas", "4 a 12 horas",
+                  "12 a 24 horas", T("i047")]
     rm, rc = _span(m06, escala_m06), _span(c10, escala_c10)
     if rm is not None and rc is not None and rm >= 2:
         base = max(base, 85)
-        partes.append(f"M06 '{m06}' frente a C10 '{c10}': el repuesto llega despues "
-                      "de lo que la linea tolera, asi que la estrategia de repuesto "
-                      "no cubre el riesgo por si sola.")
+        partes.append(f"M06 '{m06}' frente a C10 '{c10}{T('i002')}")
     elif rm is not None:
         partes.append(f"M06: '{m06}'.")
     return {"value": _cap(base), "justificacion": " ".join(partes)}
@@ -168,8 +185,7 @@ def _f_support(r: dict) -> dict | None:
     ajuste = {"Si, del fabricante": -15, "Si, de tercero certificado": -5,
               "Si, de tercero sin certificar": 5, "No": 15}.get(m07, 0)
     return {"value": _cap(base + ajuste),
-            "justificacion": f"M09 contrato de soporte: '{m09}'; M07 servicio de "
-                             f"reparacion: '{m07}'."}
+            "justificacion": f"{T('i003')}{m09}{T('i004')}{m07}'."}
 
 
 def _f_software(r: dict) -> dict | None:
@@ -198,38 +214,32 @@ def _f_software(r: dict) -> dict | None:
         partes.append(f"N06 contrasenas '{n06}'")
     value += pwd
     return {"value": _cap(value),
-            "justificacion": "Barrera de acceso al programa: " + "; ".join(partes) + "."}
+            "justificacion": T("i081") + "; ".join(partes) + "."}
 
 
 def _f_backup(r: dict) -> dict | None:
     f01 = r.get("F01")
     if f01 is None:
         return None
-    if f01 == "No":
+    if f01 == T("no"):
         return {"value": 100.0,
-                "justificacion": "F01: no existe copia del programa. Prioridad 1: "
-                                 "recuperarlo antes de cualquier decision."}
+                "justificacion": T("i057")}
     if _is_unknown(f01):
         return {"value": 90.0,
-                "justificacion": "F01: no se sabe si existe copia. Regla 3: un respaldo "
-                                 "que no se puede verificar se trata como ausente."}
+                "justificacion": T("i058")}
     abre, compila = r.get("F06"), r.get("F07")
-    if abre == "No":
+    if abre == T("no"):
         return {"value": 100.0,
-                "justificacion": "F01 declara copia, pero F06: el respaldo NO abre. "
-                                 "Se puntua como si no existiera (Regla 3)."}
-    if compila == "No":
+                "justificacion": T("i059")}
+    if compila == T("no"):
         return {"value": 90.0,
-                "justificacion": "F06 abre pero F07: no compila sin errores. No cuenta "
-                                 "como respaldo verificado (Regla 3)."}
-    if abre == "Si" and compila == "Si":
+                "justificacion": T("i060")}
+    if abre == T("yes") and compila == T("yes"):
         return {"value": 15.0,
                 "justificacion": "F01, F06 y F07: existe copia, abre y compila. "
                                  "Respaldo verificado."}
     return {"value": 70.0,
-            "justificacion": f"F01 declara copia, pero su verificacion esta incompleta "
-                             f"(F06='{abre}', F07='{compila}'). Sin verificar no cuenta "
-                             "como respaldo (Regla 3)."}
+            "justificacion": f"{T('i005')}{abre}', F07='{compila}{T('i006')}"}
 
 
 _REDES_LEGADO = {"mpi", "profibus dp", "profibus pa", "devicenet", "controlnet",
@@ -251,30 +261,30 @@ def _f_compatibility(r: dict) -> dict | None:
     redes = [x.lower() for x in _as_list(g01)]
     if any("propietaria" in x for x in redes):
         value += 30
-        partes.append("G01 incluye una red propietaria")
+        partes.append(T("i061"))
     elif any(x in _REDES_LEGADO for x in redes):
         value += 15
-        partes.append(f"G01 redes de generacion anterior ({', '.join(_as_list(g01))})")
+        partes.append(f"{T('i007')}{', '.join(_as_list(g01))})")
     languages = [x.lower() for x in _as_list(o07)]
     if any("propietarios" in x for x in languages):
         value += 20
-        partes.append("O07 incluye bloques propietarios del fabricante de la maquina")
+        partes.append(T("i062"))
     if any(("awl" in x or "stl" in x or "instrucciones" in x) for x in languages):
         value += 15
-        partes.append("O07 incluye lista de instrucciones (AWL/STL), sin conversion automatica garantizada")
+        partes.append(T("i063"))
     if any(("grafcet" in x or "sfc" in x or "graph" in x) for x in languages):
         value += 10
         partes.append("O07 incluye GRAFCET/SFC")
-    if o08 == "Si":
+    if o08 == T("yes"):
         value += 25
         partes.append("O08 usa librerias propietarias")
     if str(o02).strip().lower().startswith("si"):
         value += 20
-        partes.append("O02 hay control de movimiento o ejes sincronizados")
+        partes.append(T("i064"))
     if not partes:
-        partes.append("sin arrastre relevante declarado en G01, O02, O07 ni O08")
+        partes.append(T("i065"))
     return {"value": _cap(value),
-            "justificacion": "Cuanto arrastra el cambio: " + "; ".join(partes) + "."}
+            "justificacion": T("i082") + "; ".join(partes) + "."}
 
 
 def _external_root_cause(r: dict) -> list[str]:
@@ -287,15 +297,14 @@ def _external_root_cause(r: dict) -> list[str]:
     causas = []
     p01 = str(r.get("P01") or "")
     if p01 in ("Entre 40 y 50 C", "Mayor a 50 C"):
-        causas.append(f"P01 temperatura del tablero '{p01}'")
+        causas.append(f"{T('i008')}{p01}'")
     energia = [x.lower() for x in _as_list(r.get("P04"))]
     if any("tierra dudosa" in x or "tierra dudosa o inexistente" in x for x in energia):
         causas.append("P04 puesta a tierra dudosa o inexistente")
     if any("variaciones" in x or "armonicos" in x or "cortes" in x for x in energia):
-        causas.append("P04 calidad de energia deficiente")
-    if r.get("L07") == "Si":
-        causas.append("L07 la maquina pierde el programa, los datos o la hora sin energia "
-                      "(bateria o respaldo de memoria agotado)")
+        causas.append(T("i066"))
+    if r.get("L07") == T("yes"):
+        causas.append(T("i067"))
     return causas
 
 
@@ -309,10 +318,10 @@ def _f_history(r: dict) -> dict | None:
         paros = None
     if paros is None:
         value = 45.0
-        partes = ["L01 sin numero de paros registrado"]
+        partes = [T("i068")]
     else:
         value = 10.0 if paros == 0 else 30.0 if paros <= 2 else 50.0 if paros <= 5 else 70.0
-        partes = [f"L01 {paros} paros no programados en 12 meses"]
+        partes = [f"L01 {paros}{T('i009')}"]
     value += {"En aumento": 20, "Estable": 0, "En disminucion": -10,
               "Sin fallas registradas": -15}.get(l03, 5)
     if l03:
@@ -320,9 +329,8 @@ def _f_history(r: dict) -> dict | None:
     causas = _external_root_cause(r)
     if causas:
         value = min(value, 55.0)
-        partes.append("CAUSA RAIZ EXTERNA no corregida (" + "; ".join(causas) +
-                      "): estas fallas no son atribuibles al controlador, asi que el "
-                      "factor se limita. Corregirla es previo a cualquier sustitucion")
+        partes.append(T("i100") + "; ".join(causas) +
+                      T("i083"))
     return {"value": _cap(value), "justificacion": "; ".join(partes) + "."}
 
 
@@ -339,8 +347,7 @@ def _f_criticality(r: dict) -> dict | None:
     value += {"No hay ventana disponible": 15, "En el paro anual de planta o vacaciones": 10,
               "Fines de semana": 5}.get(q04, 0)
     return {"value": _cap(value),
-            "justificacion": f"C08 criticidad '{c08}'; C10 parada tolerable '{c10}'; "
-                             f"Q04 ventana de intervencion '{q04}'."}
+            "justificacion": f"C08 criticidad '{c08}'; C10 parada tolerable '{c10}{T('i010')}{q04}'."}
 
 
 REGLAS = {
@@ -377,15 +384,15 @@ def factors(answers: dict) -> tuple[dict, list[str]]:
 # Decision: que alternativa corresponde a este caso
 # --------------------------------------------------------------------------- #
 def _without_backup(r: dict) -> bool:
-    if r.get("F01") == "No" or _is_unknown(r.get("F01")):
+    if r.get("F01") == T("no") or _is_unknown(r.get("F01")):
         return True
-    return r.get("F06") == "No" or r.get("F07") == "No"
+    return r.get("F06") == T("no") or r.get("F07") == T("no")
 
 
 def _unrecoverable_program(r: dict) -> bool:
     """Sin respaldo Y sin via para leerlo del PLC: la reconstruccion se impone."""
-    return _without_backup(r) and (r.get("N06") == "No" or r.get("F13") == "No"
-                                 or r.get("N05") == "No")
+    return _without_backup(r) and (r.get("N06") == T("no") or r.get("F13") == T("no")
+                                 or r.get("N05") == T("no"))
 
 
 def decide(answers: dict, risk: dict) -> dict:
@@ -402,52 +409,46 @@ def decide(answers: dict, risk: dict) -> dict:
     causas = _external_root_cause(answers)
     if causas:
         order.append((
-            "Correccion de causa raiz (sin cambiar el controlador)",
-            "Se evalua PRIMERO porque hay causa raiz externa sin corregir: "
-            + "; ".join(causas) + ". Sustituir el controlador sin corregirla "
-            "reproduce la falla en el equipo nuevo."))
+            T("i084"),
+            T("i119")
+            + "; ".join(causas) + T("i101")))
 
     if _without_backup(answers):
         order.append((
             "Migracion a plataforma moderna" if not _unrecoverable_program(answers)
-            else "Reconstruccion del programa",
-            "No hay respaldo verificado (F01/F06/F07)"
-            + (" y no hay via para leer el programa del PLC (N05/N06/F13): el programa "
-               "debe reconstruirse a partir del levantamiento funcional."
+            else T("i102"),
+            T("i103")
+            + (T("i120")
                if _unrecoverable_program(answers)
-               else ": la prioridad 1 es recuperarlo antes de cualquier decision.")))
+               else T("i121"))))
 
     ciclo = answers.get("M01")
     plazo_insuficiente = (_span(answers.get("M06"),
-                                 ["En existencia en la planta o local", "Menos de 2 semanas",
-                                  "De 2 a 8 semanas", "Mas de 8 semanas", "No se consigue"]) or 0) >= 2
-    if ciclo in ("Descontinuado, aun con soporte y repuestos",
-                 "Descontinuado y sin soporte (fin de vida)"):
+                                 [T("i104"), T("i105"),
+                                  T("i106"), T("i107"), T("i108")]) or 0) >= 2
+    if ciclo in (T("i069"),
+                 T("i070")):
         if plazo_insuficiente:
             order.append((
                 "Migracion a plataforma moderna",
-                f"M01 '{ciclo}' y M06 con plazo mayor que la parada tolerable: el "
-                "repuesto no cubre el riesgo, y la obsolescencia no se revierte "
-                "reparando."))
+                f"M01 '{ciclo}{T('i011')}"))
         else:
             order.append((
                 "Repuesto directo (mismo modelo)",
-                f"M01 '{ciclo}', pero el repuesto llega dentro de la parada tolerable: "
-                "sirve como continuidad, con la migracion planificada en paralelo."))
+                f"M01 '{ciclo}{T('i012')}"))
     elif ciclo == "Anuncio de descontinuacion (phase-out)":
         order.append((
             "Hardware equivalente o sustitucion parcial",
-            f"M01 '{ciclo}': hay tiempo para planificar, pero no para ignorarlo."))
-    elif ciclo in ("Activo, en comercializacion", "En madurez, ya existe un sucesor"):
+            f"M01 '{ciclo}{T('i013')}"))
+    elif ciclo in ("Activo, en comercializacion", T("i109")):
         order.append((
-            "Reparacion del equipo existente",
-            f"M01 '{ciclo}': el producto sigue vivo, la obsolescencia no es el problema."))
+            T("i122"),
+            f"M01 '{ciclo}{T('i014')}"))
 
     if answers.get("Q04") == "No hay ventana disponible":
         order.append((
             "Operacion temporal controlada",
-            "Q04 no hay ventana de intervencion: cualquier plan definitivo necesita "
-            "una fecha, y mientras tanto el riesgo se declara y se acepta por escrito."))
+            T("i085")))
 
     # Sin duplicar alternativas, conservando el orden de prioridad.
     vistas, path = set(), []
@@ -461,7 +462,7 @@ def decide(answers: dict, risk: dict) -> dict:
         "puntuacion": risk.get("puntuacion"),
         "route": path,
         "migrar": any(a["alternative"] in ("Migracion a plataforma moderna",
-                                           "Reconstruccion del programa") for a in path),
+                                           T("i123")) for a in path),
         "sin_respaldo": _without_backup(answers),
         "irrecuperable": _unrecoverable_program(answers),
     }
@@ -476,18 +477,17 @@ def _render_question(p: dict, n: int, total: int) -> str:
     lineas = [cabecera, "", f"**{p['text']}**", ""]
     kind = p.get("type")
     if kind == "numero":
-        lineas.append("_Responde con un numero._")
+        lineas.append(T("i071"))
     elif kind in ("text",):
-        lineas.append("_Responde con tus palabras._")
+        lineas.append(T("i086"))
     else:
         for i, op in enumerate(p.get("options") or [], 1):
             lineas.append(f"{i}. {op}")
         lineas.append("")
         if kind == "seleccion_multiple":
-            lineas.append("_Puedes elegir varias: escribe los numeros separados por "
-                          "comas (p. ej. `1,4,7`)._")
+            lineas.append(T("i110"))
         else:
-            lineas.append("_Responde con el numero de la opcion, o escribela._")
+            lineas.append(T("i111"))
     if p.get("adaptive_rule"):
         lineas += ["", f"*{p['adaptive_rule']}*"]
     return "\n".join(lineas)
@@ -540,7 +540,7 @@ def _save(case: Case, p: dict, value) -> None:
         "question": p["text"],
         "value": value_text,
         "confidence_level": "no_determinado" if _is_unknown(value_text) else "confianza_media",
-        "source": "respuesta del usuario en la demo interactiva",
+        "source": T("i112"),
     }]}, pending_approver)
 
 
@@ -557,20 +557,7 @@ def start() -> dict:
     total = len([c for c, _ in GUION if _question(c)])
     return {
         "text": (
-            "**[DEMO INTERACTIVA — sin clave de API]**\n\n"
-            "Aqui no hay un caso grabado: **respondes tu y el motor trabaja con tus "
-            "datos.** Las preguntas, sus opciones y sus ramas salen del cuestionario "
-            "maestro; la puntuacion la calcula el motor de riesgo real sobre lo que "
-            "contestes; y si procede migrar, te guio por el procedimiento de 50 pasos y su extension P1-P7 "
-            "con la CPU que tu elijas.\n\n"
-            f"Son unas {total} preguntas, y el recorrido se adapta: segun respondas, "
-            "unas se abren y otras no se preguntan.\n\n"
-            "Una advertencia honesta: **no puedo conversar en lenguaje libre.** Para "
-            "eso hace falta el modelo, y eso es el **Caso real (API)**. Lo que si es "
-            "real aqui es el motor: identificacion contra el catalogo, puntuacion, "
-            "mapa de decision, procedimiento y expediente trazable.\n\n"
-            "Empecemos por lo que ancla todo lo demas: **que equipo vas a diagnosticar?** "
-            "Escribe marca, familia y modelo (p. ej. `Siemens S7-300 CPU 315-2 DP`)."
+            f"{T('i015')}{total}{T('i016')}"
         ),
         "status": {"phase": F_EQUIPO, "answers": {}},
     }
@@ -582,18 +569,15 @@ def _phase_equipment(case: Case, text: str, status: dict) -> dict:
     status["intento_equipo"] = True
     if not catalogado:
         parecidas = manufacturers.suggestions(text, limite=5)
-        cuerpo = (f"**No encuentro '{text.strip()}' en el catalogo verificado de 30 "
-                  "fabricantes**, y no voy a asimilarlo a la marca mas parecida.")
+        cuerpo = (f"{T('i017')}{text.strip()}{T('i018')}")
         if parecidas:
-            cuerpo += "\n\nLo que si tengo y se parece:\n\n" + "\n".join(
+            cuerpo += T("i087") + "\n".join(
                 f"{i}. **{s['brand']} {s['family']}** — {s['modelos_documentados']}"
                 for i, s in enumerate(parecidas, 1))
-            cuerpo += ("\n\nEscribe el numero o el nombre completo. Si no es ninguna, "
-                       "escribe `continuar` y sigo con el equipo sin identificar.")
+            cuerpo += (T("i072"))
             status["sugerencias"] = [f"{s['brand']} {s['family']}" for s in parecidas]
         else:
-            cuerpo += ("\n\nEscribe el equipo corregido, o `continuar` para seguir con "
-                       "el hardware marcado como no verificado.")
+            cuerpo += (T("i073"))
         return _output(cuerpo, case, status)
 
     case.set_equipment(ident)
@@ -604,7 +588,7 @@ def _phase_equipment(case: Case, text: str, status: dict) -> dict:
         "manufacturer": ident.get("brand") or "",
         "model": ident.get("modelo_identificado") or "",
         "confidence_level": "confianza_media",
-        "notes": f"Declarado por el usuario: '{text.strip()}'.",
+        "notes": f"{T('i019')}{text.strip()}'.",
     }, pending_approver)
     actions.append("register_asset")
 
@@ -638,7 +622,7 @@ def _phase_questions(case: Case, text: str, status: dict) -> dict:
     value = _interpret(p, text)
     if value is None:
         return _output(
-            "No entendi esa respuesta. " + _render_question(p, len(status["answers"]) + 1,
+            T("i088") + _render_question(p, len(status["answers"]) + 1,
                                                             len(status["answers"]) + len(_pending(status["answers"]))),
             case, status)
 
@@ -661,10 +645,8 @@ def _phase_risk(case: Case, status: dict, actions=None) -> dict:
 
     for key in omitidos:
         run_tool(case, "register_missing_data", {
-            "description": f"Factor '{scoring.factor_labels().get(key, key)}' sin datos "
-                           "suficientes para puntuarlo",
-            "impacto": "El factor se omite y los pesos se renormalizan; la recomendacion "
-                       "queda como preliminar en ese aspecto.",
+            "description": f"Factor '{scoring.factor_labels().get(key, key)}{T('i020')}",
+            "impacto": T("i089"),
         }, pending_approver)
         actions.append("register_missing_data")
 
@@ -679,40 +661,31 @@ def _phase_risk(case: Case, status: dict, actions=None) -> dict:
         f"| {d['factor']} | {d['peso']:.2f} | {d['value']:.0f} | {d['justificacion']} |"
         for d in risk.get("detalle_factores", []))
     text = (
-        f"## Riesgo de obsolescencia: **{risk.get('puntuacion')} / 100 — "
-        f"{risk.get('classification')}**\n\n"
-        "Calculado por el motor real (`scoring.py`, Seccion 6) sobre **tus** respuestas. "
-        "Cada factor lleva la justificacion con los codigos que lo sustentan:\n\n"
-        "| Factor | Peso | Valor | Por que |\n|---|---|---|---|\n" + filas
+        f"{T('i021')}{risk.get('puntuacion')} / 100 — {risk.get('classification')}{T('i022')}" + filas
     )
     if omitidos:
-        text += ("\n\n**Factores omitidos por falta de datos:** "
+        text += (T("i090")
                   + ", ".join(scoring.factor_labels().get(o, o) for o in omitidos)
-                  + ". Los pesos se renormalizan sobre los factores disponibles: no se "
-                    "penaliza ni se inventa lo que no se sabe, y el hueco queda "
-                    "registrado como dato faltante en el expediente.")
+                  + T("i074"))
     status["phase"] = F_DECISION
-    return _output(text + "\n\n---\n\nPulsa **Enviar** para ver que alternativa "
-                           "corresponde a este caso.", case, status, actions)
+    return _output(text + T("i075"), case, status, actions)
 
 
 def _phase_decision(case: Case, status: dict) -> dict:
     decision = decide(status["answers"], status.get("risk") or {})
     status["decision"] = decision
 
-    partes = ["## Que procede en tu caso\n",
-              "Aplico el mapa de decision del cuestionario. El orden importa: "
-              "no es una lista de opciones, es una secuencia.\n"]
+    partes = [T("i048"),
+              T("i049")]
     for i, alt in enumerate(decision["route"], 1):
         partes.append(f"### {i}. {alt['alternative']}")
-        partes.append(f"**Por que en tu caso:** {alt['porque_en_este_caso']}")
+        partes.append(f"{T('i023')}{alt['porque_en_este_caso']}")
         if alt.get("advertencias"):
             partes.append("**Advertencias:**")
             partes += [f"- {a}" for a in alt["advertencias"]]
         partes.append("")
     if not decision["route"]:
-        partes.append("_Con las respuestas dadas no se cumple ningun criterio de forma "
-                      "clara. Faltan datos: revisa los factores omitidos._")
+        partes.append(T("i076"))
 
     if decision["migrar"]:
         actions = []
@@ -720,22 +693,19 @@ def _phase_decision(case: Case, status: dict) -> dict:
                       else "cpu_obsoleta")
         run_tool(case, "start_migration_guide", {
             "trigger": trigger,
-            "motivo": "Derivado del mapa de decision sobre las respuestas del usuario.",
+            "motivo": T("i091"),
             "decidido_por": "sugerencia_del_agente_aceptada",
             "sin_respaldo": decision["sin_respaldo"],
         }, pending_approver)
         actions.append("start_migration_guide")
         status["phase"] = F_TARGET
         partes.append("---\n")
-        partes.append("Como procede cambiar la CPU, **abro el modo guia** del "
-                      "procedimiento de migracion. Pulsa **Enviar** y te presento las "
-                      "opciones de CPU destino.")
+        partes.append(T("i077"))
         return _output("\n".join(partes), case, status, actions)
 
     status["phase"] = F_FIN
     partes.append("---\n")
-    partes.append("En tu caso **no procede cambiar la CPU todavia**, asi que no abro el "
-                  "procedimiento de migracion. Pulsa **Enviar** para el informe final.")
+    partes.append(T("i050"))
     return _output("\n".join(partes), case, status)
 
 
@@ -775,9 +745,7 @@ def _phase_target(case: Case, text: str, status: dict) -> dict:
                                  (options.get("marca_alternativa", {}).get("mostradas") or [])]
         return _output(
             procedure.options_text(ident, limite_alternativas=8)
-            + "\n\n---\n\n**Tu decision.** Escribe `A` para seguir con "
-              f"**{ident.get('brand')}**, o `B` y el nombre de la marca que quieras "
-              "evaluar (p. ej. `B OMRON`).",
+            + f"{T('i024')}{ident.get('brand')}{T('i025')}",
             case, status)
 
     choice = (text or "").strip()
@@ -791,8 +759,7 @@ def _phase_target(case: Case, text: str, status: dict) -> dict:
         target = path.get("destino") or (familias[0]["family"] if familias else "")
         source = _target_source(target, familias, path)
         target_brand = ident.get("brand")
-        justification = ("Continuidad de plataforma: conserva software, redes, repuestos "
-                         "y personal formado, y existe herramienta oficial de conversion.")
+        justification = (T("i051"))
     elif bajo.startswith("b"):
         pedida = choice[1:].strip(" .:-")
         todas = (options.get("marca_alternativa", {}).get("mostradas") or [])
@@ -803,24 +770,18 @@ def _phase_target(case: Case, text: str, status: dict) -> dict:
                 break
         if elegida is None:
             return _output(
-                "No reconoci esa marca entre las alternativas del catalogo. Escribe `B` "
-                "seguido del nombre tal como aparece en la lista, o `A` para seguir con "
-                f"**{ident.get('brand')}**.", case, status)
+                f"{T('i026')}{ident.get('brand')}**.", case, status)
         fam = elegida["familias_actuales"][0]
         target_brand, target = elegida["brand"], fam["family"]
         source = (fam.get("sources") or [{}])[0].get("url", "")
         porte = procedure.context(case).get("con_codigo_fuente")
         justification = (
-            "Eleccion del usuario: plataforma actual de otro fabricante. Implica "
-            "reescribir el programa, software y licencias nuevos y capacitacion del "
-            "personal. "
-            + ("El programa de origen es accesible: la reescritura es un porte contra la "
-               "especificacion que ese programa ya constituye, no un desarrollo desde cero."
+            T("i092")
+            + (T("i113")
                if porte else
-               "Sin acceso al programa de origen se dimensiona como desarrollo nuevo."))
+               T("i114")))
     else:
-        return _output("No entendi la eleccion. Escribe `A` para la misma marca, o `B` y "
-                       "el nombre de la marca alternativa.", case, status)
+        return _output(T("i093"), case, status)
 
     run_tool(case, "set_target_cpu", {
         "brand": target_brand, "family": target,
@@ -834,24 +795,15 @@ def _phase_target(case: Case, text: str, status: dict) -> dict:
     # sin el: en el primer caso hay especificacion de la que partir y en el segundo no.
     if cambio and with_code:
         aviso = (
-            "**Cambio de marca registrado.** Los pasos 21 y 22 (migrar con la herramienta "
-            "oficial y revisar su reporte) quedan marcados como **no aplicables**: entre "
-            "fabricantes distintos no existe conversion. Pero el programa de origen SI se "
-            "puede leer, asi que esto **no empieza de cero**: es un porte con el programa "
-            "original como especificacion."
+            T("i052")
         )
     elif cambio:
         aviso = (
-            "**Cambio de marca registrado.** Los pasos 21 y 22 (migrar con la herramienta "
-            "oficial y revisar su reporte) quedan marcados como **no aplicables**: entre "
-            "fabricantes distintos no existe conversion y, sin acceso al programa de "
-            "origen, el sistema se reconstruye por la extension P1-P7 y se dimensiona "
-            "como desarrollo nuevo."
+            T("i078")
         )
     else:
         aviso = (
-            "**Misma marca.** El procedimiento se mantiene completo: los pasos 21 y 22 si "
-            "aplican, con la herramienta oficial de conversion del fabricante."
+            T("i079")
         )
     # Si la marca tiene ruta de conversion publicada, se anuncia aqui: es el momento
     # en que el usuario decide, y saber que la herramienta existe cambia la decision.
@@ -859,8 +811,7 @@ def _phase_target(case: Case, text: str, status: dict) -> dict:
     if route_summary:
         aviso += "\n\n" + route_summary
     return _output(
-        f"Destino fijado: **{target_brand} {target}**.\n\n{aviso}\n\n---\n\n"
-        "Empieza el recorrido de el procedimiento (57 pasos: 50 del documento + P1-P7). Pulsa **Enviar** para el primero.",
+        f"Destino fijado: **{target_brand} {target}**.\n\n{aviso}{T('i027')}",
         case, status, ["set_target_cpu"])
 
 
@@ -869,22 +820,22 @@ def _phase_guide(case: Case, text: str, status: dict) -> dict:
     t = (text or "").strip().lower()
     actual = status.get("paso_guia")
 
-    if actual and t in ("hecho", "listo", "completado", "ok", "si"):
+    if actual and t in C("cmd_done"):
         run_tool(case, "mark_migration_step",
                              {"step": actual, "status": "completado",
-                              "note": "Declarado cumplido por el usuario en la demo."},
+                              "note": T("i094")},
                              pending_approver)
-    elif actual and t in ("no aplica", "no_aplica", "na"):
+    elif actual and t in C("cmd_na"):
         run_tool(case, "mark_migration_step",
                              {"step": actual, "status": "no_aplica",
-                              "note": "Declarado no aplicable por el usuario."},
+                              "note": T("i116")},
                              pending_approver)
-    elif actual and t in ("bloqueado", "no puedo", "no"):
+    elif actual and t in C("cmd_blocked"):
         run_tool(case, "mark_migration_step",
                              {"step": actual, "status": "bloqueado",
-                              "note": "El usuario no puede cerrarlo ahora."},
+                              "note": T("i125")},
                              pending_approver)
-    elif actual and t in ("informe", "terminar", "fin"):
+    elif actual and t in C("cmd_report"):
         status["phase"] = F_FIN
         return _phase_end(case, status)
 
@@ -901,13 +852,9 @@ def _phase_guide(case: Case, text: str, status: dict) -> dict:
     # ruta de cambio de marca. El resto queda igual que siempre.
     cuerpo += procedure.route_for_step_text(next_step["key"], case, ctx)
     if next_step.get("prerrequisitos_pendientes"):
-        cuerpo += ("\n\n🚧 **Este paso no puede ejecutarse todavia:** faltan los pasos "
-                   + ", ".join(str(x) for x in next_step["prerrequisitos_pendientes"])
-                   + ". El procedimiento lo impide, no es criterio mio.")
-    pie = (f"\n\n---\n\n*Avance: {avance['cerrados']} de {avance['total_steps']} "
-           f"({avance['porcentaje']}%) · fase {avance['fase_actual']}*\n\n"
-           "Escribe **`hecho`** para cerrarlo, **`no aplica`**, **`bloqueado`**, "
-           "o **`informe`** para terminar y generar el informe.")
+        cuerpo += (T("i095")                 + ", ".join(str(x) for x in next_step["prerrequisitos_pendientes"])
+                   + T("i080"))
+    pie = (f"\n\n---\n\n*Avance: {avance['cerrados']} de {avance['total_steps']} ({avance['porcentaje']}%) · fase {avance['fase_actual']}{T('i028')}")
     return _output(cuerpo + pie, case, status, ["mark_migration_step"] if actual else [])
 
 
@@ -920,71 +867,39 @@ def _phase_end(case: Case, status: dict) -> dict:
     summary = case.summary()
 
     path = "\n".join(f"{i}. **{a['alternative']}** — {a['porque_en_este_caso']}"
-                     for i, a in enumerate(decision.get("route", []), 1)) or "Sin ruta determinada."
+                     for i, a in enumerate(decision.get("route", []), 1)) or T("i053")
     detail = "\n".join(f"- {d['factor']} (peso {d['peso']:.2f}): {d['value']:.0f} — "
                         f"{d['justificacion']}"
                         for d in risk.get("detalle_factores", []))
-    equipo = f"{ident.get('brand')} {ident.get('family') or ''}".strip() or "equipo sin identificar"
+    equipo = f"{ident.get('brand')} {ident.get('family') or ''}".strip() or T("i054")
 
     cuerpo = (
         f"## 1. Identificacion\nCaso interactivo. {equipo}"
         + (f" ({ident.get('modelo_identificado')})" if ident.get("modelo_identificado") else "")
-        + ".\n\n"
-        "## 2. Resumen ejecutivo\nDiagnostico construido sobre las respuestas dadas por "
-        "el usuario en la demo interactiva, con el motor de riesgo y el mapa de decision "
-        "reales.\n\n"
-        f"## 3. Informacion confirmada\n{len(summary['respuestas_registradas'])} respuestas "
-        f"registradas: {', '.join(summary['respuestas_registradas'])}.\n\n"
-        "## 4. Informacion no confirmada\nTodas las respuestas provienen de la declaracion "
-        "del usuario; ninguna esta verificada contra placa, manual ni fuente oficial.\n\n"
-        "## 5. Datos faltantes\n"
+        + f"{T('i029')}{len(summary['respuestas_registradas'])} respuestas registradas: {', '.join(summary['respuestas_registradas'])}{T('i030')}"
         + ("\n".join(f"- {d}" for d in summary["missing_data"]) or "Ninguno registrado.")
-        + "\n\n"
-        f"## 6. Estado y puntuacion de obsolescencia\n{risk.get('puntuacion')} / 100 — "
-        f"**{risk.get('classification')}**.\n\n{detail}\n\n"
-        "## 7. Riesgos\nLos que se desprenden de los factores anteriores.\n\n"
-        f"## 8. Alternativas\n{path}\n\n"
-        "## 9. Recomendacion principal\n"
+        + f"{T('i031')}{risk.get('puntuacion')} / 100 — **{risk.get('classification')}**.\n\n{detail}{T('i032')}{path}\n\n## 9. Recomendacion principal\n"
         + (f"Migrar a **{target.get('brand')} {target.get('family')}**"
-           + ((" (cambio de marca con el programa de origen accesible: porte contra la "
-                "especificacion que ese programa constituye)"
+           + ((T("i128")
                 if procedure.context(case).get("con_codigo_fuente") else
-                " (cambio de marca sin acceso al programa: reescritura completa)")
-              if mig.get("cambio_marca") else " (misma marca: conversion con herramienta oficial)")
-           if target else "No procede cambiar la CPU con los datos actuales.")
-        + "\n\n"
-        "## 10. Hardware preliminar\nSin numeros de catalogo confirmados: deben "
-        "verificarse con el fabricante y su herramienta oficial de seleccion.\n\n"
-        "## 11. Plan de respaldo, migracion y retorno\n"
-        + (f"Procedimiento MIGRA-IA-PROC-050, avance {procedure.status(case)['cerrados']} "
-           f"de {procedure.total_steps()} pasos (50 del documento mas la extension "
-           "P1-P7 de construccion del programa)."
-           if mig.get("activa") else "No abierto.")
-        + "\n\n"
-        "## 12. Plan de pruebas\nFAT (pasos 31-33) y SAT (pasos 42-44) del procedimiento.\n\n"
-        "## 13. Nivel de confianza y fuentes\nConfianza media. Fuentes: respuestas del "
-        "usuario y catalogo verificado de fabricantes. Este informe procede de una "
-        "demostracion interactiva determinista, sin intervencion de un modelo de lenguaje."
+                T("i129"))
+              if mig.get("cambio_marca") else T("i127"))
+           if target else T("i126"))
+        + T("i096")
+        + (f"Procedimiento MIGRA-IA-PROC-050, avance {procedure.status(case)['cerrados']} de {procedure.total_steps()}{T('i033')}"
+           if mig.get("activa") else T("i097"))
+        + T("i055")
     )
     run_tool(case, "generate_report", {
         "title": f"Diagnostico interactivo — {equipo}",
         "nivel_confianza_global": "confianza_media",
-        "resumen": f"{risk.get('classification')}; ruta de decision aplicada sobre las "
-                   "respuestas del usuario.",
+        "resumen": f"{risk.get('classification')}{T('i034')}",
         "cuerpo_markdown": cuerpo,
     }, pending_approver)
 
     status["phase"] = F_FIN
     return _output(
-        "## Informe generado\n\n"
-        "Se guardo en la carpeta `casos/` junto al expediente JSON, con las 13 secciones "
-        "de la estructura estandar.\n\n"
-        "Fijate en lo que acaba de pasar: **ningun modelo de lenguaje ha intervenido.** "
-        "La identificacion salio del catalogo verificado, la puntuacion del motor de "
-        "riesgo sobre tus respuestas, la recomendacion del mapa de decision y el paso a "
-        "paso del procedimiento. Mismo caso, mismo resultado, siempre.\n\n"
-        "Para el dialogo en lenguaje libre -que es lo unico que esto no puede hacer- "
-        "esta el **Caso real (API)**.",
+        T("i056"),
         case, status, ["generate_report"], fin=True)
 
 
@@ -999,17 +914,14 @@ def answer(case: Case, text: str, status: dict | None) -> dict:
     if phase == F_EQUIPO:
         # 'continuar' solo salta la identificacion DESPUES de haberlo intentado:
         # si no, un Enviar en vacio al arrancar arrancaria el caso sin equipo.
-        if (text or "").strip().lower() in ("continuar", "seguir"):
+        if (text or "").strip().lower() in C("cmd_continue"):
             if not status.get("intento_equipo"):
                 return _output(
-                    "Necesito el equipo antes de empezar: es lo que ancla todo el "
-                    "diagnostico.\n\nEscribe **marca, familia y modelo** de tu PLC "
-                    "(p. ej. `Siemens S7-300 CPU 315-2 DP`).", case, status)
+                    T("i117"), case, status)
             status["phase"] = F_PREGUNTAS
             status.setdefault("ctx", {})
             return _output(
-                "De acuerdo: sigo con el equipo **sin identificar**. Todo lo que diga "
-                "sobre hardware queda como preliminar y no verificado.\n\n---\n\n"
+                T("i118")
                 + _next_question(status), case, status)
         return _phase_equipment(case, text, status)
     if phase == F_PREGUNTAS:

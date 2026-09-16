@@ -158,6 +158,21 @@ def interactive_text() -> dict:
     return _interactive_text(language())
 
 
+def messages_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "messages.json"
+
+
+@lru_cache(maxsize=len(LANGUAGES))
+def _messages(lang: str) -> dict:
+    with open(messages_path(lang), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def messages() -> dict:
+    """Mensajes que emiten los modulos, en el idioma de esta peticion."""
+    return _messages(language())
+
+
 @lru_cache(maxsize=len(LANGUAGES))
 def _ui(lang: str) -> dict:
     with open(ui_path(lang), encoding="utf-8") as fh:

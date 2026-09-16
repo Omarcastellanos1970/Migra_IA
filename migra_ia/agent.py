@@ -27,6 +27,13 @@ from .case import Case
 from .prompt import build_system_prompt, initial_user_message
 from .tools import tools, run_tool
 
+
+def M(key: str) -> str:
+    """Mensaje de este modulo en el idioma de esta peticion."""
+    from . import config
+    return config.messages().get(key, key)
+
+
 _SEED = initial_user_message()
 
 AGENT_COLOR = "\033[96m"   # cian
@@ -75,7 +82,7 @@ def _agent_turn(client, system, messages, case) -> None:
 
 def main() -> None:
     print(config.WELCOME_MESSAGE)
-    print(f"{COLOR_TENUE}(escribe /salir para terminar, /resumen para ver el estado del caso){RESET}\n")
+    print(f"{COLOR_TENUE}{M('ag001')}{RESET}\n")
 
     # Nuevo caso o continuar uno existente.
     if len(sys.argv) > 1:
@@ -89,8 +96,8 @@ def main() -> None:
     try:
         client = anthropic.Anthropic()
     except Exception as exc:  # noqa: BLE001
-        print(f"\nNo se pudo inicializar el cliente de Anthropic: {exc}")
-        print("Configura la variable de entorno ANTHROPIC_API_KEY (ver .env.example).")
+        print(f"{M('ag002')}{exc}")
+        print(M("ag004"))
         return
 
     system = build_system_prompt()
@@ -101,7 +108,7 @@ def main() -> None:
 
     while True:
         try:
-            entry = input(f"\n{COLOR_TENUE}Tu respuesta:{RESET} ").strip()
+            entry = input(f"\n{COLOR_TENUE}{M('ag003')}{RESET} ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\nSesion interrumpida.")
             break

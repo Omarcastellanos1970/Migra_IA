@@ -27,6 +27,13 @@ from functools import lru_cache
 
 from . import config, knowledge
 
+
+def M(key: str) -> str:
+    """Mensaje de este modulo en el idioma de esta peticion."""
+    from . import config
+    return config.messages().get(key, key)
+
+
 # Prefijos cronologicos que el documento antepone al nombre de la familia.
 _STAGE_PREFIXES = ("historica - ", "historico - ", "legado - ", "actual - ")
 
@@ -224,9 +231,7 @@ def _describe_generation(fab: dict, index_: int) -> dict:
         actuales = [{"family": _clean_family(ultima["family"]),
                      "models_text": ultima["models_text"],
                      "sources": _sources_of(ultima["sources"])}]
-        current_note = ("El documento fuente no marca ninguna generacion de este "
-                       "fabricante como 'Actual'; se muestra la ultima de la "
-                       "cronologia. Verifica el estado comercial con el fabricante.")
+        current_note = (M("mf013"))
     return {
         "family": _clean_family(gen["family"]),
         "familia_documento": gen["family"],
@@ -298,7 +303,7 @@ def identify(text: str) -> dict:
     if not consulta:
         return {"consulta": consulta, "status": "sin_consulta",
                 "confidence_level": "no_determinado",
-                "warning": "No se recibio texto que identificar."}
+                "warning": M("mf018")}
 
     norm = _norm(consulta)
     comp = _compact(consulta)
@@ -319,8 +324,7 @@ def identify(text: str) -> dict:
                     "modelo_identificado": modelo,
                     **desc,
                     "ruta_migracion_guia": _guide_route(brand, desc["family"]),
-                    "nota_verificacion": "Confirmar el numero de parte contra la placa "
-                                         "fisica y la fuente oficial antes de especificar."}
+                    "nota_verificacion": M("mf022")}
 
     # 2) Familia / generacion.
     for family_norm, brand, i, family in _family_index(config.language()):
@@ -332,7 +336,7 @@ def identify(text: str) -> dict:
                     "familia_identificada": family,
                     **desc,
                     "ruta_migracion_guia": _guide_route(brand, desc["family"]),
-                    "dato_faltante": "Modelo exacto de CPU: pedirlo o solicitar foto de la placa."}
+                    "dato_faltante": M("mf023")}
 
     # 3) Solo marca.
     brand = _find_brand(norm)
@@ -346,16 +350,12 @@ def identify(text: str) -> dict:
                     for g in fab["generations"]
                 ],
                 "ruta_migracion_guia": _guide_route(brand),
-                "dato_faltante": "Familia y modelo exacto de CPU: pedirlos o solicitar "
-                                 "foto de la placa."}
+                "dato_faltante": M("mf019")}
 
     # 4) Sin coincidencia: se dice, no se aproxima.
     return {**base, "status": "no_catalogado", "confidence_level": "no_determinado",
             "brand": None,
-            "warning": "Ni la marca ni el modelo aparecen en el catalogo de 30 "
-                           "fabricantes. NO infieras una equivalencia: pide la placa, "
-                           "declara el dato como no verificado y remite a la "
-                           "documentacion oficial del fabricante.",
+            "warning": M("mf014"),
             "marcas_disponibles": [f["brand"] for f in catalog["manufacturers"]]}
 
 
@@ -380,7 +380,7 @@ def current_generations(brand: str) -> dict:
         fab = _by_brand(brand)
     except KeyError:
         return {"brand": brand, "families": [],
-                "error": f"'{brand}' no figura en el catalogo de fabricantes."}
+                "error": f"'{brand}{M('mf001')}"}
     gens = fab["generations"]
     actuales = [g for g in gens if _stage(g["family"]) == "actual"]
     note = ""
@@ -388,9 +388,7 @@ def current_generations(brand: str) -> dict:
         # Mismo criterio que `_describir_generacion`: se ofrece la ultima de la
         # cronologia diciendo que la fuente no la declara vigente.
         actuales = [gens[-1]]
-        note = ("El documento fuente no marca ninguna generacion de este fabricante "
-                "como 'Actual'; se muestra la ultima de la cronologia. Verifica el "
-                "estado comercial con el fabricante.")
+        note = (M("mf015"))
     return {
         "brand": fab["brand"],
         "classification": fab["classification"],
@@ -481,49 +479,38 @@ def anchor(ident: dict) -> str:
 
     if ident["status"] == "no_catalogado":
         return (
-            "EQUIPO EN CONSULTA: NO CATALOGADO.\n"
-            f"El usuario reporto: '{ident.get('consulta', '')}'.\n"
-            f"{ident['warning']}\n"
-            "Mientras no se identifique, toda recomendacion es preliminar y debe "
-            "declararse como tal."
+            f"{M('mf002')}{ident.get('consulta', '')}'.\n{ident['warning']}{M('mf003')}"
         )
 
     lineas = [
-        "EQUIPO EN CONSULTA (catalogo de fabricantes verificado). Toda respuesta a "
-        "partir de aqui se refiere a ESTE equipo: no uses otra marca como ejemplo "
-        "por defecto ni traslades rutas de un fabricante a otro.",
-        f"- Reportado por el usuario: '{ident.get('consulta', '')}'",
+        M("mf016"),
+        f"{M('mf004')}{ident.get('consulta', '')}'",
         f"- Marca: {ident['brand']} ({ident.get('classification', '')})",
     ]
     if ident.get("modelo_identificado"):
         lineas.append(
-            f"- Modelo localizado en el catalogo: {ident['modelo_identificado']} "
-            "(tal como lo lista el documento fuente, que abrevia los modelos "
-            "sucesivos de una misma fila)"
+            f"{M('mf005')}{ident['modelo_identificado']}{M('mf006')}"
         )
     if ident.get("family"):
         lineas.append(
-            f"- Familia/generacion: {ident['family']} "
-            f"(etapa {ident.get('stage')}, posicion {ident.get('posicion')} en la cronologia)"
+            f"- Familia/generacion: {ident['family']} (etapa {ident.get('stage')}, posicion {ident.get('posicion')}{M('mf007')}"
         )
-        lineas.append(f"- Modelos documentados de esa generacion: {ident['modelos_documentados']}")
+        lineas.append(f"{M('mf008')}{ident['modelos_documentados']}")
         if ident.get("remark"):
-            lineas.append(f"- Observacion del catalogo: {ident['remark']}")
+            lineas.append(f"{M('mf009')}{ident['remark']}")
         actuales = ident.get("generaciones_actuales_del_fabricante") or []
         if actuales:
             target = "; ".join(f"{a['family']} ({a['models_text']})" for a in actuales)
-            lineas.append(f"- Generacion actual del MISMO fabricante: {target}")
+            lineas.append(f"{M('mf010')}{target}")
         if ident.get("nota_generacion_actual"):
             lineas.append(f"- AVISO: {ident['nota_generacion_actual']}")
     elif ident.get("generations"):
         fams = "; ".join(f"{g['family']} [{g['stage']}]" for g in ident["generations"])
-        lineas.append(f"- Cronologia de la marca: {fams}")
+        lineas.append(f"{M('mf011')}{fams}")
 
     if ident.get("stage") == "actual":
         lineas.append(
-            "- ATENCION: esta generacion es la ACTUAL del fabricante segun el catalogo. "
-            "No propongas migrarla a si misma: aqui procede plan preventivo, "
-            "actualizacion de firmware o ampliacion, no una migracion de plataforma."
+            M("mf020")
         )
 
     path = ident.get("ruta_migracion_guia")
@@ -531,9 +518,7 @@ def anchor(ident: dict) -> str:
         doc_target = path.get("destino_documentado")
         if doc_target:
             lineas.append(
-                f"- Ruta de migracion documentada para esta familia de origen "
-                f"('{doc_target['origen_en_guia']}'): -> {doc_target['destino']}. "
-                f"{doc_target['critical_aspects']}"
+                f"{M('mf012')}{doc_target['origen_en_guia']}'): -> {doc_target['destino']}. {doc_target['critical_aspects']}"
             )
         lineas.append(
             f"- Ruta metodologica ({path['citation']}): software {path['legacy_software']} -> "
@@ -542,9 +527,7 @@ def anchor(ident: dict) -> str:
         )
     else:
         lineas.append(
-            "- La guia MIGRA-IA-GUIA-001 no publica ruta de migracion para esta marca: "
-            "aplica la metodologia de 6 etapas de forma generica y apoyate en la "
-            "documentacion oficial del fabricante."
+            M("mf021")
         )
 
     fuentes = ident.get("sources") or []
@@ -554,8 +537,7 @@ def anchor(ident: dict) -> str:
     if ident.get("dato_faltante"):
         lineas.append(f"- DATO FALTANTE: {ident['dato_faltante']}")
     lineas.append(
-        "- Los modelos listados son los que el catalogo documenta; no completes "
-        "codigos intermedios de un rango ni inventes sufijos."
+        M("mf017")
     )
     return "\n".join(lineas)
 
