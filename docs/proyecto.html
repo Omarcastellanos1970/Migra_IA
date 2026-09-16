@@ -356,6 +356,10 @@
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }
+  .langsel { display:inline-flex; gap:2px; margin-right:10px; }
+  .langsel a { font-size:12px; padding:3px 9px; border:1px solid var(--line, #d9d3ca);
+    border-radius:6px; text-decoration:none; letter-spacing:.04em; opacity:.72; }
+  .langsel a[aria-current] { opacity:1; font-weight:700; }
 </style>
 
 <header class="nameplate">
@@ -364,6 +368,7 @@
     <span class="np-code">MIGRA-IA <span>· MIGRA-AI-001</span></span>
     <span class="np-tag">v0.4.0 · prototipo</span>
     <span class="np-spacer"></span>
+    <nav class="langsel" aria-label="Idioma / Language"><a href="./" aria-current="true">ES</a><a href="en/">EN</a></nav>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">
       <span id="themeIco">◐</span><span id="themeTxt">Tema</span>
     </button>
