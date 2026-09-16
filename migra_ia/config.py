@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextvars
 import os
 from pathlib import Path
 
@@ -18,39 +19,128 @@ MAX_TOKENS = 16000
 EFFORT = "high"          # low | medium | high | xhigh | max
 THINKING = {"type": "adaptive"}
 
-# --- Idioma del contenido ---
-# El agente existe en espaniol y en ingles. Los IDENTIFICADORES del codigo son
-# unicos y estan en ingles; lo que cambia con el idioma es el CONTENIDO, que
-# vive en data/<idioma>/. Por defecto espaniol (decision D1 del glosario), para
-# que nada cambie a quien ya usa el agente.
-LANGUAGES = ("es", "en")
-LANGUAGE = os.environ.get("MIGRA_IA_LANG", "es").strip().lower()
-
 # --- Rutas del proyecto ---
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 CASES_DIR = ROOT / "cases"
-CONTENT_DIR = DATA_DIR / LANGUAGE
+CASES_DIR.mkdir(parents=True, exist_ok=True)
 
-# Decision D5 del glosario: un idioma NUNCA se sirve como respaldo del otro.
-# Devolver contenido en espaniol a quien pidio ingles daria una pantalla con
-# los dos idiomas mezclados, que es justo lo que el proyecto no admite. Por eso
-# aqui se falla de forma ruidosa en vez de recurrir a un respaldo silencioso.
-if LANGUAGE not in LANGUAGES:
+# --- Idioma del contenido ---
+# El agente existe en espaniol y en ingles. Los IDENTIFICADORES del codigo son
+# unicos y estan en ingles; lo que cambia con el idioma es el CONTENIDO, que
+# vive en data/<idioma>/.
+#
+# El idioma NO es del proceso, es de la PETICION. Un mismo servidor atiende a
+# la vez a alguien que eligio espaniol y a alguien que eligio ingles, asi que
+# se guarda en una variable de contexto: cada hilo de peticion lleva la suya y
+# los demas siguen viendo el valor por defecto. Guardarlo en una constante leida
+# al importar obligaria a un proceso por idioma, y entonces el selector no
+# podria existir.
+LANGUAGES = ("es", "en")
+DEFAULT_LANGUAGE = os.environ.get("MIGRA_IA_LANG", "es").strip().lower()
+
+# Los archivos que un idioma necesita para considerarse completo. El prompt del
+# sistema esta aqui a proposito: es contenido del agente, no codigo, y tenerlo
+# en data/<idioma>/ deja cada archivo escrito en una sola lengua.
+CONTENT_FILES = ("questionnaire.json", "knowledge_base.json",
+                 "cpu_manufacturers.json", "migration_procedure.json",
+                 "system_prompt.md", "initial_message.txt")
+
+_language: contextvars.ContextVar[str] = contextvars.ContextVar(
+    "migra_ia_language", default=DEFAULT_LANGUAGE)
+
+
+def language() -> str:
+    """Idioma del contenido para esta peticion."""
+    return _language.get()
+
+
+def set_language(lang: str):
+    """Fija el idioma de esta peticion y devuelve el testigo para deshacerlo."""
+    lang = (lang or "").strip().lower()
+    if lang not in LANGUAGES:
+        raise ValueError(
+            "idioma %r no admitido; los admitidos son: %s"
+            % (lang, ", ".join(LANGUAGES)))
+    return _language.set(lang)
+
+
+def reset_language(token) -> None:
+    """Deshace un set_language, para no dejar el idioma pegado al hilo."""
+    _language.reset(token)
+
+
+def content_dir(lang: str | None = None) -> Path:
+    """Carpeta del contenido del idioma pedido.
+
+    Decision D5 del glosario: un idioma NUNCA se sirve como respaldo del otro.
+    Devolver contenido en espaniol a quien pidio ingles daria una pantalla con
+    los dos idiomas mezclados, que es justo lo que el proyecto no admite. Por
+    eso aqui se falla de forma ruidosa en vez de recurrir a un respaldo
+    silencioso.
+    """
+    lang = lang or language()
+    if lang not in LANGUAGES:
+        raise ValueError(
+            "idioma %r no admitido; los admitidos son: %s"
+            % (lang, ", ".join(LANGUAGES)))
+    carpeta = DATA_DIR / lang
+    if not carpeta.is_dir():
+        raise FileNotFoundError(
+            "Falta el contenido del idioma %r: no existe %s. Un idioma solo se "
+            "ofrece cuando sus archivos estan completos." % (lang, carpeta))
+    return carpeta
+
+
+def questionnaire_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "questionnaire.json"
+
+
+def knowledge_base_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "knowledge_base.json"
+
+
+def cpu_manufacturers_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "cpu_manufacturers.json"
+
+
+def procedure_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "migration_procedure.json"
+
+
+def system_prompt_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "system_prompt.md"
+
+
+def initial_message_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "initial_message.txt"
+
+
+def available_languages() -> tuple[str, ...]:
+    """Idiomas que se pueden OFRECER: los que tienen sus cuatro archivos.
+
+    Es lo que alimenta el selector. Un idioma a medio traducir no aparece,
+    en vez de aparecer y fallar al elegirlo.
+    """
+    completos = []
+    for lang in LANGUAGES:
+        carpeta = DATA_DIR / lang
+        if carpeta.is_dir() and all((carpeta / f).is_file() for f in CONTENT_FILES):
+            completos.append(lang)
+    return tuple(completos)
+
+
+# El idioma por defecto si tiene que ser valido al arrancar: un MIGRA_IA_LANG
+# mal escrito debe detenerse aqui y no en mitad de una conversacion.
+if DEFAULT_LANGUAGE not in LANGUAGES:
     raise SystemExit(
         "MIGRA_IA_LANG=%r no es un idioma valido; los admitidos son: %s"
-        % (LANGUAGE, ", ".join(LANGUAGES)))
-if not CONTENT_DIR.is_dir():
+        % (DEFAULT_LANGUAGE, ", ".join(LANGUAGES)))
+if DEFAULT_LANGUAGE not in available_languages():
     raise SystemExit(
-        "Falta el contenido del idioma %r: no existe %s. Un idioma solo se "
-        "ofrece cuando sus archivos estan completos." % (LANGUAGE, CONTENT_DIR))
-
-QUESTIONNAIRE_PATH = CONTENT_DIR / "questionnaire.json"
-KNOWLEDGE_BASE_PATH = CONTENT_DIR / "knowledge_base.json"
-CPU_MANUFACTURERS_PATH = CONTENT_DIR / "cpu_manufacturers.json"
-PROCEDURE_PATH = CONTENT_DIR / "migration_procedure.json"
-
-CASES_DIR.mkdir(parents=True, exist_ok=True)
+        "El idioma por defecto %r no esta completo en %s. Un idioma solo se "
+        "ofrece cuando sus archivos estan completos."
+        % (DEFAULT_LANGUAGE, DATA_DIR / DEFAULT_LANGUAGE))
 
 # --- Mensaje de identificacion (Seccion 1) ---
 WELCOME_MESSAGE = (

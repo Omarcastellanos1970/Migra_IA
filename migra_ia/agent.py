@@ -24,10 +24,10 @@ import anthropic
 
 from . import config
 from .case import Case
-from .prompt import build_system_prompt, INITIAL_USER_MESSAGE
+from .prompt import build_system_prompt, initial_user_message
 from .tools import TOOLS, run_tool
 
-_SEED = INITIAL_USER_MESSAGE
+_SEED = initial_user_message()
 
 AGENT_COLOR = "\033[96m"   # cian
 COLOR_TENUE = "\033[90m"    # gris

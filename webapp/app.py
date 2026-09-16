@@ -22,17 +22,46 @@ from flask import Flask, request, jsonify, render_template
 
 from migra_ia import config, interactive
 from migra_ia.case import Case
-from migra_ia.prompt import build_system_prompt, INITIAL_USER_MESSAGE
+from migra_ia.prompt import build_system_prompt, initial_user_message
 from migra_ia.core import run_turn, new_client
 
 app = Flask(__name__)
 
-SYSTEM = build_system_prompt()
-
-# Sesiones en memoria: case_id -> {"messages": [...], "case": Caso}.
+# Sesiones en memoria: case_id -> {"messages": [...], "case": Caso, "lang": str}.
 # El expediente se persiste en disco; el historial de conversacion vive mientras
 # el servidor este activo (suficiente para el prototipo).
 SESIONES: dict[str, dict] = {}
+
+
+# --------------------------------------------------------------------------- #
+# Idioma: de la PETICION, no del proceso
+# --------------------------------------------------------------------------- #
+# El servidor atiende a la vez a quien eligio espaniol y a quien eligio ingles.
+# El idioma llega en el cuerpo de la peticion o en la query, se fija para este
+# hilo y se suelta al terminar. Un caso ya abierto conserva el suyo: una
+# conversacion no cambia de idioma a mitad, que seria justo la mezcla que el
+# proyecto no admite.
+def _request_language() -> str:
+    data = request.get_json(silent=True) or {}
+    cid = data.get("case_id")
+    if cid and cid in SESIONES and SESIONES[cid].get("lang"):
+        return SESIONES[cid]["lang"]
+    pedido = (data.get("lang") or request.args.get("lang") or "").strip().lower()
+    if pedido in config.available_languages():
+        return pedido
+    return config.DEFAULT_LANGUAGE
+
+
+@app.before_request
+def _set_language():
+    request.migra_lang_token = config.set_language(_request_language())
+
+
+@app.teardown_request
+def _unset_language(_exc=None):
+    token = getattr(request, "migra_lang_token", None)
+    if token is not None:
+        config.reset_language(token)
 
 _CLIENT = None
 
@@ -47,7 +76,11 @@ def _client():
 @app.route("/")
 def index():
     return render_template(
-        "index.html", agent=config.AGENT_NAME, version=config.AGENT_VERSION
+        "index.html",
+        agent=config.AGENT_NAME,
+        version=config.AGENT_VERSION,
+        lang=config.language(),
+        languages=config.available_languages(),
     )
 
 
@@ -65,17 +98,18 @@ def new_case():
         apertura = interactive.start()
         SESIONES[case.case_id] = {
             "messages": [], "case": case, "interactivo": True,
-            "status": apertura["status"],
+            "status": apertura["status"], "lang": config.language(),
         }
         return jsonify(case_id=case.case_id, text=apertura["text"],
                        actions=[], summary=case.summary(), interactive=True)
 
-    messages: list[dict] = [{"role": "user", "content": INITIAL_USER_MESSAGE}]
+    messages: list[dict] = [{"role": "user", "content": initial_user_message()}]
     try:
-        res = run_turn(_client(), SYSTEM, messages, case)
+        res = run_turn(_client(), build_system_prompt(), messages, case)
     except Exception as exc:  # noqa: BLE001
         return jsonify(error=_error_msg(exc)), 500
-    SESIONES[case.case_id] = {"messages": messages, "case": case}
+    SESIONES[case.case_id] = {"messages": messages, "case": case,
+                              "lang": config.language()}
     return jsonify(
         case_id=case.case_id,
         text=res["text"],
@@ -104,7 +138,7 @@ def message():
 
     ses["messages"].append({"role": "user", "content": user_text})
     try:
-        res = run_turn(_client(), SYSTEM, ses["messages"], ses["case"])
+        res = run_turn(_client(), build_system_prompt(), ses["messages"], ses["case"])
     except Exception as exc:  # noqa: BLE001
         return jsonify(error=_error_msg(exc)), 500
     return jsonify(text=res["text"], actions=res["acciones"], summary=res["resumen"])

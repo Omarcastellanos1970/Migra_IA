@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es">
+<html lang="{{ lang }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ agente }} — Diagnóstico de obsolescencia y migración</title>
+<title>{{ agent }} — Diagnóstico de obsolescencia y migración</title>
 <style>
   :root {
     --bg: #0f1720; --panel: #16212e; --panel2: #1c2a3a; --line: #26374b;
@@ -32,6 +32,12 @@
                   padding:8px 14px; font-weight:600; cursor:pointer; margin-left:8px; }
   header button:hover { filter:brightness(1.1); }
   header button.sec { background:transparent; color:var(--tx2); border:1px solid var(--line); }
+  header .idiomas { display:flex; gap:2px; margin-left:10px; }
+  header .idioma { font-size:12px; padding:3px 9px; border:1px solid var(--line);
+    border-radius:6px; color:var(--tx2); text-decoration:none; letter-spacing:.04em; }
+  header .idioma:hover { color:var(--tx); }
+  header .idioma.activo { color:#fff; background:var(--user); border-color:var(--user);
+    font-weight:700; }
   header .badge.demo { color:#111; background:var(--imp); border-color:var(--imp); font-weight:700; }
 
   main { flex:1; display:flex; min-height:0; }
@@ -96,9 +102,21 @@
 </head>
 <body>
 <header>
-  <span class="logo">{{ agente }}</span>
+  <span class="logo">{{ agent }}</span>
   <span class="sub">Diagnóstico de obsolescencia y migración de hardware</span>
   <span class="badge" id="badge">v{{ version }}</span>
+  {% if languages|length > 1 %}
+  <!-- Selector de idioma. Solo aparecen los idiomas COMPLETOS: uno a medio
+       traducir no se ofrece, en vez de ofrecerse y fallar al elegirlo.
+       Cambiar de idioma recarga la pagina y empieza un caso nuevo: una
+       conversacion no cambia de lengua a mitad. -->
+  <nav class="idiomas" aria-label="Idioma">
+    {% for l in languages %}
+    <a href="?lang={{ l }}" class="idioma {% if l == lang %}activo{% endif %}"
+       {% if l == lang %}aria-current="true"{% endif %}>{{ l|upper }}</a>
+    {% endfor %}
+  </nav>
+  {% endif %}
   <button id="btn-interactivo">Demo interactiva (sin clave)</button>
   <button id="btn-nuevo" class="sec">Caso real (API)</button>
 </header>
@@ -141,7 +159,8 @@
 </main>
 
 <script>
-let caseId = null;
+const LANG = "{{ lang }}";
+  let caseId = null;
 let ocupado = false;
 let esInteractivo = false;
 const $ = (id) => document.getElementById(id);
@@ -292,7 +311,7 @@ async function iniciar(modo){
   try{
     const r = await fetch("/api/nuevo", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({interactivo: inter})
+      body: JSON.stringify({ interactivo: inter, lang: LANG })
     });
     const d = await r.json();
     pensando(false);
@@ -305,8 +324,8 @@ async function iniciar(modo){
     $("entrada").placeholder = inter
       ? "DEMO INTERACTIVA: responde con el número de la opción, o escríbela"
       : "Escribe tu respuesta…  (Enter para enviar, Shift+Enter salto de línea)";
-    addMsg("agent", d.texto);
-    pintarPanel(d.resumen);
+    addMsg("agent", d.text);
+    pintarPanel(d.summary);
   }catch(e){ pensando(false); addMsg("agent","⚠️ Error de conexión con el servidor."); }
   finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
 }
@@ -349,8 +368,8 @@ async function enviar(){
     const d = await r.json();
     pensando(false);
     if(d.error){ addMsg("agent","⚠️ "+d.error); return; }
-    addMsg("agent", d.texto);
-    pintarPanel(d.resumen);
+    addMsg("agent", d.text);
+    pintarPanel(d.summary);
   }catch(e){ pensando(false); addMsg("agent","⚠️ Error de conexión con el servidor."); }
   finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
 }

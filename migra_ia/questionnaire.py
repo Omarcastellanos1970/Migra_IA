@@ -26,11 +26,20 @@ _CLAVES_PREGUNTAS = ("questions", "branch_yes", "branch_no", "final_questions")
 _CLAVES_CAMPOS = ("fields_by_module", "fields_by_device")
 
 
-@lru_cache(maxsize=1)
-def load() -> dict:
-    """Carga y cachea el cuestionario desde disco."""
-    with open(config.QUESTIONNAIRE_PATH, encoding="utf-8") as fh:
+@lru_cache(maxsize=len(config.LANGUAGES))
+def _load(lang: str) -> dict:
+    with open(config.questionnaire_path(lang), encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def load() -> dict:
+    """Carga y cachea el cuestionario del idioma de esta peticion.
+
+    La cache va indexada POR IDIOMA, no por proceso: un mismo servidor puede
+    tener los dos cargados a la vez y atender simultaneamente a quien eligio
+    espaniol y a quien eligio ingles.
+    """
+    return _load(config.language())
 
 
 def _norm(text: str) -> str:

@@ -18,11 +18,18 @@ from functools import lru_cache
 from . import config
 
 
-@lru_cache(maxsize=1)
-def load_base() -> dict:
-    """Carga y cachea la base de conocimiento desde disco."""
-    with open(config.KNOWLEDGE_BASE_PATH, encoding="utf-8") as fh:
+@lru_cache(maxsize=len(config.LANGUAGES))
+def _load(lang: str) -> dict:
+    with open(config.knowledge_base_path(lang), encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def load_base() -> dict:
+    """Carga y cachea la guia del idioma de esta peticion.
+
+    La cache va indexada POR IDIOMA: un mismo proceso sirve los dos a la vez.
+    """
+    return _load(config.language())
 
 
 def _norm(text: str) -> str:

@@ -22,7 +22,7 @@ except Exception:
 
 from migra_ia import config
 from migra_ia.case import Case
-from migra_ia.prompt import build_system_prompt, INITIAL_USER_MESSAGE
+from migra_ia.prompt import build_system_prompt, initial_user_message
 from migra_ia import core
 
 
@@ -41,7 +41,7 @@ def main() -> int:
     print(f"Caso abierto: {case.case_id}")
 
     system = build_system_prompt()
-    messages = [{"role": "user", "content": INITIAL_USER_MESSAGE}]
+    messages = [{"role": "user", "content": initial_user_message()}]
 
     try:
         resultado = core.run_turn(client, system, messages, case)

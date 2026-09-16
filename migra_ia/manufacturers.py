@@ -60,11 +60,18 @@ def _compact(text: str) -> str:
     return re.sub(r"[^a-z0-9]", "", _strip_accents((text or "").lower()))
 
 
-@lru_cache(maxsize=1)
-def load_catalog() -> dict:
-    """Carga y cachea el catalogo de fabricantes desde disco."""
-    with open(config.CPU_MANUFACTURERS_PATH, encoding="utf-8") as fh:
+@lru_cache(maxsize=len(config.LANGUAGES))
+def _load(lang: str) -> dict:
+    with open(config.cpu_manufacturers_path(lang), encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def load_catalog() -> dict:
+    """Carga y cachea el catalogo del idioma de esta peticion.
+
+    La cache va indexada POR IDIOMA: un mismo proceso sirve los dos a la vez.
+    """
+    return _load(config.language())
 
 
 def _clean_family(family: str) -> str:
@@ -89,15 +96,15 @@ def _stage(family: str) -> str:
     return "intermedia"
 
 
-@lru_cache(maxsize=1)
-def _alias_by_brand() -> dict[str, list[str]]:
+@lru_cache(maxsize=len(config.LANGUAGES))
+def _alias_by_brand(lang: str) -> dict[str, list[str]]:
     """Deriva los alias de cada marca de su propio nombre, mas los manuales.
 
     'Emerson (legado GE Fanuc / GE Intelligent Platforms)' produce
     ['emerson', 'ge fanuc', 'ge intelligent platforms', ...].
     """
     alias: dict[str, list[str]] = {}
-    for fab in load_catalog()["manufacturers"]:
+    for fab in _load(lang)["manufacturers"]:
         brand = fab["brand"]
         crudos = {brand}
         # Texto fuera y dentro de los parentesis, por separado.
@@ -132,15 +139,15 @@ def _sources_of(etiquetas) -> list[dict]:
 # --------------------------------------------------------------------------- #
 # Identificacion: texto libre -> marca / familia / modelo
 # --------------------------------------------------------------------------- #
-@lru_cache(maxsize=1)
-def _model_index() -> list[tuple[str, str, int, str]]:
+@lru_cache(maxsize=len(config.LANGUAGES))
+def _model_index(lang: str) -> list[tuple[str, str, int, str]]:
     """(modelo_compacto, marca, indice_generacion, modelo_original), mas largo primero.
 
     Buscar del token mas largo al mas corto evita que 'CPU 314' se lleve la
     coincidencia cuando el usuario escribio 'CPU 314ST - 314-6CF23'.
     """
     entradas = []
-    for fab in load_catalog()["manufacturers"]:
+    for fab in _load(lang)["manufacturers"]:
         for i, gen in enumerate(fab["generations"]):
             for modelo in gen["models"]:
                 # El documento escribe algunos modelos con su equivalencia entre
@@ -156,11 +163,11 @@ def _model_index() -> list[tuple[str, str, int, str]]:
     return sorted(entradas, key=lambda e: len(e[0]), reverse=True)
 
 
-@lru_cache(maxsize=1)
-def _family_index() -> list[tuple[str, str, int, str]]:
+@lru_cache(maxsize=len(config.LANGUAGES))
+def _family_index(lang: str) -> list[tuple[str, str, int, str]]:
     """(familia_normalizada, marca, indice_generacion, familia_limpia), mas larga primero."""
     entradas = []
-    for fab in load_catalog()["manufacturers"]:
+    for fab in _load(lang)["manufacturers"]:
         for i, gen in enumerate(fab["generations"]):
             limpia = _clean_family(gen["family"])
             # La familia puede venir compuesta: 'SIMATIC S5-135U / S5-155U'.
@@ -180,7 +187,7 @@ def _family_index() -> list[tuple[str, str, int, str]]:
 def _find_brand(consulta_norm: str) -> str | None:
     """Devuelve la marca cuyo alias mas largo aparezca en la consulta."""
     best, largo = None, 0
-    for brand, alias in _alias_by_brand().items():
+    for brand, alias in _alias_by_brand(config.language()).items():
         for a in alias:
             if len(a) > largo and re.search(rf"(?<![a-z0-9]){re.escape(a)}(?![a-z0-9])", consulta_norm):
                 best, largo = brand, len(a)
@@ -264,7 +271,7 @@ def _guide_route(brand: str, family: str | None = None) -> dict | None:
     El catalogo dice QUE existe y en que orden; la guia dice COMO se migra. Solo
     5 de las 30 marcas tienen ruta publicada en la guia.
     """
-    for alias in _alias_by_brand().get(brand, []):
+    for alias in _alias_by_brand(config.language()).get(brand, []):
         res = knowledge.query("manufacturer", alias)
         contenido = res.get("contenido")
         if isinstance(contenido, dict) and "brand" in contenido:
@@ -300,7 +307,7 @@ def identify(text: str) -> dict:
             "version_catalogo": catalog["document"]["version"]}
 
     # 1) Modelo exacto de CPU.
-    for modelo_comp, brand, i, modelo in _model_index():
+    for modelo_comp, brand, i, modelo in _model_index(config.language()):
         coincide = modelo_comp == comp or (
             len(modelo_comp) >= _MIN_LARGO_SUBCADENA and modelo_comp in comp
         )
@@ -316,7 +323,7 @@ def identify(text: str) -> dict:
                                          "fisica y la fuente oficial antes de especificar."}
 
     # 2) Familia / generacion.
-    for family_norm, brand, i, family in _family_index():
+    for family_norm, brand, i, family in _family_index(config.language()):
         if re.search(rf"(?<![a-z0-9]){re.escape(family_norm)}(?![a-z0-9])", norm):
             fab = _by_brand(brand)
             desc = _describe_generation(fab, i)

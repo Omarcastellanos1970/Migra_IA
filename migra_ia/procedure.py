@@ -49,11 +49,18 @@ ROLES = {
 STEP_STATUSES = ("pendiente", "en_curso", "completado", "no_aplica", "bloqueado")
 
 
-@lru_cache(maxsize=1)
-def load() -> dict:
-    """Carga y cachea el procedimiento desde disco."""
-    with open(config.PROCEDURE_PATH, encoding="utf-8") as fh:
+@lru_cache(maxsize=len(config.LANGUAGES))
+def _load(lang: str) -> dict:
+    with open(config.procedure_path(lang), encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def load() -> dict:
+    """Carga y cachea el procedimiento del idioma de esta peticion.
+
+    La cache va indexada POR IDIOMA: un mismo proceso sirve los dos a la vez.
+    """
+    return _load(config.language())
 
 
 def _norm(text) -> str:
