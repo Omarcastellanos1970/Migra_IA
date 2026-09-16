@@ -143,6 +143,21 @@ def tool_descriptions() -> dict:
     return _tool_descriptions(language())
 
 
+def interactive_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "interactive.json"
+
+
+@lru_cache(maxsize=len(LANGUAGES))
+def _interactive_text(lang: str) -> dict:
+    with open(interactive_path(lang), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def interactive_text() -> dict:
+    """Texto de la demo interactiva en el idioma de esta peticion."""
+    return _interactive_text(language())
+
+
 @lru_cache(maxsize=len(LANGUAGES))
 def _ui(lang: str) -> dict:
     with open(ui_path(lang), encoding="utf-8") as fh:
