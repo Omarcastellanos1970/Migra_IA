@@ -52,8 +52,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent
-DATOS = RAIZ / "data" / "ciclo_vida_plataformas.csv"
-PARTICION = RAIZ / "data" / "particion_ciclo_vida.json"
+DATOS = RAIZ / "data" / "platform_lifecycle.csv"
+PARTICION = RAIZ / "data" / "lifecycle_partition.json"
 SALIDA_MD = RAIZ / "docs" / "baseline_reproducible.md"
 
 # Fecha de referencia FIJA. Las clases se derivan comparando fechas contra ella,
@@ -174,21 +174,21 @@ def cargar() -> list[Plataforma]:
     plataformas: list[Plataforma] = []
     for f in filas:
         reglas, faltan, fechas = {}, [], {}
-        for col in ("Anuncio_fin_de_vida", "Fin_comercializacion", "Fin_repuestos_reparacion"):
+        for col in ("end_of_life_announcement", "end_of_manufacturing", "end_of_spare_parts"):
             fecha, regla = _parsear_fecha(f[col])
             fechas[col], reglas[col] = fecha, regla
             if fecha is None:
                 faltan.append(col)
         plataformas.append(Plataforma(
-            fabricante=f["Fabricante"].strip(),
-            plataforma=f["Plataforma"].strip(),
-            lanzamiento=int(f["Lanzamiento"]),
-            anuncio=fechas["Anuncio_fin_de_vida"],
-            fin_comercializacion=fechas["Fin_comercializacion"],
-            fin_repuestos=fechas["Fin_repuestos_reparacion"],
-            vida_comercial=int(f["Vida_comercial_anios"]) if f["Vida_comercial_anios"].strip() else None,
-            soporte_total=int(f["Soporte_total_anios"]) if f["Soporte_total_anios"].strip() else None,
-            nivel=f["Nivel"].strip(),
+            fabricante=f["manufacturer"].strip(),
+            plataforma=f["platform"].strip(),
+            lanzamiento=int(f["release"]),
+            anuncio=fechas["end_of_life_announcement"],
+            fin_comercializacion=fechas["end_of_manufacturing"],
+            fin_repuestos=fechas["end_of_spare_parts"],
+            vida_comercial=int(f["commercial_life_years"]) if f["commercial_life_years"].strip() else None,
+            soporte_total=int(f["total_support_years"]) if f["total_support_years"].strip() else None,
+            nivel=f["level"].strip(),
             reglas=reglas,
             dato_faltante=faltan,
         ))
@@ -208,10 +208,10 @@ def particionar(datos: list[Plataforma]) -> list[dict]:
     """
     marcas = sorted({p.fabricante for p in datos})
     return [{
-        "pliegue": i,
-        "prueba_marcas": marca,
-        "prueba": [p.plataforma for p in datos if p.fabricante == marca],
-        "entrenamiento": [p.plataforma for p in datos if p.fabricante != marca],
+        "fold": i,
+        "test_brands": marca,
+        "test": [p.plataforma for p in datos if p.fabricante == marca],
+        "train": [p.plataforma for p in datos if p.fabricante != marca],
     } for i, marca in enumerate(marcas)]
 
 
@@ -266,10 +266,10 @@ def particionar_estratificado(datos: list[Plataforma],
             for i, marcas in enumerate(cubos):
                 prueba = [p.plataforma for g in marcas for p in agrupaciones[g]]
                 pliegues.append({
-                    "pliegue": i,
-                    "prueba_marcas": " + ".join(sorted(marcas)),
-                    "prueba": prueba,
-                    "entrenamiento": [p.plataforma for p in datos
+                    "fold": i,
+                    "test_brands": " + ".join(sorted(marcas)),
+                    "test": prueba,
+                    "train": [p.plataforma for p in datos
                                       if p.plataforma not in set(prueba)],
                 })
             nota = (f"k={k} es la mayor con la que todo pliegue de prueba tiene las "
@@ -442,12 +442,12 @@ def evaluar(datos: list[Plataforma], pliegues: list[dict]) -> dict:
     por_pliegue = []
 
     for pl in pliegues:
-        entrena = [por_nombre[n] for n in pl["entrenamiento"]]
-        prueba = [por_nombre[n] for n in pl["prueba"]]
+        entrena = [por_nombre[n] for n in pl["train"]]
+        prueba = [por_nombre[n] for n in pl["test"]]
         c0 = b0_trivial(entrena)
         modelo = b1_logistica_ordinal(entrena)
         modelos.append({
-            "pliegue": pl["pliegue"], "marca": pl["prueba_marcas"],
+            "fold": pl["fold"], "brand": pl["test_brands"],
             "beta": round(modelo.beta, 3),
             "cortes": [round(c, 3) for c in modelo.cortes],
         })
@@ -461,11 +461,11 @@ def evaluar(datos: list[Plataforma], pliegues: list[dict]) -> dict:
             f_b0.append(c0)
             f_b1.append(p1)
             detalle.append({
-                "plataforma": p.plataforma, "marca": p.fabricante,
-                "antiguedad": p.antiguedad, "real": p.clase, "b0": c0, "b1": p1,
+                "platform": p.plataforma, "brand": p.fabricante,
+                "age_years": p.antiguedad, "real": p.clase, "b0": c0, "b1": p1,
             })
         por_pliegue.append({
-            "marca": pl["prueba_marcas"], "n": len(prueba),
+            "brand": pl["test_brands"], "n": len(prueba),
             "b0": metricas(f_reales, f_b0), "b1": metricas(f_reales, f_b1),
         })
 
@@ -478,7 +478,7 @@ def evaluar(datos: list[Plataforma], pliegues: list[dict]) -> dict:
 
     return {"b0": metricas(reales, pred_b0), "b1": metricas(reales, pred_b1),
             "cv": resumen, "por_pliegue": por_pliegue,
-            "detalle": detalle, "modelos": modelos}
+            "detail": detalle, "models": modelos}
 
 
 # --------------------------------------------------------------------------
@@ -493,8 +493,8 @@ def auditar_fuga(datos: list[Plataforma]) -> list[dict]:
     """
     hallazgos = []
     for col, atributo, fuente in (
-        ("Vida_comercial_anios", "vida_comercial", "fin_comercializacion"),
-        ("Soporte_total_anios", "soporte_total", "fin_repuestos"),
+        ("commercial_life_years", "vida_comercial", "fin_comercializacion"),
+        ("total_support_years", "soporte_total", "fin_repuestos"),
     ):
         comprobadas = coinciden = 0
         for p in datos:
@@ -516,12 +516,12 @@ def auditar_fuga(datos: list[Plataforma]) -> list[dict]:
          "veredicto": "EXCLUIDAS",
          "motivo": "son las columnas con las que se deriva la clase. Usarlas como "
                    "variable seria predecir la etiqueta con la etiqueta."},
-        {"columna": "Nivel",
+        {"columna": "level",
          "veredicto": "EXCLUIDA",
          "motivo": "mide cuan verificado esta el dato contra la fuente (A/B/C), no una "
                    "propiedad del equipo. Es metadato del proceso de recoleccion: si "
                    "entrara, el modelo aprenderia el habito documental del fabricante."},
-        {"columna": "Fabricante",
+        {"columna": "manufacturer",
          "veredicto": "EXCLUIDA como variable",
          "motivo": "es la variable de agrupamiento. En leave-one-manufacturer-out la "
                    "marca de prueba nunca aparece en entrenamiento, asi que como "
@@ -618,8 +618,8 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
     a(f"  Guardada  : {PARTICION.relative_to(RAIZ).as_posix()}")
     a(f"  Pliegues  : {len(pliegues)}")
     for pl in pliegues:
-        a(f"     [{pl['pliegue']}] prueba = {pl['prueba_marcas']:<28s} "
-          f"({len(pl['prueba'])} muestras)  entrenamiento = {len(pl['entrenamiento'])}")
+        a(f"     [{pl['fold']}] prueba = {pl['test_brands']:<28s} "
+          f"({len(pl['test'])} muestras)  entrenamiento = {len(pl['train'])}")
     a("")
     for linea in _envolver("  " + nota_k, 72):
         a(f"  {linea}")
@@ -659,10 +659,10 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
     a("  dice la clase mayoritaria.")
     a("")
     a("  Por pliegue:")
-    a(f"     {'pliegue':<34s} {'n':>2s} {'exact. B0':>10s} {'exact. B1':>10s} "
+    a(f"     {'fold':<34s} {'n':>2s} {'exact. B0':>10s} {'exact. B1':>10s} "
       f"{'F1 B0':>8s} {'F1 B1':>8s}")
     for f in res["por_pliegue"]:
-        a(f"     {f['marca']:<34s} {f['n']:>2d} "
+        a(f"     {f['brand']:<34s} {f['n']:>2d} "
           f"{f['b0']['exactitud']:>10.3f} {f['b1']['exactitud']:>10.3f} "
           f"{f['b0']['f1_macro']:>8.3f} {f['b1']['f1_macro']:>8.3f}")
     a("")
@@ -682,17 +682,17 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
     a("")
     a("  Coeficientes por pliegue (esto es lo que un ingeniero puede auditar):")
     a(f"     {'pliegue de prueba':<34s} {'beta':>8s}   cortes")
-    for m in res["modelos"]:
-        a(f"     {m['marca']:<34s} {m['beta']:>8.3f}   {m['cortes']}")
+    for m in res["models"]:
+        a(f"     {m['brand']:<34s} {m['beta']:>8.3f}   {m['cortes']}")
     a("")
     a("     beta positivo = mas antiguedad empuja hacia clases mas altas, que es el")
     a("     sentido esperado. La pendiente esta en unidades de desviacion tipica de")
     a("     la antiguedad del propio pliegue, no en anios.")
     a("")
     a("  Prediccion por plataforma:")
-    a(f"     {'plataforma':<34s} {'marca':<12s} {'antig':>6s} {'real':>5s} {'B0':>4s} {'B1':>4s}")
-    for d in res["detalle"]:
-        a(f"     {d['plataforma'][:34]:<34s} {d['marca']:<12s} {d['antiguedad']:>6d} "
+    a(f"     {'platform':<34s} {'brand':<12s} {'antig':>6s} {'real':>5s} {'B0':>4s} {'B1':>4s}")
+    for d in res["detail"]:
+        a(f"     {d['platform'][:34]:<34s} {d['brand']:<12s} {d['age_years']:>6d} "
           f"{d['real']:>5d} {d['b0']:>4d} {d['b1']:>4d}")
     a("")
     if res["cv"]["b1"]["exactitud"][0] <= res["cv"]["b0"]["exactitud"][0]:
@@ -744,7 +744,7 @@ def informe(datos, pliegues, res, fuga, versiones, nota_k="") -> str:
     a("       y el destino de 'otra_marca' (Omron NX) la del caso ciego 26.5:")
     a("       el conjunto de desarrollo pisa el de prueba.")
     a("     - En modo agente con API, la herramienta consultar_guia alcanza")
-    a("       data/base_conocimiento.json, que contiene los cinco casos ciegos con")
+    a("       data/es/knowledge_base.json, que contiene los cinco casos ciegos con")
     a("       su estrategia. En modo determinista no: interactivo.py no importa")
     a("       conocimiento. La fuga existe y depende del modo.")
     a("")
@@ -784,17 +784,17 @@ def main() -> None:
     datos = cargar()
     pliegues, k, nota_k = particionar_estratificado(datos)
     PARTICION.write_text(json.dumps({
-        "esquema": "estratificada por nivel de obsolescencia, agrupada por fabricante",
+        "scheme": "estratificada por nivel de obsolescencia, agrupada por fabricante",
         "k": k,
-        "nota_k": nota_k,
-        "agrupamiento": "Fabricante",
-        "preprocesamiento": "ajustado dentro de cada pliegue (media y escala del entrenamiento)",
-        "fecha_referencia": "%04d-%02d-%02d" % FECHA_REF,
-        "semilla": SEMILLA,
-        "origen": "data/ciclo_vida_plataformas.csv",
-        "variable_admitida": "antiguedad = 2026 - Lanzamiento",
-        "pliegues": pliegues,
-        "etiquetas": {p.plataforma: p.clase for p in datos},
+        "k_note": nota_k,
+        "grouping": "manufacturer",
+        "preprocessing": "ajustado dentro de cada pliegue (media y escala del entrenamiento)",
+        "reference_date": "%04d-%02d-%02d" % FECHA_REF,
+        "seed": SEMILLA,
+        "origin": "data/platform_lifecycle.csv",
+        "allowed_variable": "antiguedad = 2026 - Lanzamiento",
+        "folds": pliegues,
+        "labels": {p.plataforma: p.clase for p in datos},
     }, ensure_ascii=False, indent=2), encoding="utf-8")
 
     res = evaluar(datos, pliegues)

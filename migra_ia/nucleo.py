@@ -18,7 +18,7 @@ def aprobador_pendiente(caso: Caso, entrada: dict) -> bool:
     operador la confirme por otra via. El default seguro es 'no aprobado'.
     """
     caso.aprobaciones_pendientes.append(
-        {"accion": entrada.get("accion_propuesta"), "riesgos": entrada.get("riesgos")}
+        {"accion": entrada.get("accion_propuesta"), "risks": entrada.get("risks")}
     )
     return False
 
@@ -27,7 +27,7 @@ def ejecutar_turno(client, system: str, messages: list, caso: Caso, aprobador=No
     """Ejecuta un turno completo (encadenando herramientas) y devuelve el resultado.
 
     Muta `messages` in place. Devuelve:
-        {"texto": <respuesta del agente>, "acciones": [nombres de herramientas],
+        {"text": <respuesta del agente>, "acciones": [nombres de herramientas],
          "resumen": <resumen del expediente>}
     """
     if aprobador is None:
@@ -67,7 +67,7 @@ def ejecutar_turno(client, system: str, messages: list, caso: Caso, aprobador=No
 
     caso.guardar()
     return {
-        "texto": "\n\n".join(t for t in textos if t.strip()),
+        "text": "\n\n".join(t for t in textos if t.strip()),
         "acciones": acciones,
         "resumen": caso.resumen(),
     }

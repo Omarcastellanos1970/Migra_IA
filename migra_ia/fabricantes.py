@@ -1,4 +1,4 @@
-"""Catalogo de fabricantes, generaciones y modelos de CPU (data/fabricantes_cpu.json).
+"""Catalogo de fabricantes, generaciones y modelos de CPU (data/es/cpu_manufacturers.json).
 
 Este modulo es lo que hace que MIGRA-IA sea ADAPTATIVO: resuelve lo que el usuario
 escribe ("tengo un CJ1M-CPU13", "un Allen Bradley SLC 5/04") a una ficha concreta
@@ -97,8 +97,8 @@ def _alias_por_marca() -> dict[str, list[str]]:
     ['emerson', 'ge fanuc', 'ge intelligent platforms', ...].
     """
     alias: dict[str, list[str]] = {}
-    for fab in cargar_catalogo()["fabricantes"]:
-        marca = fab["marca"]
+    for fab in cargar_catalogo()["manufacturers"]:
+        marca = fab["brand"]
         crudos = {marca}
         # Texto fuera y dentro de los parentesis, por separado.
         fuera = re.sub(r"\([^)]*\)", " ", marca)
@@ -121,11 +121,11 @@ def _fuentes_de(etiquetas) -> list[dict]:
     catalogo = cargar_catalogo()
     fichas = []
     for et in etiquetas or []:
-        f = catalogo["fuentes"].get(et)
+        f = catalogo["sources"].get(et)
         if f:
-            fichas.append({"etiqueta": et, "descripcion": f["descripcion"], "url": f["url"]})
+            fichas.append({"label": et, "description": f["description"], "url": f["url"]})
         else:
-            fichas.append({"etiqueta": et, "descripcion": "", "url": ""})
+            fichas.append({"label": et, "description": "", "url": ""})
     return fichas
 
 
@@ -140,9 +140,9 @@ def _indice_modelos() -> list[tuple[str, str, int, str]]:
     coincidencia cuando el usuario escribio 'CPU 314ST - 314-6CF23'.
     """
     entradas = []
-    for fab in cargar_catalogo()["fabricantes"]:
-        for i, gen in enumerate(fab["generaciones"]):
-            for modelo in gen["modelos"]:
+    for fab in cargar_catalogo()["manufacturers"]:
+        for i, gen in enumerate(fab["generations"]):
+            for modelo in gen["models"]:
                 # El documento escribe algunos modelos con su equivalencia entre
                 # parentesis ('SLC 5/03 (1747-L532)'): son el MISMO dato escrito de
                 # dos formas, y el usuario puede citar cualquiera de las dos.
@@ -152,7 +152,7 @@ def _indice_modelos() -> list[tuple[str, str, int, str]]:
                 for variante in variantes:
                     comp = _compacto(variante)
                     if comp:
-                        entradas.append((comp, fab["marca"], i, modelo))
+                        entradas.append((comp, fab["brand"], i, modelo))
     return sorted(entradas, key=lambda e: len(e[0]), reverse=True)
 
 
@@ -160,9 +160,9 @@ def _indice_modelos() -> list[tuple[str, str, int, str]]:
 def _indice_familias() -> list[tuple[str, str, int, str]]:
     """(familia_normalizada, marca, indice_generacion, familia_limpia), mas larga primero."""
     entradas = []
-    for fab in cargar_catalogo()["fabricantes"]:
-        for i, gen in enumerate(fab["generaciones"]):
-            limpia = _familia_limpia(gen["familia"])
+    for fab in cargar_catalogo()["manufacturers"]:
+        for i, gen in enumerate(fab["generations"]):
+            limpia = _familia_limpia(gen["family"])
             # La familia puede venir compuesta: 'SIMATIC S5-135U / S5-155U'.
             partes = [limpia] + limpia.split("/")
             # El usuario suele citar solo el designador: 'M580' por 'Modicon M580',
@@ -173,7 +173,7 @@ def _indice_familias() -> list[tuple[str, str, int, str]]:
             for parte in partes:
                 norm = _norm(parte)
                 if len(norm) >= 3:
-                    entradas.append((norm, fab["marca"], i, limpia))
+                    entradas.append((norm, fab["brand"], i, limpia))
     return sorted(entradas, key=lambda e: len(e[0]), reverse=True)
 
 
@@ -188,25 +188,25 @@ def _buscar_marca(consulta_norm: str) -> str | None:
 
 
 def _por_marca(marca: str) -> dict:
-    for fab in cargar_catalogo()["fabricantes"]:
-        if fab["marca"] == marca:
+    for fab in cargar_catalogo()["manufacturers"]:
+        if fab["brand"] == marca:
             return fab
     raise KeyError(marca)
 
 
 def _describir_generacion(fab: dict, indice: int) -> dict:
     """Ficha de una generacion con su lugar en la cronologia del fabricante."""
-    gens = fab["generaciones"]
+    gens = fab["generations"]
     gen = gens[indice]
     posteriores = [
-        {"familia": _familia_limpia(g["familia"]), "etapa": _etapa(g["familia"]),
-         "modelos_texto": g["modelos_texto"]}
+        {"family": _familia_limpia(g["family"]), "stage": _etapa(g["family"]),
+         "models_text": g["models_text"]}
         for g in gens[indice + 1:]
     ]
     actuales = [
-        {"familia": _familia_limpia(g["familia"]), "modelos_texto": g["modelos_texto"],
-         "fuentes": _fuentes_de(g["fuentes"])}
-        for g in gens if _etapa(g["familia"]) == "actual"
+        {"family": _familia_limpia(g["family"]), "models_text": g["models_text"],
+         "sources": _fuentes_de(g["sources"])}
+        for g in gens if _etapa(g["family"]) == "actual"
     ]
     # Cuatro fabricantes del documento no marcan ninguna generacion como 'Actual'.
     # Se ofrece la ultima listada, diciendo expresamente que la fuente no la declara
@@ -214,20 +214,20 @@ def _describir_generacion(fab: dict, indice: int) -> dict:
     nota_actual = ""
     if not actuales and gens:
         ultima = gens[-1]
-        actuales = [{"familia": _familia_limpia(ultima["familia"]),
-                     "modelos_texto": ultima["modelos_texto"],
-                     "fuentes": _fuentes_de(ultima["fuentes"])}]
+        actuales = [{"family": _familia_limpia(ultima["family"]),
+                     "models_text": ultima["models_text"],
+                     "sources": _fuentes_de(ultima["sources"])}]
         nota_actual = ("El documento fuente no marca ninguna generacion de este "
                        "fabricante como 'Actual'; se muestra la ultima de la "
                        "cronologia. Verifica el estado comercial con el fabricante.")
     return {
-        "familia": _familia_limpia(gen["familia"]),
-        "familia_documento": gen["familia"],
-        "etapa": _etapa(gen["familia"]),
+        "family": _familia_limpia(gen["family"]),
+        "familia_documento": gen["family"],
+        "stage": _etapa(gen["family"]),
         "posicion": f"{indice + 1} de {len(gens)}",
-        "modelos_documentados": gen["modelos_texto"],
-        "observacion": gen["observacion"],
-        "fuentes": _fuentes_de(gen["fuentes"]),
+        "modelos_documentados": gen["models_text"],
+        "remark": gen["remark"],
+        "sources": _fuentes_de(gen["sources"]),
         "generaciones_posteriores": posteriores,
         "generaciones_actuales_del_fabricante": actuales,
         "nota_generacion_actual": nota_actual,
@@ -244,16 +244,16 @@ def _destino_documentado(contenido: dict, familia: str | None) -> dict | None:
     if not familia:
         return None
     fam = _norm(familia)
-    for origen in contenido.get("origenes") or []:
+    for origen in contenido.get("origins") or []:
         if not isinstance(origen, dict):
             continue
-        for parte in origen["origen"].split("/"):
+        for parte in origen["origin"].split("/"):
             p = _norm(parte)
             if len(p) >= 3 and re.search(rf"(?<![a-z0-9]){re.escape(p)}(?![a-z0-9])", fam):
                 return {
-                    "origen_en_guia": origen["origen"],
-                    "destino": origen["ruta"],
-                    "aspectos_criticos": origen.get("aspectos_criticos", ""),
+                    "origen_en_guia": origen["origin"],
+                    "destino": origen["route"],
+                    "critical_aspects": origen.get("critical_aspects", ""),
                 }
     return None
 
@@ -265,17 +265,17 @@ def _ruta_guia(marca: str, familia: str | None = None) -> dict | None:
     5 de las 30 marcas tienen ruta publicada en la guia.
     """
     for alias in _alias_por_marca().get(marca, []):
-        res = conocimiento.consultar("fabricante", alias)
+        res = conocimiento.consultar("manufacturer", alias)
         contenido = res.get("contenido")
-        if isinstance(contenido, dict) and "marca" in contenido:
+        if isinstance(contenido, dict) and "brand" in contenido:
             return {
-                "marca_en_guia": contenido["marca"],
-                "software_legado": contenido.get("software_legado"),
-                "software_objetivo": contenido.get("software_objetivo"),
-                "redes_heredadas": contenido.get("redes_heredadas"),
-                "riesgo_tipico": contenido.get("riesgo_tipico"),
+                "marca_en_guia": contenido["brand"],
+                "legacy_software": contenido.get("legacy_software"),
+                "target_software": contenido.get("target_software"),
+                "legacy_networks": contenido.get("legacy_networks"),
+                "typical_risk": contenido.get("typical_risk"),
                 "destino_documentado": _destino_documentado(contenido, familia),
-                "cita": res.get("cita"),
+                "citation": res.get("citation"),
             }
     return None
 
@@ -289,15 +289,15 @@ def identificar(texto: str) -> dict:
     """
     consulta = (texto or "").strip()
     if not consulta:
-        return {"consulta": consulta, "estado": "sin_consulta",
-                "nivel_confianza": "no_determinado",
-                "advertencia": "No se recibio texto que identificar."}
+        return {"consulta": consulta, "status": "sin_consulta",
+                "confidence_level": "no_determinado",
+                "warning": "No se recibio texto que identificar."}
 
     norm = _norm(consulta)
     comp = _compacto(consulta)
     catalogo = cargar_catalogo()
-    base = {"consulta": consulta, "cita_catalogo": catalogo["documento"]["titulo"],
-            "version_catalogo": catalogo["documento"]["version"]}
+    base = {"consulta": consulta, "cita_catalogo": catalogo["document"]["title"],
+            "version_catalogo": catalogo["document"]["version"]}
 
     # 1) Modelo exacto de CPU.
     for modelo_comp, marca, i, modelo in _indice_modelos():
@@ -307,11 +307,11 @@ def identificar(texto: str) -> dict:
         if coincide:
             fab = _por_marca(marca)
             desc = _describir_generacion(fab, i)
-            return {**base, "estado": "modelo_exacto", "nivel_confianza": "alta_confianza",
-                    "marca": marca, "clasificacion": fab["clasificacion"],
+            return {**base, "status": "modelo_exacto", "confidence_level": "alta_confianza",
+                    "brand": marca, "classification": fab["classification"],
                     "modelo_identificado": modelo,
                     **desc,
-                    "ruta_migracion_guia": _ruta_guia(marca, desc["familia"]),
+                    "ruta_migracion_guia": _ruta_guia(marca, desc["family"]),
                     "nota_verificacion": "Confirmar el numero de parte contra la placa "
                                          "fisica y la fuente oficial antes de especificar."}
 
@@ -320,43 +320,43 @@ def identificar(texto: str) -> dict:
         if re.search(rf"(?<![a-z0-9]){re.escape(familia_norm)}(?![a-z0-9])", norm):
             fab = _por_marca(marca)
             desc = _describir_generacion(fab, i)
-            return {**base, "estado": "familia", "nivel_confianza": "confianza_media",
-                    "marca": marca, "clasificacion": fab["clasificacion"],
+            return {**base, "status": "family", "confidence_level": "confianza_media",
+                    "brand": marca, "classification": fab["classification"],
                     "familia_identificada": familia,
                     **desc,
-                    "ruta_migracion_guia": _ruta_guia(marca, desc["familia"]),
+                    "ruta_migracion_guia": _ruta_guia(marca, desc["family"]),
                     "dato_faltante": "Modelo exacto de CPU: pedirlo o solicitar foto de la placa."}
 
     # 3) Solo marca.
     marca = _buscar_marca(norm)
     if marca:
         fab = _por_marca(marca)
-        return {**base, "estado": "marca", "nivel_confianza": "confianza_media",
-                "marca": marca, "clasificacion": fab["clasificacion"],
-                "generaciones": [
-                    {"n": g["n"], "familia": _familia_limpia(g["familia"]),
-                     "etapa": _etapa(g["familia"]), "modelos_texto": g["modelos_texto"]}
-                    for g in fab["generaciones"]
+        return {**base, "status": "brand", "confidence_level": "confianza_media",
+                "brand": marca, "classification": fab["classification"],
+                "generations": [
+                    {"n": g["n"], "family": _familia_limpia(g["family"]),
+                     "stage": _etapa(g["family"]), "models_text": g["models_text"]}
+                    for g in fab["generations"]
                 ],
                 "ruta_migracion_guia": _ruta_guia(marca),
                 "dato_faltante": "Familia y modelo exacto de CPU: pedirlos o solicitar "
                                  "foto de la placa."}
 
     # 4) Sin coincidencia: se dice, no se aproxima.
-    return {**base, "estado": "no_catalogado", "nivel_confianza": "no_determinado",
-            "marca": None,
-            "advertencia": "Ni la marca ni el modelo aparecen en el catalogo de 30 "
+    return {**base, "status": "no_catalogado", "confidence_level": "no_determinado",
+            "brand": None,
+            "warning": "Ni la marca ni el modelo aparecen en el catalogo de 30 "
                            "fabricantes. NO infieras una equivalencia: pide la placa, "
                            "declara el dato como no verificado y remite a la "
                            "documentacion oficial del fabricante.",
-            "marcas_disponibles": [f["marca"] for f in catalogo["fabricantes"]]}
+            "marcas_disponibles": [f["brand"] for f in catalogo["manufacturers"]]}
 
 
 def ficha(marca: str, familia: str | None = None) -> dict:
     """Cronologia completa de una marca, o el detalle de una de sus generaciones."""
     consulta = f"{marca} {familia}" if familia else marca
     res = identificar(consulta)
-    if res["estado"] == "no_catalogado":
+    if res["status"] == "no_catalogado":
         return res
     return res
 
@@ -372,10 +372,10 @@ def generaciones_actuales(marca: str) -> dict:
     try:
         fab = _por_marca(marca)
     except KeyError:
-        return {"marca": marca, "familias": [],
+        return {"brand": marca, "families": [],
                 "error": f"'{marca}' no figura en el catalogo de fabricantes."}
-    gens = fab["generaciones"]
-    actuales = [g for g in gens if _etapa(g["familia"]) == "actual"]
+    gens = fab["generations"]
+    actuales = [g for g in gens if _etapa(g["family"]) == "actual"]
     nota = ""
     if not actuales and gens:
         # Mismo criterio que `_describir_generacion`: se ofrece la ultima de la
@@ -385,21 +385,21 @@ def generaciones_actuales(marca: str) -> dict:
                 "como 'Actual'; se muestra la ultima de la cronologia. Verifica el "
                 "estado comercial con el fabricante.")
     return {
-        "marca": fab["marca"],
-        "clasificacion": fab["clasificacion"],
-        "familias": [
-            {"familia": _familia_limpia(g["familia"]),
-             "modelos_documentados": g["modelos_texto"],
-             "fuentes": _fuentes_de(g["fuentes"])}
+        "brand": fab["brand"],
+        "classification": fab["classification"],
+        "families": [
+            {"family": _familia_limpia(g["family"]),
+             "modelos_documentados": g["models_text"],
+             "sources": _fuentes_de(g["sources"])}
             for g in actuales
         ],
-        "nota": nota,
+        "note": nota,
     }
 
 
 _PALABRAS_VACIAS = {
     "tengo", "una", "unos", "unas", "con", "del", "los", "las", "por", "para",
-    "que", "plc", "cpu", "marca", "modelo", "familia", "serie", "controlador",
+    "que", "plc", "cpu", "brand", "model", "family", "serie", "controlador",
     "equipo", "planta", "maquina", "mi", "el", "la", "un", "de", "y", "es",
 }
 
@@ -421,10 +421,10 @@ def sugerencias(texto: str, limite: int = 6) -> list[dict]:
     # SIMATIC S7-1200 solo porque ambos llevan el numero 1200: una pista falsa.
     con_letras = {t for t in tokens if not t.isdigit()}
     puntuadas: list[tuple[int, dict]] = []
-    for fab in cargar_catalogo()["fabricantes"]:
-        for gen in fab["generaciones"]:
-            familia = _familia_limpia(gen["familia"])
-            campo = _norm(f"{fab['marca']} {familia} {gen['modelos_texto']}")
+    for fab in cargar_catalogo()["manufacturers"]:
+        for gen in fab["generations"]:
+            familia = _familia_limpia(gen["family"])
+            campo = _norm(f"{fab['brand']} {familia} {gen['models_text']}")
             propios = set(campo.split())
             comunes = tokens & propios
             if not comunes:
@@ -435,10 +435,10 @@ def sugerencias(texto: str, limite: int = 6) -> list[dict]:
             # uno que solo aparece en la lista de modelos.
             peso = len(comunes) + sum(1 for t in comunes if t in _norm(familia).split())
             puntuadas.append((peso, {
-                "marca": fab["marca"],
-                "familia": familia,
-                "etapa": _etapa(gen["familia"]),
-                "modelos_documentados": gen["modelos_texto"],
+                "brand": fab["brand"],
+                "family": familia,
+                "stage": _etapa(gen["family"]),
+                "modelos_documentados": gen["models_text"],
                 "coincide_en": sorted(comunes),
             }))
     puntuadas.sort(key=lambda p: -p[0])
@@ -469,14 +469,14 @@ def anclaje(ident: dict) -> str:
     Es la pieza que impide que el agente responda con la marca del ejemplo por
     defecto: a partir de aqui, cada respuesta se refiere a ESTE equipo.
     """
-    if not ident or ident.get("estado") in (None, "sin_consulta"):
+    if not ident or ident.get("status") in (None, "sin_consulta"):
         return ""
 
-    if ident["estado"] == "no_catalogado":
+    if ident["status"] == "no_catalogado":
         return (
             "EQUIPO EN CONSULTA: NO CATALOGADO.\n"
             f"El usuario reporto: '{ident.get('consulta', '')}'.\n"
-            f"{ident['advertencia']}\n"
+            f"{ident['warning']}\n"
             "Mientras no se identifique, toda recomendacion es preliminar y debe "
             "declararse como tal."
         )
@@ -486,7 +486,7 @@ def anclaje(ident: dict) -> str:
         "partir de aqui se refiere a ESTE equipo: no uses otra marca como ejemplo "
         "por defecto ni traslades rutas de un fabricante a otro.",
         f"- Reportado por el usuario: '{ident.get('consulta', '')}'",
-        f"- Marca: {ident['marca']} ({ident.get('clasificacion', '')})",
+        f"- Marca: {ident['brand']} ({ident.get('classification', '')})",
     ]
     if ident.get("modelo_identificado"):
         lineas.append(
@@ -494,25 +494,25 @@ def anclaje(ident: dict) -> str:
             "(tal como lo lista el documento fuente, que abrevia los modelos "
             "sucesivos de una misma fila)"
         )
-    if ident.get("familia"):
+    if ident.get("family"):
         lineas.append(
-            f"- Familia/generacion: {ident['familia']} "
-            f"(etapa {ident.get('etapa')}, posicion {ident.get('posicion')} en la cronologia)"
+            f"- Familia/generacion: {ident['family']} "
+            f"(etapa {ident.get('stage')}, posicion {ident.get('posicion')} en la cronologia)"
         )
         lineas.append(f"- Modelos documentados de esa generacion: {ident['modelos_documentados']}")
-        if ident.get("observacion"):
-            lineas.append(f"- Observacion del catalogo: {ident['observacion']}")
+        if ident.get("remark"):
+            lineas.append(f"- Observacion del catalogo: {ident['remark']}")
         actuales = ident.get("generaciones_actuales_del_fabricante") or []
         if actuales:
-            destino = "; ".join(f"{a['familia']} ({a['modelos_texto']})" for a in actuales)
+            destino = "; ".join(f"{a['family']} ({a['models_text']})" for a in actuales)
             lineas.append(f"- Generacion actual del MISMO fabricante: {destino}")
         if ident.get("nota_generacion_actual"):
             lineas.append(f"- AVISO: {ident['nota_generacion_actual']}")
-    elif ident.get("generaciones"):
-        fams = "; ".join(f"{g['familia']} [{g['etapa']}]" for g in ident["generaciones"])
+    elif ident.get("generations"):
+        fams = "; ".join(f"{g['family']} [{g['stage']}]" for g in ident["generations"])
         lineas.append(f"- Cronologia de la marca: {fams}")
 
-    if ident.get("etapa") == "actual":
+    if ident.get("stage") == "actual":
         lineas.append(
             "- ATENCION: esta generacion es la ACTUAL del fabricante segun el catalogo. "
             "No propongas migrarla a si misma: aqui procede plan preventivo, "
@@ -526,12 +526,12 @@ def anclaje(ident: dict) -> str:
             lineas.append(
                 f"- Ruta de migracion documentada para esta familia de origen "
                 f"('{destino_doc['origen_en_guia']}'): -> {destino_doc['destino']}. "
-                f"{destino_doc['aspectos_criticos']}"
+                f"{destino_doc['critical_aspects']}"
             )
         lineas.append(
-            f"- Ruta metodologica ({ruta['cita']}): software {ruta['software_legado']} -> "
-            f"{ruta['software_objetivo']}; redes heredadas {ruta['redes_heredadas']}; "
-            f"riesgo tipico: {ruta['riesgo_tipico']}"
+            f"- Ruta metodologica ({ruta['citation']}): software {ruta['legacy_software']} -> "
+            f"{ruta['target_software']}; redes heredadas {ruta['legacy_networks']}; "
+            f"riesgo tipico: {ruta['typical_risk']}"
         )
     else:
         lineas.append(
@@ -540,9 +540,9 @@ def anclaje(ident: dict) -> str:
             "documentacion oficial del fabricante."
         )
 
-    fuentes = ident.get("fuentes") or []
+    fuentes = ident.get("sources") or []
     if fuentes:
-        cites = "; ".join(f"[{f['etiqueta']}] {f['url']}" for f in fuentes if f.get("url"))
+        cites = "; ".join(f"[{f['label']}] {f['url']}" for f in fuentes if f.get("url"))
         lineas.append(f"- Fuentes oficiales citables: {cites}")
     if ident.get("dato_faltante"):
         lineas.append(f"- DATO FALTANTE: {ident['dato_faltante']}")
@@ -559,18 +559,18 @@ def anclaje(ident: dict) -> str:
 def indice_para_prompt() -> str:
     """Marcas y familias que el agente puede reconocer, sin volcar 469 modelos."""
     catalogo = cargar_catalogo()
-    doc = catalogo["documento"]
+    doc = catalogo["document"]
     lineas = [
-        f"CATALOGO DE FABRICANTES Y CPU: {doc['titulo']} ({doc['version']}). "
-        f"{len(catalogo['fabricantes'])} fabricantes, "
-        f"{sum(len(f['generaciones']) for f in catalogo['fabricantes'])} generaciones "
+        f"CATALOGO DE FABRICANTES Y CPU: {doc['title']} ({doc['version']}). "
+        f"{len(catalogo['manufacturers'])} fabricantes, "
+        f"{sum(len(f['generations']) for f in catalogo['manufacturers'])} generaciones "
         f"documentadas con modelos reales y fuente oficial.",
         "Resuelve lo que diga el usuario con `identificar_cpu` (texto libre de placa) y "
         "amplia con `consultar_catalogo` (marca, familia). Marcas y familias:",
     ]
-    for fab in catalogo["fabricantes"]:
-        fams = "; ".join(_familia_limpia(g["familia"]) for g in fab["generaciones"])
-        lineas.append(f"- {fab['marca']} [{fab['clasificacion']}]: {fams}")
+    for fab in catalogo["manufacturers"]:
+        fams = "; ".join(_familia_limpia(g["family"]) for g in fab["generations"])
+        lineas.append(f"- {fab['brand']} [{fab['classification']}]: {fams}")
     lineas.append(
         "Si el equipo del usuario NO esta en esta lista, dilo explicitamente y pide la "
         "placa: no lo asimiles a la marca mas parecida."

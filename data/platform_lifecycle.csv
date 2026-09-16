@@ -1,4 +1,4 @@
-Fabricante;Plataforma;Lanzamiento;Anuncio_fin_de_vida;Fin_comercializacion;Fin_repuestos_reparacion;Vida_comercial_anios;Soporte_total_anios;Nivel
+manufacturer;platform;release;end_of_life_announcement;end_of_manufacturing;end_of_spare_parts;commercial_life_years;total_support_years;level
 Rockwell;PLC-5 (1785);1986;18/5/2015;jun-17;31-12-2025 (software RSLogix 5);31;39;A
 Rockwell;SLC 500;1991;;31/3/2024;n.d.;33;;B
 Siemens;S7-300 / ET 200M;1995;01-10-2023 (PM400);01-10-2025 (PM410);>= 01-10-2033 (10 anios);30;38;B

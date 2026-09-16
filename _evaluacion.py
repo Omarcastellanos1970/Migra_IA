@@ -72,10 +72,10 @@ def resolver(esc: dict) -> dict:
     una segunda interpretacion que pueda divergir de la real.
     """
     resueltas: dict = {}
-    for codigo, texto in esc["respuestas"].items():
+    for codigo, texto in esc["answers"].items():
         p = interactivo._pregunta(codigo)
         if p is None:
-            raise SystemExit("El codigo " + codigo + " no existe en cuestionario.json")
+            raise SystemExit("El codigo " + codigo + " no existe en questionnaire.json")
         valor = interactivo._interpretar(p, texto)
         if valor is None:
             raise SystemExit("No se pudo interpretar " + codigo + "=" + repr(texto))
@@ -107,7 +107,7 @@ def puntuar(respuestas: dict, w=None):
 
 def migra(respuestas: dict, punt: float, clas: str) -> bool:
     """Decision del mapa de decision para este caso."""
-    d = interactivo.decidir(respuestas, {"puntuacion": punt, "clasificacion": clas})
+    d = interactivo.decidir(respuestas, {"puntuacion": punt, "classification": clas})
     return bool(d["migrar"])
 
 
@@ -124,7 +124,7 @@ _M01_MIGRAR = {"Descontinuado, aun con soporte y repuestos",
 def baseline_trivial(respuestas: dict):
     """B0: solo mira M01. Puntuacion = valor del factor de ciclo de vida."""
     f = interactivo._f_ciclo_vida(respuestas)
-    punt = None if f is None else float(f["valor"])
+    punt = None if f is None else float(f["value"])
     return punt, respuestas.get("M01") in _M01_MIGRAR
 
 
@@ -171,7 +171,7 @@ def sensibilidad_montecarlo(respuestas: dict, base_clas: str,
         "estabilidad": round(100.0 * estables / muestras, 1),
         "min": round(min(puntos), 1),
         "max": round(max(puntos), 1),
-        "media": round(statistics.mean(puntos), 1),
+        "mean": round(statistics.mean(puntos), 1),
         "desv": round(statistics.pstdev(puntos), 2),
     }
 
@@ -181,18 +181,18 @@ def influencia_por_pregunta(respuestas: dict):
     filas = []
     for codigo, actual in respuestas.items():
         p = interactivo._pregunta(codigo)
-        opciones = (p or {}).get("opciones") or []
+        opciones = (p or {}).get("options") or []
         if not opciones:
             continue
         vals = []
         for op in opciones:
             prueba = dict(respuestas)
-            prueba[codigo] = [op] if p.get("tipo") == "seleccion_multiple" else op
+            prueba[codigo] = [op] if p.get("type") == "seleccion_multiple" else op
             punt, _, _ = puntuar(prueba)
             vals.append(punt)
         filas.append({
-            "codigo": codigo,
-            "texto": (p or {}).get("texto", ""),
+            "code": codigo,
+            "text": (p or {}).get("text", ""),
             "actual": ", ".join(actual) if isinstance(actual, list) else actual,
             "min": min(vals), "max": max(vals),
             "rango": round(max(vals) - min(vals), 1),
@@ -218,8 +218,8 @@ ORDINALES = [
 def ruta_decision(respuestas: dict):
     """Secuencia de alternativas que el mapa de decision propone para este caso."""
     punt, clas, _ = puntuar(respuestas)
-    d = interactivo.decidir(respuestas, {"puntuacion": punt, "clasificacion": clas})
-    return tuple(a["alternativa"] for a in d["ruta"])
+    d = interactivo.decidir(respuestas, {"puntuacion": punt, "classification": clas})
+    return tuple(a["alternative"] for a in d["route"])
 
 
 def influencia_en_decision(respuestas: dict):
@@ -231,13 +231,13 @@ def influencia_en_decision(respuestas: dict):
     mueven, inertes = [], []
     for codigo in respuestas:
         p = interactivo._pregunta(codigo)
-        opciones = (p or {}).get("opciones") or []
+        opciones = (p or {}).get("options") or []
         if not opciones:
             continue
         rutas, puntos = set(), set()
         for op in opciones:
             prueba = dict(respuestas)
-            prueba[codigo] = [op] if p.get("tipo") == "seleccion_multiple" else op
+            prueba[codigo] = [op] if p.get("type") == "seleccion_multiple" else op
             punt, _, _ = puntuar(prueba)
             puntos.add(punt)
             rutas.add(ruta_decision(prueba))
@@ -253,7 +253,7 @@ def monotonia(respuestas: dict):
     filas = []
     for codigo, escala, direccion in ORDINALES:
         p = interactivo._pregunta(codigo)
-        documentadas = (p or {}).get("opciones") or []
+        documentadas = (p or {}).get("options") or []
         faltan = [op for op in escala if op not in documentadas]
         serie, violaciones = [], []
         for op in escala:
@@ -266,7 +266,7 @@ def monotonia(respuestas: dict):
                 violaciones.append("'%s' (%s) -> '%s' (%s): baja" % (a, va, b, vb))
             if direccion == "baja" and vb > va + 1e-9:
                 violaciones.append("'%s' (%s) -> '%s' (%s): sube" % (a, va, b, vb))
-        filas.append({"codigo": codigo, "direccion": direccion, "serie": serie,
+        filas.append({"code": codigo, "direccion": direccion, "serie": serie,
                       "violaciones": violaciones, "no_documentadas": faltan})
     return filas
 
@@ -315,14 +315,14 @@ def main() -> None:
     w("  coinciden por construccion y no por coincidencia. No cuenta como")
     w("  evidencia adicional.")
     w("")
-    w("  %-12s %12s %13s %11s   decision" % ("caso", "B0 trivial", "B1 uniforme", "propuesta"))
+    w("  %-12s %12s %13s %11s   decision" % ("case", "B0 trivial", "B1 uniforme", "propuesta"))
     tabla_base = []
     for nombre, resp in casos.items():
         p_prop, c_prop, _ = puntuar(resp)
         p_uni, c_uni, _ = puntuar(resp, PESOS_UNIFORMES)
         p_triv, m_triv = baseline_trivial(resp)
         m_prop = migra(resp, p_prop, c_prop)
-        tabla_base.append({"caso": nombre, "b1": p_uni, "prop": p_prop})
+        tabla_base.append({"case": nombre, "b1": p_uni, "prop": p_prop})
         d = ("migrar" if m_prop else "no migrar")
         if m_triv != m_prop:
             d += "  (B0 dice: %s)" % ("migrar" if m_triv else "no migrar")
@@ -331,7 +331,7 @@ def main() -> None:
     dif = [f for f in tabla_base if abs(f["b1"] - f["prop"]) >= 0.05]
     if dif:
         w("  Los pesos de la Seccion 6 SI cambian el resultado frente a pesos")
-        w("  uniformes en: " + ", ".join("%s (%s vs %s)" % (f["caso"], f["b1"], f["prop"])
+        w("  uniformes en: " + ", ".join("%s (%s vs %s)" % (f["case"], f["b1"], f["prop"])
                                          for f in dif))
     else:
         w("  ATENCION: pesos uniformes reproducen la propuesta en todos los casos.")
@@ -355,7 +355,7 @@ def main() -> None:
         w("    Monte Carlo (%d muestras, pesos x U(0.5,1.5) renormalizados):"
           % m["muestras"])
         w("      puntuacion %s .. %s   media %s   sd %s"
-          % (m["min"], m["max"], m["media"], m["desv"]))
+          % (m["min"], m["max"], m["mean"], m["desv"]))
         w("      la clasificacion se mantiene en %s%% de las muestras" % m["estabilidad"])
         w("")
 
@@ -365,9 +365,9 @@ def main() -> None:
     infl = influencia_por_pregunta(casos["critico"])
     w("  %-5s %7s %7s %7s  pregunta" % ("cod", "rango", "min", "max"))
     for f in infl[:12]:
-        w("  %-5s %7.1f %7.1f %7.1f  %s" % (f["codigo"], f["rango"], f["min"],
-                                            f["max"], f["texto"][:42]))
-    sin_efecto = [f["codigo"] for f in infl if f["rango"] == 0]
+        w("  %-5s %7.1f %7.1f %7.1f  %s" % (f["code"], f["rango"], f["min"],
+                                            f["max"], f["text"][:42]))
+    sin_efecto = [f["code"] for f in infl if f["rango"] == 0]
     if sin_efecto:
         w("")
         w("  Sin efecto sobre la puntuacion: " + ", ".join(sin_efecto))
@@ -401,10 +401,10 @@ def main() -> None:
     w("-" * 74)
     for f in monotonia(casos["critico"]):
         flecha = "riesgo debe subir" if f["direccion"] == "sube" else "riesgo debe bajar"
-        w("  [%s] %s" % (f["codigo"], flecha))
+        w("  [%s] %s" % (f["code"], flecha))
         w("    " + " -> ".join(str(v) for _, v in f["serie"]))
         if f["no_documentadas"]:
-            w("    AVISO: opciones ausentes de cuestionario.json: "
+            w("    AVISO: opciones ausentes de questionnaire.json: "
               + ", ".join(f["no_documentadas"]))
         w("    " + ("sin violaciones" if not f["violaciones"]
                     else "VIOLACIONES: " + "; ".join(f["violaciones"])))

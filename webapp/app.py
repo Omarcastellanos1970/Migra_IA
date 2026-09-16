@@ -29,7 +29,7 @@ app = Flask(__name__)
 
 SYSTEM = construir_system_prompt()
 
-# Sesiones en memoria: case_id -> {"messages": [...], "caso": Caso}.
+# Sesiones en memoria: case_id -> {"messages": [...], "case": Caso}.
 # El expediente se persiste en disco; el historial de conversacion vive mientras
 # el servidor este activo (suficiente para el prototipo).
 SESIONES: dict[str, dict] = {}
@@ -64,10 +64,10 @@ def nuevo_caso():
     if es_interactivo:
         apertura = interactivo.iniciar()
         SESIONES[caso.case_id] = {
-            "messages": [], "caso": caso, "interactivo": True,
-            "estado": apertura["estado"],
+            "messages": [], "case": caso, "interactivo": True,
+            "status": apertura["status"],
         }
-        return jsonify(case_id=caso.case_id, texto=apertura["texto"],
+        return jsonify(case_id=caso.case_id, texto=apertura["text"],
                        acciones=[], resumen=caso.resumen(), interactivo=True)
 
     messages: list[dict] = [{"role": "user", "content": MENSAJE_INICIAL_USUARIO}]
@@ -75,10 +75,10 @@ def nuevo_caso():
         res = ejecutar_turno(_cliente(), SYSTEM, messages, caso)
     except Exception as exc:  # noqa: BLE001
         return jsonify(error=_msg_error(exc)), 500
-    SESIONES[caso.case_id] = {"messages": messages, "caso": caso}
+    SESIONES[caso.case_id] = {"messages": messages, "case": caso}
     return jsonify(
         case_id=caso.case_id,
-        texto=res["texto"],
+        texto=res["text"],
         acciones=res["acciones"],
         resumen=res["resumen"],
     )
@@ -98,23 +98,23 @@ def mensaje():
 
     # Demo interactiva: cada respuesta entra al expediente y mueve el motor.
     if ses.get("interactivo"):
-        paso = interactivo.responder(ses["caso"], texto_usuario, ses.get("estado"))
-        ses["estado"] = paso.pop("estado", ses.get("estado"))
+        paso = interactivo.responder(ses["case"], texto_usuario, ses.get("status"))
+        ses["status"] = paso.pop("status", ses.get("status"))
         return jsonify(**paso)
 
     ses["messages"].append({"role": "user", "content": texto_usuario})
     try:
-        res = ejecutar_turno(_cliente(), SYSTEM, ses["messages"], ses["caso"])
+        res = ejecutar_turno(_cliente(), SYSTEM, ses["messages"], ses["case"])
     except Exception as exc:  # noqa: BLE001
         return jsonify(error=_msg_error(exc)), 500
-    return jsonify(texto=res["texto"], acciones=res["acciones"], resumen=res["resumen"])
+    return jsonify(texto=res["text"], acciones=res["acciones"], resumen=res["resumen"])
 
 
 @app.get("/api/resumen/<case_id>")
 def resumen(case_id: str):
     ses = SESIONES.get(case_id)
     if ses is not None:
-        return jsonify(ses["caso"].resumen())
+        return jsonify(ses["case"].resumen())
     try:
         return jsonify(Caso.cargar(case_id).resumen())
     except Exception:  # noqa: BLE001

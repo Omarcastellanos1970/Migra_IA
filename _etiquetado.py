@@ -6,7 +6,7 @@ P1 y P2 necesitan una etiqueta de referencia. La buena es la de un panel de
 ingenieros -asi lo declara el plan de evaluacion del paper- y hoy no esta
 disponible. Este script hace dos cosas distintas y no las confunde:
 
-  `provisional`  escribe data/etiquetas_p1_p2.json con un etiquetado derivado de
+  `provisional`  escribe data/labels_p1_p2.json con un etiquetado derivado de
                  UNA REGLA ESCRITA, no de criterio humano. Sirve para que el
                  circuito completo corra de punta a punta y para que P2 deje de
                  estar bloqueado, NO para validar nada.
@@ -43,7 +43,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _baseline import CLASES, FECHA_REF, cargar          # noqa: E402
 
 RAIZ = Path(__file__).resolve().parent
-ETIQUETAS = RAIZ / "data" / "etiquetas_p1_p2.json"
+ETIQUETAS = RAIZ / "data" / "labels_p1_p2.json"
 FORMULARIO = RAIZ / "docs" / "formulario_etiquetado.md"
 
 # Criterio de prioridad de reemplazo, escrito antes de mirar los datos para que
@@ -89,26 +89,26 @@ def provisional() -> dict:
                        -p.antiguedad, p.plataforma),
     )
     return {
-        "procedencia": "provisional_regla",
-        "advertencia": (
+        "provenance": "provisional_regla",
+        "warning": (
             "ETIQUETADO PROVISIONAL. No es juicio experto: sale de una regla "
             "escrita, no de criterio humano. No usar como validacion. Se "
             "sustituye por las respuestas del panel en cuanto esten."
         ),
-        "fecha_referencia": "%04d-%02d-%02d" % FECHA_REF,
-        "evaluadores": [],
-        "criterio_p2": CRITERIO_P2,
-        "p1_clase": {p.plataforma: p.clase for p in datos},
-        "p1_regla": ("derivada de las fechas contra la fecha de referencia; por eso "
+        "reference_date": "%04d-%02d-%02d" % FECHA_REF,
+        "raters": [],
+        "p2_criterion": CRITERIO_P2,
+        "p1_class": {p.plataforma: p.clase for p in datos},
+        "p1_rule": ("derivada de las fechas contra la fecha de referencia; por eso "
                      "las columnas de fecha quedan excluidas como variable en "
                      "_baseline.py. Ver la auditoria de fuga."),
-        "p2_orden": [p.plataforma for p in orden],
-        "p2_detalle": [
-            {"puesto": i + 1, "plataforma": p.plataforma,
-             "anios_repuestos_restantes": (None if _anios_restantes(p) is None
+        "p2_ranking": [p.plataforma for p in orden],
+        "p2_detail": [
+            {"rank": i + 1, "platform": p.plataforma,
+             "spare_parts_years_left": (None if _anios_restantes(p) is None
                                            else round(_anios_restantes(p), 1)),
-             "antiguedad": p.antiguedad,
-             "estado_repuestos": ["sin repuestos confirmado",
+             "age_years": p.antiguedad,
+             "spare_parts_status": ["sin repuestos confirmado",
                                   "fin de repuestos NO publicado",
                                   "con repuestos"][_banda(p)]}
             for i, p in enumerate(orden)
@@ -271,11 +271,11 @@ def comparar(archivos: list[Path]) -> None:
             if len(set(votos.values())) > 1:
                 print(f"  DESACUERDO {p}: {votos}")
 
-    if base.get("p1_clase"):
+    if base.get("p1_class"):
         print("\nDistancia contra la regla provisional (no es una nota, es un contraste):")
         for n in nombres:
-            comunes = set(respuestas[n]) & set(base["p1_clase"])
-            iguales = sum(str(base["p1_clase"][p]) == respuestas[n][p] for p in comunes)
+            comunes = set(respuestas[n]) & set(base["p1_class"])
+            iguales = sum(str(base["p1_class"][p]) == respuestas[n][p] for p in comunes)
             print(f"  {n}: {iguales}/{len(comunes)} coinciden con la regla")
 
 
@@ -289,31 +289,31 @@ def main() -> None:
         d = provisional()
         ETIQUETAS.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"Escrito {ETIQUETAS.relative_to(RAIZ).as_posix()}")
-        print(f"procedencia = {d['procedencia']}  <-- NO es juicio experto")
+        print(f"procedencia = {d['provenance']}  <-- NO es juicio experto")
         print("\nOrden de prioridad provisional (P2):")
-        for e in d["p2_detalle"]:
-            estado = e["estado_repuestos"]
-            restan = e["anios_repuestos_restantes"]
+        for e in d["p2_detail"]:
+            estado = e["spare_parts_status"]
+            restan = e["spare_parts_years_left"]
             if restan is not None and restan > 0:
                 estado += f" ({restan} anios)"
-            print(f"  {e['puesto']}. {e['plataforma']:<30s} antig {e['antiguedad']:>2d}  {estado}")
+            print(f"  {e['rank']}. {e['platform']:<30s} antig {e['age_years']:>2d}  {estado}")
     elif args.accion == "formulario":
         escribir_formulario()
     elif args.accion == "p2":
         if not ETIQUETAS.exists():
-            ap.error("falta data/etiquetas_p1_p2.json; corre primero 'provisional'")
+            ap.error("falta data/labels_p1_p2.json; corre primero 'provisional'")
         ref = json.loads(ETIQUETAS.read_text(encoding="utf-8"))
         datos = cargar()
         print("=" * 70)
         print("P2 PRIORIDAD DE REEMPLAZO - METRICAS DE ORDENAMIENTO")
         print("=" * 70)
-        print(f"Orden de referencia: procedencia = {ref['procedencia']}")
-        if ref["procedencia"] != "panel_experto":
+        print(f"Orden de referencia: procedencia = {ref['provenance']}")
+        if ref["provenance"] != "panel_experto":
             print("AVISO: la referencia NO es juicio experto. Lo que sigue mide")
             print("coherencia interna, no acierto. No publicar como validacion.")
         print()
         trivial = orden_por_antiguedad(datos)
-        m = metricas_ranking(trivial, ref["p2_orden"])
+        m = metricas_ranking(trivial, ref["p2_ranking"])
         print("B0 trivial: ordenar por antiguedad, la mas vieja primero")
         for k, v in m["precision_en_k"].items():
             pm = m["posicion_media_en_k"][k]

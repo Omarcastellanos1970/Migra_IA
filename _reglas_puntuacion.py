@@ -164,7 +164,7 @@ def tablas_de(nombre_funcion: str):
         encontradas.append({
             "filas": filas,
             "defecto": defecto,
-            "codigo": _codigo_leido(nodo.args[0]) if nodo.args else None,
+            "code": _codigo_leido(nodo.args[0]) if nodo.args else None,
         })
     return encontradas
 
@@ -218,7 +218,7 @@ def main() -> None:
         if tablas:
             for t in tablas:
                 if len(tablas) > 1:
-                    w("Segun `%s`:" % (t["codigo"] or "?"))
+                    w("Segun `%s`:" % (t["code"] or "?"))
                     w("")
                 w("| Respuesta | Valor |")
                 w("|---|---|")

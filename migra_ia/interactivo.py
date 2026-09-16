@@ -7,7 +7,7 @@ sin caso grabado de por medio:
 
   - el equipo se identifica contra el catalogo verificado (`fabricantes.py`);
   - las preguntas, sus opciones y sus ramas adaptativas salen del cuestionario
-    maestro (`data/cuestionario.json`), no se escriben aqui;
+    maestro (`data/es/questionnaire.json`), no se escriben aqui;
   - la puntuacion de riesgo la calcula el motor real (`scoring.py`) a partir de
     las respuestas dadas, con una justificacion que cita los codigos usados;
   - la alternativa recomendada aplica el mapa de decision del cuestionario;
@@ -35,11 +35,11 @@ CITA = "Cuestionario maestro MIGRA-IA (Secciones A-Q)"
 
 # Fases de la sesion interactiva.
 F_EQUIPO = "equipo"
-F_PREGUNTAS = "preguntas"
-F_RIESGO = "riesgo"
+F_PREGUNTAS = "questions"
+F_RIESGO = "risk"
 F_DECISION = "decision"
 F_DESTINO = "destino"
-F_GUIA = "guia"
+F_GUIA = "guide"
 F_FIN = "fin"
 
 _DESCONOCIDO = {"no se conoce", "no se ha consultado", "no se ha medido",
@@ -80,8 +80,8 @@ def _pregunta(codigo: str) -> dict | None:
     if p is None:
         return None
     p = dict(p)
-    if not p.get("opciones") and p.get("tipo") not in ("numero", "texto"):
-        p["opciones"] = list(_OPCIONES_SI_NO)
+    if not p.get("options") and p.get("type") not in ("numero", "text"):
+        p["options"] = list(_OPCIONES_SI_NO)
     return p
 
 
@@ -128,7 +128,7 @@ def _f_ciclo_vida(r: dict) -> dict | None:
         # La guia lo dice expresamente: si M01 no se conoce, se OMITE el factor
         # y se registra el dato faltante, en lugar de suponer un estado.
         return None
-    return {"valor": tabla[m01],
+    return {"value": tabla[m01],
             "justificacion": f"M01: estado declarado por el fabricante = '{m01}'."}
 
 
@@ -155,7 +155,7 @@ def _f_repuestos(r: dict) -> dict | None:
                       "no cubre el riesgo por si sola.")
     elif rm is not None:
         partes.append(f"M06: '{m06}'.")
-    return {"valor": _cap(base), "justificacion": " ".join(partes)}
+    return {"value": _cap(base), "justificacion": " ".join(partes)}
 
 
 def _f_soporte(r: dict) -> dict | None:
@@ -167,7 +167,7 @@ def _f_soporte(r: dict) -> dict | None:
         base = 55
     ajuste = {"Si, del fabricante": -15, "Si, de tercero certificado": -5,
               "Si, de tercero sin certificar": 5, "No": 15}.get(m07, 0)
-    return {"valor": _cap(base + ajuste),
+    return {"value": _cap(base + ajuste),
             "justificacion": f"M09 contrato de soporte: '{m09}'; M07 servicio de "
                              f"reparacion: '{m07}'."}
 
@@ -197,7 +197,7 @@ def _f_software(r: dict) -> dict | None:
     if pwd:
         partes.append(f"N06 contrasenas '{n06}'")
     valor += pwd
-    return {"valor": _cap(valor),
+    return {"value": _cap(valor),
             "justificacion": "Barrera de acceso al programa: " + "; ".join(partes) + "."}
 
 
@@ -206,27 +206,27 @@ def _f_respaldo(r: dict) -> dict | None:
     if f01 is None:
         return None
     if f01 == "No":
-        return {"valor": 100.0,
+        return {"value": 100.0,
                 "justificacion": "F01: no existe copia del programa. Prioridad 1: "
                                  "recuperarlo antes de cualquier decision."}
     if _es_desconocido(f01):
-        return {"valor": 90.0,
+        return {"value": 90.0,
                 "justificacion": "F01: no se sabe si existe copia. Regla 3: un respaldo "
                                  "que no se puede verificar se trata como ausente."}
     abre, compila = r.get("F06"), r.get("F07")
     if abre == "No":
-        return {"valor": 100.0,
+        return {"value": 100.0,
                 "justificacion": "F01 declara copia, pero F06: el respaldo NO abre. "
                                  "Se puntua como si no existiera (Regla 3)."}
     if compila == "No":
-        return {"valor": 90.0,
+        return {"value": 90.0,
                 "justificacion": "F06 abre pero F07: no compila sin errores. No cuenta "
                                  "como respaldo verificado (Regla 3)."}
     if abre == "Si" and compila == "Si":
-        return {"valor": 15.0,
+        return {"value": 15.0,
                 "justificacion": "F01, F06 y F07: existe copia, abre y compila. "
                                  "Respaldo verificado."}
-    return {"valor": 70.0,
+    return {"value": 70.0,
             "justificacion": f"F01 declara copia, pero su verificacion esta incompleta "
                              f"(F06='{abre}', F07='{compila}'). Sin verificar no cuenta "
                              "como respaldo (Regla 3)."}
@@ -273,7 +273,7 @@ def _f_compatibilidad(r: dict) -> dict | None:
         partes.append("O02 hay control de movimiento o ejes sincronizados")
     if not partes:
         partes.append("sin arrastre relevante declarado en G01, O02, O07 ni O08")
-    return {"valor": _cap(valor),
+    return {"value": _cap(valor),
             "justificacion": "Cuanto arrastra el cambio: " + "; ".join(partes) + "."}
 
 
@@ -323,7 +323,7 @@ def _f_historial(r: dict) -> dict | None:
         partes.append("CAUSA RAIZ EXTERNA no corregida (" + "; ".join(causas) +
                       "): estas fallas no son atribuibles al controlador, asi que el "
                       "factor se limita. Corregirla es previo a cualquier sustitucion")
-    return {"valor": _cap(valor), "justificacion": "; ".join(partes) + "."}
+    return {"value": _cap(valor), "justificacion": "; ".join(partes) + "."}
 
 
 def _f_criticidad(r: dict) -> dict | None:
@@ -338,7 +338,7 @@ def _f_criticidad(r: dict) -> dict | None:
                     "12 a 24 horas": 5, "Mas de 24 horas": 0}.get(c10, 0)
     valor += {"No hay ventana disponible": 15, "En el paro anual de planta o vacaciones": 10,
               "Fines de semana": 5}.get(q04, 0)
-    return {"valor": _cap(valor),
+    return {"value": _cap(valor),
             "justificacion": f"C08 criticidad '{c08}'; C10 parada tolerable '{c10}'; "
                              f"Q04 ventana de intervencion '{q04}'."}
 
@@ -393,10 +393,10 @@ def decidir(respuestas: dict, riesgo: dict) -> dict:
 
     No inventa criterios: para cada alternativa comprueba condiciones basadas en
     los mismos codigos que el mapa cita, y devuelve el texto de la alternativa
-    tal como esta publicado en `data/cuestionario.json`.
+    tal como esta publicado en `data/es/questionnaire.json`.
     """
-    mapa = cuestionario.cargar()["mapa_decision"]["criterios_alternativa"]
-    por_nombre = {a["alternativa"]: a for a in mapa}
+    mapa = cuestionario.cargar()["decision_map"]["alternative_criteria"]
+    por_nombre = {a["alternative"]: a for a in mapa}
 
     orden: list[tuple[str, str]] = []
     causas = _causa_raiz_externa(respuestas)
@@ -457,10 +457,10 @@ def decidir(respuestas: dict, riesgo: dict) -> dict:
         vistas.add(nombre)
         ruta.append({**por_nombre[nombre], "porque_en_este_caso": porque})
     return {
-        "clasificacion": riesgo.get("clasificacion"),
+        "classification": riesgo.get("classification"),
         "puntuacion": riesgo.get("puntuacion"),
-        "ruta": ruta,
-        "migrar": any(a["alternativa"] in ("Migracion a plataforma moderna",
+        "route": ruta,
+        "migrar": any(a["alternative"] in ("Migracion a plataforma moderna",
                                            "Reconstruccion del programa") for a in ruta),
         "sin_respaldo": _sin_respaldo(respuestas),
         "irrecuperable": _programa_irrecuperable(respuestas),
@@ -471,16 +471,16 @@ def decidir(respuestas: dict, riesgo: dict) -> dict:
 # Presentacion y lectura de respuestas
 # --------------------------------------------------------------------------- #
 def _render_pregunta(p: dict, n: int, total: int) -> str:
-    cabecera = (f"**Pregunta {n} de {total}** · Seccion {p['seccion']} — "
-                f"{p['seccion_titulo']}  ·  `{p['codigo']}`")
-    lineas = [cabecera, "", f"**{p['texto']}**", ""]
-    tipo = p.get("tipo")
+    cabecera = (f"**Pregunta {n} de {total}** · Seccion {p['section']} — "
+                f"{p['seccion_titulo']}  ·  `{p['code']}`")
+    lineas = [cabecera, "", f"**{p['text']}**", ""]
+    tipo = p.get("type")
     if tipo == "numero":
         lineas.append("_Responde con un numero._")
-    elif tipo in ("texto",):
+    elif tipo in ("text",):
         lineas.append("_Responde con tus palabras._")
     else:
-        for i, op in enumerate(p.get("opciones") or [], 1):
+        for i, op in enumerate(p.get("options") or [], 1):
             lineas.append(f"{i}. {op}")
         lineas.append("")
         if tipo == "seleccion_multiple":
@@ -488,8 +488,8 @@ def _render_pregunta(p: dict, n: int, total: int) -> str:
                           "comas (p. ej. `1,4,7`)._")
         else:
             lineas.append("_Responde con el numero de la opcion, o escribela._")
-    if p.get("regla_adaptativa"):
-        lineas += ["", f"*{p['regla_adaptativa']}*"]
+    if p.get("adaptive_rule"):
+        lineas += ["", f"*{p['adaptive_rule']}*"]
     return "\n".join(lineas)
 
 
@@ -498,8 +498,8 @@ def _interpretar(p: dict, texto: str):
     t = (texto or "").strip()
     if not t:
         return None
-    tipo = p.get("tipo")
-    opciones = p.get("opciones") or []
+    tipo = p.get("type")
+    opciones = p.get("options") or []
 
     if tipo == "numero":
         limpio = t.replace(",", ".").split()[0]
@@ -507,7 +507,7 @@ def _interpretar(p: dict, texto: str):
             return str(int(float(limpio)))
         except ValueError:
             return None
-    if tipo == "texto" or not opciones:
+    if tipo == "text" or not opciones:
         return t
 
     def una(fragmento: str):
@@ -534,19 +534,19 @@ def _interpretar(p: dict, texto: str):
 
 def _guardar(caso: Caso, p: dict, valor) -> None:
     texto_valor = ", ".join(valor) if isinstance(valor, list) else str(valor)
-    ejecutar_herramienta(caso, "guardar_respuestas", {"respuestas": [{
-        "seccion": p["seccion"],
-        "codigo": p["codigo"],
-        "pregunta": p["texto"],
-        "valor": texto_valor,
-        "nivel_confianza": "no_determinado" if _es_desconocido(texto_valor) else "confianza_media",
-        "fuente": "respuesta del usuario en la demo interactiva",
+    ejecutar_herramienta(caso, "guardar_respuestas", {"answers": [{
+        "section": p["section"],
+        "code": p["code"],
+        "question": p["text"],
+        "value": texto_valor,
+        "confidence_level": "no_determinado" if _es_desconocido(texto_valor) else "confianza_media",
+        "source": "respuesta del usuario en la demo interactiva",
     }]}, aprobador_pendiente)
 
 
 def _salida(texto: str, caso: Caso, estado: dict, acciones=None, fin=False) -> dict:
-    return {"texto": texto, "acciones": acciones or [], "resumen": caso.resumen(),
-            "fin": fin, "interactivo": True, "estado": estado}
+    return {"text": texto, "acciones": acciones or [], "resumen": caso.resumen(),
+            "fin": fin, "interactivo": True, "status": estado}
 
 
 # --------------------------------------------------------------------------- #
@@ -556,7 +556,7 @@ def iniciar() -> dict:
     """Texto de apertura y estado inicial de la sesion interactiva."""
     total = len([c for c, _ in GUION if _pregunta(c)])
     return {
-        "texto": (
+        "text": (
             "**[DEMO INTERACTIVA — sin clave de API]**\n\n"
             "Aqui no hay un caso grabado: **respondes tu y el motor trabaja con tus "
             "datos.** Las preguntas, sus opciones y sus ramas salen del cuestionario "
@@ -572,13 +572,13 @@ def iniciar() -> dict:
             "Empecemos por lo que ancla todo lo demas: **que equipo vas a diagnosticar?** "
             "Escribe marca, familia y modelo (p. ej. `Siemens S7-300 CPU 315-2 DP`)."
         ),
-        "estado": {"fase": F_EQUIPO, "respuestas": {}},
+        "status": {"phase": F_EQUIPO, "answers": {}},
     }
 
 
 def _fase_equipo(caso: Caso, texto: str, estado: dict) -> dict:
     ident = fabricantes.identificar(texto)
-    catalogado = ident["estado"] in ("modelo_exacto", "familia", "marca")
+    catalogado = ident["status"] in ("modelo_exacto", "family", "brand")
     estado["intento_equipo"] = True
     if not catalogado:
         parecidas = fabricantes.sugerencias(texto, limite=5)
@@ -586,11 +586,11 @@ def _fase_equipo(caso: Caso, texto: str, estado: dict) -> dict:
                   "fabricantes**, y no voy a asimilarlo a la marca mas parecida.")
         if parecidas:
             cuerpo += "\n\nLo que si tengo y se parece:\n\n" + "\n".join(
-                f"{i}. **{s['marca']} {s['familia']}** — {s['modelos_documentados']}"
+                f"{i}. **{s['brand']} {s['family']}** — {s['modelos_documentados']}"
                 for i, s in enumerate(parecidas, 1))
             cuerpo += ("\n\nEscribe el numero o el nombre completo. Si no es ninguna, "
                        "escribe `continuar` y sigo con el equipo sin identificar.")
-            estado["sugerencias"] = [f"{s['marca']} {s['familia']}" for s in parecidas]
+            estado["sugerencias"] = [f"{s['brand']} {s['family']}" for s in parecidas]
         else:
             cuerpo += ("\n\nEscribe el equipo corregido, o `continuar` para seguir con "
                        "el hardware marcado como no verificado.")
@@ -599,32 +599,32 @@ def _fase_equipo(caso: Caso, texto: str, estado: dict) -> dict:
     caso.fijar_equipo(ident)
     acciones = ["identificar_cpu"]
     ejecutar_herramienta(caso, "registrar_activo", {
-        "tipo": "cpu",
-        "descripcion": f"CPU {ident.get('modelo_identificado') or ident.get('familia') or texto.strip()}",
-        "fabricante": ident.get("marca") or "",
-        "modelo": ident.get("modelo_identificado") or "",
-        "nivel_confianza": "confianza_media",
-        "notas": f"Declarado por el usuario: '{texto.strip()}'.",
+        "type": "cpu",
+        "description": f"CPU {ident.get('modelo_identificado') or ident.get('family') or texto.strip()}",
+        "manufacturer": ident.get("brand") or "",
+        "model": ident.get("modelo_identificado") or "",
+        "confidence_level": "confianza_media",
+        "notes": f"Declarado por el usuario: '{texto.strip()}'.",
     }, aprobador_pendiente)
     acciones.append("registrar_activo")
 
-    estado["fase"] = F_PREGUNTAS
-    estado["ctx"] = {"marca": ident.get("marca"), "familia": ident.get("familia"),
-                     "modelo": ident.get("modelo_identificado"),
-                     "etiqueta": f"{ident.get('marca')} {ident.get('familia') or ''}".strip()}
+    estado["phase"] = F_PREGUNTAS
+    estado["ctx"] = {"brand": ident.get("brand"), "family": ident.get("family"),
+                     "model": ident.get("modelo_identificado"),
+                     "label": f"{ident.get('brand')} {ident.get('family') or ''}".strip()}
     cabeza = fabricantes.anclaje(ident)
     siguiente = _siguiente_pregunta(estado)
     return _salida(cabeza + "\n\n---\n\n" + siguiente, caso, estado, acciones)
 
 
 def _siguiente_pregunta(estado: dict) -> str:
-    faltan = _pendientes(estado["respuestas"])
+    faltan = _pendientes(estado["answers"])
     if not faltan:
         return ""
     codigo = faltan[0]
     estado["actual"] = codigo
     p = _pregunta(codigo)
-    hechas = len(estado["respuestas"])
+    hechas = len(estado["answers"])
     return _render_pregunta(p, hechas + 1, hechas + len(faltan))
 
 
@@ -632,22 +632,22 @@ def _fase_preguntas(caso: Caso, texto: str, estado: dict) -> dict:
     codigo = estado.get("actual")
     p = _pregunta(codigo) if codigo else None
     if p is None:
-        estado["fase"] = F_RIESGO
+        estado["phase"] = F_RIESGO
         return _fase_riesgo(caso, estado)
 
     valor = _interpretar(p, texto)
     if valor is None:
         return _salida(
-            "No entendi esa respuesta. " + _render_pregunta(p, len(estado["respuestas"]) + 1,
-                                                            len(estado["respuestas"]) + len(_pendientes(estado["respuestas"]))),
+            "No entendi esa respuesta. " + _render_pregunta(p, len(estado["answers"]) + 1,
+                                                            len(estado["answers"]) + len(_pendientes(estado["answers"]))),
             caso, estado)
 
-    estado["respuestas"][codigo] = valor
+    estado["answers"][codigo] = valor
     _guardar(caso, p, valor)
 
     siguiente = _siguiente_pregunta(estado)
     if not siguiente:
-        estado["fase"] = F_RIESGO
+        estado["phase"] = F_RIESGO
         return _fase_riesgo(caso, estado, acciones=["guardar_respuestas"])
     eco = ", ".join(valor) if isinstance(valor, list) else valor
     return _salida(f"Anotado — `{codigo}`: **{eco}**\n\n---\n\n{siguiente}",
@@ -655,13 +655,13 @@ def _fase_preguntas(caso: Caso, texto: str, estado: dict) -> dict:
 
 
 def _fase_riesgo(caso: Caso, estado: dict, acciones=None) -> dict:
-    respuestas = estado["respuestas"]
+    respuestas = estado["answers"]
     calculados, omitidos = factores(respuestas)
     acciones = list(acciones or [])
 
     for clave in omitidos:
         ejecutar_herramienta(caso, "registrar_dato_faltante", {
-            "descripcion": f"Factor '{scoring.ETIQUETAS_FACTOR.get(clave, clave)}' sin datos "
+            "description": f"Factor '{scoring.ETIQUETAS_FACTOR.get(clave, clave)}' sin datos "
                            "suficientes para puntuarlo",
             "impacto": "El factor se omite y los pesos se renormalizan; la recomendacion "
                        "queda como preliminar en ese aspecto.",
@@ -669,18 +669,18 @@ def _fase_riesgo(caso: Caso, estado: dict, acciones=None) -> dict:
         acciones.append("registrar_dato_faltante")
 
     salida_tool = ejecutar_herramienta(caso, "calcular_riesgo_obsolescencia",
-                                       {"factores": calculados}, aprobador_pendiente)
+                                       {"factors": calculados}, aprobador_pendiente)
     acciones.append("calcular_riesgo_obsolescencia")
     riesgo = caso.riesgo or {}
-    estado["riesgo"] = {"puntuacion": riesgo.get("puntuacion"),
-                        "clasificacion": riesgo.get("clasificacion")}
+    estado["risk"] = {"puntuacion": riesgo.get("puntuacion"),
+                        "classification": riesgo.get("classification")}
 
     filas = "\n".join(
-        f"| {d['factor']} | {d['peso']:.2f} | {d['valor']:.0f} | {d['justificacion']} |"
+        f"| {d['factor']} | {d['peso']:.2f} | {d['value']:.0f} | {d['justificacion']} |"
         for d in riesgo.get("detalle_factores", []))
     texto = (
         f"## Riesgo de obsolescencia: **{riesgo.get('puntuacion')} / 100 — "
-        f"{riesgo.get('clasificacion')}**\n\n"
+        f"{riesgo.get('classification')}**\n\n"
         "Calculado por el motor real (`scoring.py`, Seccion 6) sobre **tus** respuestas. "
         "Cada factor lleva la justificacion con los codigos que lo sustentan:\n\n"
         "| Factor | Peso | Valor | Por que |\n|---|---|---|---|\n" + filas
@@ -691,26 +691,26 @@ def _fase_riesgo(caso: Caso, estado: dict, acciones=None) -> dict:
                   + ". Los pesos se renormalizan sobre los factores disponibles: no se "
                     "penaliza ni se inventa lo que no se sabe, y el hueco queda "
                     "registrado como dato faltante en el expediente.")
-    estado["fase"] = F_DECISION
+    estado["phase"] = F_DECISION
     return _salida(texto + "\n\n---\n\nPulsa **Enviar** para ver que alternativa "
                            "corresponde a este caso.", caso, estado, acciones)
 
 
 def _fase_decision(caso: Caso, estado: dict) -> dict:
-    decision = decidir(estado["respuestas"], estado.get("riesgo") or {})
+    decision = decidir(estado["answers"], estado.get("risk") or {})
     estado["decision"] = decision
 
     partes = ["## Que procede en tu caso\n",
               "Aplico el mapa de decision del cuestionario. El orden importa: "
               "no es una lista de opciones, es una secuencia.\n"]
-    for i, alt in enumerate(decision["ruta"], 1):
-        partes.append(f"### {i}. {alt['alternativa']}")
+    for i, alt in enumerate(decision["route"], 1):
+        partes.append(f"### {i}. {alt['alternative']}")
         partes.append(f"**Por que en tu caso:** {alt['porque_en_este_caso']}")
         if alt.get("advertencias"):
             partes.append("**Advertencias:**")
             partes += [f"- {a}" for a in alt["advertencias"]]
         partes.append("")
-    if not decision["ruta"]:
+    if not decision["route"]:
         partes.append("_Con las respuestas dadas no se cumple ningun criterio de forma "
                       "clara. Faltan datos: revisa los factores omitidos._")
 
@@ -719,20 +719,20 @@ def _fase_decision(caso: Caso, estado: dict) -> dict:
         disparador = ("sin_acceso_al_programa" if decision["irrecuperable"]
                       else "cpu_obsoleta")
         ejecutar_herramienta(caso, "iniciar_guia_migracion", {
-            "disparador": disparador,
+            "trigger": disparador,
             "motivo": "Derivado del mapa de decision sobre las respuestas del usuario.",
             "decidido_por": "sugerencia_del_agente_aceptada",
             "sin_respaldo": decision["sin_respaldo"],
         }, aprobador_pendiente)
         acciones.append("iniciar_guia_migracion")
-        estado["fase"] = F_DESTINO
+        estado["phase"] = F_DESTINO
         partes.append("---\n")
         partes.append("Como procede cambiar la CPU, **abro el modo guia** del "
                       "procedimiento de migracion. Pulsa **Enviar** y te presento las "
                       "opciones de CPU destino.")
         return _salida("\n".join(partes), caso, estado, acciones)
 
-    estado["fase"] = F_FIN
+    estado["phase"] = F_FIN
     partes.append("---\n")
     partes.append("En tu caso **no procede cambiar la CPU todavia**, asi que no abro el "
                   "procedimiento de migracion. Pulsa **Enviar** para el informe final.")
@@ -749,16 +749,16 @@ def _fuente_de_destino(destino: str, familias: list[dict], ruta: dict) -> str:
     objetivo = set(_norm_tokens(destino))
     mejor, mejor_peso = "", 0
     for fam in familias:
-        comunes = objetivo & set(_norm_tokens(fam.get("familia", "")))
+        comunes = objetivo & set(_norm_tokens(fam.get("family", "")))
         peso = len(comunes)
         if peso > mejor_peso:
-            fuentes = [f.get("url", "") for f in (fam.get("fuentes") or []) if f.get("url")]
+            fuentes = [f.get("url", "") for f in (fam.get("sources") or []) if f.get("url")]
             if fuentes:
                 mejor, mejor_peso = fuentes[0], peso
     if mejor:
         return mejor
     # Sin coincidencia clara no se inventa una URL: se cita la guia metodologica.
-    return ruta.get("cita", "")
+    return ruta.get("citation", "")
 
 
 def _norm_tokens(texto: str) -> list[str]:
@@ -771,12 +771,12 @@ def _fase_destino(caso: Caso, texto: str, estado: dict) -> dict:
     if not estado.get("opciones_mostradas"):
         estado["opciones_mostradas"] = True
         opciones = procedimiento.opciones_destino(ident, limite_alternativas=8)
-        estado["alternativas"] = [a["marca"] for a in
+        estado["alternatives"] = [a["brand"] for a in
                                  (opciones.get("marca_alternativa", {}).get("mostradas") or [])]
         return _salida(
             procedimiento.texto_opciones(ident, limite_alternativas=8)
             + "\n\n---\n\n**Tu decision.** Escribe `A` para seguir con "
-              f"**{ident.get('marca')}**, o `B` y el nombre de la marca que quieras "
+              f"**{ident.get('brand')}**, o `B` y el nombre de la marca que quieras "
               "evaluar (p. ej. `B OMRON`).",
             caso, estado)
 
@@ -788,9 +788,9 @@ def _fase_destino(caso: Caso, texto: str, estado: dict) -> dict:
     if bajo.startswith("a"):
         familias = misma.get("familias_actuales") or []
         ruta = misma.get("ruta_publicada_para_el_origen") or {}
-        destino = ruta.get("destino") or (familias[0]["familia"] if familias else "")
+        destino = ruta.get("destino") or (familias[0]["family"] if familias else "")
         fuente = _fuente_de_destino(destino, familias, ruta)
-        marca_destino = ident.get("marca")
+        marca_destino = ident.get("brand")
         justificacion = ("Continuidad de plataforma: conserva software, redes, repuestos "
                          "y personal formado, y existe herramienta oficial de conversion.")
     elif bajo.startswith("b"):
@@ -798,17 +798,17 @@ def _fase_destino(caso: Caso, texto: str, estado: dict) -> dict:
         todas = (opciones.get("marca_alternativa", {}).get("mostradas") or [])
         elegida = None
         for a in todas:
-            if pedida and pedida.lower() in a["marca"].lower():
+            if pedida and pedida.lower() in a["brand"].lower():
                 elegida = a
                 break
         if elegida is None:
             return _salida(
                 "No reconoci esa marca entre las alternativas del catalogo. Escribe `B` "
                 "seguido del nombre tal como aparece en la lista, o `A` para seguir con "
-                f"**{ident.get('marca')}**.", caso, estado)
+                f"**{ident.get('brand')}**.", caso, estado)
         fam = elegida["familias_actuales"][0]
-        marca_destino, destino = elegida["marca"], fam["familia"]
-        fuente = (fam.get("fuentes") or [{}])[0].get("url", "")
+        marca_destino, destino = elegida["brand"], fam["family"]
+        fuente = (fam.get("sources") or [{}])[0].get("url", "")
         porte = procedimiento.contexto(caso).get("con_codigo_fuente")
         justificacion = (
             "Eleccion del usuario: plataforma actual de otro fabricante. Implica "
@@ -823,13 +823,13 @@ def _fase_destino(caso: Caso, texto: str, estado: dict) -> dict:
                        "el nombre de la marca alternativa.", caso, estado)
 
     ejecutar_herramienta(caso, "fijar_cpu_destino", {
-        "marca": marca_destino, "familia": destino,
-        "justificacion": justificacion, "fuente": fuente,
+        "brand": marca_destino, "family": destino,
+        "justificacion": justificacion, "source": fuente,
     }, aprobador_pendiente)
 
     cambio = (caso.migracion or {}).get("cambio_marca")
     con_codigo = procedimiento.contexto(caso).get("con_codigo_fuente")
-    estado["fase"] = F_GUIA
+    estado["phase"] = F_GUIA
     # Cambiar de marca no significa lo mismo con el programa de origen en la mano que
     # sin el: en el primer caso hay especificacion de la que partir y en el segundo no.
     if cambio and con_codigo:
@@ -871,40 +871,40 @@ def _fase_guia(caso: Caso, texto: str, estado: dict) -> dict:
 
     if actual and t in ("hecho", "listo", "completado", "ok", "si"):
         ejecutar_herramienta(caso, "marcar_paso_migracion",
-                             {"paso": actual, "estado": "completado",
-                              "nota": "Declarado cumplido por el usuario en la demo."},
+                             {"step": actual, "status": "completado",
+                              "note": "Declarado cumplido por el usuario en la demo."},
                              aprobador_pendiente)
     elif actual and t in ("no aplica", "no_aplica", "na"):
         ejecutar_herramienta(caso, "marcar_paso_migracion",
-                             {"paso": actual, "estado": "no_aplica",
-                              "nota": "Declarado no aplicable por el usuario."},
+                             {"step": actual, "status": "no_aplica",
+                              "note": "Declarado no aplicable por el usuario."},
                              aprobador_pendiente)
     elif actual and t in ("bloqueado", "no puedo", "no"):
         ejecutar_herramienta(caso, "marcar_paso_migracion",
-                             {"paso": actual, "estado": "bloqueado",
-                              "nota": "El usuario no puede cerrarlo ahora."},
+                             {"step": actual, "status": "bloqueado",
+                              "note": "El usuario no puede cerrarlo ahora."},
                              aprobador_pendiente)
     elif actual and t in ("informe", "terminar", "fin"):
-        estado["fase"] = F_FIN
+        estado["phase"] = F_FIN
         return _fase_fin(caso, estado)
 
     siguiente = procedimiento.siguiente(caso)
     if siguiente is None:
-        estado["fase"] = F_FIN
+        estado["phase"] = F_FIN
         return _fase_fin(caso, estado)
 
-    estado["paso_guia"] = siguiente["clave"]
+    estado["paso_guia"] = siguiente["key"]
     avance = procedimiento.estado(caso)
-    cuerpo = procedimiento.texto_paso(siguiente["clave"], ctx)
+    cuerpo = procedimiento.texto_paso(siguiente["key"], ctx)
     # Los pasos que la ruta del caso especializa se muestran con sus sub-pasos
     # concretos: 13, 20, 21, 22 y 23 con la ruta Siemens; 11, 12, 18, 21 y 32 con la
     # ruta de cambio de marca. El resto queda igual que siempre.
-    cuerpo += procedimiento.texto_ruta_para_paso(siguiente["clave"], caso, ctx)
+    cuerpo += procedimiento.texto_ruta_para_paso(siguiente["key"], caso, ctx)
     if siguiente.get("prerrequisitos_pendientes"):
         cuerpo += ("\n\n🚧 **Este paso no puede ejecutarse todavia:** faltan los pasos "
                    + ", ".join(str(x) for x in siguiente["prerrequisitos_pendientes"])
                    + ". El procedimiento lo impide, no es criterio mio.")
-    pie = (f"\n\n---\n\n*Avance: {avance['cerrados']} de {avance['total_pasos']} "
+    pie = (f"\n\n---\n\n*Avance: {avance['cerrados']} de {avance['total_steps']} "
            f"({avance['porcentaje']}%) · fase {avance['fase_actual']}*\n\n"
            "Escribe **`hecho`** para cerrarlo, **`no aplica`**, **`bloqueado`**, "
            "o **`informe`** para terminar y generar el informe.")
@@ -919,12 +919,12 @@ def _fase_fin(caso: Caso, estado: dict) -> dict:
     destino = (mig.get("destino") or {})
     resumen = caso.resumen()
 
-    ruta = "\n".join(f"{i}. **{a['alternativa']}** — {a['porque_en_este_caso']}"
-                     for i, a in enumerate(decision.get("ruta", []), 1)) or "Sin ruta determinada."
-    detalle = "\n".join(f"- {d['factor']} (peso {d['peso']:.2f}): {d['valor']:.0f} — "
+    ruta = "\n".join(f"{i}. **{a['alternative']}** — {a['porque_en_este_caso']}"
+                     for i, a in enumerate(decision.get("route", []), 1)) or "Sin ruta determinada."
+    detalle = "\n".join(f"- {d['factor']} (peso {d['peso']:.2f}): {d['value']:.0f} — "
                         f"{d['justificacion']}"
                         for d in riesgo.get("detalle_factores", []))
-    equipo = f"{ident.get('marca')} {ident.get('familia') or ''}".strip() or "equipo sin identificar"
+    equipo = f"{ident.get('brand')} {ident.get('family') or ''}".strip() or "equipo sin identificar"
 
     cuerpo = (
         f"## 1. Identificacion\nCaso interactivo. {equipo}"
@@ -941,11 +941,11 @@ def _fase_fin(caso: Caso, estado: dict) -> dict:
         + ("\n".join(f"- {d}" for d in resumen["datos_faltantes"]) or "Ninguno registrado.")
         + "\n\n"
         f"## 6. Estado y puntuacion de obsolescencia\n{riesgo.get('puntuacion')} / 100 — "
-        f"**{riesgo.get('clasificacion')}**.\n\n{detalle}\n\n"
+        f"**{riesgo.get('classification')}**.\n\n{detalle}\n\n"
         "## 7. Riesgos\nLos que se desprenden de los factores anteriores.\n\n"
         f"## 8. Alternativas\n{ruta}\n\n"
         "## 9. Recomendacion principal\n"
-        + (f"Migrar a **{destino.get('marca')} {destino.get('familia')}**"
+        + (f"Migrar a **{destino.get('brand')} {destino.get('family')}**"
            + ((" (cambio de marca con el programa de origen accesible: porte contra la "
                 "especificacion que ese programa constituye)"
                 if procedimiento.contexto(caso).get("con_codigo_fuente") else
@@ -967,14 +967,14 @@ def _fase_fin(caso: Caso, estado: dict) -> dict:
         "demostracion interactiva determinista, sin intervencion de un modelo de lenguaje."
     )
     ejecutar_herramienta(caso, "generar_informe", {
-        "titulo": f"Diagnostico interactivo — {equipo}",
+        "title": f"Diagnostico interactivo — {equipo}",
         "nivel_confianza_global": "confianza_media",
-        "resumen": f"{riesgo.get('clasificacion')}; ruta de decision aplicada sobre las "
+        "resumen": f"{riesgo.get('classification')}; ruta de decision aplicada sobre las "
                    "respuestas del usuario.",
         "cuerpo_markdown": cuerpo,
     }, aprobador_pendiente)
 
-    estado["fase"] = F_FIN
+    estado["phase"] = F_FIN
     return _salida(
         "## Informe generado\n\n"
         "Se guardo en la carpeta `casos/` junto al expediente JSON, con las 13 secciones "
@@ -993,8 +993,8 @@ def _fase_fin(caso: Caso, estado: dict) -> dict:
 # --------------------------------------------------------------------------- #
 def responder(caso: Caso, texto: str, estado: dict | None) -> dict:
     """Avanza la sesion interactiva un turno, segun la fase en que este."""
-    estado = dict(estado or {"fase": F_EQUIPO, "respuestas": {}})
-    fase = estado.get("fase", F_EQUIPO)
+    estado = dict(estado or {"phase": F_EQUIPO, "answers": {}})
+    fase = estado.get("phase", F_EQUIPO)
 
     if fase == F_EQUIPO:
         # 'continuar' solo salta la identificacion DESPUES de haberlo intentado:
@@ -1005,7 +1005,7 @@ def responder(caso: Caso, texto: str, estado: dict | None) -> dict:
                     "Necesito el equipo antes de empezar: es lo que ancla todo el "
                     "diagnostico.\n\nEscribe **marca, familia y modelo** de tu PLC "
                     "(p. ej. `Siemens S7-300 CPU 315-2 DP`).", caso, estado)
-            estado["fase"] = F_PREGUNTAS
+            estado["phase"] = F_PREGUNTAS
             estado.setdefault("ctx", {})
             return _salida(
                 "De acuerdo: sigo con el equipo **sin identificar**. Todo lo que diga "

@@ -12,7 +12,7 @@
 #
 # NO inventar valores. Una celda vacia significa "todavia no medido"; un cero
 # significa "medido y ninguno paso".
-iteracion,programas_pasan,programas_total,notas
+iteration,programs_passing,programs_total,notes
 0,,,generacion sin verificador
 1,,,primera correccion realimentada
 2,,,

@@ -42,7 +42,7 @@ CITA = "Procedimiento MIGRA-IA-PROC-050 (50 pasos)"
 ROLES = {
     "tecnico": "Tecnico de mantenimiento",
     "ingenieria": "Ingenieria de automatizacion",
-    "especialista_seguridad": "Especialista en seguridad funcional",
+    "safety_specialist": "Especialista en seguridad funcional",
     "responsable": "Responsable de la instalacion",
 }
 
@@ -70,7 +70,7 @@ def orden() -> list[str]:
     tras el paso 20. Toda la logica de avance va por esta lista, nunca por el
     numero, para que el documento original conserve su numeracion.
     """
-    return list(cargar()["orden"])
+    return list(cargar()["order"])
 
 
 def total_pasos() -> int:
@@ -84,8 +84,8 @@ def _clave(x) -> str:
 def paso_bruto(clave) -> dict | None:
     """Paso tal cual esta en el JSON, sin adaptar a las variantes del caso."""
     c = _clave(clave)
-    for p in cargar()["pasos"]:
-        if p["clave"] == c:
+    for p in cargar()["steps"]:
+        if p["key"] == c:
             return p
     return None
 
@@ -94,23 +94,23 @@ def fase(clave) -> dict | None:
     """Fase por id, por nombre, o por la clave de un paso que contiene."""
     datos = cargar()
     c = _clave(clave)
-    for f in datos["fases"]:
-        if c in [str(x) for x in f["pasos"]]:
+    for f in datos["phases"]:
+        if c in [str(x) for x in f["steps"]]:
             return f
     n = _norm(clave)
-    for f in datos["fases"]:
-        if _norm(f["id"]) == n or n in _norm(f["nombre"]):
+    for f in datos["phases"]:
+        if _norm(f["id"]) == n or n in _norm(f["name"]):
             return f
     return None
 
 
 def disparadores() -> list[dict]:
-    return cargar()["disparadores"]
+    return cargar()["triggers"]
 
 
 def huecos_declarados() -> list[dict]:
     """Lo que el documento fuente no cubre. Se declara, no se rellena inventando."""
-    return cargar()["huecos_declarados"]
+    return cargar()["declared_gaps"]
 
 
 # --------------------------------------------------------------------------- #
@@ -129,11 +129,11 @@ def contexto(caso) -> dict:
         # El reverso de 'sin_respaldo': hay programa que convertir, asi que los pasos
         # 21 y 22 aplican en su forma plena y la ruta por fabricante esta habilitada.
         "con_codigo_fuente": (not sin_respaldo) and codigo_accesible(caso)["accesible"],
-        "equipo": ident.get("modelo_identificado") or ident.get("familia") or "",
-        "marca": ident.get("marca") or "",
-        "familia": ident.get("familia") or "",
-        "destino": destino.get("familia") or "",
-        "marca_destino": destino.get("marca") or "",
+        "equipo": ident.get("modelo_identificado") or ident.get("family") or "",
+        "brand": ident.get("brand") or "",
+        "family": ident.get("family") or "",
+        "destino": destino.get("family") or "",
+        "marca_destino": destino.get("brand") or "",
     }
 
 
@@ -142,8 +142,8 @@ def contexto(caso) -> dict:
 # --------------------------------------------------------------------------- #
 def _valor(caso, codigo: str) -> str:
     """Valor normalizado de una respuesta del cuestionario, o cadena vacia."""
-    resp = (getattr(caso, "respuestas", None) or {}).get(codigo) or {}
-    return _norm(resp.get("valor"))
+    resp = (getattr(caso, "answers", None) or {}).get(codigo) or {}
+    return _norm(resp.get("value"))
 
 
 def _afirmativa(texto: str) -> bool:
@@ -162,7 +162,7 @@ def codigo_accesible(caso) -> dict:
     evidencia falta, para que el agente lo pida en vez de darlo por hecho.
     """
     if caso is None:
-        return {"accesible": False, "evidencia": [], "por_confirmar": [], "motivo": "sin caso"}
+        return {"accesible": False, "evidence": [], "por_confirmar": [], "motivo": "sin caso"}
 
     n06, f16 = _valor(caso, "N06"), _valor(caso, "F16")
     f01, f06, f07 = _valor(caso, "F01"), _valor(caso, "F06"), _valor(caso, "F07")
@@ -184,21 +184,21 @@ def codigo_accesible(caso) -> dict:
         if _afirmativa(val):
             evidencia.append(f"{etiqueta} ({cod})")
         elif _negativa(val):
-            return {"accesible": False, "evidencia": evidencia, "por_confirmar": [],
+            return {"accesible": False, "evidence": evidencia, "por_confirmar": [],
                     "motivo": f"{cod} es negativa: {etiqueta} no se cumple"}
         else:
             por_confirmar.append(f"{cod} ({etiqueta})")
 
     accesible = contrasena_ok and respaldo_ok
     motivo = "" if accesible else "faltan contrasenas conocidas o copia verificada del programa"
-    return {"accesible": accesible, "evidencia": evidencia,
+    return {"accesible": accesible, "evidence": evidencia,
             "por_confirmar": por_confirmar, "motivo": motivo}
 
 
 def obsolescencia_sin_repuestos(caso) -> dict:
     """Senales de fin de vida y de falta de repuestos que justifican migrar."""
     if caso is None:
-        return {"hay": False, "evidencia": []}
+        return {"hay": False, "evidence": []}
 
     m01, m04 = _valor(caso, "M01"), _valor(caso, "M04")
     m05, m06 = _valor(caso, "M05"), _valor(caso, "M06")
@@ -218,7 +218,7 @@ def obsolescencia_sin_repuestos(caso) -> dict:
     if m09.startswith("vencido") or _negativa(m09):
         evidencia.append(f"sin contrato de soporte vigente (M09: '{m09}')")
 
-    return {"hay": bool(evidencia), "evidencia": evidencia}
+    return {"hay": bool(evidencia), "evidence": evidencia}
 
 
 def detectar_disparadores(caso) -> list[dict]:
@@ -229,35 +229,35 @@ def detectar_disparadores(caso) -> list[dict]:
     """
     activos: list[dict] = []
     ident = getattr(caso, "equipo_identificado", None) or {}
-    riesgo = getattr(caso, "riesgo", None) or {}
+    riesgo = getattr(caso, "risk", None) or {}
     texto_libre = " ".join(
-        _norm(r.get("valor")) for r in (getattr(caso, "respuestas", {}) or {}).values()
+        _norm(r.get("value")) for r in (getattr(caso, "answers", {}) or {}).values()
     )
     faltantes = " ".join(
-        _norm(d.get("descripcion")) for d in (getattr(caso, "datos_faltantes", []) or [])
+        _norm(d.get("description")) for d in (getattr(caso, "datos_faltantes", []) or [])
     )
     banderas = " ".join(
-        _norm(b.get("texto")) for b in (getattr(caso, "banderas", []) or [])
+        _norm(b.get("text")) for b in (getattr(caso, "banderas", []) or [])
     )
     todo = f"{texto_libre} {faltantes} {banderas}"
 
     por_id = {d["id"]: d for d in disparadores()}
 
-    etapa = _norm(ident.get("etapa"))
-    clasificacion = _norm(riesgo.get("clasificacion"))
+    etapa = _norm(ident.get("stage"))
+    clasificacion = _norm(riesgo.get("classification"))
     if etapa in ("historica", "intermedia") or clasificacion in ("riesgo alto", "riesgo critico"):
         motivo = []
         if etapa in ("historica", "intermedia"):
             motivo.append(f"la generacion del equipo esta clasificada como '{etapa}' en el catalogo")
         if clasificacion in ("riesgo alto", "riesgo critico"):
-            motivo.append(f"el motor de riesgo da '{riesgo.get('clasificacion')}'")
+            motivo.append(f"el motor de riesgo da '{riesgo.get('classification')}'")
         activos.append({**por_id["cpu_obsoleta"], "evidencia_en_el_caso": "; ".join(motivo)})
 
     # Obsolescencia CON el programa accesible: se convierte, no se reconstruye.
     acceso = codigo_accesible(caso)
     obsol = obsolescencia_sin_repuestos(caso)
     if acceso["accesible"] and (obsol["hay"] or any(a["id"] == "cpu_obsoleta" for a in activos)):
-        motivo = list(obsol["evidencia"]) + list(acceso["evidencia"])
+        motivo = list(obsol["evidence"]) + list(acceso["evidence"])
         if acceso["por_confirmar"]:
             motivo.append("queda por confirmar: " + ", ".join(acceso["por_confirmar"]))
         activos.append({**por_id["obsolescencia_con_acceso_al_codigo"],
@@ -299,27 +299,27 @@ def paso(clave, ctx: dict | None = None) -> dict | None:
         return None
     ctx = ctx or {}
     p = dict(base)
-    p["rol_legible"] = ROLES.get(p["rol"], p["rol"])
-    p["cita"] = (f"{CITA}, extension de construccion del programa, paso {p['etiqueta']}"
-                 if p.get("extension") else f"{CITA}, paso {p['etiqueta']}")
+    p["rol_legible"] = ROLES.get(p["role"], p["role"])
+    p["citation"] = (f"{CITA}, extension de construccion del programa, paso {p['label']}"
+                 if p.get("extension") else f"{CITA}, paso {p['label']}")
 
     aplica = True
     avisos: list[str] = []
 
-    if ctx.get("cambio_marca") and base.get("variante_cambio_marca"):
-        texto = base["variante_cambio_marca"]
+    if ctx.get("cambio_marca") and base.get("brand_change_variant"):
+        texto = base["brand_change_variant"]
         avisos.append(f"CAMBIO DE MARCA: {texto}")
         if texto.startswith("NO APLICA"):
             aplica = False
-    if ctx.get("sin_respaldo") and base.get("variante_sin_respaldo"):
-        texto = base["variante_sin_respaldo"]
+    if ctx.get("sin_respaldo") and base.get("no_backup_variant"):
+        texto = base["no_backup_variant"]
         avisos.append(f"SIN RESPALDO VERIFICADO: {texto}")
         if texto.startswith("NO APLICA"):
             aplica = False
 
     p["aplica"] = aplica
     p["avisos"] = avisos
-    p["exigencias"] = [k for k, v in p["requiere"].items() if v]
+    p["exigencias"] = [k for k, v in p["requires"].items() if v]
     return p
 
 
@@ -328,57 +328,57 @@ def texto_paso(clave, ctx: dict | None = None) -> str:
     p = paso(clave, ctx)
     if p is None:
         return f"No existe el paso {clave} en el procedimiento."
-    f = fase(p["clave"]) or {}
+    f = fase(p["key"]) or {}
     try:
-        posicion = orden().index(p["clave"]) + 1
+        posicion = orden().index(p["key"]) + 1
     except ValueError:
         posicion = "?"
     lineas = [
-        f"**Paso {p['etiqueta']} ({posicion} de {total_pasos()}) — {p['titulo'].rstrip('.')}**",
-        f"*Fase {f.get('nombre', '')} · lo ejecuta: {p['rol_legible']}*",
+        f"**Paso {p['label']} ({posicion} de {total_pasos()}) — {p['title'].rstrip('.')}**",
+        f"*Fase {f.get('name', '')} · lo ejecuta: {p['rol_legible']}*",
         "",
-        p["detalle"],
+        p["detail"],
         "",]
     if p.get("extension"):
         lineas += [
             "> **Paso de la extension de construccion del programa.** El documento "
             "original de 50 pasos cubre convertir un programa existente, no escribirlo. "
-            f"Base metodologica: {p.get('origen_metodologico', '')}.",
+            f"Base metodologica: {p.get('methodological_origin', '')}.",
             "",
         ]
     lineas += [
-        f"**Se da por terminado cuando:** {p['criterio_salida']}",
+        f"**Se da por terminado cuando:** {p['exit_criterion']}",
         "**Evidencia que debe quedar:**",
     ]
-    lineas += [f"- {e}" for e in p["evidencia"]]
-    if p["prerrequisitos"]:
+    lineas += [f"- {e}" for e in p["evidence"]]
+    if p["prerequisites"]:
         lineas.append("")
         lineas.append("**Antes de este paso deben estar cerrados:** "
-                      + ", ".join(f"paso {x}" for x in p["prerrequisitos"]))
+                      + ", ".join(f"paso {x}" for x in p["prerequisites"]))
     if p["exigencias"]:
         etiquetas = {
-            "aprobacion_humana": "aprobacion humana registrada",
-            "maquina_detenida": "maquina detenida",
+            "human_approval": "aprobacion humana registrada",
+            "machine_stopped": "maquina detenida",
             "loto": "bloqueo y etiquetado (LOTO)",
-            "especialista_seguridad": "especialista en seguridad funcional presente",
+            "safety_specialist": "especialista en seguridad funcional presente",
         }
         lineas.append("")
         lineas.append("⚠️ **Exige antes de ejecutarlo:** "
                       + "; ".join(etiquetas[e] for e in p["exigencias"]) + ".")
-    if p.get("bloqueante"):
+    if p.get("blocking"):
         lineas.append("🚧 **Paso bloqueante:** no se avanza hasta cerrarlo.")
     for aviso in p["avisos"]:
         lineas.append("")
         lineas.append(f"> {aviso}")
-    if p.get("nota_agente"):
+    if p.get("agent_note"):
         lineas.append("")
-        lineas.append(f"*Nota: {p['nota_agente']}*")
+        lineas.append(f"*Nota: {p['agent_note']}*")
     if not p["aplica"]:
         lineas.append("")
         lineas.append("**Este paso NO aplica en este caso** por la variante indicada: "
                       "marcalo como `no_aplica` y sigue al siguiente.")
     lineas.append("")
-    lineas.append(f"_{p['cita']}_")
+    lineas.append(f"_{p['citation']}_")
     return "\n".join(lineas)
 
 
@@ -387,7 +387,7 @@ def texto_paso(clave, ctx: dict | None = None) -> str:
 # --------------------------------------------------------------------------- #
 def _estado_de(caso, clave) -> str:
     mig = getattr(caso, "migracion", None) or {}
-    return (mig.get("pasos", {}).get(_clave(clave), {}) or {}).get("estado", "pendiente")
+    return (mig.get("steps", {}).get(_clave(clave), {}) or {}).get("status", "pendiente")
 
 
 def _cerrado(estado: str) -> bool:
@@ -406,16 +406,16 @@ def estado(caso) -> dict:
     sig = siguiente(caso)
     return {
         "activa": ctx["activa"],
-        "total_pasos": total,
+        "total_steps": total,
         "cerrados": cerrados,
         "porcentaje": round(100 * cerrados / total, 1),
         "completados": por_estado["completado"],
         "no_aplican": por_estado["no_aplica"],
         "en_curso": por_estado["en_curso"],
         "bloqueados": por_estado["bloqueado"],
-        "siguiente": sig["etiqueta"] if sig else None,
-        "fase_actual": (fase(sig["clave"]) or {}).get("nombre") if sig else "procedimiento completo",
-        "variantes": {"cambio_marca": ctx["cambio_marca"],
+        "siguiente": sig["label"] if sig else None,
+        "fase_actual": (fase(sig["key"]) or {}).get("name") if sig else "procedimiento completo",
+        "variants": {"cambio_marca": ctx["cambio_marca"],
                       "sin_respaldo": ctx["sin_respaldo"],
                       "con_codigo_fuente": ctx["con_codigo_fuente"]},
     }
@@ -428,7 +428,7 @@ def siguiente(caso) -> dict | None:
         if _cerrado(_estado_de(caso, c)):
             continue
         p = paso(c, ctx)
-        pendientes = [r for r in p["prerrequisitos"] if not _cerrado(_estado_de(caso, r))]
+        pendientes = [r for r in p["prerequisites"] if not _cerrado(_estado_de(caso, r))]
         p["prerrequisitos_pendientes"] = pendientes
         p["ejecutable"] = not pendientes
         return p
@@ -449,13 +449,13 @@ def bloqueos(caso) -> list[dict]:
         if _cerrado(_estado_de(caso, c)):
             continue
         p = paso(c, ctx)
-        pendientes = [r for r in p["prerrequisitos"] if not _cerrado(_estado_de(caso, r))]
+        pendientes = [r for r in p["prerequisites"] if not _cerrado(_estado_de(caso, r))]
         if pendientes:
             fuera.append({
-                "paso": p["etiqueta"],
-                "titulo": p["titulo"],
+                "step": p["label"],
+                "title": p["title"],
                 "prerrequisitos_pendientes": pendientes,
-                "bloqueante": bool(p.get("bloqueante")),
+                "blocking": bool(p.get("blocking")),
             })
     return fuera
 
@@ -474,18 +474,18 @@ def opciones_destino(ident: dict | None, limite_alternativas: int = 8) -> dict:
     """
     from . import fabricantes  # import diferido: evita ciclo en la carga del paquete
 
-    marco = cargar()["opciones_cpu_destino"]
+    marco = cargar()["target_cpu_options"]
     salida = {
-        "paso": marco["paso"],
-        "regla": marco["regla"],
-        "misma_marca": dict(marco["opciones"][0]),
-        "marca_alternativa": dict(marco["opciones"][1]),
+        "step": marco["step"],
+        "rule": marco["rule"],
+        "misma_marca": dict(marco["options"][0]),
+        "marca_alternativa": dict(marco["options"][1]),
     }
 
     ident = ident or {}
-    marca = ident.get("marca")
+    marca = ident.get("brand")
     if not marca:
-        salida["advertencia"] = (
+        salida["warning"] = (
             "El equipo de origen no esta identificado contra el catalogo. Sin marca "
             "y familia no se puede proponer una plataforma destino: pide la placa "
             "antes de continuar con el paso 13."
@@ -497,54 +497,54 @@ def opciones_destino(ident: dict | None, limite_alternativas: int = 8) -> dict:
     ruta = ident.get("ruta_migracion_guia") or {}
     documentado = (ruta or {}).get("destino_documentado") or {}
     salida["misma_marca"].update({
-        "marca": marca,
-        "familia_origen": ident.get("familia"),
+        "brand": marca,
+        "familia_origen": ident.get("family"),
         "familias_actuales": [
-            {"familia": a["familia"],
-             "modelos_documentados": a["modelos_texto"],
-             "fuentes": a.get("fuentes", [])}
+            {"family": a["family"],
+             "modelos_documentados": a["models_text"],
+             "sources": a.get("sources", [])}
             for a in actuales
         ],
         "ruta_publicada_para_el_origen": documentado or None,
-        "software_objetivo": ruta.get("software_objetivo"),
-        "redes_heredadas": ruta.get("redes_heredadas"),
-        "riesgo_tipico": ruta.get("riesgo_tipico"),
-        "cita": ruta.get("cita"),
+        "target_software": ruta.get("target_software"),
+        "legacy_networks": ruta.get("legacy_networks"),
+        "typical_risk": ruta.get("typical_risk"),
+        "citation": ruta.get("citation"),
         "nota_generacion_actual": ident.get("nota_generacion_actual") or "",
     })
 
     # --- Opcion B: plataformas actuales de otras marcas ---------------------
     catalogo = fabricantes.cargar_catalogo()
-    tipo_origen = fabricantes.tipo_de_producto(ident.get("clasificacion", ""))
+    tipo_origen = fabricantes.tipo_de_producto(ident.get("classification", ""))
     mismo_tipo: list[dict] = []
     otro_tipo: list[dict] = []
-    for fab in catalogo["fabricantes"]:
-        if fab["marca"] == marca:
+    for fab in catalogo["manufacturers"]:
+        if fab["brand"] == marca:
             continue
-        act = fabricantes.generaciones_actuales(fab["marca"])
-        if not act.get("familias"):
+        act = fabricantes.generaciones_actuales(fab["brand"])
+        if not act.get("families"):
             continue
         registro = {
-            "marca": act["marca"],
-            "clasificacion": act["clasificacion"],
-            "familias_actuales": act["familias"],
-            "nota": act.get("nota", ""),
+            "brand": act["brand"],
+            "classification": act["classification"],
+            "familias_actuales": act["families"],
+            "note": act.get("note", ""),
         }
         # Se comparan cosas comparables: un equipo basado en PC no se ofrece como
         # alternativa de un PLC sin decirlo. Los demas quedan disponibles aparte.
-        if fabricantes.tipo_de_producto(fab["clasificacion"]) == tipo_origen:
+        if fabricantes.tipo_de_producto(fab["classification"]) == tipo_origen:
             mismo_tipo.append(registro)
         else:
             otro_tipo.append(registro)
 
     salida["marca_alternativa"].update({
         "criterio_de_lista": f"Marcas del catalogo del mismo tipo de producto que el equipo "
-                             f"de origen ({ident.get('clasificacion')}), excluyendo {marca}.",
+                             f"de origen ({ident.get('classification')}), excluyendo {marca}.",
         "total_del_mismo_tipo": len(mismo_tipo),
         "mostradas": mismo_tipo[:limite_alternativas],
-        "resto_disponible": [a["marca"] for a in mismo_tipo[limite_alternativas:]],
+        "resto_disponible": [a["brand"] for a in mismo_tipo[limite_alternativas:]],
         "otro_tipo_de_producto": [
-            {"marca": a["marca"], "clasificacion": a["clasificacion"]} for a in otro_tipo
+            {"brand": a["brand"], "classification": a["classification"]} for a in otro_tipo
         ],
     })
     return salida
@@ -553,55 +553,55 @@ def opciones_destino(ident: dict | None, limite_alternativas: int = 8) -> dict:
 def texto_opciones(ident: dict | None, limite_alternativas: int = 6) -> str:
     """Render en Markdown de las dos opciones, para el paso 13."""
     o = opciones_destino(ident, limite_alternativas)
-    if "advertencia" in o:
-        return f"⚠️ {o['advertencia']}"
+    if "warning" in o:
+        return f"⚠️ {o['warning']}"
 
     a = o["misma_marca"]
     b = o["marca_alternativa"]
     lineas = [
-        f"**Paso {o['paso']} — elegir la CPU de reemplazo.** Aqui la decision es tuya. "
+        f"**Paso {o['step']} — elegir la CPU de reemplazo.** Aqui la decision es tuya. "
         "Te presento las dos vias con sus consecuencias:",
         "",
-        f"### Opcion A — seguir con {a['marca']}",
+        f"### Opcion A — seguir con {a['brand']}",
     ]
     ruta = a.get("ruta_publicada_para_el_origen")
     if ruta:
         lineas.append(f"La guia publica una ruta para tu familia de origen "
                       f"(**{ruta['origen_en_guia']}**): destino **{ruta['destino']}**.")
-        if ruta.get("aspectos_criticos"):
-            lineas.append(f"Aspectos criticos: {ruta['aspectos_criticos']}")
+        if ruta.get("critical_aspects"):
+            lineas.append(f"Aspectos criticos: {ruta['critical_aspects']}")
     for fam in a["familias_actuales"]:
-        fuentes = "; ".join(f["url"] for f in fam.get("fuentes", []) if f.get("url"))
-        lineas.append(f"- **{fam['familia']}** — modelos documentados: {fam['modelos_documentados']}"
+        fuentes = "; ".join(f["url"] for f in fam.get("sources", []) if f.get("url"))
+        lineas.append(f"- **{fam['family']}** — modelos documentados: {fam['modelos_documentados']}"
                       + (f"\n  Fuente: {fuentes}" if fuentes else ""))
-    if a.get("software_objetivo"):
-        lineas.append(f"- Software objetivo: **{a['software_objetivo']}**; "
-                      f"redes heredadas: {a.get('redes_heredadas')}; "
-                      f"riesgo tipico: {a.get('riesgo_tipico')}")
+    if a.get("target_software"):
+        lineas.append(f"- Software objetivo: **{a['target_software']}**; "
+                      f"redes heredadas: {a.get('legacy_networks')}; "
+                      f"riesgo tipico: {a.get('typical_risk')}")
     if a.get("nota_generacion_actual"):
         lineas.append(f"- ⚠️ {a['nota_generacion_actual']}")
-    lineas.append("A favor: " + " · ".join(a["a_favor"]))
-    lineas.append("En contra: " + " · ".join(a["en_contra"]))
+    lineas.append("A favor: " + " · ".join(a["pros"]))
+    lineas.append("En contra: " + " · ".join(a["cons"]))
 
-    lineas += ["", "### Opcion B — cambiar de marca", b["que_ofrece"], ""]
+    lineas += ["", "### Opcion B — cambiar de marca", b["what_it_offers"], ""]
     for alt in b["mostradas"]:
-        fams = "; ".join(f"**{f['familia']}** ({f['modelos_documentados']})"
+        fams = "; ".join(f"**{f['family']}** ({f['modelos_documentados']})"
                          for f in alt["familias_actuales"])
-        lineas.append(f"- **{alt['marca']}** — {fams}")
+        lineas.append(f"- **{alt['brand']}** — {fams}")
     if b["resto_disponible"]:
         lineas.append(f"- Y {len(b['resto_disponible'])} marcas mas del mismo tipo en el "
                       "catalogo: " + ", ".join(b["resto_disponible"]) + ".")
     if b.get("otro_tipo_de_producto"):
-        otras = ", ".join(f"{a['marca']} ({a['clasificacion']})"
+        otras = ", ".join(f"{a['brand']} ({a['classification']})"
                           for a in b["otro_tipo_de_producto"][:6])
         lineas.append(f"- De otro tipo de producto, si te interesa evaluarlo: {otras}.")
     lineas.append("")
-    lineas.append("A favor: " + " · ".join(b["a_favor"]))
-    lineas.append("En contra: " + " · ".join(b["en_contra"]))
+    lineas.append("A favor: " + " · ".join(b["pros"]))
+    lineas.append("En contra: " + " · ".join(b["cons"]))
     lineas.append("")
-    lineas.append(f"⚠️ **Limite del agente:** {b['limite_duro']} {b['soporte_de_datos']}")
+    lineas.append(f"⚠️ **Limite del agente:** {b['hard_limit']} {b['data_support']}")
     lineas.append("")
-    lineas.append(f"_{o['regla']}_")
+    lineas.append(f"_{o['rule']}_")
     return "\n".join(lineas)
 
 
@@ -613,7 +613,7 @@ def texto_opciones(ident: dict | None, limite_alternativas: int = 6) -> str:
 # --------------------------------------------------------------------------- #
 def rutas_fabricante() -> dict:
     """Bloque completo de rutas por fabricante, con su condicion de uso."""
-    return cargar().get("rutas_por_fabricante", {})
+    return cargar().get("routes_by_manufacturer", {})
 
 
 def ruta_fabricante(marca=None, caso=None, ctx: dict | None = None) -> dict | None:
@@ -625,24 +625,24 @@ def ruta_fabricante(marca=None, caso=None, ctx: dict | None = None) -> dict | No
     """
     bloque = rutas_fabricante()
     ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
-    buscada = _norm(marca or ctx.get("marca"))
+    buscada = _norm(marca or ctx.get("brand"))
     if not buscada:
         return None
 
-    for r in bloque.get("rutas", []):
-        if _norm(r["marca"]) != buscada:
+    for r in bloque.get("routes", []):
+        if _norm(r["brand"]) != buscada:
             continue
         ruta = dict(r)
-        familia = _norm(ctx.get("familia")) or _norm(ctx.get("equipo"))
-        cubre = [_norm(f) for f in r.get("familias_origen", [])]
+        familia = _norm(ctx.get("family")) or _norm(ctx.get("equipo"))
+        cubre = [_norm(f) for f in r.get("source_families", [])]
         ruta["aplica_a_origen"] = (not familia) or any(
             f in familia or familia in f for f in cubre
         )
         avisos = []
         if not ruta["aplica_a_origen"]:
             avisos.append(
-                f"La ruta esta escrita para {', '.join(r['familias_origen'])} y el equipo "
-                f"del caso es '{ctx.get('familia') or ctx.get('equipo')}'. Aplica solo el "
+                f"La ruta esta escrita para {', '.join(r['source_families'])} y el equipo "
+                f"del caso es '{ctx.get('family') or ctx.get('equipo')}'. Aplica solo el "
                 "tramo que corresponda; no la presentes completa como si fuera su ruta."
             )
         if ctx.get("sin_respaldo"):
@@ -668,50 +668,50 @@ def texto_ruta_fabricante(marca=None, caso=None, ctx: dict | None = None) -> str
     bloque = rutas_fabricante()
     r = ruta_fabricante(marca, caso, ctx)
     if r is None:
-        disponibles = ", ".join(x["marca"] for x in bloque.get("rutas", [])) or "ninguna"
+        disponibles = ", ".join(x["brand"] for x in bloque.get("routes", [])) or "ninguna"
         return (
-            f"No hay ruta de conversion publicada para '{marca or ctx.get('marca') or '?'}'. "
+            f"No hay ruta de conversion publicada para '{marca or ctx.get('brand') or '?'}'. "
             f"Marcas con ruta: {disponibles}. Para las demas rige el paso 21 generico "
             "(usar primero las herramientas oficiales del fabricante) y la limitacion se "
             "declara al usuario en vez de improvisar una secuencia."
         )
 
     lineas = [
-        f"**Ruta de conversion — {r['titulo']} ({r['marca']})**",
+        f"**Ruta de conversion — {r['title']} ({r['brand']})**",
         "",
-        f"> {r['principio']}",
+        f"> {r['principle']}",
         "",
-        f"*Especializa los pasos {', '.join(r['aplica_a_pasos'])} del {CITA}.*",
+        f"*Especializa los pasos {', '.join(r['applies_to_steps'])} del {CITA}.*",
         "",
     ]
     for aviso in r.get("avisos", []):
         lineas += [f"⚠️ {aviso}", ""]
 
     ramas = r.get("ramas", {})
-    for p in r["pasos"]:
-        cabecera = f"**{p['n']} — {p['titulo']}**"
-        if p.get("rama"):
-            cabecera += f"  *(solo si {ramas.get(p['rama'], p['rama'])})*"
+    for p in r["steps"]:
+        cabecera = f"**{p['n']} — {p['title']}**"
+        if p.get("branch"):
+            cabecera += f"  *(solo si {ramas.get(p['branch'], p['branch'])})*"
         lineas += [
             cabecera,
-            f"*Especializa el paso {p['especializa_paso']} del procedimiento.*",
+            f"*Especializa el paso {p['specializes_step']} del procedimiento.*",
             "",
-            p["detalle"],
+            p["detail"],
             "",
-            f"**Se da por terminado cuando:** {p['criterio_salida']}",
+            f"**Se da por terminado cuando:** {p['exit_criterion']}",
         ]
-        if p.get("nota_agente"):
-            lineas.append(f"*Nota: {p['nota_agente']}*")
+        if p.get("agent_note"):
+            lineas.append(f"*Nota: {p['agent_note']}*")
         lineas.append("")
 
-    if r.get("reglas"):
+    if r.get("rules"):
         lineas.append("**Reglas que rigen toda la ruta:**")
-        lineas += [f"- {x['regla']}" for x in r["reglas"]]
+        lineas += [f"- {x['rule']}" for x in r["rules"]]
         lineas.append("")
 
     lineas.append("**Fuentes:**")
-    for f in r.get("fuentes", []):
-        lineas.append(f"- [{f['tipo']}] {f['descripcion']} — {f['url']}")
+    for f in r.get("sources", []):
+        lineas.append(f"- [{f['type']}] {f['description']} — {f['url']}")
     lineas += ["", f"_{CITA}, rutas por fabricante: {r['id']}_"]
     return "\n".join(lineas)
 
@@ -728,15 +728,15 @@ def ruta_cambio_marca(caso=None, ctx: dict | None = None) -> dict | None:
     ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
     if not (ctx.get("cambio_marca") and ctx.get("con_codigo_fuente")):
         return None
-    bloque = cargar().get("ruta_cambio_de_marca")
+    bloque = cargar().get("brand_change_route")
     if not bloque:
         return None
     ruta = dict(bloque)
     ruta["aplica_a_origen"] = True
     avisos = []
-    if ctx.get("marca") and ctx.get("marca_destino"):
+    if ctx.get("brand") and ctx.get("marca_destino"):
         avisos.append(
-            f"Porte de {ctx['marca']} a {ctx['marca_destino']}: la ruta describe el "
+            f"Porte de {ctx['brand']} a {ctx['marca_destino']}: la ruta describe el "
             "metodo, no las equivalencias de ese par concreto. Las tablas se construyen "
             "contra los manuales oficiales de las dos marcas."
         )
@@ -747,7 +747,7 @@ def ruta_cambio_marca(caso=None, ctx: dict | None = None) -> dict | None:
 def texto_ruta_cambio_marca(caso=None, ctx: dict | None = None) -> str:
     """Render en Markdown de la ruta de porte entre fabricantes distintos."""
     ctx = ctx if ctx is not None else (contexto(caso) if caso is not None else {})
-    bloque = cargar().get("ruta_cambio_de_marca", {})
+    bloque = cargar().get("brand_change_route", {})
     r = ruta_cambio_marca(caso, ctx)
     if r is None:
         return (
@@ -755,41 +755,41 @@ def texto_ruta_cambio_marca(caso=None, ctx: dict | None = None) -> str:
             "a la vez, destino de OTRA marca (paso 13) y programa de origen accesible y "
             "verificado. Sin acceso al codigo el programa se reconstruye por la extension "
             "P1-P7; dentro de la misma marca rige la ruta del fabricante (tema "
-            f"'ruta_fabricante'). Condicion de uso: {bloque.get('condicion_de_uso', '')}"
+            f"'ruta_fabricante'). Condicion de uso: {bloque.get('usage_condition', '')}"
         )
 
     lineas = [
-        f"**Ruta de cambio de marca — {r['titulo']}**",
+        f"**Ruta de cambio de marca — {r['title']}**",
         "",
-        f"> {r['principio']}",
+        f"> {r['principle']}",
         "",
-        f"*Especializa los pasos {', '.join(r['aplica_a_pasos'])} del {CITA}, y se apoya "
+        f"*Especializa los pasos {', '.join(r['applies_to_steps'])} del {CITA}, y se apoya "
         "en la extension P1-P7 para escribir el programa nuevo.*",
         "",
     ]
     for aviso in r.get("avisos", []):
         lineas += [f"⚠️ {aviso}", ""]
 
-    for x in r["pasos"]:
+    for x in r["steps"]:
         lineas += [
-            f"**{x['n']} — {x['titulo']}**",
-            f"*Especializa el paso {x['especializa_paso']} del procedimiento.*",
+            f"**{x['n']} — {x['title']}**",
+            f"*Especializa el paso {x['specializes_step']} del procedimiento.*",
             "",
-            x["detalle"],
+            x["detail"],
             "",
-            f"**Se da por terminado cuando:** {x['criterio_salida']}",
+            f"**Se da por terminado cuando:** {x['exit_criterion']}",
         ]
-        if x.get("nota_agente"):
-            lineas.append(f"*Nota: {x['nota_agente']}*")
+        if x.get("agent_note"):
+            lineas.append(f"*Nota: {x['agent_note']}*")
         lineas.append("")
 
-    if r.get("reglas"):
+    if r.get("rules"):
         lineas.append("**Reglas que rigen toda la ruta:**")
-        lineas += [f"- {x['regla']}" for x in r["reglas"]]
+        lineas += [f"- {x['rule']}" for x in r["rules"]]
         lineas.append("")
-    lineas += [f"**Limite duro:** {r.get('limite_duro', '')}", "", "**Fuentes:**"]
-    for f in r.get("fuentes", []):
-        lineas.append(f"- [{f['tipo']}] {f['descripcion']} — {f['url']}")
+    lineas += [f"**Limite duro:** {r.get('hard_limit', '')}", "", "**Fuentes:**"]
+    for f in r.get("sources", []):
+        lineas.append(f"- [{f['type']}] {f['description']} — {f['url']}")
     lineas += ["", f"_{CITA}, ruta de cambio de marca: {r['id']}_"]
     return "\n".join(lineas)
 
@@ -825,13 +825,13 @@ def ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> dict | None:
         return None
 
     c = _clave(clave)
-    sub = [p for p in r["pasos"] if _clave(p["especializa_paso"]) == c]
-    reglas = [x for x in r.get("reglas", []) if c in [_clave(n) for n in x["afecta_a_pasos"]]]
+    sub = [p for p in r["steps"] if _clave(p["specializes_step"]) == c]
+    reglas = [x for x in r.get("rules", []) if c in [_clave(n) for n in x["affects_steps"]]]
     # Los pasos 20 y 22 no tienen sub-paso propio pero si regla que los gobierna:
     # callarlos seria perder justo el aviso de que el hardware no se convierte.
     if not sub and not reglas:
         return None
-    return {"ruta": r, "sub_pasos": sub, "reglas": reglas}
+    return {"route": r, "sub_pasos": sub, "rules": reglas}
 
 
 def texto_ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> str:
@@ -839,30 +839,30 @@ def texto_ruta_para_paso(clave, caso=None, ctx: dict | None = None) -> str:
     d = ruta_para_paso(clave, caso, ctx)
     if d is None:
         return ""
-    r, sub, reglas = d["ruta"], d["sub_pasos"], d["reglas"]
+    r, sub, reglas = d["route"], d["sub_pasos"], d["rules"]
     ramas = r.get("ramas", {})
 
     regla_sola = "*Regla de la ruta que gobierna este paso.*"
-    if r.get("tipo") == "cambio_de_marca":
-        titulo = f"**Ruta de cambio de marca — {r['titulo']}**"
+    if r.get("type") == "cambio_de_marca":
+        titulo = f"**Ruta de cambio de marca — {r['title']}**"
         encabezado = ("*Lo que este paso significa cuando el destino es de otra marca y "
                       "el programa de origen SI se puede leer.*" if sub else regla_sola)
     else:
-        titulo = f"**Ruta {r['marca']} — {r['titulo']}**"
+        titulo = f"**Ruta {r['brand']} — {r['title']}**"
         encabezado = (f"*Lo que este paso significa para un "
-                      f"{', '.join(r['familias_origen'])}.*" if sub else regla_sola)
+                      f"{', '.join(r['source_families'])}.*" if sub else regla_sola)
     lineas = ["", "---", "", titulo, encabezado, ""]
     for p in sub:
-        cabecera = f"**{p['n']} · {p['titulo']}**"
-        if p.get("rama"):
-            cabecera += f"  *(solo si {ramas.get(p['rama'], p['rama'])})*"
-        lineas += [cabecera, "", p["detalle"], "",
-                   f"**Se da por terminado cuando:** {p['criterio_salida']}"]
-        if p.get("nota_agente"):
-            lineas.append(f"*Nota: {p['nota_agente']}*")
+        cabecera = f"**{p['n']} · {p['title']}**"
+        if p.get("branch"):
+            cabecera += f"  *(solo si {ramas.get(p['branch'], p['branch'])})*"
+        lineas += [cabecera, "", p["detail"], "",
+                   f"**Se da por terminado cuando:** {p['exit_criterion']}"]
+        if p.get("agent_note"):
+            lineas.append(f"*Nota: {p['agent_note']}*")
         lineas.append("")
     for x in reglas:
-        lineas += [f"> **Regla de la ruta:** {x['regla']}", ""]
+        lineas += [f"> **Regla de la ruta:** {x['rule']}", ""]
     return "\n".join(lineas).rstrip()
 
 
@@ -873,18 +873,18 @@ def texto_ruta_resumen(caso=None, ctx: dict | None = None) -> str:
     if r is None:
         return ""
 
-    pasos_con_ruta = sorted({_clave(n) for n in r["aplica_a_pasos"]},
+    pasos_con_ruta = sorted({_clave(n) for n in r["applies_to_steps"]},
                             key=lambda x: (len(x), x))
-    if r.get("tipo") == "cambio_de_marca":
+    if r.get("type") == "cambio_de_marca":
         cabecera = ("**El destino es de otra marca y el programa de origen si se puede "
                     "leer: aplica la ruta de porte entre fabricantes.**")
     else:
-        cabecera = (f"**Hay una ruta de conversion publicada para {r['marca']}: "
-                    f"{r['titulo']}.**")
+        cabecera = (f"**Hay una ruta de conversion publicada para {r['brand']}: "
+                    f"{r['title']}.**")
     lineas = [
         cabecera,
         "",
-        f"> {r['principio']}",
+        f"> {r['principle']}",
         "",
         "La veras desglosada al llegar a los pasos "
         + ", ".join(pasos_con_ruta) + " del procedimiento.",
@@ -892,28 +892,28 @@ def texto_ruta_resumen(caso=None, ctx: dict | None = None) -> str:
     for aviso in r.get("avisos", []):
         lineas += ["", f"⚠️ {aviso}"]
     if ctx.get("destino"):
-        avisos = [p for p in r["pasos"]
-                  if p.get("rama") == "destino_tia_portal" and p.get("nota_agente")]
+        avisos = [p for p in r["steps"]
+                  if p.get("branch") == "target_tia_portal" and p.get("agent_note")]
         if avisos and "1200" in str(ctx.get("destino", "")) + str(ctx.get("equipo", "")):
-            lineas += ["", f"⚠️ {avisos[0]['nota_agente']}"]
+            lineas += ["", f"⚠️ {avisos[0]['agent_note']}"]
     return "\n".join(lineas)
 
 
 def indice_para_prompt() -> str:
     """Indice del procedimiento: da las claves validas sin volcar el contenido."""
     datos = cargar()
-    doc = datos["documento"]
-    fases = "; ".join(f"{f['id']} (pasos {f['pasos'][0]}-{f['pasos'][-1]}, etapa {f['etapa_guia']})"
-                      for f in datos["fases"])
-    disp = "; ".join(f"{d['id']} = {d['titulo']}" for d in datos["disparadores"])
+    doc = datos["document"]
+    fases = "; ".join(f"{f['id']} (pasos {f['steps'][0]}-{f['steps'][-1]}, etapa {f['guide_stage']})"
+                      for f in datos["phases"])
+    disp = "; ".join(f"{d['id']} = {d['title']}" for d in datos["triggers"])
     marcas = "; ".join(
-        f"{r['marca']} ({' , '.join(r['familias_origen'])} -> {' / '.join(r['familias_destino'])})"
-        for r in datos.get("rutas_por_fabricante", {}).get("rutas", [])
+        f"{r['brand']} ({' , '.join(r['source_families'])} -> {' / '.join(r['target_families'])})"
+        for r in datos.get("routes_by_manufacturer", {}).get("routes", [])
     ) or "ninguna publicada todavia"
-    titulos = "; ".join(f"{p['etiqueta']}={p['titulo'].rstrip('.')}" for p in datos["pasos"])
+    titulos = "; ".join(f"{p['label']}={p['title'].rstrip('.')}" for p in datos["steps"])
     return (
-        f"PROCEDIMIENTO DE MIGRACION: {doc['titulo']} ({doc['id']}, "
-        f"{doc['total_pasos']} pasos). Citalo como '{CITA}, paso N'.\n"
+        f"PROCEDIMIENTO DE MIGRACION: {doc['title']} ({doc['id']}, "
+        f"{doc['total_steps']} pasos). Citalo como '{CITA}, paso N'.\n"
         f"CUANDO SE ABRE: al decidir cambiar la CPU. Disparadores: {disp}.\n"
         f"Fases: {fases}.\n"
         "Consultalo con `consultar_procedimiento` (tema, clave). Temas: paso (clave = "
@@ -942,56 +942,56 @@ def consultar(tema: str, clave=None, caso=None) -> dict:
     t = _norm(tema)
     ctx = contexto(caso) if caso is not None else {}
 
-    if t == "paso":
+    if t == "step":
         p = paso(clave, ctx) if clave is not None else None
         if p is None:
             return {"error": f"Paso no encontrado: {clave}. Validos: 1 a {total_pasos()}."}
-        return {"tema": "paso", "cita": p["cita"], "contenido": p,
-                "texto": texto_paso(p["n"], ctx)}
+        return {"tema": "step", "citation": p["citation"], "contenido": p,
+                "text": texto_paso(p["n"], ctx)}
 
-    if t == "fase":
+    if t == "phase":
         f = fase(clave)
         if f is None:
             return {"error": f"Fase no encontrada: {clave}."}
-        return {"tema": "fase", "cita": CITA, "contenido": {
-            **f, "pasos_detalle": [{"paso": str(n), "titulo": paso_bruto(n)["titulo"]} for n in f["pasos"]]}}
+        return {"tema": "phase", "citation": CITA, "contenido": {
+            **f, "pasos_detalle": [{"step": str(n), "title": paso_bruto(n)["title"]} for n in f["steps"]]}}
 
-    if t in ("disparadores", "disparador"):
+    if t in ("triggers", "trigger"):
         contenido = {"catalogo": disparadores()}
         if caso is not None:
             contenido["activos_en_el_caso"] = detectar_disparadores(caso)
-        return {"tema": "disparadores", "cita": CITA, "contenido": contenido}
+        return {"tema": "triggers", "citation": CITA, "contenido": contenido}
 
-    if t in ("opciones_destino", "opciones", "opciones_cpu"):
+    if t in ("opciones_destino", "options", "opciones_cpu"):
         ident = clave if isinstance(clave, dict) else getattr(caso, "equipo_identificado", None)
-        return {"tema": "opciones_destino", "cita": CITA,
+        return {"tema": "opciones_destino", "citation": CITA,
                 "contenido": opciones_destino(ident),
-                "texto": texto_opciones(ident)}
+                "text": texto_opciones(ident)}
 
-    if t in ("ruta_fabricante", "ruta", "rutas_por_fabricante", "rutas"):
+    if t in ("ruta_fabricante", "route", "routes_by_manufacturer", "routes"):
         bloque = rutas_fabricante()
         marca = clave if isinstance(clave, str) else None
         r = ruta_fabricante(marca, caso, ctx)
         contenido = {
-            "condicion_de_uso": bloque.get("condicion_de_uso"),
-            "cobertura": bloque.get("cobertura"),
-            "marcas_con_ruta": [x["marca"] for x in bloque.get("rutas", [])],
-            "ruta": r,
+            "usage_condition": bloque.get("usage_condition"),
+            "coverage": bloque.get("coverage"),
+            "marcas_con_ruta": [x["brand"] for x in bloque.get("routes", [])],
+            "route": r,
         }
         if r is None:
             contenido["acceso_al_codigo"] = codigo_accesible(caso) if caso is not None else None
-        return {"tema": "ruta_fabricante", "cita": f"{CITA}, rutas por fabricante",
+        return {"tema": "ruta_fabricante", "citation": f"{CITA}, rutas por fabricante",
                 "contenido": contenido,
-                "texto": texto_ruta_fabricante(marca, caso, ctx)}
+                "text": texto_ruta_fabricante(marca, caso, ctx)}
 
-    if t in ("ruta_cambio_marca", "ruta_cambio_de_marca", "cambio_marca"):
-        bloque = cargar().get("ruta_cambio_de_marca", {})
+    if t in ("ruta_cambio_marca", "brand_change_route", "cambio_marca"):
+        bloque = cargar().get("brand_change_route", {})
         r = ruta_cambio_marca(caso, ctx)
         contenido = {
-            "condicion_de_uso": bloque.get("condicion_de_uso"),
-            "cobertura": bloque.get("cobertura"),
-            "limite_duro": bloque.get("limite_duro"),
-            "ruta": r,
+            "usage_condition": bloque.get("usage_condition"),
+            "coverage": bloque.get("coverage"),
+            "hard_limit": bloque.get("hard_limit"),
+            "route": r,
         }
         if r is None:
             contenido["por_que_no_aplica"] = {
@@ -999,35 +999,35 @@ def consultar(tema: str, clave=None, caso=None) -> dict:
                 "con_codigo_fuente": bool(ctx.get("con_codigo_fuente")),
                 "acceso_al_codigo": codigo_accesible(caso) if caso is not None else None,
             }
-        return {"tema": "ruta_cambio_marca", "cita": f"{CITA}, ruta de cambio de marca",
+        return {"tema": "ruta_cambio_marca", "citation": f"{CITA}, ruta de cambio de marca",
                 "contenido": contenido,
-                "texto": texto_ruta_cambio_marca(caso, ctx)}
+                "text": texto_ruta_cambio_marca(caso, ctx)}
 
-    if t == "estado":
+    if t == "status":
         if caso is None:
-            return {"error": "El tema 'estado' necesita un caso abierto."}
-        return {"tema": "estado", "cita": CITA, "contenido": estado(caso)}
+            return {"error": "El tema 'status' necesita un caso abierto."}
+        return {"tema": "status", "citation": CITA, "contenido": estado(caso)}
 
     if t in ("siguiente", "siguiente_paso"):
         if caso is None:
             return {"error": "El tema 'siguiente' necesita un caso abierto."}
         s = siguiente(caso)
         if s is None:
-            return {"tema": "siguiente", "cita": CITA,
+            return {"tema": "siguiente", "citation": CITA,
                     "contenido": {"mensaje": "Los 50 pasos estan cerrados."}}
-        return {"tema": "siguiente", "cita": s["cita"], "contenido": s,
-                "texto": texto_paso(s["clave"], ctx)}
+        return {"tema": "siguiente", "citation": s["citation"], "contenido": s,
+                "text": texto_paso(s["key"], ctx)}
 
     if t == "bloqueos":
         if caso is None:
             return {"error": "El tema 'bloqueos' necesita un caso abierto."}
-        return {"tema": "bloqueos", "cita": CITA, "contenido": bloqueos(caso)}
+        return {"tema": "bloqueos", "citation": CITA, "contenido": bloqueos(caso)}
 
-    if t in ("huecos", "huecos_declarados"):
-        return {"tema": "huecos", "cita": CITA, "contenido": huecos_declarados()}
+    if t in ("huecos", "declared_gaps"):
+        return {"tema": "huecos", "citation": CITA, "contenido": huecos_declarados()}
 
-    if t in ("documento", "procedimiento"):
-        return {"tema": "documento", "cita": CITA, "contenido": cargar()["documento"]}
+    if t in ("document", "procedure"):
+        return {"tema": "document", "citation": CITA, "contenido": cargar()["document"]}
 
     return {"error": f"Tema no reconocido: {tema}. Validos: paso, fase, disparadores, "
                      "opciones_destino, ruta_fabricante, ruta_cambio_marca, estado, "

@@ -20,7 +20,7 @@ import re
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent
-CUESTIONARIO = RAIZ / "data" / "cuestionario.json"
+CUESTIONARIO = RAIZ / "data" / "es" / "questionnaire.json"
 REGLAS = RAIZ / "docs" / "reglas_de_puntuacion.md"
 SALIDA = RAIZ / "docs" / "caracteristicas_dominio.md"
 
@@ -70,8 +70,8 @@ def preguntas() -> dict[str, str]:
 
     def rec(o):
         if isinstance(o, dict):
-            if "codigo" in o and "texto" in o:
-                fuera[o["codigo"]] = o["texto"]
+            if "code" in o and "text" in o:
+                fuera[o["code"]] = o["text"]
             for v in o.values():
                 rec(v)
         elif isinstance(o, list):
@@ -91,7 +91,7 @@ def informe() -> str:
     a = L.append
     a("# Caracteristicas de dominio")
     a("")
-    a("Generado por `_caracteristicas.py` leyendo `data/cuestionario.json` y")
+    a("Generado por `_caracteristicas.py` leyendo `data/es/questionnaire.json` y")
     a("`docs/reglas_de_puntuacion.md`, que a su vez se extrae del arbol sintactico")
     a("del motor. Si un factor deja de leer un codigo, este documento cambia solo.")
     a("")
@@ -155,7 +155,7 @@ def informe() -> str:
     a("")
     a("Lo anterior es el cuestionario, que es donde vive el conocimiento de dominio")
     a("del proyecto. El conjunto tabular con el que se entrena el baseline de P1 es")
-    a("otro -`data/ciclo_vida_plataformas.csv`, nueve plataformas- y ahi la")
+    a("otro -`data/platform_lifecycle.csv`, nueve plataformas- y ahi la")
     a("auditoria de fuga deja **una sola variable admisible: la antiguedad**. No es")
     a("una eleccion de modelado: las demas columnas o definen la etiqueta o son")
     a("metadato del proceso de recoleccion. Ver la seccion 6 de")

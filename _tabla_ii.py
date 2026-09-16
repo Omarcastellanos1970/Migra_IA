@@ -75,19 +75,19 @@ def medir():
     res = bl.evaluar(datos, pliegues)
     tiempos = medir_tiempos(datos, pliegues)
     return {
-        "datos": datos, "pliegues": pliegues, "k": k, "nota_k": nota_k,
-        "n": len(datos), "cv": res["cv"], "modelos": res["modelos"],
+        "datos": datos, "folds": pliegues, "k": k, "k_note": nota_k,
+        "n": len(datos), "cv": res["cv"], "models": res["models"],
         "tiempos": tiempos,
-        "entrenamiento": medir_entrenamiento(datos, pliegues),
+        "train": medir_entrenamiento(datos, pliegues),
         "clases": sorted({p.clase for p in datos}),
-        "tam_prueba": [len(pl["prueba"]) for pl in pliegues],
+        "tam_prueba": [len(pl["test"]) for pl in pliegues],
     }
 
 
 def medir_entrenamiento(datos, pliegues):
     """Segundos que cuesta entrenar la validacion cruzada entera, una vez."""
     por_nombre = {p.plataforma: p for p in datos}
-    entrenas = [[por_nombre[n] for n in pl["entrenamiento"]] for pl in pliegues]
+    entrenas = [[por_nombre[n] for n in pl["train"]] for pl in pliegues]
 
     def ronda():
         inicio = time.perf_counter()
@@ -104,8 +104,8 @@ def medir_tiempos(datos, pliegues):
     por_nombre = {p.plataforma: p for p in datos}
     preparados = []
     for pl in pliegues:
-        entrena = [por_nombre[n] for n in pl["entrenamiento"]]
-        prueba = [por_nombre[n] for n in pl["prueba"]]
+        entrena = [por_nombre[n] for n in pl["train"]]
+        prueba = [por_nombre[n] for n in pl["test"]]
         c0 = bl.b0_trivial(entrena)
         modelo = bl.b1_logistica_ordinal(entrena)
         xs = [float(p.antiguedad) for p in prueba]
@@ -205,12 +205,12 @@ TABLA_TEX = r"""%% %(comentario)s
 %% -------------------------------------------------------------------------
 %% GENERADO POR _tabla_ii.py DEL REPOSITORIO MIGRA-IA. NO EDITAR A MANO.
 %% Los numeros salen de correr _baseline.py; el coste, de medir la inferencia.
-%% ESTADO: %(estado)s
+%% ESTADO: %(status)s
 %%
 %% PAQUETES: \usepackage{booktabs} y \usepackage{array}, los dos ya cargados.
 %% -------------------------------------------------------------------------
 \begin{table}[!tb]
-\caption{%(titulo)s}
+\caption{%(title)s}
 \label{tab:baselines}
 \centering
 \footnotesize
@@ -224,7 +224,7 @@ TABLA_TEX = r"""%% %(comentario)s
 \end{tabular}
 
 \vspace{2pt}
-{\scriptsize %(nota)s}
+{\scriptsize %(note)s}
 \end{table}
 """
 
@@ -244,8 +244,8 @@ def construir_tex(idioma, med, con_clasico):
         "comentario": ("Tabla II -- Lineas base de P1. Version en espanol."
                        if es else
                        "Table II -- P1 baselines. English version."),
-        "estado": estado,
-        "titulo": titulo,
+        "status": estado,
+        "title": titulo,
         "cab_modelo": "Modelo" if es else "Model",
         "cab_principal": "$F_1$ macro" if es else "Macro $F_1$",
         "cab_principal_2": ("(media $\\pm$ desv.)" if es
@@ -254,7 +254,7 @@ def construir_tex(idioma, med, con_clasico):
         "cab_costo": "Coste" if es else "Cost",
         "cab_costo_2": ("($\\mu$s/caso)" if es else "($\\mu$s/case)"),
         "filas": filas,
-        "nota": NOTA_ES if es else NOTA_EN,
+        "note": NOTA_ES if es else NOTA_EN,
     }
 
 
@@ -287,7 +287,7 @@ PARRAFO_ES = (
     "No hay búsqueda de hiperparámetros: el espacio explorado es de cero "
     "puntos para los tres modelos, el mismo esfuerzo para todos, porque la "
     "trivial no tiene ninguno y los de la logística ordinal se fijaron de "
-    "antemano en regularización $L_2=%(l2)s$, paso %(paso)s, %(iter)d "
+    "antemano en regularización $L_2=%(l2)s$, paso %(step)s, %(iter)d "
     "iteraciones e inicio en ceros, idénticos en todos los pliegues. "
     "La validación es cruzada agrupada con $k=%(k)d$ y una sola repetición "
     "—repetirla daría el mismo resultado, porque no hay ningún paso "
@@ -322,7 +322,7 @@ PARRAFO_EN = (
     "There is no hyperparameter search: the explored space is zero points for "
     "all three models, the same effort for everyone, because the trivial one "
     "has none and those of the ordinal logistic were fixed in advance at "
-    "$L_2=%(l2)s$ regularization, step %(paso)s, %(iter)d iterations and a "
+    "$L_2=%(l2)s$ regularization, step %(step)s, %(iter)d iterations and a "
     "zero start, identical across folds. "
     "Validation is grouped cross-validation with $k=%(k)d$ and a single "
     "repetition —repeating it would give the same result, since there is no "
@@ -377,7 +377,7 @@ def hardware():
                         "query failed" % (platform.system(),
                                           platform.release(),
                                           platform.machine()),
-            "campos": campos, "completo": False,
+            "fields": campos, "completo": False,
         }
 
     so = campos.get("so", "").replace("Microsoft ", "")
@@ -400,7 +400,7 @@ def hardware():
         valores_es[clave] = valores_es[clave].replace(".", ",")
     return {"texto_es": plantilla % valores_es,
             "texto_en": plantilla_en % valores,
-            "campos": campos, "completo": True}
+            "fields": campos, "completo": True}
 
 
 def _tiempo(segundos):
@@ -434,10 +434,10 @@ def datos_parrafo(med, ingles=False, hw=None):
         "anio": "2026",
         "py": platform.python_version(),
         "l2": "1{,}0" if not ingles else "1.0",
-        "paso": "0{,}05" if not ingles else "0.05",
+        "step": "0{,}05" if not ingles else "0.05",
         "iter": 4000,
         "hw": (hw["texto_en"] if ingles else hw["texto_es"]),
-        "t_ent": _tiempo(med["entrenamiento"]),
+        "t_ent": _tiempo(med["train"]),
         "url": "https://" + REPO,
     }
 
@@ -461,7 +461,7 @@ def _contar_frases(parrafo):
 
 def verificar(med, con_clasico, hw=None):
     """[(dato, valor, de donde sale, coincide)] — sin dar nada por bueno."""
-    part_path = os.path.join("data", "particion_ciclo_vida.json")
+    part_path = os.path.join("data", "lifecycle_partition.json")
     with open(part_path, encoding="utf-8") as fh:
         part = json.load(fh)
     marcas = sorted({p.fabricante for p in med["datos"]})
@@ -471,20 +471,20 @@ def verificar(med, con_clasico, hw=None):
         filas.append((dato, str(valor), fuente, ok))
 
     fila("Plataformas", med["n"], "len(cargar()) sobre "
-         "data/ciclo_vida_plataformas.csv", med["n"] == 9)
+         "data/platform_lifecycle.csv", med["n"] == 9)
     fila("Fabricantes", len(marcas), ", ".join(marcas), len(marcas) == 5)
     fila("Unidad de observacion", "la plataforma",
-         "particion_ciclo_vida.json: agrupamiento = %s" % part["agrupamiento"],
-         part["agrupamiento"] == "Fabricante")
+         "lifecycle_partition.json: agrupamiento = %s" % part["grouping"],
+         part["grouping"] == "manufacturer")
     fila("k", med["k"], "particionar_estratificado(); json k=%s" % part["k"],
          med["k"] == part["k"])
-    fila("Agrupamiento", part["agrupamiento"],
+    fila("Agrupamiento", part["grouping"],
          "ningun fabricante en train y test a la vez", True)
     fila("Semilla", bl.SEMILLA, "_baseline.SEMILLA; json semilla=%s"
-         % part["semilla"], bl.SEMILLA == part["semilla"])
-    fila("Preprocesamiento", "dentro del pliegue", part["preprocesamiento"],
-         "pliegue" in part["preprocesamiento"])
-    fila("Caracteristica admitida", part["variable_admitida"],
+         % part["seed"], bl.SEMILLA == part["seed"])
+    fila("Preprocesamiento", "dentro del pliegue", part["preprocessing"],
+         "fold" in part["preprocessing"])
+    fila("Caracteristica admitida", part["allowed_variable"],
          "auditoria de fuga: unica superviviente", True)
     fila("Metrica principal", "F1 macro",
          "PROTOCOLO_VALIDACION.md punto 3, congelada", True)
@@ -533,16 +533,16 @@ def verificar(med, con_clasico, hw=None):
          "ajuste: el preprocesamiento se ajusta en entrenamiento", True)
     fila("Repeticiones", 1, "una sola pasada; el ajuste es determinista y "
          "repetirla da lo mismo", True)
-    fila("Tiempo de entrenamiento", _tiempo(med["entrenamiento"]),
+    fila("Tiempo de entrenamiento", _tiempo(med["train"]),
          "medido aqui: entrenar la validacion cruzada completa, mejor de "
          "%d rondas" % RONDAS, True)
     if hw is not None:
-        fila("Maquina", hw["campos"].get("cpu", "?"),
+        fila("Maquina", hw["fields"].get("cpu", "?"),
              "Win32_Processor, consultado al sistema", hw["completo"])
-        fila("Memoria", "%s GB" % hw["campos"].get("ram", "?"),
+        fila("Memoria", "%s GB" % hw["fields"].get("ram", "?"),
              "Win32_ComputerSystem", hw["completo"])
         fila("Sistema operativo", "%s build %s"
-             % (hw["campos"].get("so", "?"), hw["campos"].get("build", "?")),
+             % (hw["fields"].get("so", "?"), hw["fields"].get("build", "?")),
              "Win32_OperatingSystem", hw["completo"])
         fila("Aceleracion", "ninguna, todo en CPU",
              "no hay GPU en el calculo: es biblioteca estandar", True)
@@ -574,7 +574,7 @@ Generado por `_tabla_ii.py`. Ningún número está escrito a mano: salen de corr
 `_baseline.py` sobre la partición congelada, y el coste de medir la inferencia
 aquí mismo.
 
-**Estado:** %(estado)s
+**Estado:** %(status)s
 
 ---
 
@@ -591,7 +591,7 @@ sobre qué se promedia (%(k)d pliegues) y el agrupamiento (por fabricante).
 | Modelo | $F_1$ macro (media ± desv.) | Exactitud | Coste (µs/caso) |
 |---|---|---|---|
 %(filas_md)s
-%(nota)s
+%(note)s
 
 ## 3. El párrafo de configuración experimental (siete frases)
 
@@ -747,13 +747,13 @@ def main():
         "$F_1$", "F1").replace("$\\pm$", "±")
     with open(SALIDA_MD, "w", encoding="utf-8") as fh:
         fh.write(MD % {
-            "estado": ("fila del trivial con números%s; el resto vacío, que es "
+            "status": ("fila del trivial con números%s; el resto vacío, que es "
                        "el plan de experimentos"
                        % (" y del clásico" if con else "")),
             "titulo_plano": titulo_plano,
             "n": med["n"], "k": med["k"],
             "filas_md": filas_md,
-            "nota": NOTA_ES,
+            "note": NOTA_ES,
             "parrafo_es": _plano(parrafo_es),
             "parrafo_en": _plano(parrafo_en),
             "verificacion": "".join(

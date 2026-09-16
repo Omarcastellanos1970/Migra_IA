@@ -12,7 +12,7 @@ cuando lleguen los datos. Nos toca esta:
                   iteracion deja de subir
   linea de referencia   la generacion sin verificador, iteracion cero
 
-Este script es la unica fuente de la figura. Lee data/figura_p3_verificador.csv
+Este script es la unica fuente de la figura. Lee data/figure_p3_verifier.csv
 y escribe, sin que nadie teclee un numero a mano:
 
   Figura_P3_verificador_ES.tex   bloque figure+pgfplots para el paper en espanol
@@ -47,7 +47,7 @@ import argparse
 import os
 import sys
 
-RUTA_CSV = os.path.join("data", "figura_p3_verificador.csv")
+RUTA_CSV = os.path.join("data", "figure_p3_verifier.csv")
 SALIDA_POR_DEFECTO = os.path.join("docs", "figuras")
 
 # Referencias externas publicadas. Clave de cita tal como esta en ref.bib.
@@ -217,11 +217,11 @@ TEXTOS = {
 # LaTeX
 # --------------------------------------------------------------------------
 
-CABECERA_TEX = r"""%% %(titulo)s
+CABECERA_TEX = r"""%% %(title)s
 %% -------------------------------------------------------------------------
 %% GENERADO POR _figura_p3.py DEL REPOSITORIO MIGRA-IA. NO EDITAR A MANO:
 %% cualquier cambio se pierde al regenerar. Los numeros salen de
-%% data/figura_p3_verificador.csv; para llenar la figura se completa ese CSV
+%% data/figure_p3_verifier.csv; para llenar la figura se completa ese CSV
 %% y se vuelve a ejecutar el script.
 %%
 %% PAQUETES NECESARIOS EN EL PREAMBULO DEL .tex PRINCIPAL:
@@ -230,7 +230,7 @@ CABECERA_TEX = r"""%% %(titulo)s
 %%   \pgfplotsset{compat=1.18}  NUEVO
 %% Si falta alguno, la figura NO compila.
 %%
-%% ESTADO: %(estado)s
+%% ESTADO: %(status)s
 %% -------------------------------------------------------------------------
 """
 
@@ -300,7 +300,7 @@ MARCA_MESETA = r"""
 \draw[gray!60, dashed, line width=0.5pt]
   (axis cs:%(x)s,0) -- (axis cs:%(x)s,%(y)s);
 \node[anchor=south, font=\tiny, text=gray!75] at (axis cs:%(x)s,%(y_etq)s)
-  {%(texto)s};
+  {%(text)s};
 """
 
 AVISO_PARCIAL = r"""
@@ -336,7 +336,7 @@ def construir_tex(idioma, filas, puntos, meseta):
                 "x": meseta,
                 "y": "%.1f" % y_meseta,
                 "y_etq": "%.1f" % min(y_meseta + 2.0, 94.0),
-                "texto": t["meseta"],
+                "text": t["meseta"],
             }
         aviso = "" if completo else AVISO_PARCIAL % {
             "centro_x": centro_x, "pendiente": t["pendiente"]}
@@ -353,8 +353,8 @@ def construir_tex(idioma, filas, puntos, meseta):
         if meseta is not None:
             caption += t["caption_meseta"] % (meseta, ("%g" % UMBRAL_MESETA))
 
-    cabecera = CABECERA_TEX % {"titulo": t["titulo_comentario"],
-                               "estado": estado}
+    cabecera = CABECERA_TEX % {"title": t["titulo_comentario"],
+                               "status": estado}
     cuerpo = CUERPO_TEX % {
         "xlabel": t["xlabel"],
         "ylabel": t["ylabel"],
@@ -483,8 +483,8 @@ VISTA_HTML = """<!doctype html>
 %(svg)s
 <figcaption>%(pie)s</figcaption>
 </figure>
-<p class="nota">%(estado)s Vista previa generada por
-<code>_figura_p3.py</code> desde <code>data/figura_p3_verificador.csv</code>.
+<p class="note">%(status)s Vista previa generada por
+<code>_figura_p3.py</code> desde <code>data/figure_p3_verifier.csv</code>.
 La versi&oacute;n que se compila en el paper es el <code>.tex</code> con
 pgfplots, generado por este mismo script.</p>
 </html>
@@ -562,7 +562,7 @@ def main():
     escritos.append(ruta_svg)
     ruta_html = os.path.join(destino_vista, "figura_p3_verificador.html")
     with open(ruta_html, "w", encoding="utf-8") as fh:
-        fh.write(VISTA_HTML % {"svg": svg, "pie": PIE_VISTA, "estado": estado})
+        fh.write(VISTA_HTML % {"svg": svg, "pie": PIE_VISTA, "status": estado})
     escritos.append(ruta_html)
 
     print("Estado: %s" % estado)

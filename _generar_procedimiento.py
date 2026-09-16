@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Genera data/procedimiento_migracion.json a partir del .docx de 50 pasos.
+"""Genera data/es/migration_procedure.json a partir del .docx de 50 pasos.
 
 El titulo y el detalle de cada paso se toman LITERALES del documento: no se
 reescriben aqui. Encima se anade una capa de anotaciones (fase, criterio de
@@ -33,7 +33,7 @@ W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 RAIZ = Path(__file__).resolve().parent
 NOMBRE_DOCX = "Procedimiento_Migracion_PLC_CPU_50_Pasos.docx"
-DESTINO = RAIZ / "data" / "procedimiento_migracion.json"
+DESTINO = RAIZ / "data" / "es" / "migration_procedure.json"
 
 
 def ruta_docx() -> Path:
@@ -45,7 +45,7 @@ def ruta_docx() -> Path:
     """
     if len(sys.argv) > 1:
         return Path(sys.argv[1])
-    candidatas = [RAIZ / "fuentes" / NOMBRE_DOCX,
+    candidatas = [RAIZ / "sources" / NOMBRE_DOCX,
                   Path.home() / "Downloads" / NOMBRE_DOCX]
     for c in candidatas:
         if c.exists():
@@ -54,16 +54,16 @@ def ruta_docx() -> Path:
 
 TECNICO = "tecnico"
 INGENIERIA = "ingenieria"
-ESPECIALISTA = "especialista_seguridad"
+ESPECIALISTA = "safety_specialist"
 RESPONSABLE = "responsable"
 
 
 def req(aprobacion=False, detenida=False, loto=False, especialista=False) -> dict:
     return {
-        "aprobacion_humana": aprobacion,
-        "maquina_detenida": detenida,
+        "human_approval": aprobacion,
+        "machine_stopped": detenida,
         "loto": loto,
-        "especialista_seguridad": especialista,
+        "safety_specialist": especialista,
     }
 
 
@@ -73,45 +73,45 @@ def req(aprobacion=False, detenida=False, loto=False, especialista=False) -> dic
 FASES = [
     {
         "id": "levantamiento",
-        "nombre": "Levantamiento y aseguramiento de la evidencia",
-        "pasos": list(range(1, 13)),
-        "etapa_guia": "diagnostico",
-        "proposito": "Saber que hay, asegurarlo y entenderlo antes de decidir nada.",
+        "name": "Levantamiento y aseguramiento de la evidencia",
+        "steps": list(range(1, 13)),
+        "guide_stage": "diagnostico",
+        "purpose": "Saber que hay, asegurarlo y entenderlo antes de decidir nada.",
     },
     {
         "id": "seleccion_e_ingenieria",
-        "nombre": "Seleccion de la CPU e ingenieria de la solucion",
-        "pasos": list(range(13, 21)),
-        "etapa_guia": "ingenieria",
-        "proposito": "Elegir la plataforma destino y disenar la solucion completa en papel.",
+        "name": "Seleccion de la CPU e ingenieria de la solucion",
+        "steps": list(range(13, 21)),
+        "guide_stage": "ingenieria",
+        "purpose": "Elegir la plataforma destino y disenar la solucion completa en papel.",
     },
     {
         "id": "conversion",
-        "nombre": "Conversion o reescritura del programa",
-        "pasos": list(range(21, 31)),
-        "etapa_guia": "construccion",
-        "proposito": "Llevar la logica a la plataforma nueva y dejarla compilando y simulada.",
+        "name": "Conversion o reescritura del programa",
+        "steps": list(range(21, 31)),
+        "guide_stage": "construccion",
+        "purpose": "Llevar la logica a la plataforma nueva y dejarla compilando y simulada.",
     },
     {
         "id": "fat",
-        "nombre": "Pruebas de aceptacion en fabrica y plan de retorno",
-        "pasos": list(range(31, 34)),
-        "etapa_guia": "fat",
-        "proposito": "Demostrar en banco que funciona, y tener como volver atras si falla.",
+        "name": "Pruebas de aceptacion en fabrica y plan de retorno",
+        "steps": list(range(31, 34)),
+        "guide_stage": "fat",
+        "purpose": "Demostrar en banco que funciona, y tener como volver atras si falla.",
     },
     {
         "id": "corte_y_puesta_en_marcha",
-        "nombre": "Corte, instalacion y puesta en marcha",
-        "pasos": list(range(34, 45)),
-        "etapa_guia": "corte_sat",
-        "proposito": "Intervenir la maquina real, probar en campo y aceptar el sistema.",
+        "name": "Corte, instalacion y puesta en marcha",
+        "steps": list(range(34, 45)),
+        "guide_stage": "corte_sat",
+        "purpose": "Intervenir la maquina real, probar en campo y aceptar el sistema.",
     },
     {
         "id": "cierre",
-        "nombre": "Documentacion, capacitacion y cierre",
-        "pasos": list(range(45, 51)),
-        "etapa_guia": "cierre",
-        "proposito": "Dejar el sistema documentado, respaldado, entendido y formalmente aceptado.",
+        "name": "Documentacion, capacitacion y cierre",
+        "steps": list(range(45, 51)),
+        "guide_stage": "cierre",
+        "purpose": "Dejar el sistema documentado, respaldado, entendido y formalmente aceptado.",
     },
 ]
 
@@ -122,38 +122,38 @@ FASES = [
 DISPARADORES = [
     {
         "id": "cpu_obsoleta",
-        "titulo": "CPU obsoleta o sin soporte",
-        "descripcion": "La CPU o su familia estan descontinuadas, sin soporte del "
+        "title": "CPU obsoleta o sin soporte",
+        "description": "La CPU o su familia estan descontinuadas, sin soporte del "
                        "fabricante, sin repuestos, o con un plazo de entrega mayor que "
                        "la parada tolerable.",
-        "alternativa_mapa_decision": "Migracion a plataforma moderna",
-        "origen": "usuario, 2026-08-29",
+        "decision_map_alternative": "Migracion a plataforma moderna",
+        "origin": "usuario, 2026-08-29",
     },
     {
         "id": "contrasena_desconocida",
-        "titulo": "Contrasena de la CPU desconocida",
-        "descripcion": "La CPU esta protegida y nadie conoce la contrasena, de modo que "
+        "title": "Contrasena de la CPU desconocida",
+        "description": "La CPU esta protegida y nadie conoce la contrasena, de modo que "
                        "el programa no se puede leer ni modificar.",
-        "alternativa_mapa_decision": "Reconstruccion del programa",
-        "activa_variante": "sin_respaldo",
-        "origen": "usuario, 2026-08-29",
+        "decision_map_alternative": "Reconstruccion del programa",
+        "activates_variant": "sin_respaldo",
+        "origin": "usuario, 2026-08-29",
     },
     {
         "id": "sin_acceso_al_programa",
-        "titulo": "No se puede copiar ni abrir el programa anterior",
-        "descripcion": "No hay respaldo, o el que hay no abre; falta el software, la "
+        "title": "No se puede copiar ni abrir el programa anterior",
+        "description": "No hay respaldo, o el que hay no abre; falta el software, la "
                        "licencia o el adaptador de programacion; o el proyecto esta "
                        "corrupto o depende de bloques propietarios inaccesibles.",
-        "alternativa_mapa_decision": "Reconstruccion del programa",
-        "activa_variante": "sin_respaldo",
-        "origen": "usuario, 2026-08-29",
+        "decision_map_alternative": "Reconstruccion del programa",
+        "activates_variant": "sin_respaldo",
+        "origin": "usuario, 2026-08-29",
     },
     {
         "id": "decision_del_usuario",
-        "titulo": "El usuario decide cambiar la CPU",
-        "descripcion": "Con o sin sugerencia del agente, el usuario resuelve migrar a "
+        "title": "El usuario decide cambiar la CPU",
+        "description": "Con o sin sugerencia del agente, el usuario resuelve migrar a "
                        "una CPU nueva. La decision es suya y el agente la acata.",
-        "origen": "usuario, 2026-08-29",
+        "origin": "usuario, 2026-08-29",
     },
 ]
 
@@ -162,50 +162,50 @@ DISPARADORES = [
 # Opciones de CPU destino que el agente ofrece en el paso 13
 # --------------------------------------------------------------------------- #
 OPCIONES_CPU = {
-    "paso": 13,
-    "regla": "El agente PRESENTA las dos opciones y sus consecuencias. La eleccion "
+    "step": 13,
+    "rule": "El agente PRESENTA las dos opciones y sus consecuencias. La eleccion "
              "es del usuario: un cambio de marca nunca es un supuesto del agente.",
-    "opciones": [
+    "options": [
         {
             "id": "misma_marca",
-            "titulo": "CPU nueva del mismo fabricante",
-            "que_ofrece": "La generacion actual del mismo fabricante, con los modelos "
+            "title": "CPU nueva del mismo fabricante",
+            "what_it_offers": "La generacion actual del mismo fabricante, con los modelos "
                           "que el catalogo documenta y su fuente oficial. Cuando la guia "
                           "publica una ruta para la familia de origen, se usa esa ruta y "
                           "no una generica.",
-            "a_favor": [
+            "pros": [
                 "Existe herramienta oficial de conversion del programa (pasos 21 y 22)",
                 "Se conserva el ecosistema: software, redes, repuestos y personal ya formado",
                 "La matriz de equivalencia del paso 14 se hace modelo a modelo",
             ],
-            "en_contra": [
+            "cons": [
                 "Queda atado al mismo fabricante y a su politica de ciclo de vida",
             ],
-            "soporte_de_datos": "Completo: las 30 marcas del catalogo tienen su "
+            "data_support": "Completo: las 30 marcas del catalogo tienen su "
                                 "generacion actual documentada con modelos y fuente.",
         },
         {
             "id": "marca_alternativa",
-            "titulo": "Plataforma actual de otra marca",
-            "que_ofrece": "Las plataformas actuales de marcas alternativas a nivel de "
+            "title": "Plataforma actual de otra marca",
+            "what_it_offers": "Las plataformas actuales de marcas alternativas a nivel de "
                           "FAMILIA, con sus modelos documentados y su fuente oficial.",
-            "a_favor": [
+            "pros": [
                 "Puede mejorar precio, disponibilidad local o soporte tecnico cercano",
                 "Rompe la dependencia de un unico fabricante",
             ],
-            "en_contra": [
+            "cons": [
                 "No existe herramienta de conversion: el programa se reescribe completo",
                 "Software, licencias y capacitacion nuevos, con su costo y su curva de aprendizaje",
                 "Las redes de campo pueden necesitar conversion o pasarela",
                 "Cambia el ecosistema de repuestos y el proveedor de servicio",
             ],
-            "soporte_de_datos": "Parcial y declarado: el catalogo documenta que familias "
+            "data_support": "Parcial y declarado: el catalogo documenta que familias "
                                 "actuales existen y con que modelos, pero NO publica "
                                 "atributos comparables por modelo (memoria, E/S, tiempo de "
                                 "ciclo, redes). Por eso el agente ofrece la comparacion a "
                                 "nivel de plataforma y remite la seleccion del modelo exacto "
                                 "a la herramienta oficial de seleccion del fabricante.",
-            "limite_duro": "El agente NO afirma equivalencia modelo a modelo entre marcas "
+            "hard_limit": "El agente NO afirma equivalencia modelo a modelo entre marcas "
                            "distintas, ni completa numeros de catalogo que el catalogo no "
                            "liste.",
         },
@@ -311,7 +311,7 @@ PROFUNDIDAD = {
                   "que se valida la conversion en el paso 32; P3 a P7 los cubre en gran parte "
                   "la herramienta oficial y los pasos 21 a 23, y aqui solo se comprueba que el "
                   "resultado cumple la arquitectura y la trazabilidad.",
-    "reconstruccion": "RUTA DE RECONSTRUCCION O CAMBIO DE MARCA: recorrido completo. No hay "
+    "rebuild": "RUTA DE RECONSTRUCCION O CAMBIO DE MARCA: recorrido completo. No hay "
                       "programa que convertir, asi que P1 a P7 son el trabajo principal y los "
                       "pasos 21 y 22 no aplican. Dimensionar el esfuerzo como desarrollo "
                       "nuevo, no como migracion.",
@@ -326,7 +326,7 @@ def orden_de_recorrido() -> list:
     como si se escribe de cero.
     """
     return ([str(n) for n in range(1, 21)]
-            + [p["etiqueta"] for p in EXTENSION_PROGRAMA]
+            + [p["label"] for p in EXTENSION_PROGRAMA]
             + [str(n) for n in range(21, 51)])
 
 
@@ -336,39 +336,39 @@ def orden_de_recorrido() -> list:
 HUECOS_DECLARADOS = [
     {
         "id": "construccion_del_programa",
-        "descripcion": "Los pasos 21 a 23 asumen que existe un programa que convertir "
+        "description": "Los pasos 21 a 23 asumen que existe un programa que convertir "
                        "('migrar con herramientas oficiales', 'revisar el reporte de "
                        "migracion'). Ningun paso cubre ESCRIBIR el programa nuevo. En la "
                        "ruta de reconstruccion -sin respaldo o con contrasena desconocida- "
                        "y en el cambio de marca, los pasos 21 y 22 quedan como 'no aplica' "
                        "y no los sustituia nada: el hueco caia justo donde esta el trabajo.",
-        "estado": "CERRADO por la extension P1-P7 (construccion del programa), derivada de "
+        "status": "CERRADO por la extension P1-P7 (construccion del programa), derivada de "
                   "los capitulos 6, 10 y 18 de la guia. Pendiente de validacion del autor.",
     },
     {
         "id": "compra_y_plazos",
-        "descripcion": "Entre el paso 20 (configurar el hardware nuevo) y el 21 (migrar "
+        "description": "Entre el paso 20 (configurar el hardware nuevo) y el 21 (migrar "
                        "el programa) no hay ningun paso de cotizacion, compra y recepcion "
                        "del hardware. En la practica el plazo de entrega es lo que fija la "
                        "fecha de la parada del paso 34. El BOM solo aparece en el paso 46, "
                        "como documentacion final.",
-        "estado": "pendiente de decision del autor",
+        "status": "pendiente de decision del autor",
     },
     {
         "id": "cpu_bloqueada_sin_contrasena",
-        "descripcion": "El paso 3 asume que el upload desde el PLC se puede hacer. No hay "
+        "description": "El paso 3 asume que el upload desde el PLC se puede hacer. No hay "
                        "ningun paso que cubra que hacer cuando la CPU esta protegida y la "
                        "contrasena se desconoce, que es justamente uno de los disparadores "
                        "de la migracion. Se cubre provisionalmente con la variante "
                        "'sin_respaldo' de los pasos 3, 5, 11, 21 y 22.",
-        "estado": "cubierto por variante, pendiente de validacion del autor",
+        "status": "cubierto por variante, pendiente de validacion del autor",
     },
     {
         "id": "roles_no_declarados",
-        "descripcion": "El documento no dice quien ejecuta cada paso. El campo 'rol' es una "
+        "description": "El documento no dice quien ejecuta cada paso. El campo 'role' es una "
                        "propuesta para que el agente pueda avisar cuando un paso excede al "
                        "tecnico de mantenimiento.",
-        "estado": "propuesta, pendiente de validacion del autor",
+        "status": "propuesta, pendiente de validacion del autor",
     },
 ]
 
@@ -596,22 +596,22 @@ PATRON_PASO = re.compile(r"^(\d{1,2})\.\s+(.*)$")
 
 def leer_documento(ruta: Path) -> dict:
     lineas = parrafos(ruta)
-    doc = {"titulo": lineas[0], "subtitulo": lineas[1], "objetivo": "", "nota_aplicacion": ""}
+    doc = {"title": lineas[0], "subtitle": lineas[1], "objective": "", "application_note": ""}
     pasos: list[dict] = []
     actual: dict | None = None
     for linea in lineas[2:]:
         m = PATRON_PASO.match(linea)
         if m:
-            actual = {"n": int(m.group(1)), "titulo": m.group(2).strip(), "detalle": ""}
+            actual = {"n": int(m.group(1)), "title": m.group(2).strip(), "detail": ""}
             pasos.append(actual)
             continue
         if linea.lower().startswith("objetivo:"):
-            doc["objetivo"] = linea.split(":", 1)[1].strip()
+            doc["objective"] = linea.split(":", 1)[1].strip()
         elif linea.lower().startswith("nota de aplicaci"):
-            doc["nota_aplicacion"] = linea.split(":", 1)[1].strip()
+            doc["application_note"] = linea.split(":", 1)[1].strip()
         elif actual is not None:
-            actual["detalle"] = (actual["detalle"] + " " + linea).strip()
-    doc["pasos"] = pasos
+            actual["detail"] = (actual["detail"] + " " + linea).strip()
+    doc["steps"] = pasos
     return doc
 
 
@@ -620,43 +620,43 @@ def leer_documento(ruta: Path) -> dict:
 # --------------------------------------------------------------------------- #
 def fase_de(n: int) -> dict:
     for f in FASES:
-        if n in f["pasos"]:
+        if n in f["steps"]:
             return f
     raise ValueError(f"El paso {n} no pertenece a ninguna fase")
 
 
 def construir(doc: dict) -> dict:
     pasos = []
-    for p in doc["pasos"]:
+    for p in doc["steps"]:
         n = p["n"]
         a = ANOTACIONES[n]
         f = fase_de(n)
         paso = {
-            "clave": str(n),
+            "key": str(n),
             "n": n,
-            "etiqueta": str(n),
-            "titulo": p["titulo"],
-            "detalle": p["detalle"],
-            "fase": f["id"],
-            "etapa_guia": f["etapa_guia"],
-            "rol": a["rol"],
-            "criterio_salida": a["criterio"],
-            "evidencia": a["evidencia"],
-            "prerrequisitos": [str(x) for x in a.get("prerreq", [])],
-            "requiere": a.get("requiere", req()),
+            "label": str(n),
+            "title": p["title"],
+            "detail": p["detail"],
+            "phase": f["id"],
+            "guide_stage": f["guide_stage"],
+            "role": a["role"],
+            "exit_criterion": a["criterion"],
+            "evidence": a["evidence"],
+            "prerequisites": [str(x) for x in a.get("prerreq", [])],
+            "requires": a.get("requires", req()),
         }
         if a.get("cubre"):
-            paso["cubierto_por_cuestionario"] = a["cubre"]
-        if a.get("nota"):
-            paso["nota_agente"] = a["nota"]
+            paso["covered_by_questionnaire"] = a["cubre"]
+        if a.get("note"):
+            paso["agent_note"] = a["note"]
         if a.get("cambio_marca"):
-            paso["variante_cambio_marca"] = a["cambio_marca"]
+            paso["brand_change_variant"] = a["cambio_marca"]
         if a.get("sin_respaldo"):
-            paso["variante_sin_respaldo"] = a["sin_respaldo"]
-        if a.get("bloqueante"):
-            paso["bloqueante"] = True
+            paso["no_backup_variant"] = a["sin_respaldo"]
+        if a.get("blocking"):
+            paso["blocking"] = True
         if a.get("decision_cpu"):
-            paso["punto_de_decision_cpu"] = True
+            paso["cpu_decision_point"] = True
         pasos.append(paso)
 
     # Extension: los siete pasos de construccion del programa. Llevan etiqueta
@@ -664,66 +664,66 @@ def construir(doc: dict) -> dict:
     # documento original de 50 pasos ni alteren su numeracion.
     for e in EXTENSION_PROGRAMA:
         pasos.append({
-            "clave": e["etiqueta"],
+            "key": e["label"],
             "n": None,
-            "etiqueta": e["etiqueta"],
-            "titulo": e["titulo"],
-            "detalle": e["detalle"],
-            "fase": "construccion_del_programa",
-            "etapa_guia": "construccion",
-            "rol": e["rol"],
-            "criterio_salida": e["criterio"],
-            "evidencia": e["evidencia"],
-            "prerrequisitos": [str(x) for x in e.get("prerreq", [])],
-            "requiere": e.get("requiere", req()),
+            "label": e["label"],
+            "title": e["title"],
+            "detail": e["detail"],
+            "phase": "construccion_del_programa",
+            "guide_stage": "construccion",
+            "role": e["role"],
+            "exit_criterion": e["criterion"],
+            "evidence": e["evidence"],
+            "prerequisites": [str(x) for x in e.get("prerreq", [])],
+            "requires": e.get("requires", req()),
             "extension": "programa",
-            "origen_metodologico": e["origen"],
-            **({"nota_agente": e["nota"]} if e.get("nota") else {}),
+            "methodological_origin": e["origin"],
+            **({"agent_note": e["note"]} if e.get("note") else {}),
         })
     return {
-        "documento": {
+        "document": {
             "id": "MIGRA-IA-PROC-050",
-            "titulo": doc["titulo"],
-            "subtitulo": doc["subtitulo"],
-            "objetivo": doc["objetivo"],
-            "nota_aplicacion": doc["nota_aplicacion"],
-            "fuente": NOMBRE_DOCX,
-            "total_pasos": len(pasos),
-            "capa_anotada": {
-                "descripcion": "El titulo y el detalle de cada paso son literales del "
+            "title": doc["title"],
+            "subtitle": doc["subtitle"],
+            "objective": doc["objective"],
+            "application_note": doc["application_note"],
+            "source": NOMBRE_DOCX,
+            "total_steps": len(pasos),
+            "annotated_layer": {
+                "description": "El titulo y el detalle de cada paso son literales del "
                                "documento fuente. Los campos criterio_salida, evidencia, "
                                "rol, requiere, prerrequisitos, nota_agente, "
                                "variante_cambio_marca y variante_sin_respaldo son una "
                                "PROPUESTA de MIGRA-IA, pendiente de validacion del autor.",
-                "campos_propuestos": ["fase", "etapa_guia", "rol", "criterio_salida",
-                                      "evidencia", "prerrequisitos", "requiere",
-                                      "cubierto_por_cuestionario", "nota_agente",
-                                      "variante_cambio_marca", "variante_sin_respaldo",
-                                      "bloqueante", "punto_de_decision_cpu"],
+                "proposed_fields": ["phase", "guide_stage", "role", "exit_criterion",
+                                      "evidence", "prerequisites", "requires",
+                                      "covered_by_questionnaire", "agent_note",
+                                      "brand_change_variant", "no_backup_variant",
+                                      "blocking", "cpu_decision_point"],
             },
         },
-        "disparadores": DISPARADORES,
-        "opciones_cpu_destino": OPCIONES_CPU,
-        "fases": FASES + [{
+        "triggers": DISPARADORES,
+        "target_cpu_options": OPCIONES_CPU,
+        "phases": FASES + [{
             "id": "construccion_del_programa",
-            "nombre": "Construccion del programa nuevo (extension P1-P7)",
-            "pasos": [e["etiqueta"] for e in EXTENSION_PROGRAMA],
-            "etapa_guia": "construccion",
-            "proposito": "Especificar, modelar y escribir el programa. Es lo que el "
+            "name": "Construccion del programa nuevo (extension P1-P7)",
+            "steps": [e["label"] for e in EXTENSION_PROGRAMA],
+            "guide_stage": "construccion",
+            "purpose": "Especificar, modelar y escribir el programa. Es lo que el "
                          "documento original no cubria: sus pasos 21 a 23 asumen que ya "
                          "existe un programa que convertir.",
             "extension": True,
-            "profundidad": PROFUNDIDAD,
+            "depth": PROFUNDIDAD,
         }],
-        "orden": orden_de_recorrido(),
-        "pasos": pasos,
-        "huecos_declarados": HUECOS_DECLARADOS,
+        "order": orden_de_recorrido(),
+        "steps": pasos,
+        "declared_gaps": HUECOS_DECLARADOS,
     }
 
 
 def validar(datos: dict) -> list[str]:
     errores = []
-    pasos = datos["pasos"]
+    pasos = datos["steps"]
     base = [p for p in pasos if not p.get("extension")]
     ext = [p for p in pasos if p.get("extension")]
     numeros = [p["n"] for p in base]
@@ -739,33 +739,33 @@ def validar(datos: dict) -> list[str]:
         errores.append(f"se esperaban {len(EXTENSION_PROGRAMA)} pasos de extension "
                        f"y hay {len(ext)}")
 
-    orden = datos["orden"]
-    claves = {p["clave"] for p in pasos}
+    orden = datos["order"]
+    claves = {p["key"] for p in pasos}
     if sorted(orden) != sorted(claves):
         errores.append("el orden de recorrido no coincide con los pasos definidos")
     posicion = {c: i for i, c in enumerate(orden)}
 
     for p in pasos:
-        etq = p["etiqueta"]
-        if not p["detalle"]:
+        etq = p["label"]
+        if not p["detail"]:
             errores.append(f"paso {etq} sin detalle")
-        if not p["criterio_salida"]:
+        if not p["exit_criterion"]:
             errores.append(f"paso {etq} sin criterio de salida")
-        if not p["evidencia"]:
+        if not p["evidence"]:
             errores.append(f"paso {etq} sin evidencia")
-        for req_c in p["prerrequisitos"]:
+        for req_c in p["prerequisites"]:
             if req_c not in claves:
                 errores.append(f"paso {etq}: prerrequisito {req_c} no existe")
             # La comparacion es por POSICION en el recorrido, no por numero: la
             # extension se intercala tras el 20, asi que P3 va antes que el 21.
-            elif posicion[req_c] >= posicion[p["clave"]]:
+            elif posicion[req_c] >= posicion[p["key"]]:
                 errores.append(f"paso {etq}: prerrequisito {req_c} no es anterior "
                                "en el orden de recorrido")
 
-    cubiertos = sorted(str(n) for f in datos["fases"] for n in f["pasos"])
+    cubiertos = sorted(str(n) for f in datos["phases"] for n in f["steps"])
     if cubiertos != sorted(claves):
         errores.append("las fases no cubren exactamente los pasos definidos")
-    if not any(p.get("punto_de_decision_cpu") for p in pasos):
+    if not any(p.get("cpu_decision_point") for p in pasos):
         errores.append("ningun paso marcado como punto de decision de CPU")
     return errores
 
@@ -790,13 +790,13 @@ def main() -> int:
     # aqui se detiene y dice exactamente que se perderia.
     if DESTINO.exists():
         actual = json.loads(DESTINO.read_text(encoding="utf-8"))
-        generados = {p["clave"]: p for p in datos["pasos"]}
+        generados = {p["key"]: p for p in datos["steps"]}
         bloques = [k for k in actual if k not in datos]
         variantes = [
-            p["clave"] for p in actual.get("pasos", [])
+            p["key"] for p in actual.get("steps", [])
             if any(k.startswith("variante_") for k in p)
             and not any(k.startswith("variante_")
-                        for k in generados.get(p["clave"], {}))
+                        for k in generados.get(p["key"], {}))
         ]
         if bloques or variantes:
             print("NO SE ESCRIBE NADA. El archivo actual tiene contenido que este script")
@@ -809,19 +809,19 @@ def main() -> int:
             return 1
     DESTINO.write_text(json.dumps(datos, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"OK  {DESTINO}")
-    print(f"    pasos: {len(datos['pasos'])}   fases: {len(datos['fases'])}"
-          f"   disparadores: {len(datos['disparadores'])}")
+    print(f"    pasos: {len(datos['steps'])}   fases: {len(datos['phases'])}"
+          f"   disparadores: {len(datos['triggers'])}")
     print(f"    con variante de cambio de marca: "
-          f"{sum(1 for p in datos['pasos'] if 'variante_cambio_marca' in p)}")
+          f"{sum(1 for p in datos['steps'] if 'brand_change_variant' in p)}")
     print(f"    con variante sin respaldo: "
-          f"{sum(1 for p in datos['pasos'] if 'variante_sin_respaldo' in p)}")
+          f"{sum(1 for p in datos['steps'] if 'no_backup_variant' in p)}")
     print(f"    que exigen aprobacion humana: "
-          f"{sum(1 for p in datos['pasos'] if p['requiere']['aprobacion_humana'])}")
+          f"{sum(1 for p in datos['steps'] if p['requires']['human_approval'])}")
     print(f"    que exigen maquina detenida: "
-          f"{sum(1 for p in datos['pasos'] if p['requiere']['maquina_detenida'])}")
+          f"{sum(1 for p in datos['steps'] if p['requires']['machine_stopped'])}")
     print(f"    que exigen especialista de seguridad: "
-          f"{sum(1 for p in datos['pasos'] if p['requiere']['especialista_seguridad'])}")
-    print(f"    bloqueantes: {[p['n'] for p in datos['pasos'] if p.get('bloqueante')]}")
+          f"{sum(1 for p in datos['steps'] if p['requires']['safety_specialist'])}")
+    print(f"    bloqueantes: {[p['n'] for p in datos['steps'] if p.get('blocking')]}")
     print(f"    tamano: {DESTINO.stat().st_size} bytes")
     return 0
 

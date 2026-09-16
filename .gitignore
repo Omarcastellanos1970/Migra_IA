@@ -1,8 +1,8 @@
 .env
 __pycache__/
 *.pyc
-casos/*.json
-casos/*.md
+cases/*.json
+cases/*.md
 .venv/
 venv/
 

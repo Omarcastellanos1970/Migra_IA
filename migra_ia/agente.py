@@ -124,7 +124,7 @@ def main() -> None:
     if caso.informes:
         print("Informes generados:")
         for inf in caso.informes:
-            print(f"  - {inf['ruta']}")
+            print(f"  - {inf['route']}")
 
 
 if __name__ == "__main__":

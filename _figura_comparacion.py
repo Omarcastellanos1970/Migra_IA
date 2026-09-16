@@ -19,7 +19,7 @@ De ningun sitio a mano. El script importa _baseline.py y vuelve a correr la
 misma validacion cruzada estratificada y agrupada por fabricante, con la misma
 particion congelada. Si _baseline.py cambia, la figura cambia con el.
 
-La barra de la propuesta se lee de data/figura_comparacion_propuesta.csv, que
+La barra de la propuesta se lee de data/figure_comparison_proposal.csv, que
 nace vacio: mientras lo este, la barra se dibuja como hueco marcado -contorno
 del color distintivo y la palabra pendiente- y NUNCA con un valor inventado.
 
@@ -39,7 +39,7 @@ import sys
 
 import _baseline as bl
 
-RUTA_PROPUESTA = os.path.join("data", "figura_comparacion_propuesta.csv")
+RUTA_PROPUESTA = os.path.join("data", "figure_comparison_proposal.csv")
 SALIDA_POR_DEFECTO = os.path.join("docs", "figuras")
 
 # Color distintivo de la propuesta. El resto de la figura es gris, para que la
@@ -108,7 +108,7 @@ def leer_propuesta(ruta):
 TEXTOS = {
     "ES": {
         "archivo": "Figura_P1_comparacion_ES.tex",
-        "titulo": "Figura -- Comparacion de modelos en P1. Version en espanol.",
+        "title": "Figura -- Comparacion de modelos en P1. Version en espanol.",
         "ylabel": r"$F_1$ macro",
         "trivial": r"Trivial\\\scriptsize(clase mayoritaria)",
         "clasico": r"Clásico\\\scriptsize(log. ordinal)",
@@ -132,7 +132,7 @@ TEXTOS = {
     },
     "EN": {
         "archivo": "Figure_P1_comparison_EN.tex",
-        "titulo": "Figure -- Model comparison on P1. English version.",
+        "title": "Figure -- Model comparison on P1. English version.",
         "ylabel": r"Macro $F_1$",
         "trivial": r"Trivial\\\scriptsize(majority class)",
         "clasico": r"Classical\\\scriptsize(ordinal log.)",
@@ -161,19 +161,19 @@ TEXTOS = {
 # LaTeX
 # --------------------------------------------------------------------------
 
-CABECERA_TEX = r"""%% %(titulo)s
+CABECERA_TEX = r"""%% %(title)s
 %% -------------------------------------------------------------------------
 %% GENERADO POR _figura_comparacion.py DEL REPOSITORIO MIGRA-IA.
 %% NO EDITAR A MANO: cualquier cambio se pierde al regenerar.
 %% Las cifras del trivial y del clasico salen de correr _baseline.py; la de la
-%% propuesta, de data/figura_comparacion_propuesta.csv.
+%% propuesta, de data/figure_comparison_proposal.csv.
 %%
 %% PAQUETES NECESARIOS EN EL PREAMBULO DEL .tex PRINCIPAL:
 %%   \usepackage{pgfplots}      NUEVO
 %%   \pgfplotsset{compat=1.18}  NUEVO
 %%   \usepackage[table]{xcolor} ya esta (Tabla I)
 %%
-%% ESTADO: %(estado)s
+%% ESTADO: %(status)s
 %% -------------------------------------------------------------------------
 \definecolor{migrapropuesta}{HTML}{%(color)s}
 """
@@ -235,7 +235,7 @@ PROPUESTA_PENDIENTE = r"""%% --- La propuesta: hueco marcado, no hay medida toda
 PROPUESTA_MEDIDA = r"""%% --- La propuesta, en color distintivo -----------------------------------
 \addplot+[ybar, draw=migrapropuesta, line width=1pt, fill=migrapropuesta!75,
           error bars/.cd, y dir=both, y explicit]
-  coordinates {(propuesta,%(valor)s) +- (0,%(sd)s)};
+  coordinates {(propuesta,%(value)s) +- (0,%(sd)s)};
 """
 
 
@@ -249,11 +249,11 @@ def construir_tex(idioma, med, propuesta):
         cierre = t["cierre_pendiente"]
     else:
         estado = "Propuesta medida: %.3f +-%.3f" % propuesta
-        bloque = PROPUESTA_MEDIDA % {"valor": "%.3f" % propuesta[0],
+        bloque = PROPUESTA_MEDIDA % {"value": "%.3f" % propuesta[0],
                                      "sd": "%.3f" % propuesta[1]}
         cierre = t["cierre_medida"]
 
-    cabecera = CABECERA_TEX % {"titulo": t["titulo"], "estado": estado,
+    cabecera = CABECERA_TEX % {"title": t["title"], "status": estado,
                                "color": COLOR_PROPUESTA}
     cuerpo = CUERPO_TEX % {
         "ylabel": t["ylabel"],
@@ -381,7 +381,7 @@ VISTA_HTML = """<!doctype html>
 %(svg)s
 <figcaption>%(pie)s</figcaption>
 </figure>
-<p class="nota">%(estado)s Las cifras del trivial y del cl&aacute;sico se
+<p class="note">%(status)s Las cifras del trivial y del cl&aacute;sico se
 recalculan corriendo <code>_baseline.py</code>; ninguna est&aacute; escrita a
 mano. La versi&oacute;n que se compila en el paper es el <code>.tex</code> con
 pgfplots, generado por este mismo script.</p>
@@ -457,7 +457,7 @@ def main():
     ruta_html = os.path.join(destino_vista, "figura_p1_comparacion.html")
     with open(ruta_html, "w", encoding="utf-8") as fh:
         fh.write(VISTA_HTML % {"svg": svg, "pie": pie_vista(med),
-                               "estado": estado})
+                               "status": estado})
     escritos.append(ruta_html)
 
     print("Estado: %s" % estado)

@@ -8,7 +8,7 @@ hace falta contrastarlo con criterio humano, y el proyecto no dispone de casos
 de campo con desenlace conocido.
 
 Lo que si hay son los cinco casos de estudio de la guia MIGRA-IA-GUIA-001
-(`data/base_conocimiento.json`), que son EXTERNOS al motor: no los escribio el
+(`data/es/knowledge_base.json`), que son EXTERNOS al motor: no los escribio el
 autor del codigo. Este script los presenta a los coautores **en ciego**:
 
   - se les da la situacion del equipo,
@@ -103,16 +103,16 @@ def casos_ciegos(semilla: int):
     y `estrategia`, `riesgos` y `pruebas` se descartan enteros.
     """
     base = conocimiento.cargar_base()
-    casos = list(base["casos_estudio"])
+    casos = list(base["case_studies"])
     random.Random(semilla).shuffle(casos)
     salida = []
     for i, c in enumerate(casos, 1):
-        contexto = c["titulo"].split(":")[0].strip()
+        contexto = c["title"].split(":")[0].strip()
         salida.append({
             "n": i,
             "id_real": c["id"],
             "contexto": contexto,
-            "situacion": c["situacion"],
+            "situation": c["situation"],
         })
     return salida
 
@@ -129,9 +129,9 @@ def bloque_preguntas() -> list[str]:
             nota = "   *(responda solo si F01 = Si)*"
         elif codigo in ("F12", "F13"):
             nota = "   *(responda solo si F01 = No o No se conoce)*"
-        L.append("**%s.** %s%s" % (codigo, p.get("texto", ""), nota))
-        tipo = p.get("tipo")
-        opciones = p.get("opciones") or []
+        L.append("**%s.** %s%s" % (codigo, p.get("text", ""), nota))
+        tipo = p.get("type")
+        opciones = p.get("options") or []
         if tipo == "numero":
             L.append("  _escriba un numero_")
         elif not opciones:
@@ -189,7 +189,7 @@ def generar(semilla_dada: int | None = None) -> None:
             "",
             "**Contexto:** %s" % c["contexto"],
             "",
-            "**Situacion:** %s" % c["situacion"],
+            "**Situacion:** %s" % c["situation"],
             "",
             "### Cuestionario - Caso %d" % c["n"],
             "",
@@ -202,7 +202,7 @@ def generar(semilla_dada: int | None = None) -> None:
 
     CLAVE.write_text(json.dumps(
         {"semilla_orden": semilla,
-         "nota": "NO enviar este archivo a los coautores: mapea cada caso ciego "
+         "note": "NO enviar este archivo a los coautores: mapea cada caso ciego "
                  "a su id en la guia, que revela el desenlace.",
          "mapa": {str(c["n"]): c["id_real"] for c in casos}},
         ensure_ascii=False, indent=2), encoding="utf-8")
@@ -247,7 +247,7 @@ def leer_plantilla(ruta: Path):
         if valor is None:
             # No se adivina: la respuesta se descarta y queda como no contestada,
             # que es justo lo que el motor sabe tratar como dato faltante.
-            n_ops = len(p.get("opciones") or [])
+            n_ops = len(p.get("options") or [])
             rango = ("1 a %d" % n_ops) if n_ops else "texto libre"
             print("  aviso: %s, caso %d, %s = %r no es valido (opciones: %s). "
                   "Queda sin responder." % (ruta.name, actual, codigo, crudo, rango))
@@ -261,12 +261,12 @@ def evaluar(respuestas: dict):
     calculados, omitidos = interactivo.factores(respuestas)
     r = scoring.calcular_riesgo(calculados)
     d = interactivo.decidir(respuestas, {"puntuacion": r.puntuacion,
-                                         "clasificacion": r.clasificacion})
+                                         "classification": r.clasificacion})
     return {
         "puntuacion": r.puntuacion,
-        "clasificacion": r.clasificacion,
+        "classification": r.clasificacion,
         "migrar": bool(d["migrar"]),
-        "ruta": [a["alternativa"] for a in d["ruta"]],
+        "route": [a["alternative"] for a in d["route"]],
         "omitidos": omitidos,
         "respondidas": len(respuestas),
     }
@@ -310,14 +310,14 @@ def comparar(rutas: list[Path], escribir_md: bool) -> None:
             e = evaluar(resp)
             evals[quien] = e
             w("  %-14s %5.1f  %-18s migrar=%-5s  respondidas=%d  omitidos=%d"
-              % (quien, e["puntuacion"], e["clasificacion"], e["migrar"],
+              % (quien, e["puntuacion"], e["classification"], e["migrar"],
                  e["respondidas"], len(e["omitidos"])))
-            w("  %-14s ruta: %s" % ("", " > ".join(e["ruta"]) or "(vacia)"))
+            w("  %-14s ruta: %s" % ("", " > ".join(e["route"]) or "(vacia)"))
         if len(evals) >= 2:
             puntos = [e["puntuacion"] for e in evals.values()]
-            clases = {e["clasificacion"] for e in evals.values()}
+            clases = {e["classification"] for e in evals.values()}
             migrars = {e["migrar"] for e in evals.values()}
-            rutas_d = {tuple(e["ruta"]) for e in evals.values()}
+            rutas_d = {tuple(e["route"]) for e in evals.values()}
             w("")
             w("  dispersion   : %.1f .. %.1f  (amplitud %.1f, sd %.2f)"
               % (min(puntos), max(puntos), max(puntos) - min(puntos),
@@ -331,7 +331,7 @@ def comparar(rutas: list[Path], escribir_md: bool) -> None:
             w("  ruta         : %s" % ("unanime" if len(rutas_d) == 1
                                        else "%d rutas distintas" % len(rutas_d)))
             resumen_acuerdo.append({
-                "caso": n, "amplitud": max(puntos) - min(puntos),
+                "case": n, "amplitud": max(puntos) - min(puntos),
                 "clase_unanime": len(clases) == 1,
                 "decision_unanime": len(migrars) == 1,
                 "ruta_unanime": len(rutas_d) == 1,

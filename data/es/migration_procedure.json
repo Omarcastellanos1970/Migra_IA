@@ -1,0 +1,1988 @@
+{
+  "document": {
+    "id": "MIGRA-IA-PROC-050",
+    "title": "Procedimiento para la Migración de un Proyecto de PLC a una CPU Más Actualizada",
+    "subtitle": "Guía detallada de 50 pasos",
+    "objective": "establecer un procedimiento ordenado para migrar un sistema de automatización desde una CPU/PLC existente u obsoleta hacia una plataforma más reciente, conservando la funcionalidad del proceso, reduciendo riesgos y garantizando la trazabilidad de los cambios.",
+    "application_note": "Este procedimiento puede adaptarse a diferentes fabricantes y familias de PLC. Las herramientas específicas de conversión, compatibilidad de hardware, seguridad funcional y pruebas deben verificarse para la plataforma origen y destino de cada proyecto.",
+    "source": "Procedimiento_Migracion_PLC_CPU_50_Pasos.docx",
+    "total_steps": 57,
+    "annotated_layer": {
+      "description": "El titulo y el detalle de cada paso son literales del documento fuente. Los campos criterio_salida, evidencia, rol, requiere, prerrequisitos, nota_agente, variante_cambio_marca y variante_sin_respaldo son una PROPUESTA de MIGRA-IA, pendiente de validacion del autor.",
+      "proposed_fields": [
+        "fase",
+        "etapa_guia",
+        "rol",
+        "criterio_salida",
+        "evidencia",
+        "prerrequisitos",
+        "requiere",
+        "cubierto_por_cuestionario",
+        "nota_agente",
+        "variante_cambio_marca",
+        "variante_sin_respaldo",
+        "bloqueante",
+        "punto_de_decision_cpu"
+      ]
+    }
+  },
+  "triggers": [
+    {
+      "id": "cpu_obsoleta",
+      "title": "CPU obsoleta o sin soporte",
+      "description": "La CPU o su familia estan descontinuadas, sin soporte del fabricante, sin repuestos, o con un plazo de entrega mayor que la parada tolerable.",
+      "decision_map_alternative": "Migracion a plataforma moderna",
+      "origin": "usuario, 2026-08-29"
+    },
+    {
+      "id": "obsolescencia_con_acceso_al_codigo",
+      "title": "Obsolescencia sin repuestos, con el programa accesible",
+      "description": "Se conocen las contrasenas (N06, F16) y el programa original se puede abrir y compilar (F01, F06, F07): no hay nada que reconstruir. Aun asi la CPU esta descontinuada y sin repuestos ni soporte (M01, M04, M06) y el usuario decide migrar. Es el escenario MAS FAVORABLE de migracion: el programa existente se CONVIERTE con las herramientas oficiales del fabricante y los pasos 21 y 22 aplican en su forma plena, sin la variante 'sin_respaldo'.",
+      "decision_map_alternative": "Migracion a plataforma moderna",
+      "activates_variant": "con_codigo_fuente",
+      "excludes_variant": "sin_respaldo",
+      "enables_manufacturer_route": true,
+      "origin": "usuario, 2026-09-07"
+    },
+    {
+      "id": "contrasena_desconocida",
+      "title": "Contrasena de la CPU desconocida",
+      "description": "La CPU esta protegida y nadie conoce la contrasena, de modo que el programa no se puede leer ni modificar.",
+      "decision_map_alternative": "Reconstruccion del programa",
+      "activates_variant": "sin_respaldo",
+      "origin": "usuario, 2026-08-29"
+    },
+    {
+      "id": "sin_acceso_al_programa",
+      "title": "No se puede copiar ni abrir el programa anterior",
+      "description": "No hay respaldo, o el que hay no abre; falta el software, la licencia o el adaptador de programacion; o el proyecto esta corrupto o depende de bloques propietarios inaccesibles.",
+      "decision_map_alternative": "Reconstruccion del programa",
+      "activates_variant": "sin_respaldo",
+      "origin": "usuario, 2026-08-29"
+    },
+    {
+      "id": "decision_del_usuario",
+      "title": "El usuario decide cambiar la CPU",
+      "description": "Con o sin sugerencia del agente, el usuario resuelve migrar a una CPU nueva. La decision es suya y el agente la acata.",
+      "origin": "usuario, 2026-08-29"
+    }
+  ],
+  "target_cpu_options": {
+    "step": 13,
+    "rule": "El agente PRESENTA las dos opciones y sus consecuencias. La eleccion es del usuario: un cambio de marca nunca es un supuesto del agente.",
+    "options": [
+      {
+        "id": "misma_marca",
+        "title": "CPU nueva del mismo fabricante",
+        "what_it_offers": "La generacion actual del mismo fabricante, con los modelos que el catalogo documenta y su fuente oficial. Cuando la guia publica una ruta para la familia de origen, se usa esa ruta y no una generica.",
+        "pros": [
+          "Existe herramienta oficial de conversion del programa (pasos 21 y 22)",
+          "Se conserva el ecosistema: software, redes, repuestos y personal ya formado",
+          "La matriz de equivalencia del paso 14 se hace modelo a modelo"
+        ],
+        "cons": [
+          "Queda atado al mismo fabricante y a su politica de ciclo de vida"
+        ],
+        "data_support": "Completo: las 30 marcas del catalogo tienen su generacion actual documentada con modelos y fuente."
+      },
+      {
+        "id": "marca_alternativa",
+        "title": "Plataforma actual de otra marca",
+        "what_it_offers": "Las plataformas actuales de marcas alternativas a nivel de FAMILIA, con sus modelos documentados y su fuente oficial.",
+        "pros": [
+          "Puede mejorar precio, disponibilidad local o soporte tecnico cercano",
+          "Rompe la dependencia de un unico fabricante"
+        ],
+        "cons": [
+          "No existe herramienta de conversion entre marcas: el programa se reescribe. Con el programa de origen accesible es un porte contra la especificacion que ese programa ya constituye; sin acceso, es un desarrollo nuevo",
+          "Software, licencias y capacitacion nuevos, con su costo y su curva de aprendizaje",
+          "Las redes de campo pueden necesitar conversion o pasarela",
+          "Cambia el ecosistema de repuestos y el proveedor de servicio"
+        ],
+        "data_support": "Parcial y declarado: el catalogo documenta que familias actuales existen y con que modelos, pero NO publica atributos comparables por modelo (memoria, E/S, tiempo de ciclo, redes). Por eso el agente ofrece la comparacion a nivel de plataforma y remite la seleccion del modelo exacto a la herramienta oficial de seleccion del fabricante.",
+        "hard_limit": "El agente NO afirma equivalencia modelo a modelo entre marcas distintas, ni completa numeros de catalogo que el catalogo no liste."
+      }
+    ]
+  },
+  "phases": [
+    {
+      "id": "levantamiento",
+      "name": "Levantamiento y aseguramiento de la evidencia",
+      "steps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "guide_stage": "diagnostico",
+      "purpose": "Saber que hay, asegurarlo y entenderlo antes de decidir nada."
+    },
+    {
+      "id": "seleccion_e_ingenieria",
+      "name": "Seleccion de la CPU e ingenieria de la solucion",
+      "steps": [
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "guide_stage": "ingenieria",
+      "purpose": "Elegir la plataforma destino y disenar la solucion completa en papel."
+    },
+    {
+      "id": "conversion",
+      "name": "Conversion o reescritura del programa",
+      "steps": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ],
+      "guide_stage": "construccion",
+      "purpose": "Llevar la logica a la plataforma nueva y dejarla compilando y simulada."
+    },
+    {
+      "id": "fat",
+      "name": "Pruebas de aceptacion en fabrica y plan de retorno",
+      "steps": [
+        31,
+        32,
+        33
+      ],
+      "guide_stage": "fat",
+      "purpose": "Demostrar en banco que funciona, y tener como volver atras si falla."
+    },
+    {
+      "id": "corte_y_puesta_en_marcha",
+      "name": "Corte, instalacion y puesta en marcha",
+      "steps": [
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "guide_stage": "corte_sat",
+      "purpose": "Intervenir la maquina real, probar en campo y aceptar el sistema."
+    },
+    {
+      "id": "cierre",
+      "name": "Documentacion, capacitacion y cierre",
+      "steps": [
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "guide_stage": "cierre",
+      "purpose": "Dejar el sistema documentado, respaldado, entendido y formalmente aceptado."
+    },
+    {
+      "id": "construccion_del_programa",
+      "name": "Construccion del programa nuevo (extension P1-P7)",
+      "steps": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7"
+      ],
+      "guide_stage": "construccion",
+      "purpose": "Especificar, modelar y escribir el programa. Es lo que el documento original no cubria: sus pasos 21 a 23 asumen que ya existe un programa que convertir.",
+      "extension": true,
+      "depth": {
+        "conversion": "RUTA DE CONVERSION (misma marca, con respaldo verificado): recorrido ligero. P1 y P2 se hacen igualmente, porque son la referencia contra la que se valida la conversion en el paso 32; P3 a P7 los cubre en gran parte la herramienta oficial y los pasos 21 a 23, y aqui solo se comprueba que el resultado cumple la arquitectura y la trazabilidad.",
+        "rebuild": "RUTA DE RECONSTRUCCION O CAMBIO DE MARCA: recorrido completo. No hay programa que convertir, asi que P1 a P7 son el trabajo principal y los pasos 21 y 22 no aplican. Dimensionar el esfuerzo como desarrollo nuevo, no como migracion."
+      }
+    }
+  ],
+  "order": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
+    "33",
+    "34",
+    "35",
+    "36",
+    "37",
+    "38",
+    "39",
+    "40",
+    "41",
+    "42",
+    "43",
+    "44",
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50"
+  ],
+  "steps": [
+    {
+      "key": "1",
+      "n": 1,
+      "label": "1",
+      "title": "Identificar el sistema existente.",
+      "detail": "Registrar fabricante, familia y modelo exacto de CPU, número de parte, versión de firmware, módulos de E/S, módulos especiales, fuentes, racks, tarjetas de comunicación, HMI/SCADA, variadores, servos, instrumentos y demás dispositivos conectados.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Ficha del sistema completa: marca, familia, modelo exacto, numero de parte y firmware de la CPU, mas el listado de modulos, racks, fuentes, redes, HMI/SCADA, variadores e instrumentos conectados.",
+      "evidence": [
+        "Fotografia legible de la placa de la CPU y de cada modulo",
+        "Numeros de parte transcritos tal como aparecen en el equipo, sin completar codigos"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "D, E, H, J"
+    },
+    {
+      "key": "2",
+      "n": 2,
+      "label": "2",
+      "title": "Determinar el estado de obsolescencia.",
+      "detail": "Verificar si la CPU y los módulos están activos, en fase de retirada o descontinuados. Identificar también disponibilidad de repuestos y soporte del fabricante.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Estado de ciclo de vida declarado por el fabricante para la CPU y los modulos (activo, en retirada o descontinuado), con disponibilidad de repuestos y plazo de entrega.",
+      "evidence": [
+        "Cita de la fuente oficial del fabricante que declara el estado",
+        "Plazo de entrega cotizado para los repuestos criticos"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "M"
+    },
+    {
+      "key": "3",
+      "n": 3,
+      "label": "3",
+      "title": "Realizar un respaldo completo antes de intervenir.",
+      "detail": "Extraer y guardar el proyecto original, programa de CPU, bloques, DB, símbolos/tags, configuración de hardware, redes, parámetros, recetas, alarmas y configuración HMI/SCADA. Cuando sea posible, realizar también un upload directamente desde el PLC instalado.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Copia del proyecto original y, cuando fue posible, del upload directo desde el PLC, guardada con checksum y en al menos dos ubicaciones distintas.",
+      "evidence": [
+        "Archivo de proyecto guardado con equipo y fecha en el nombre",
+        "Checksum o tamano anotado en el expediente",
+        "Ubicacion de las dos copias"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": true,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "F",
+      "no_backup_variant": "Si la CPU tiene contrasena desconocida, falta el software o el adaptador, o el upload falla: DETENERSE y escalar. No forzar el acceso. Registrar el caso como SIN RESPALDO VERIFICADO y continuar por la via de reconstruccion (pasos 6, 7 y 11), que es la alternativa 'Reconstruccion del programa' del mapa de decision."
+    },
+    {
+      "key": "4",
+      "n": 4,
+      "label": "4",
+      "title": "Registrar las versiones de software.",
+      "detail": "Documentar con qué software y versión se creó el proyecto: STEP 7 Classic, TIA Portal, Studio 5000, GX Works, EcoStruxure Control Expert, Sysmac Studio, CODESYS u otro.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Nombre y version exacta del software de ingenieria y del firmware con los que el proyecto abre y compila.",
+      "evidence": [
+        "Version anotada tal como la reporta el propio software",
+        "Tipo de licencia y su forma de activacion"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "F, N"
+    },
+    {
+      "key": "5",
+      "n": 5,
+      "label": "5",
+      "title": "Verificar que el respaldo pueda abrirse.",
+      "detail": "Abrir el proyecto en un entorno independiente y comprobar que no está corrupto. Un backup no verificado no debe considerarse un respaldo seguro.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "El proyecto abre en un entorno independiente y compila sin errores, y su checksum coincide con el del paso 3. Un respaldo que no se puede verificar se trata como AUSENTE.",
+      "evidence": [
+        "Resultado de la compilacion del respaldo",
+        "Checksum verificado contra el del paso 3"
+      ],
+      "prerequisites": [
+        "3"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "F",
+      "no_backup_variant": "Si no abre, esta corrupto o no compila, NO se declara respaldo: se marca el caso como sin respaldo y se pasa a la via de reconstruccion."
+    },
+    {
+      "key": "6",
+      "n": 6,
+      "label": "6",
+      "title": "Documentar el funcionamiento actual del proceso.",
+      "detail": "Registrar secuencias automáticas, operación manual, enclavamientos, permisos, alarmas, fallas, tiempos, setpoints, PID, recetas y condiciones de seguridad.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Descripcion escrita del funcionamiento real: secuencias automaticas, operacion manual, enclavamientos, permisos, alarmas, tiempos, setpoints, PID, recetas y condiciones de seguridad.",
+      "evidence": [
+        "Documento de operacion validado por el operador de la maquina",
+        "Registro del ciclo observado en planta"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "C",
+      "agent_note": "Cuando no hay respaldo, este paso deja de ser documentacion y pasa a ser la FUENTE PRINCIPAL para reconstruir el programa: su calidad determina la del sistema nuevo.",
+      "no_backup_variant": "Es el paso mas importante de todo el procedimiento: sin programa de origen, la especificacion del sistema nuevo sale de aqui, de las entrevistas y de la observacion del ciclo."
+    },
+    {
+      "key": "7",
+      "n": 7,
+      "label": "7",
+      "title": "Crear una lista completa de E/S.",
+      "detail": "Elaborar una tabla de correspondencia con dirección actual, tag, descripción, tipo de señal y dispositivo de campo.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Tabla de E/S completa: direccion actual, tag, descripcion, tipo de senal y dispositivo de campo, sin filas incompletas.",
+      "evidence": [
+        "Tabla de E/S levantada o exportada",
+        "Contraste con el cableado real de al menos una muestra por tipo de senal"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "E"
+    },
+    {
+      "key": "8",
+      "n": 8,
+      "label": "8",
+      "title": "Identificar las interfaces de comunicación.",
+      "detail": "Registrar PROFIBUS, PROFINET, Modbus RTU/TCP, EtherNet/IP, CAN, DeviceNet, AS-i, OPC, comunicación serial u otros protocolos utilizados.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Lista de todos los protocolos en uso, con el equipo que hay en cada extremo.",
+      "evidence": [
+        "Inventario de interfaces y protocolos",
+        "Fotografia de las tarjetas de comunicacion instaladas"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "G"
+    },
+    {
+      "key": "9",
+      "n": 9,
+      "label": "9",
+      "title": "Registrar la arquitectura de red.",
+      "detail": "Documentar direcciones IP, máscaras, nombres PROFINET, direcciones PROFIBUS, números de nodo, puertos, velocidades y topología física.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Mapa de red documentado: direcciones, mascaras, nombres, nodos, puertos, velocidades y topologia fisica.",
+      "evidence": [
+        "Diagrama de red actualizado",
+        "Tabla de direcciones y de nodos"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "G"
+    },
+    {
+      "key": "10",
+      "n": 10,
+      "label": "10",
+      "title": "Identificar dependencias externas.",
+      "detail": "Determinar qué equipos intercambian información con la CPU: HMI, SCADA, PLC secundarios, robots, variadores, servidores OPC, MES/ERP, básculas, lectores de códigos y sistemas de visión.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "tecnico",
+      "exit_criterion": "Lista de todos los sistemas que intercambian datos con la CPU, con el sentido del intercambio y su criticidad.",
+      "evidence": [
+        "Matriz de dependencias externas",
+        "Confirmacion del responsable de cada sistema conectado"
+      ],
+      "prerequisites": [],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "G, H"
+    },
+    {
+      "key": "11",
+      "n": 11,
+      "label": "11",
+      "title": "Analizar el programa existente.",
+      "detail": "Clasificar los bloques según su función: secuencias, motores, válvulas, alarmas, comunicaciones, PID, cálculos, seguridad, diagnóstico y funciones especiales.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "ingenieria",
+      "exit_criterion": "Bloques del programa clasificados por funcion, con los de seguridad y los protegidos o propietarios identificados aparte.",
+      "evidence": [
+        "Inventario de bloques con su funcion",
+        "Marcado de los bloques inaccesibles o protegidos"
+      ],
+      "prerequisites": [
+        "5"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "O",
+      "no_backup_variant": "Sin respaldo no hay programa que analizar: la clasificacion se sustituye por la logica levantada en los pasos 6 y 7, y el alcance de lo que NO se pudo recuperar se declara explicitamente en el expediente."
+    },
+    {
+      "key": "12",
+      "n": 12,
+      "label": "12",
+      "title": "Detectar instrucciones obsoletas o incompatibles.",
+      "detail": "Identificar instrucciones, bloques de sistema, direccionamiento, temporizadores, contadores o estructuras que la CPU nueva no soporte de la misma forma.",
+      "phase": "levantamiento",
+      "guide_stage": "diagnostico",
+      "role": "ingenieria",
+      "exit_criterion": "Lista de instrucciones, bloques de sistema, direccionamiento y estructuras que la plataforma destino no soporta igual, cada una con su esfuerzo estimado.",
+      "evidence": [
+        "Lista de incompatibilidades detectadas",
+        "Referencia del manual del fabricante que sustenta cada una"
+      ],
+      "prerequisites": [
+        "11"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "covered_by_questionnaire": "O",
+      "agent_note": "Este paso se abre aqui pero solo se cierra despues del paso 13: hasta no fijar la CPU destino no se sabe que es lo que no soporta."
+    },
+    {
+      "key": "13",
+      "n": 13,
+      "label": "13",
+      "title": "Seleccionar la CPU de reemplazo.",
+      "detail": "La nueva CPU debe disponer de memoria, velocidad, E/S, comunicaciones, conexiones, funciones tecnológicas y características ambientales suficientes.",
+      "phase": "seleccion_e_ingenieria",
+      "guide_stage": "ingenieria",
+      "role": "ingenieria",
+      "exit_criterion": "CPU destino elegida y justificada frente a memoria, velocidad, E/S, comunicaciones, conexiones, funciones tecnologicas y condiciones ambientales del caso, con su fuente oficial citada.",
+      "evidence": [
+        "Comparacion documentada entre los requisitos del caso y las caracteristicas publicadas de la CPU candidata",
+        "Verificacion en la herramienta oficial de seleccion del fabricante"
+      ],
+      "prerequisites": [
+        "2",
+        "7",
+        "12"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "agent_note": "Es el punto donde el agente ofrece las dos opciones: A) CPU de la generacion actual del MISMO fabricante, y B) plataformas actuales de marcas alternativas. La eleccion la hace el usuario, nunca el agente.",
+      "brand_change_variant": "Si el usuario elige otra marca, el agente presenta la generacion actual de las marcas alternativas a nivel de PLATAFORMA (familia, modelos documentados y fuente oficial). No afirma equivalencia modelo a modelo: el catalogo no publica atributos comparables y esa seleccion se cierra en la herramienta oficial del fabricante.",
+      "cpu_decision_point": true
+    },
+    {
+      "key": "14",
+      "n": 14,
+      "label": "14",
+      "title": "Crear una matriz de equivalencia de hardware.",
+      "detail": "Relacionar cada CPU, módulo de E/S, módulo especial e interfaz antigua con su reemplazo moderno y definir la acción necesaria.",
+      "phase": "seleccion_e_ingenieria",
+      "guide_stage": "ingenieria",
+      "role": "ingenieria",
+      "exit_criterion": "Matriz que relaciona cada CPU, modulo de E/S, modulo especial e interfaz antigua con su reemplazo y la accion necesaria (reemplazo directo, equivalente, adaptador, se conserva, se elimina), sin filas por definir.",
+      "evidence": [
+        "Matriz de equivalencia de hardware completa"
+      ],
+      "prerequisites": [
+        "7",
+        "13"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "brand_change_variant": "Entre marcas distintas la matriz deja de ser modelo a modelo: la equivalencia se establece por criterio funcional (tipo y numero de senales, rangos, redes, funciones especiales) y NUNCA por similitud de nombre o de referencia."
+    },
+    {
+      "key": "15",
+      "n": 15,
+      "label": "15",
+      "title": "Comprobar compatibilidad eléctrica.",
+      "detail": "Revisar tensiones, corriente máxima, PNP/NPN, aislamiento, resolución analógica, 0–10 V, ±10 V, 4–20 mA, RTD, termopares, frecuencia y tipos de salida.",
+      "phase": "seleccion_e_ingenieria",
+      "guide_stage": "ingenieria",
+      "role": "ingenieria",
+      "exit_criterion": "Cada tipo de senal verificado contra la tarjeta nueva: tension, corriente, PNP/NPN, aislamiento, resolucion, rango, tipo de sensor y tipo de salida.",
+      "evidence": [
+        "Hoja de comparacion electrica por tipo de senal",
+        "Identificacion de las senales que necesitan acondicionamiento o rele de interposicion"
+      ],
+      "prerequisites": [
+        "7",
+        "14"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "16",
+      "n": 16,
+      "label": "16",
+      "title": "Definir qué hardware se conservará.",
+      "detail": "Determinar qué módulos remotos, variadores, instrumentos u otros dispositivos pueden mantenerse mediante interfaces compatibles.",
+      "phase": "seleccion_e_ingenieria",
+      "guide_stage": "ingenieria",
+      "role": "ingenieria",
+      "exit_criterion": "Lista de lo que se conserva y de lo que se sustituye, con la interfaz que lo hace posible en cada caso.",
+      "evidence": [
+        "Decision documentada por dispositivo, con su justificacion"
+      ],
+      "prerequisites": [
+        "14",
+        "15"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "agent_note": "Los pasos 15 y 16 suelen obligar a revisar la seleccion del paso 13: la seleccion de CPU es iterativa, no un punto unico."
+    },
+    {
+      "key": "17",
+      "n": 17,
+      "label": "17",
+      "title": "Diseñar la arquitectura nueva.",
+      "detail": "Preparar la configuración objetivo de CPU, red, E/S, HMI, variadores y dispositivos externos.",
+      "phase": "seleccion_e_ingenieria",
+      "guide_stage": "ingenieria",
+      "role": "ingenieria",
+      "exit_criterion": "Arquitectura destino definida: CPU, racks, E/S locales y remotas, redes, HMI, variadores y dispositivos externos, con su diagrama.",
+      "evidence": [
+        "Diagrama de la arquitectura nueva",
+        "Lista de materiales preliminar derivada del diagrama"
+      ],
+      "prerequisites": [
+        "16"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "18",
+      "n": 18,
+      "label": "18",
+      "title": "Crear una tabla de mapeo de direcciones.",
+      "detail": "Relacionar cada dirección o tag antiguo con su correspondiente dirección/tag nuevo, manteniendo trazabilidad.",
+      "phase": "seleccion_e_ingenieria",
+      "guide_stage": "ingenieria",
+      "role": "ingenieria",
+      "exit_criterion": "Tabla de mapeo que relaciona cada direccion o tag antiguo con el nuevo, completa, sin duplicados y sin ninguna E/S del paso 7 fuera de la tabla.",
+      "evidence": [
+        "Tabla de mapeo de antigua a nueva",
+        "Comprobacion de cobertura contra la lista de E/S del paso 7"
+      ],
+      "prerequisites": [
+        "7",
+        "17"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "19",
+      "n": 19,
+      "label": "19",
+      "title": "Crear el proyecto para la plataforma nueva.",
+      "detail": "Instalar o verificar la versión correspondiente del software de ingeniería y agregar la CPU, firmware, módulos y dispositivos necesarios.",
+      "phase": "seleccion_e_ingenieria",
+      "guide_stage": "ingenieria",
+      "role": "ingenieria",
+      "exit_criterion": "Proyecto creado en la version correcta del software de ingenieria, con CPU, firmware, modulos y dispositivos agregados.",
+      "evidence": [
+        "Proyecto nuevo creado y guardado",
+        "Version de software y de firmware anotadas"
+      ],
+      "prerequisites": [
+        "17"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "brand_change_variant": "Con cambio de marca esto implica software, licencias y capacitacion NUEVOS, no una version mas reciente del que ya se tiene. Presupuestar y planificar la formacion antes de llegar a este punto."
+    },
+    {
+      "key": "20",
+      "n": 20,
+      "label": "20",
+      "title": "Configurar el nuevo hardware.",
+      "detail": "Crear rack, CPU, E/S locales/remotas, redes industriales y dispositivos asociados.",
+      "phase": "seleccion_e_ingenieria",
+      "guide_stage": "ingenieria",
+      "role": "ingenieria",
+      "exit_criterion": "Configuracion de hardware completa y compilable: rack, CPU, E/S locales y remotas, redes y dispositivos asociados.",
+      "evidence": [
+        "Configuracion de hardware compilada sin errores"
+      ],
+      "prerequisites": [
+        "19"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "21",
+      "n": 21,
+      "label": "21",
+      "title": "Migrar el programa con herramientas oficiales.",
+      "detail": "Utilizar primero las herramientas de migración o conversión proporcionadas por el fabricante cuando estén disponibles.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Programa pasado por la herramienta oficial de migracion del fabricante, con su reporte guardado y la version de la herramienta anotada.",
+      "evidence": [
+        "Reporte de migracion archivado",
+        "Version de la herramienta utilizada"
+      ],
+      "prerequisites": [
+        "5",
+        "20"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "brand_change_variant": "NO APLICA: entre fabricantes distintos no existe herramienta de conversion. Lo que lo sustituye depende del acceso al codigo. Si el programa de origen es ACCESIBLE, el trabajo NO empieza de cero: es un PORTE con el programa original como especificacion ya triado en el paso 11 (sub-paso C3 de la ruta de cambio de marca) y ejecutado por la extension P1-P7, que a esta altura ya esta cerrada. Si NO lo es, se reescribe a ciegas a partir de los pasos 6, 7 y 18, y solo entonces se planifica como desarrollo nuevo.",
+      "no_backup_variant": "NO APLICA: sin programa de origen no hay nada que convertir. Se reescribe a partir de la logica levantada en los pasos 6 y 7."
+    },
+    {
+      "key": "22",
+      "n": 22,
+      "label": "22",
+      "title": "Revisar el reporte de migración.",
+      "detail": "Clasificar cada mensaje como error, advertencia, función no soportada, conversión automática o elemento que requiere modificación manual.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Cada mensaje del reporte clasificado como error, advertencia, funcion no soportada, conversion automatica o modificacion manual pendiente. No queda ningun mensaje sin revisar.",
+      "evidence": [
+        "Reporte clasificado, con responsable y estado por mensaje"
+      ],
+      "prerequisites": [
+        "21"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "brand_change_variant": "NO APLICA: no hay reporte de migracion. Su equivalente es la revision de la especificacion funcional reescrita contra lo documentado en el paso 6.",
+      "no_backup_variant": "NO APLICA: no hay reporte. La verificacion se hace contra el paso 6."
+    },
+    {
+      "key": "23",
+      "n": 23,
+      "label": "23",
+      "title": "Corregir manualmente las incompatibilidades.",
+      "detail": "Reconstruir bloques, cambiar instrucciones, adaptar temporizadores/contadores, modificar direccionamiento y sustituir funciones del sistema cuando sea necesario.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Todas las incompatibilidades del paso 22 resueltas y probadas; ninguna queda pendiente ni para revisar despues.",
+      "evidence": [
+        "Registro de cada bloque reconstruido o instruccion sustituida",
+        "Compilacion limpia tras cada correccion"
+      ],
+      "prerequisites": [
+        "22"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "brand_change_variant": "No hay reporte del paso 22 que corregir. Lo que se corrige aqui es lo que el triaje marco como adaptable o a reprogramar (ruta de cambio de marca, C3): tipos de datos, temporizadores y contadores, direccionamiento indirecto, funciones de sistema propietarias y bloques tecnologicos de la marca origen. Cada sustitucion se registra contra la fila de la tabla de equivalencia de instrucciones (C2) que la justifica."
+    },
+    {
+      "key": "24",
+      "n": 24,
+      "label": "24",
+      "title": "Migrar las comunicaciones.",
+      "detail": "Verificar telegramas, DB de comunicación, conexiones PUT/GET, Modbus, OPC, sockets TCP, comunicación con variadores y demás intercambios.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Cada intercambio de datos del paso 10 reconstruido y verificado en la plataforma nueva.",
+      "evidence": [
+        "Lista de intercambios probados con su resultado"
+      ],
+      "prerequisites": [
+        "10",
+        "23"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "brand_change_variant": "Entre marcas distintas la red de campo rara vez se conserva: PROFIBUS, PROFINET, EtherNet/IP, Modbus y OPC UA no son intercambiables entre plataformas. Verificar dispositivo por dispositivo si el destino habla el mismo protocolo y, si no, decidir entre pasarela, cambio de dispositivo o cambio de arquitectura de red. Se presupuesta como trabajo propio, no como ajuste."
+    },
+    {
+      "key": "25",
+      "n": 25,
+      "label": "25",
+      "title": "Migrar HMI/SCADA.",
+      "detail": "Actualizar las conexiones hacia la nueva CPU y comprobar que cada tag de pantalla corresponda con una variable válida del PLC nuevo.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Cada tag de pantalla apunta a una variable valida del PLC nuevo; el reporte de tags sin resolver queda en cero.",
+      "evidence": [
+        "Reporte de tags sin resolver en cero",
+        "Pantallas revisadas una por una"
+      ],
+      "prerequisites": [
+        "18",
+        "23"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "brand_change_variant": "El proyecto de HMI/SCADA no se convierte entre marcas: se re-etiqueta entero contra la lista de variables del paso P4 y, si el HMI tambien cambia de marca, se rehace. Las pantallas, la navegacion y los textos de alarma del sistema viejo se conservan como especificacion, y se verifica alarma por alarma que la condicion que la dispara siga siendo la misma."
+    },
+    {
+      "key": "26",
+      "n": 26,
+      "label": "26",
+      "title": "Revisar escalamiento analógico.",
+      "detail": "Comprobar que las conversiones de señales, por ejemplo 4–20 mA a unidades de ingeniería, produzcan exactamente la misma interpretación.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Para cada senal analogica, el valor en unidades de ingenieria coincide con el del sistema anterior dentro de la tolerancia acordada y declarada.",
+      "evidence": [
+        "Tabla de comparacion de escalamiento por senal, con su tolerancia"
+      ],
+      "prerequisites": [
+        "15",
+        "23"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "27",
+      "n": 27,
+      "label": "27",
+      "title": "Revisar PID y funciones tecnológicas.",
+      "detail": "Conservar setpoints, límites, unidades, parámetros de sintonización y comportamiento esperado, considerando cambios entre generaciones de bloques.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Setpoints, limites, unidades y parametros de sintonizacion trasladados, con el comportamiento esperado documentado y las diferencias entre generaciones de bloques anotadas.",
+      "evidence": [
+        "Tabla de parametros PID antes y despues",
+        "Nota de las diferencias de comportamiento entre generaciones de bloques"
+      ],
+      "prerequisites": [
+        "6",
+        "23"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "28",
+      "n": 28,
+      "label": "28",
+      "title": "Revisar funciones de seguridad por separado.",
+      "detail": "Si existen CPU F, Safety PLC, E-Stop, cortinas, puertas o STO, seguir los procedimientos de seguridad funcional aplicables y validar independientemente.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "especialista_seguridad",
+      "exit_criterion": "Funciones de seguridad validadas de forma INDEPENDIENTE por un especialista, segun el procedimiento de seguridad funcional aplicable, con su registro firmado.",
+      "evidence": [
+        "Validacion firmada por el especialista de seguridad funcional",
+        "Registro de las pruebas de seguridad"
+      ],
+      "prerequisites": [
+        "23"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": true
+      },
+      "agent_note": "El agente NO da instrucciones operativas sobre funciones de seguridad: las identifica, advierte y deriva al especialista. Es una barrera dura del proyecto."
+    },
+    {
+      "key": "29",
+      "n": 29,
+      "label": "29",
+      "title": "Compilar el proyecto completo.",
+      "detail": "Obtener cero errores de compilación y analizar posteriormente todas las advertencias restantes.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Compilacion con cero errores; cada advertencia restante analizada y aceptada o resuelta, ninguna ignorada.",
+      "evidence": [
+        "Salida de compilacion archivada",
+        "Lista de advertencias con su decision"
+      ],
+      "prerequisites": [
+        "23",
+        "24",
+        "25",
+        "26",
+        "27"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "30",
+      "n": 30,
+      "label": "30",
+      "title": "Realizar pruebas offline o mediante simulación.",
+      "detail": "Cuando la plataforma lo permita, probar secuencias y lógica sin intervenir todavía la máquina real.",
+      "phase": "conversion",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Secuencias y logica probadas offline o en simulacion, con los desvios corregidos y SIN haber intervenido todavia la maquina real.",
+      "evidence": [
+        "Registro de las pruebas de simulacion y su resultado"
+      ],
+      "prerequisites": [
+        "29"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "31",
+      "n": 31,
+      "label": "31",
+      "title": "Preparar un FAT (Factory Acceptance Test).",
+      "detail": "Crear una lista de pruebas para arranque, paro, automático, manual, alarmas, fallas, enclavamientos, secuencias, comunicaciones, PID y condiciones anormales.",
+      "phase": "fat",
+      "guide_stage": "fat",
+      "role": "ingenieria",
+      "exit_criterion": "Protocolo FAT escrito y aprobado, cubriendo arranque, paro, automatico, manual, alarmas, fallas, enclavamientos, secuencias, comunicaciones, PID y condiciones anormales, con la configuracion congelada.",
+      "evidence": [
+        "Protocolo FAT aprobado",
+        "Configuracion congelada e identificada"
+      ],
+      "prerequisites": [
+        "30"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "32",
+      "n": 32,
+      "label": "32",
+      "title": "Comparar PLC antiguo contra PLC nuevo.",
+      "detail": "Para cada prueba definir un resultado esperado y comprobar que la CPU nueva reproduzca el comportamiento requerido del sistema original.",
+      "phase": "fat",
+      "guide_stage": "fat",
+      "role": "ingenieria",
+      "exit_criterion": "Para cada prueba del protocolo hay un resultado esperado definido y un resultado obtenido registrado. No queda ninguna desviacion critica abierta.",
+      "evidence": [
+        "Matriz de pruebas con esperado contra obtenido",
+        "Registro de desviaciones clasificadas en critica, mayor y menor"
+      ],
+      "prerequisites": [
+        "31"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "agent_note": "Precision necesaria: la comparacion se hace contra el comportamiento DOCUMENTADO en el paso 6 y contra el programa de origen. No exige energizar las dos CPU a la vez, porque en planta la CPU antigua sigue en produccion hasta el corte."
+    },
+    {
+      "key": "33",
+      "n": 33,
+      "label": "33",
+      "title": "Preparar un plan de retorno (rollback).",
+      "detail": "Documentar cómo regresar temporalmente al PLC anterior si la puesta en marcha de la nueva plataforma falla.",
+      "phase": "fat",
+      "guide_stage": "fat",
+      "role": "ingenieria",
+      "exit_criterion": "Plan de retorno escrito, con la CPU original, su respaldo verificado y el cableado necesarios para revertir, y el tiempo estimado de reversion.",
+      "evidence": [
+        "Plan de retorno aprobado",
+        "Confirmacion de que la CPU original y su respaldo quedan disponibles"
+      ],
+      "prerequisites": [
+        "5",
+        "32"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "blocking": true
+    },
+    {
+      "key": "34",
+      "n": 34,
+      "label": "34",
+      "title": "Planificar la parada de producción.",
+      "detail": "Definir fecha, duración, personal, herramientas, respaldos, repuestos, responsabilidades y permisos de trabajo.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "responsable",
+      "exit_criterion": "Ventana de parada autorizada por escrito, con fecha, duracion, personal, herramientas, respaldos, repuestos, responsabilidades y permisos de trabajo emitidos.",
+      "evidence": [
+        "Autorizacion de parada firmada",
+        "Permisos de trabajo emitidos"
+      ],
+      "prerequisites": [
+        "33"
+      ],
+      "requires": {
+        "human_approval": true,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "35",
+      "n": 35,
+      "label": "35",
+      "title": "Realizar el reemplazo físico.",
+      "detail": "Instalar CPU, módulos, interfaces, adaptadores, cableado y equipos auxiliares definidos durante la ingeniería.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "tecnico",
+      "exit_criterion": "Hardware instalado segun el diseno del paso 17, con la CPU original conservada e identificada para el plan de retorno.",
+      "evidence": [
+        "Registro fotografico de la instalacion",
+        "CPU original etiquetada y resguardada"
+      ],
+      "prerequisites": [
+        "3",
+        "5",
+        "33",
+        "34"
+      ],
+      "requires": {
+        "human_approval": true,
+        "machine_stopped": true,
+        "loto": true,
+        "safety_specialist": false
+      },
+      "agent_note": "PASO IRREVERSIBLE. No se ejecuta sin respaldo verificado (paso 5) y plan de retorno (paso 33). Si no hay respaldo, la reconstruccion debe estar validada antes de llegar aqui.",
+      "blocking": true
+    },
+    {
+      "key": "36",
+      "n": 36,
+      "label": "36",
+      "title": "Realizar pruebas eléctricas antes de energizar completamente.",
+      "detail": "Revisar alimentación, polaridades, tierra, continuidad, señales y conexiones.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "tecnico",
+      "exit_criterion": "Alimentacion, polaridades, tierra, continuidad y conexiones verificadas con instrumento ANTES de energizar completamente.",
+      "evidence": [
+        "Hoja de verificacion electrica firmada"
+      ],
+      "prerequisites": [
+        "35"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": true,
+        "loto": true,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "37",
+      "n": 37,
+      "label": "37",
+      "title": "Descargar el proyecto en la CPU nueva.",
+      "detail": "Configurar IP/nombre de dispositivo cuando corresponda y cargar configuración de hardware y software.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "tecnico",
+      "exit_criterion": "Configuracion de hardware y programa cargados en la CPU nueva, con IP o nombre de dispositivo asignados y comunicacion establecida.",
+      "evidence": [
+        "Confirmacion de descarga sin errores",
+        "Direccion o nombre asignado anotado"
+      ],
+      "prerequisites": [
+        "36"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "38",
+      "n": 38,
+      "label": "38",
+      "title": "Realizar pruebas de E/S punto por punto.",
+      "detail": "Accionar cada entrada y salida bajo condiciones controladas y comprobar que el dispositivo físico correspondiente responde correctamente.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "tecnico",
+      "exit_criterion": "Cada entrada y cada salida accionada y comprobada contra su dispositivo de campo. Ninguna E/S queda sin probar.",
+      "evidence": [
+        "Lista de E/S firmada punto por punto"
+      ],
+      "prerequisites": [
+        "18",
+        "37"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": true,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "39",
+      "n": 39,
+      "label": "39",
+      "title": "Ejecutar pruebas en modo manual.",
+      "detail": "Probar individualmente motores, bombas, válvulas, cilindros, indicadores y otros actuadores.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "tecnico",
+      "exit_criterion": "Cada actuador probado individualmente en manual, con su respuesta correcta y sus enclavamientos activos.",
+      "evidence": [
+        "Registro de pruebas en manual por actuador"
+      ],
+      "prerequisites": [
+        "38"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "40",
+      "n": 40,
+      "label": "40",
+      "title": "Ejecutar pruebas en automático.",
+      "detail": "Comprobar la secuencia completa del proceso y las transiciones entre estados.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "tecnico",
+      "exit_criterion": "Secuencia completa ejecutada en automatico, con todas las transiciones entre estados correctas.",
+      "evidence": [
+        "Registro del ciclo automatico completo"
+      ],
+      "prerequisites": [
+        "39"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "41",
+      "n": 41,
+      "label": "41",
+      "title": "Provocar condiciones de falla controladas.",
+      "detail": "Verificar sensores ausentes, sobrecargas, pérdida de comunicación, niveles máximos/mínimos, E-Stop y otras condiciones previstas en el diseño.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "ingenieria",
+      "exit_criterion": "Cada condicion de falla prevista en el diseno provocada de forma controlada, con su respuesta verificada contra lo esperado.",
+      "evidence": [
+        "Registro de las fallas provocadas y de la respuesta obtenida"
+      ],
+      "prerequisites": [
+        "40"
+      ],
+      "requires": {
+        "human_approval": true,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": true
+      },
+      "agent_note": "Provocar fallas es una maniobra deliberada de riesgo: se hace en condiciones controladas, con el personal advertido y el area despejada. Para E-Stop y funciones de seguridad, con el especialista presente."
+    },
+    {
+      "key": "42",
+      "n": 42,
+      "label": "42",
+      "title": "Realizar el SAT (Site Acceptance Test).",
+      "detail": "Validar el sistema completo instalado en campo bajo condiciones reales de operación.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "responsable",
+      "exit_criterion": "Sistema completo validado en campo bajo condiciones reales, con el protocolo SAT firmado y sin desviaciones criticas abiertas.",
+      "evidence": [
+        "Protocolo SAT firmado por el responsable de la instalacion"
+      ],
+      "prerequisites": [
+        "41"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "43",
+      "n": 43,
+      "label": "43",
+      "title": "Comparar indicadores antes/después.",
+      "detail": "Evaluar tiempos de ciclo, producción, precisión, tiempos de respuesta, alarmas y comportamiento de control para asegurar que no exista deterioro.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "ingenieria",
+      "exit_criterion": "Tiempos de ciclo, produccion, precision, tiempos de respuesta y alarmas comparados contra los del sistema anterior, sin deterioro no justificado.",
+      "evidence": [
+        "Tabla de indicadores antes y despues, con la fuente de los valores anteriores"
+      ],
+      "prerequisites": [
+        "6",
+        "42"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "agent_note": "Los valores de antes deben venir del paso 6. Si no se registraron, la comparacion no es posible y hay que declararlo asi en lugar de estimarlos."
+    },
+    {
+      "key": "44",
+      "n": 44,
+      "label": "44",
+      "title": "Corregir las diferencias detectadas.",
+      "detail": "Documentar y validar cada modificación realizada durante el commissioning.",
+      "phase": "corte_y_puesta_en_marcha",
+      "guide_stage": "corte_sat",
+      "role": "ingenieria",
+      "exit_criterion": "Cada diferencia detectada corregida, documentada y vuelta a probar.",
+      "evidence": [
+        "Registro de cambios del commissioning, con la prueba que valida cada uno"
+      ],
+      "prerequisites": [
+        "43"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "agent_note": "Es un lazo, no un paso lineal: cada correccion obliga a repetir las pruebas de los pasos 38 a 43 que se vean afectadas."
+    },
+    {
+      "key": "45",
+      "n": 45,
+      "label": "45",
+      "title": "Generar el respaldo final de la CPU nueva.",
+      "detail": "Guardar el proyecto final que refleje exactamente el software y configuración que quedaron funcionando en campo.",
+      "phase": "cierre",
+      "guide_stage": "cierre",
+      "role": "ingenieria",
+      "exit_criterion": "Respaldo final que refleja exactamente lo que quedo funcionando, verificado abriendolo y compilandolo, con checksum y dos copias.",
+      "evidence": [
+        "Proyecto as-built guardado y verificado",
+        "Checksum anotado"
+      ],
+      "prerequisites": [
+        "44"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "46",
+      "n": 46,
+      "label": "46",
+      "title": "Actualizar planos y documentación.",
+      "detail": "Modificar planos eléctricos, arquitectura de red, lista de E/S, direcciones IP, BOM, manuales y diagramas correspondientes.",
+      "phase": "cierre",
+      "guide_stage": "cierre",
+      "role": "ingenieria",
+      "exit_criterion": "Planos electricos, arquitectura de red, lista de E/S, direcciones, BOM, manuales y diagramas actualizados al estado real instalado.",
+      "evidence": [
+        "Documentacion as-built entregada"
+      ],
+      "prerequisites": [
+        "45"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "47",
+      "n": 47,
+      "label": "47",
+      "title": "Crear una tabla de trazabilidad de la migración.",
+      "detail": "Documentar qué elemento antiguo fue reemplazado por cuál elemento nuevo y qué modificaciones de software fueron necesarias.",
+      "phase": "cierre",
+      "guide_stage": "cierre",
+      "role": "ingenieria",
+      "exit_criterion": "Tabla de trazabilidad que relaciona cada elemento antiguo con el nuevo y las modificaciones de software que fueron necesarias.",
+      "evidence": [
+        "Tabla de trazabilidad completa de la migracion"
+      ],
+      "prerequisites": [
+        "46"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "48",
+      "n": 48,
+      "label": "48",
+      "title": "Capacitar al personal.",
+      "detail": "Entrenar a operadores y mantenimiento en diagnóstico, conexión, respaldo, recuperación y diferencias de operación del nuevo sistema.",
+      "phase": "cierre",
+      "guide_stage": "cierre",
+      "role": "responsable",
+      "exit_criterion": "Operadores y mantenimiento capacitados en diagnostico, conexion, respaldo, recuperacion y diferencias de operacion, con registro de asistencia.",
+      "evidence": [
+        "Registro de capacitacion firmado",
+        "Material de consulta entregado"
+      ],
+      "prerequisites": [
+        "46"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "brand_change_variant": "Con cambio de marca la capacitacion no es un tramite: el personal parte de cero en el software nuevo. Se dimensiona y se presupuesta desde el paso 13."
+    },
+    {
+      "key": "49",
+      "n": 49,
+      "label": "49",
+      "title": "Establecer gestión de versiones.",
+      "detail": "Conservar como mínimo Proyecto_original, Proyecto_migrado_pruebas y Proyecto_final_as-built, identificados con fechas y versiones.",
+      "phase": "cierre",
+      "guide_stage": "cierre",
+      "role": "ingenieria",
+      "exit_criterion": "Los tres proyectos conservados e identificados con fecha y version: Proyecto_original, Proyecto_migrado_pruebas y Proyecto_final_as-built.",
+      "evidence": [
+        "Repositorio o carpeta de versiones con los tres proyectos"
+      ],
+      "prerequisites": [
+        "45"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "50",
+      "n": 50,
+      "label": "50",
+      "title": "Cerrar formalmente la migración.",
+      "detail": "Finalizar con documentación as-built, resultados FAT/SAT, respaldos verificados y aceptación del responsable de la instalación.",
+      "phase": "cierre",
+      "guide_stage": "cierre",
+      "role": "responsable",
+      "exit_criterion": "Cierre formal con documentacion as-built, resultados FAT y SAT, respaldos verificados y aceptacion firmada del responsable de la instalacion.",
+      "evidence": [
+        "Acta de cierre firmada"
+      ],
+      "prerequisites": [
+        "45",
+        "46",
+        "47",
+        "48",
+        "49"
+      ],
+      "requires": {
+        "human_approval": true,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      }
+    },
+    {
+      "key": "P1",
+      "n": null,
+      "label": "P1",
+      "title": "Redactar la especificacion funcional independiente de la marca.",
+      "detail": "A partir de lo documentado en el paso 6, escribir que debe hacer la maquina sin referencia a marca ni a codigo: modos de operacion, secuencias, permisos, enclavamientos, alarmas, condiciones de arranque y paro, y estados seguros. Es el contrato contra el que se validara el sistema nuevo aunque cambie todo el codigo.",
+      "phase": "construccion_del_programa",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Documento funcional aprobado por operacion y mantenimiento, que describe cada modo y cada secuencia sin nombrar hardware ni instrucciones.",
+      "evidence": [
+        "Especificacion funcional firmada por produccion y por mantenimiento",
+        "Trazabilidad de cada funcion al paso 6 o a la observacion en planta"
+      ],
+      "prerequisites": [
+        "6"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "extension": "programa",
+      "methodological_origin": "Guia MIGRA-IA-GUIA-001, cap. 6"
+    },
+    {
+      "key": "P2",
+      "n": null,
+      "label": "P2",
+      "title": "Modelar formalmente la secuencia de control (GRAFCET/SFC; red de Petri en lo critico).",
+      "detail": "Traducir la especificacion a un modelo de estados y transiciones: etapas, condiciones de transicion, acciones asociadas, modos automatico y manual, paro de emergencia y recuperacion. Donde la secuencia sea critica o haya concurrencia entre subsistemas, levantar ademas la red de Petri y analizar bloqueos, alcanzabilidad y estados muertos ANTES de escribir una sola linea.",
+      "phase": "construccion_del_programa",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Modelo que cubre todos los modos declarados en P1, sin estados muertos ni transiciones ambiguas. En las secuencias criticas, analisis de la red de Petri sin bloqueos ni estados inalcanzables.",
+      "evidence": [
+        "Diagrama GRAFCET/SFC por subsistema",
+        "Analisis de la red de Petri de las secuencias criticas, con conclusiones",
+        "Lista de estados seguros y como se alcanzan desde cualquier punto"
+      ],
+      "prerequisites": [
+        "P1"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "extension": "programa",
+      "methodological_origin": "Guia MIGRA-IA-GUIA-001, cap. 6",
+      "agent_note": "Este modelo es tambien la referencia de aceptacion del paso 32: comparar el sistema nuevo contra un modelo formal es mas fuerte que compararlo contra una descripcion en prosa."
+    },
+    {
+      "key": "P3",
+      "n": null,
+      "label": "P3",
+      "title": "Definir la arquitectura del software.",
+      "detail": "Descomponer el programa por equipos y funciones, y fijar ANTES de codificar: convenciones de nombres, tipos de datos, variables retentivas, estructura de tareas, prioridades, tiempo de ciclo objetivo y watchdog.",
+      "phase": "construccion_del_programa",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Arquitectura escrita y revisada, con la lista de bloques y su responsabilidad, las convenciones de nombres y la retentividad declarada.",
+      "evidence": [
+        "Documento de arquitectura de software",
+        "Plantilla de nombres y tipos de datos acordada"
+      ],
+      "prerequisites": [
+        "13",
+        "P2"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "extension": "programa",
+      "methodological_origin": "Guia MIGRA-IA-GUIA-001, cap. 10",
+      "agent_note": "Depende del paso 13: la plataforma destino condiciona tipos de datos, tareas y retentividad, asi que esta arquitectura no puede cerrarse antes de elegir la CPU."
+    },
+    {
+      "key": "P4",
+      "n": null,
+      "label": "P4",
+      "title": "Construir la lista de variables y enlazarla con el mapa de E/S.",
+      "detail": "Declarar cada variable con su tipo, rango, unidad, valor inicial y retentividad, y su correspondencia con la tabla de mapeo del paso 18. Ninguna E/S del paso 7 puede quedar sin variable, y ninguna variable sin origen.",
+      "phase": "construccion_del_programa",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Lista de variables completa y cuadrada contra el paso 18 en ambos sentidos.",
+      "evidence": [
+        "Lista de variables exportada del proyecto",
+        "Comprobacion cruzada contra la tabla de mapeo del paso 18"
+      ],
+      "prerequisites": [
+        "18",
+        "P3"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "extension": "programa",
+      "methodological_origin": "Guia MIGRA-IA-GUIA-001, cap. 10"
+    },
+    {
+      "key": "P5",
+      "n": null,
+      "label": "P5",
+      "title": "Escribir el programa por bloques, siguiendo el modelo.",
+      "detail": "Codificar cada bloque de la arquitectura implementando las etapas y transiciones del modelo. Cada bloque referencia la etapa o el requisito que realiza. No se improvisa logica que no este en la especificacion: si hace falta algo nuevo, se vuelve a P1 y se documenta antes de codificarlo.",
+      "phase": "construccion_del_programa",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Todos los bloques de la arquitectura escritos y compilando, con la referencia al requisito o etapa que implementan.",
+      "evidence": [
+        "Proyecto en control de versiones, con un commit por bloque o funcion",
+        "Matriz de trazabilidad requisito -> bloque"
+      ],
+      "prerequisites": [
+        "P4"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "extension": "programa",
+      "methodological_origin": "Guia MIGRA-IA-GUIA-001, cap. 10"
+    },
+    {
+      "key": "P6",
+      "n": null,
+      "label": "P6",
+      "title": "Revisar el codigo con una persona distinta a quien lo escribio.",
+      "detail": "Revision dirigida a: logica critica, inicializacion y arranque en frio, estados seguros, manejo de fallos de comunicacion, y trazabilidad de cada bloque con su requisito.",
+      "phase": "construccion_del_programa",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Revision registrada, con cada hallazgo cerrado o aceptado de forma explicita.",
+      "evidence": [
+        "Acta de revision de codigo con hallazgos y su resolucion"
+      ],
+      "prerequisites": [
+        "P5"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "extension": "programa",
+      "methodological_origin": "Guia MIGRA-IA-GUIA-001, cap. 18",
+      "agent_note": "Si el programa toca funciones de seguridad, esta revision NO sustituye la validacion del especialista del paso 28."
+    },
+    {
+      "key": "P7",
+      "n": null,
+      "label": "P7",
+      "title": "Probar cada bloque por separado antes de integrar.",
+      "detail": "Pruebas unitarias con entradas normales, valores limite, errores, perdida de comunicacion, arranque, parada, reset y recuperacion, en simulador o con senales forzadas en entorno controlado, documentando las limitaciones de la simulacion.",
+      "phase": "construccion_del_programa",
+      "guide_stage": "construccion",
+      "role": "ingenieria",
+      "exit_criterion": "Cada bloque probado con su juego de casos y su resultado registrado; ningun bloque llega a la integracion sin probar.",
+      "evidence": [
+        "Registro de pruebas unitarias por bloque, con casos y resultados",
+        "Limitaciones de la simulacion declaradas"
+      ],
+      "prerequisites": [
+        "P6"
+      ],
+      "requires": {
+        "human_approval": false,
+        "machine_stopped": false,
+        "loto": false,
+        "safety_specialist": false
+      },
+      "extension": "programa",
+      "methodological_origin": "Guia MIGRA-IA-GUIA-001, cap. 18"
+    }
+  ],
+  "declared_gaps": [
+    {
+      "id": "construccion_del_programa",
+      "description": "Los pasos 21 a 23 asumen que existe un programa que convertir ('migrar con herramientas oficiales', 'revisar el reporte de migracion'). Ningun paso cubre ESCRIBIR el programa nuevo. En la ruta de reconstruccion -sin respaldo o con contrasena desconocida- y en el cambio de marca, los pasos 21 y 22 quedan como 'no aplica' y no los sustituia nada: el hueco caia justo donde esta el trabajo.",
+      "status": "CERRADO por la extension P1-P7 (construccion del programa), derivada de los capitulos 6, 10 y 18 de la guia. Pendiente de validacion del autor."
+    },
+    {
+      "id": "compra_y_plazos",
+      "description": "Entre el paso 20 (configurar el hardware nuevo) y el 21 (migrar el programa) no hay ningun paso de cotizacion, compra y recepcion del hardware. En la practica el plazo de entrega es lo que fija la fecha de la parada del paso 34. El BOM solo aparece en el paso 46, como documentacion final.",
+      "status": "pendiente de decision del autor"
+    },
+    {
+      "id": "cpu_bloqueada_sin_contrasena",
+      "description": "El paso 3 asume que el upload desde el PLC se puede hacer. No hay ningun paso que cubra que hacer cuando la CPU esta protegida y la contrasena se desconoce, que es justamente uno de los disparadores de la migracion. Se cubre provisionalmente con la variante 'sin_respaldo' de los pasos 3, 5, 11, 21 y 22.",
+      "status": "cubierto por variante, pendiente de validacion del autor"
+    },
+    {
+      "id": "roles_no_declarados",
+      "description": "El documento no dice quien ejecuta cada paso. El campo 'rol' es una propuesta para que el agente pueda avisar cuando un paso excede al tecnico de mantenimiento.",
+      "status": "propuesta, pendiente de validacion del autor"
+    },
+    {
+      "id": "ruta_de_conversion_por_marca",
+      "description": "El paso 21 dice 'usar primero las herramientas oficiales del fabricante', pero no dice CUALES ni en que orden. Para un S5 de Siemens la cadena real (STEP 5 -> S5 File Converter -> SIMATIC Manager -> MigrateProject -> TIA Portal) no estaba en ningun lado, y es justo lo que pregunta quien tiene el codigo accesible pero migra por falta de repuestos.",
+      "status": "CERRADO PARA SIEMENS por el bloque 'rutas_por_fabricante' (2026-09-07). Abierto para las otras 29 marcas del catalogo. Pendiente de validacion del autor."
+    }
+  ],
+  "routes_by_manufacturer": {
+    "description": "Rutas de conversion especificas por fabricante. NO sustituyen el procedimiento de 57 pasos: lo ESPECIALIZAN en los pasos 21, 22 y 23 (conversion del programa) y condicionan el paso 13 (eleccion de CPU destino) y el 20 (configuracion del hardware nuevo).",
+    "usage_condition": "Solo aplican cuando el programa de origen es ACCESIBLE Y VERIFICADO: respaldo que abre y compila (F01, F06, F07) y contrasenas conocidas (N06, F16). Es el disparador 'obsolescencia_con_acceso_al_codigo'. Si el caso corre con la variante 'sin_respaldo' no hay programa que convertir y estas rutas NO aplican: se reconstruye por la extension P1-P7. El agente sigue sin asistir a eludir protecciones ni licencias.",
+    "coverage": "Por ahora solo Siemens (S5 -> STEP 7 -> TIA Portal). Las demas marcas del catalogo siguen con el paso 21 generico: 'usar primero las herramientas oficiales del fabricante'. Esta limitacion se declara, no se rellena improvisando una ruta.",
+    "routes": [
+      {
+        "id": "siemens_s5_a_tia_portal",
+        "brand": "Siemens",
+        "title": "SIMATIC S5 hacia STEP 7 y TIA Portal",
+        "source_families": [
+          "SIMATIC S5"
+        ],
+        "target_families": [
+          "S7-300",
+          "S7-400",
+          "S7-1200",
+          "S7-1500"
+        ],
+        "principle": "La migracion de S5 a TIA Portal NO es directa. La cadena obligatoria es STEP 5 -> STEP 7 (SIMATIC Manager) -> TIA Portal. No existe un salto directo de STEP 5 a TIA Portal.",
+        "applies_to_steps": [
+          "13",
+          "20",
+          "21",
+          "22",
+          "23"
+        ],
+        "ramas": {
+          "target_step7_s7_300_400": "el destino se queda en STEP 7 sobre S7-300 o S7-400",
+          "target_tia_portal": "el destino sube hasta TIA Portal sobre S7-1200 o S7-1500"
+        },
+        "steps": [
+          {
+            "n": "S1",
+            "title": "Extraer el programa original con el software STEP 5",
+            "detail": "Subir el programa desde el PLC S5 con STEP 5 y archivar el respaldo antes de tocar cualquier otra cosa. Este respaldo es la unica referencia de lo que la maquina hace hoy: si se pierde, la ruta de conversion se cae y el caso pasa a reconstruccion (extension P1-P7).",
+            "specializes_step": "21",
+            "exit_criterion": "Respaldo S5 completo, abierto y verificado en STEP 5, archivado con fecha y con copia fuera de la PC de programacion."
+          },
+          {
+            "n": "S2",
+            "title": "Convertir el respaldo con la herramienta S5 File Converter",
+            "detail": "Traducir el respaldo de STEP 5 al entorno SIMATIC Manager (STEP 7) con la herramienta de conversion de archivos S5 de Siemens. Aqui es donde hay que empezar a tener cuidado: la herramienta traduce la logica, NO el hardware.",
+            "specializes_step": "21",
+            "exit_criterion": "Proyecto abierto en SIMATIC Manager, con el reporte de conversion guardado y la version exacta de la herramienta anotada."
+          },
+          {
+            "n": "S3",
+            "title": "Fijar el destino antes de seguir convirtiendo",
+            "detail": "La ruta se bifurca aqui y el resto de los pasos depende de esta eleccion: quedarse en STEP 7 sobre S7-300/S7-400, o subir hasta TIA Portal sobre S7-1200/S7-1500. Es la decision del paso 13 del procedimiento y la toma el usuario, no el agente.",
+            "specializes_step": "13",
+            "exit_criterion": "Familia y modelo de CPU destino fijados por el usuario y registrados con `fijar_cpu_destino`."
+          },
+          {
+            "n": "S4",
+            "title": "Ajustar hardware, direcciones y rutinas en STEP 7",
+            "detail": "Una vez migrado, ajustar la configuracion de hardware al modelo elegido, reasignar las direcciones y verificar rutina por rutina que se hayan convertido correctamente. Toda instruccion que no exista en STEP 7 se recrea a mano para que haga exactamente lo mismo que en el proyecto original.",
+            "specializes_step": "23",
+            "exit_criterion": "Hardware configurado, direcciones reasignadas, cada rutina verificada contra el proyecto S5 original y cada instruccion inexistente recreada y probada.",
+            "branch": "destino_step7_s7_300_400"
+          },
+          {
+            "n": "S5",
+            "title": "Resolver el lenguaje ANTES de subir a TIA Portal",
+            "detail": "Revisar en que lenguaje esta escrita la logica y corregirlo en STEP 7 antes de migrar. Si el destino es S7-1200, hay que convertir toda la logica AWL a KOP/ladder o a bloques, porque TIA Portal no admite programar en AWL para esa familia. Si el destino es S7-1500, AWL si esta admitido: la conversion es mas directa y no exige el cambio previo de lenguaje.",
+            "specializes_step": "21",
+            "exit_criterion": "Lenguaje del programa compatible con la familia destino, verificado y compilado limpio en STEP 7 ANTES de lanzar la migracion a TIA Portal.",
+            "branch": "destino_tia_portal",
+            "agent_note": "Es el punto donde mas migraciones se atascan: se lanza MigrateProject con logica AWL destinada a un S7-1200 y el problema se descubre a medio camino."
+          },
+          {
+            "n": "S6",
+            "title": "Subir de STEP 7 a TIA Portal con MigrateProject",
+            "detail": "Utilizar el utilitario MigrateProject, que ya viene integrado dentro del propio TIA Portal, para llevar el proyecto de STEP 7 al entorno TIA.",
+            "specializes_step": "21",
+            "exit_criterion": "Proyecto abierto en TIA Portal, con el reporte de MigrateProject guardado y clasificado segun el paso 22 del procedimiento.",
+            "branch": "destino_tia_portal"
+          },
+          {
+            "n": "S7",
+            "title": "Cerrar la migracion a mano",
+            "detail": "Una vez migrado, asegurar la compatibilidad de instrucciones, ajustar el hardware y reemplazar manualmente cualquier instruccion que no sea compatible. Ninguna migracion es automatica al 100%: el software solo ayuda con el proceso, el resto es ingenieria.",
+            "specializes_step": "23",
+            "exit_criterion": "Compilacion limpia en el entorno destino, sin instrucciones incompatibles pendientes, y cada sustitucion manual registrada con su justificacion."
+          }
+        ],
+        "rules": [
+          {
+            "id": "version_mas_baja",
+            "rule": "Si aun no se conoce el modelo exacto de CPU destino, trabajar con la version MAS BAJA del software compatible. Subir de una version menor a una mayor es sencillo; regresar de una version mayor a una menor no lo es.",
+            "affects_steps": [
+              "13",
+              "20",
+              "21"
+            ]
+          },
+          {
+            "id": "ninguna_migracion_es_automatica",
+            "rule": "Ninguna migracion es automatica al 100%. La herramienta oficial traduce lo que puede y deja un reporte; lo demas es ingenieria manual y se ejecuta en el paso 23. El agente NUNCA debe presentar la conversion como un tramite.",
+            "affects_steps": [
+              "21",
+              "22",
+              "23"
+            ]
+          },
+          {
+            "id": "hardware_no_se_convierte",
+            "rule": "Las herramientas de conversion de Siemens traducen la logica del programa, no la configuracion de hardware. El rack, las direcciones y los modulos se rehacen en el paso 20 y se ajustan en S4 y S7.",
+            "affects_steps": [
+              "20",
+              "23"
+            ]
+          }
+        ],
+        "sources": [
+          {
+            "type": "fabricante",
+            "description": "Siemens - Migration from S5 to S7",
+            "url": "https://support.industry.siemens.com/cs/attachments/105106251/105106251_Migration_guide_S5_S7_en.pdf",
+            "note": "Fuente normativa de la cadena STEP 5 -> STEP 7. Ya citada en data/fabricantes_cpu.json."
+          },
+          {
+            "type": "fabricante",
+            "description": "Siemens - Guia de migracion S7-300 / S7-1500",
+            "url": "https://support.industry.siemens.com/cs/attachments/109478811/109478811_GuideForMigration_S7-300_S7-1500_V11_en.pdf",
+            "note": "Fuente normativa del tramo STEP 7 -> TIA Portal. Ya citada en data/fabricantes_cpu.json."
+          }
+        ],
+        "technical_note": "La ruta habla de S7-1200 y no de S7-200 porque la restriccion de lenguaje es de esa familia: TIA Portal no admite AWL para S7-1200, mientras que el S7-1500 si lo admite. De ahi que el paso S5 solo exija convertir AWL a KOP o bloques cuando el destino es un S7-1200. Verificado 2026-09-07."
+      }
+    ]
+  },
+  "brand_change_route": {
+    "id": "cambio_de_marca_con_codigo_accesible",
+    "type": "cambio_de_marca",
+    "title": "Porte entre fabricantes distintos con el programa de origen accesible",
+    "description": "Ruta unica, valida para cualquier par de marcas. NO sustituye el procedimiento de 57 pasos: lo ESPECIALIZA en los pasos 11, 12, 18, 21 y 32, y se apoya en la extension P1-P7 para escribir el programa nuevo.",
+    "usage_condition": "Solo aplica cuando se cumplen las dos cosas a la vez: el destino es de OTRA marca (paso 13, opcion 'marca_alternativa') y el programa de origen es ACCESIBLE Y VERIFICADO -contrasenas conocidas (N06, F16) y respaldo que abre y compila (F01, F06, F07)-. Si el caso corre con la variante 'sin_respaldo' esta ruta NO aplica: no hay fuente que leer y el programa se reconstruye a ciegas por la extension P1-P7, a partir de los pasos 6 y 7.",
+    "coverage": "Describe el METODO, no las equivalencias concretas. Estas dependen del par de marcas y se construyen caso por caso contra los manuales oficiales de los dos fabricantes: el agente no las publica de memoria.",
+    "principle": "Con la fuente en la mano el trabajo NO empieza de cero: el programa original es la ESPECIFICACION de lo que la maquina hace hoy y esto es un PORTE contra esa especificacion. Pero sigue siendo reescritura: entre fabricantes distintos no existe herramienta de conversion y no se traduce renglon a renglon.",
+    "hard_limit": "El agente NO publica equivalencias de instrucciones entre marcas ni afirma equivalencia de CPU modelo a modelo (paso 13): propone la estructura de la tabla, senala lo que hay que verificar y declara lo que no pudo citarse.",
+    "applies_to_steps": [
+      "11",
+      "12",
+      "18",
+      "21",
+      "32"
+    ],
+    "steps": [
+      {
+        "n": "C1",
+        "title": "Inventariar la memoria interna y censar los lenguajes del programa",
+        "detail": "El paso 11 clasifica los bloques por funcion; entre marcas hace falta ademas el inventario de lo que no es E/S: marcas internas, bloques de datos, temporizadores, contadores, valores retentivos, constantes, setpoints, parametros PID, limites de alarma y recetas, con su valor actual LEIDO del programa, no estimado. Y un censo de en que lenguaje esta escrito cada bloque (KOP/LAD, FUP/FBD, AWL/STL, SCL/ST, GRAFCET/SFC): el lenguaje decide cuanta logica se traslada y cuanta se reescribe, porque AWL/STL no tiene equivalente en la mayoria de plataformas.",
+        "specializes_step": "11",
+        "exit_criterion": "Inventario de memoria interna completo, con el valor actual de cada temporizador, contador, setpoint y parametro leido del programa, y censo de lenguajes por bloque con su conteo."
+      },
+      {
+        "n": "C2",
+        "title": "Construir la tabla de equivalencia de instrucciones entre los dos fabricantes",
+        "detail": "El paso 12 busca instrucciones obsoletas dentro de una misma marca; entre marcas distintas el problema es otro: cada instruccion del programa original necesita su equivalente en el juego del fabricante destino, y la que no lo tiene se marca para reprogramar. La tabla se construye contra los manuales oficiales de LAS DOS marcas -las guias ya registradas en el catalogo de fabricantes son el punto de partida- y cada fila anota su fuente.",
+        "specializes_step": "12",
+        "exit_criterion": "Tabla instruccion a instruccion con su clasificacion cerrada: equivalente directo, equivalente con ajuste -y cual-, o sin equivalente, que pasa al triaje C3. Ninguna fila sin fuente, y ninguna 'por verificar' sin responsable asignado.",
+        "agent_note": "Es la tabla que el agente NO debe rellenar de memoria: propone la estructura y pide la verificacion contra los dos manuales."
+      },
+      {
+        "n": "C3",
+        "title": "Separar la logica trasladable de la que hay que reprogramar (triaje)",
+        "detail": "El paso 11 clasifica los bloques por funcion; aqui se los clasifica ademas por lo que va a costar llevarlos a la otra marca. Es lo que sustituye al paso 21 -que entre fabricantes distintos no aplica- y el que convierte el codigo accesible en un plan. Cada bloque del inventario C1 se clasifica en tres: (a) TRASLADABLE conceptualmente -misma logica, distinta sintaxis-; (b) ADAPTABLE -necesita ajuste por tipos de datos, direccionamiento, temporizacion o funciones de sistema-; (c) A REPROGRAMAR -depende de instrucciones sin equivalente, de hardware propietario o de funciones tecnologicas de la marca origen-. De ahi sale la estimacion de esfuerzo real, que NO es la de un desarrollo desde cero. La clasificacion es provisional hasta que C2 cierre la tabla de equivalencia en el paso 12: todo bloque que dependa de una instruccion sin equivalente pasa entonces a 'a reprogramar'. Cerrado el triaje, el trabajo entra por la extension P1-P7.",
+        "specializes_step": "11",
+        "exit_criterion": "Cada bloque del programa original clasificado en trasladable, adaptable o a reprogramar, con el motivo, y la estimacion de esfuerzo por categoria a cargo de quien va a hacer el trabajo. Revisado tras cerrar la tabla del paso 12.",
+        "agent_note": "Trasladable NO significa traducible renglon a renglon: la logica se reimplementa segun la arquitectura de software de P3, no copiando la estructura del programa viejo."
+      },
+      {
+        "n": "C4",
+        "title": "Levantar el mapeo de direcciones desde la tabla de simbolos original",
+        "detail": "Con la fuente accesible, la tabla del paso 18 no se rastrea en campo: se exporta la tabla de simbolos o tags del proyecto original y se cruza contra la lista de E/S del paso 7. Es mas rapido y, sobre todo, no pierde las senales que solo existen en el programa y nunca llegaron a los planos.",
+        "specializes_step": "18",
+        "exit_criterion": "Tabla de mapeo cuadrada en los dos sentidos -contra el paso 7 y contra la tabla de simbolos original-, con cada diferencia explicada y resuelta antes de redactar la especificacion P1."
+      },
+      {
+        "n": "C5",
+        "title": "Comparar contra el programa original, E/S por E/S y secuencia por secuencia",
+        "detail": "El paso 32 compara el PLC viejo contra el nuevo. Teniendo la fuente, esa comparacion deja de ser observacion y pasa a ser prueba de equivalencia: del programa original se derivan los juegos de entradas -condiciones normales, valores limite, enclavamientos y fallas- y se contrasta la salida de las dos plataformas, secuencia por secuencia.",
+        "specializes_step": "32",
+        "exit_criterion": "Juego de pruebas derivado del programa original ejecutado en las dos plataformas, con cada diferencia clasificada como deliberada -y justificada- o como defecto ya corregido. Ninguna queda para 'verla en la puesta en marcha'."
+      }
+    ],
+    "rules": [
+      {
+        "id": "la_fuente_es_especificacion_no_plantilla",
+        "rule": "El programa original es la especificacion de lo que la maquina hace HOY, no una plantilla que se traduce. La especificacion funcional de P1 se redacta a partir del codigo Y de lo documentado en el paso 6: el codigo aporta los numeros exactos -tiempos, setpoints, limites- y el paso 6 aporta la intencion.",
+        "affects_steps": [
+          "11",
+          "21",
+          "P1",
+          "P5"
+        ]
+      },
+      {
+        "id": "reconciliar_codigo_y_campo",
+        "rule": "Donde el codigo y lo documentado en el paso 6 no coincidan esta lo que ningun otro camino encuentra: parches sin registrar, logica muerta y cambios de operacion nunca documentados. Cada discrepancia se resuelve con operacion y mantenimiento ANTES de escribir P1, y queda registrada.",
+        "affects_steps": [
+          "6",
+          "11",
+          "18"
+        ]
+      },
+      {
+        "id": "equivalencias_no_se_inventan",
+        "rule": "Ni las instrucciones ni los modelos de CPU se equivalen de memoria ni por parecido de nombre. La tabla C2 se construye contra los manuales de las dos marcas y la matriz del paso 14 se establece por criterio funcional. Lo que no se pueda citar se declara pendiente de verificar, con responsable.",
+        "affects_steps": [
+          "12",
+          "13",
+          "14",
+          "23"
+        ]
+      },
+      {
+        "id": "seguridad_no_se_porta",
+        "rule": "La logica de seguridad NUNCA se traslada por analogia entre marcas, aunque exista instruccion equivalente en el destino: se rehace desde la especificacion y se recertifica con el especialista del paso 28.",
+        "affects_steps": [
+          "23",
+          "28"
+        ]
+      },
+      {
+        "id": "redes_y_hmi_se_rehacen",
+        "rule": "Entre marcas distintas la red de campo puede exigir conversion o pasarela y el HMI/SCADA se re-etiqueta entero contra la lista de variables nueva. Ninguno de los dos es un ajuste menor: se presupuestan como trabajo propio, con su tiempo y su costo.",
+        "affects_steps": [
+          "24",
+          "25"
+        ]
+      },
+      {
+        "id": "titularidad_del_programa",
+        "rule": "Conocer la contrasena no otorga el derecho a reimplementar en otra plataforma la logica de un tercero. Si el programa es de un fabricante de maquina o de un integrador, verificar la titularidad y las condiciones de licencia ANTES de reutilizar su contenido. El agente lo advierte y no asiste a eludir protecciones ni licencias.",
+        "affects_steps": [
+          "3",
+          "11",
+          "21"
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "type": "procedimiento",
+        "description": "MIGRA-IA-PROC-050: pasos 11, 12, 18, 21 y 32, y extension de construccion del programa P1-P7",
+        "url": "data/procedimiento_migracion.json",
+        "note": "Esta ruta especializa el procedimiento; no lo sustituye."
+      },
+      {
+        "type": "catalogo",
+        "description": "Guias y manuales oficiales de cada fabricante ya registrados en el catalogo de CPU",
+        "url": "data/fabricantes_cpu.json",
+        "note": "Son la fuente contra la que se construye la tabla de equivalencia de instrucciones (C2). El catalogo no publica atributos comparables por modelo entre marcas: por eso el paso 13 remite a la herramienta oficial de seleccion del fabricante."
+      }
+    ]
+  }
+}

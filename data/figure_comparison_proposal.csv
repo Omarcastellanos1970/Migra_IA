@@ -10,5 +10,5 @@
 #
 # Las cifras del trivial y del clasico NO se escriben aqui: salen de correr
 # _baseline.py, para que no puedan desincronizarse.
-metrica,media,sd
+metric,mean,sd
 f1_macro,,

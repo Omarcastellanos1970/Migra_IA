@@ -1,6 +1,6 @@
 """Base de conocimiento de MIGRA-IA (Guia MIGRA-IA-GUIA-001).
 
-Carga la guia integral de migracion (data/base_conocimiento.json) y expone
+Carga la guia integral de migracion (data/es/knowledge_base.json) y expone
 consultas para que el agente estructure el diagnostico por las seis etapas de la
 metodologia y fundamente y CITE cada recomendacion (metodologia, capitulos, rutas
 por fabricante, biblioteca de pruebas, plantillas y anexos de gestion).
@@ -36,8 +36,8 @@ def resumen_metodologia() -> str:
     """Texto breve con las seis etapas y su objetivo (backbone del prompt)."""
     base = cargar_base()
     lineas = []
-    for et in base["metodologia"]["etapas"]:
-        lineas.append(f"{et['n']}. {et['nombre']} [{et['id']}]: {et['objetivo']}")
+    for et in base["methodology"]["stages"]:
+        lineas.append(f"{et['n']}. {et['name']} [{et['id']}]: {et['objective']}")
     return "\n".join(lineas)
 
 
@@ -47,16 +47,16 @@ def indice_para_prompt() -> str:
     Da al modelo las CLAVES validas sin volcar el contenido completo.
     """
     base = cargar_base()
-    g = base["guia"]
-    capitulos = "; ".join(f"{c['n']}={c['titulo']}" for c in base["capitulos"])
-    fabricantes = "; ".join(r["marca"] for r in base["fabricantes"]["rutas"])
-    pruebas = "; ".join(f"{p['id']} {p['dispositivo']}" for p in base["biblioteca_pruebas"])
-    plantillas = "; ".join(f"{t['id']}={t['nombre']}" for t in base["plantillas"])
-    anexos = "; ".join(f"{a['id']} {a['nombre']}" for a in base["anexos_gestion"])
-    casos = "; ".join(f"{c['id']} {c['titulo']}" for c in base["casos_estudio"])
+    g = base["guide"]
+    capitulos = "; ".join(f"{c['n']}={c['title']}" for c in base["chapters"])
+    fabricantes = "; ".join(r["brand"] for r in base["manufacturers"]["routes"])
+    pruebas = "; ".join(f"{p['id']} {p['device']}" for p in base["test_library"])
+    plantillas = "; ".join(f"{t['id']}={t['name']}" for t in base["templates"])
+    anexos = "; ".join(f"{a['id']} {a['name']}" for a in base["management_annexes"])
+    casos = "; ".join(f"{c['id']} {c['title']}" for c in base["case_studies"])
     return (
-        f"BASE DE REFERENCIA: {g['titulo']} ({g['codigo']} v{g['version']}). "
-        f"Citala como '{g['cita']}, cap. N' o por seccion.\n"
+        f"BASE DE REFERENCIA: {g['title']} ({g['code']} v{g['version']}). "
+        f"Citala como '{g['citation']}, cap. N' o por seccion.\n"
         "Consultala con la herramienta `consultar_guia` (tema, clave). Temas y claves:\n"
         f"- metodologia: seis etapas (diagnostico, ingenieria, construccion, fat, corte_sat, cierre).\n"
         f"- etapa (clave = id o numero): detalle de una etapa.\n"
@@ -75,65 +75,65 @@ def indice_para_prompt() -> str:
 # --------------------------------------------------------------------------- #
 def _buscar_capitulo(base: dict, clave):
     if clave in (None, ""):
-        return [{"n": c["n"], "titulo": c["titulo"], "etapa": c["etapa"]} for c in base["capitulos"]]
+        return [{"n": c["n"], "title": c["title"], "stage": c["stage"]} for c in base["chapters"]]
     k = _norm(str(clave))
     # 1) coincidencia exacta por numero; 2) subcadena en el titulo.
-    for c in base["capitulos"]:
+    for c in base["chapters"]:
         if k == str(c["n"]):
             return c
-    for c in base["capitulos"]:
-        if k in _norm(c["titulo"]):
+    for c in base["chapters"]:
+        if k in _norm(c["title"]):
             return c
     return None
 
 
 def _buscar_etapa(base: dict, clave):
-    etapas = base["metodologia"]["etapas"]
+    etapas = base["methodology"]["stages"]
     if clave in (None, ""):
-        return base["metodologia"]
+        return base["methodology"]
     k = _norm(str(clave))
     # 1) coincidencia exacta por numero o id; 2) subcadena en el nombre.
     for et in etapas:
         if k == str(et["n"]) or k == _norm(et["id"]):
             return et
     for et in etapas:
-        if k in _norm(et["nombre"]):
+        if k in _norm(et["name"]):
             return et
     return None
 
 
 def _buscar_fabricante(base: dict, clave):
-    rutas = base["fabricantes"]["rutas"]
+    rutas = base["manufacturers"]["routes"]
     if clave in (None, ""):
-        return {"nota": base["fabricantes"]["nota"], "marcas": [r["marca"] for r in rutas]}
+        return {"note": base["manufacturers"]["note"], "marcas": [r["brand"] for r in rutas]}
     k = _norm(str(clave))
     for r in rutas:
-        if k in _norm(r["marca"]):
-            return {**r, "procedimiento_recomendado": base["fabricantes"]["procedimiento_recomendado"], "nota": base["fabricantes"]["nota"]}
+        if k in _norm(r["brand"]):
+            return {**r, "recommended_procedure": base["manufacturers"]["recommended_procedure"], "note": base["manufacturers"]["note"]}
     # buscar tambien por familia de origen (p. ej. "S7-300", "PLC-5")
     for r in rutas:
-        for o in r["origenes"]:
-            if k in _norm(o["origen"]):
-                return {"marca": r["marca"], "coincidencia": o, "procedimiento_recomendado": base["fabricantes"]["procedimiento_recomendado"], "nota": base["fabricantes"]["nota"]}
+        for o in r["origins"]:
+            if k in _norm(o["origin"]):
+                return {"brand": r["brand"], "coincidencia": o, "recommended_procedure": base["manufacturers"]["recommended_procedure"], "note": base["manufacturers"]["note"]}
     return None
 
 
 def _buscar_prueba(base: dict, clave):
-    pruebas = base["biblioteca_pruebas"]
+    pruebas = base["test_library"]
     if clave in (None, ""):
-        return [{"id": p["id"], "dispositivo": p["dispositivo"]} for p in pruebas]
+        return [{"id": p["id"], "device": p["device"]} for p in pruebas]
     k = _norm(str(clave))
     for p in pruebas:
         if k == _norm(p["id"]):
             return p
     for p in pruebas:
-        if k in _norm(p["dispositivo"]):
+        if k in _norm(p["device"]):
             return p
     return None
 
 
 def _buscar_plantilla(base: dict, clave):
-    plantillas = base["plantillas"]
+    plantillas = base["templates"]
     if clave in (None, ""):
         return plantillas
     k = _norm(str(clave))
@@ -141,13 +141,13 @@ def _buscar_plantilla(base: dict, clave):
         if k == _norm(t["id"]):
             return t
     for t in plantillas:
-        if k in _norm(t["nombre"]):
+        if k in _norm(t["name"]):
             return t
     return None
 
 
 def _buscar_anexo(base: dict, clave):
-    anexos = base["anexos_gestion"]
+    anexos = base["management_annexes"]
     if clave in (None, ""):
         return anexos
     k = _norm(str(clave))
@@ -155,21 +155,21 @@ def _buscar_anexo(base: dict, clave):
         if k == _norm(a["id"]):
             return a
     for a in anexos:
-        if k in _norm(a["nombre"]):
+        if k in _norm(a["name"]):
             return a
     return None
 
 
 def _buscar_caso(base: dict, clave):
-    casos = base["casos_estudio"]
+    casos = base["case_studies"]
     if clave in (None, ""):
-        return [{"id": c["id"], "titulo": c["titulo"]} for c in casos]
+        return [{"id": c["id"], "title": c["title"]} for c in casos]
     k = _norm(str(clave))
     for c in casos:
         if k == _norm(c["id"]):
             return c
     for c in casos:
-        if k in _norm(c["titulo"]):
+        if k in _norm(c["title"]):
             return c
     return None
 
@@ -178,39 +178,39 @@ def consultar(tema: str, clave=None) -> dict:
     """Devuelve el fragmento de la guia pedido. Estructura estable para el modelo.
 
     `tema` (obligatorio) y `clave` (opcional) provienen de la herramienta
-    `consultar_guia`. Siempre devuelve un dict con 'cita' para trazabilidad.
+    `consultar_guia`. Siempre devuelve un dict con 'citation' para trazabilidad.
     """
     base = cargar_base()
-    cita = base["guia"]["cita"]
+    cita = base["guide"]["citation"]
     t = _norm(tema)
 
     despacho = {
         "indice": lambda: {"indice": indice_para_prompt()},
-        "guia": lambda: base["guia"],
-        "principios": lambda: {"principios_rectores": base["principios_rectores"]},
-        "entregables": lambda: {"entregables_minimos": base["entregables_minimos"],
-                                 "criterios_salida_por_etapa": base["criterios_salida_por_etapa"]},
-        "metodologia": lambda: base["metodologia"],
-        "etapa": lambda: _buscar_etapa(base, clave),
-        "capitulo": lambda: _buscar_capitulo(base, clave),
-        "fabricante": lambda: _buscar_fabricante(base, clave),
-        "fabricantes": lambda: _buscar_fabricante(base, clave),
-        "matriz_fabricantes": lambda: {"matriz_verificacion": base["fabricantes"]["matriz_verificacion"]},
-        "prueba": lambda: _buscar_prueba(base, clave),
-        "biblioteca_pruebas": lambda: _buscar_prueba(base, clave),
-        "plantilla": lambda: _buscar_plantilla(base, clave),
-        "plantillas": lambda: _buscar_plantilla(base, clave),
+        "guide": lambda: base["guide"],
+        "principios": lambda: {"guiding_principles": base["guiding_principles"]},
+        "entregables": lambda: {"minimum_deliverables": base["minimum_deliverables"],
+                                 "stage_exit_criteria": base["stage_exit_criteria"]},
+        "methodology": lambda: base["methodology"],
+        "stage": lambda: _buscar_etapa(base, clave),
+        "chapter": lambda: _buscar_capitulo(base, clave),
+        "manufacturer": lambda: _buscar_fabricante(base, clave),
+        "manufacturers": lambda: _buscar_fabricante(base, clave),
+        "matriz_fabricantes": lambda: {"verification_matrix": base["manufacturers"]["verification_matrix"]},
+        "test": lambda: _buscar_prueba(base, clave),
+        "test_library": lambda: _buscar_prueba(base, clave),
+        "template": lambda: _buscar_plantilla(base, clave),
+        "templates": lambda: _buscar_plantilla(base, clave),
         "anexo": lambda: _buscar_anexo(base, clave),
-        "anexos": lambda: _buscar_anexo(base, clave),
-        "caso": lambda: _buscar_caso(base, clave),
-        "casos": lambda: _buscar_caso(base, clave),
+        "annexes": lambda: _buscar_anexo(base, clave),
+        "case": lambda: _buscar_caso(base, clave),
+        "cases": lambda: _buscar_caso(base, clave),
     }
 
     handler = despacho.get(t)
     if handler is None:
-        return {"error": f"tema desconocido: {tema}", "temas_validos": sorted(despacho.keys()), "cita": cita}
+        return {"error": f"tema desconocido: {tema}", "temas_validos": sorted(despacho.keys()), "citation": cita}
 
     resultado = handler()
     if resultado is None:
-        return {"error": f"no se encontro '{clave}' en el tema '{tema}'", "cita": cita}
-    return {"tema": t, "clave": clave, "cita": cita, "contenido": resultado}
+        return {"error": f"no se encontro '{clave}' en el tema '{tema}'", "citation": cita}
+    return {"tema": t, "key": clave, "citation": cita, "contenido": resultado}

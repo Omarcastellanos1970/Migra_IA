@@ -338,7 +338,7 @@ COMO USAR EL CUESTIONARIO:
   la que se DECIDE entre reparar y migrar: sin ellas, cualquier recomendacion es una
   opinion. En cuanto el equipo este identificado, cubrelas.
 - ANTES de abrir una seccion nueva, consultala con `consultar_cuestionario`
-  (tema 'seccion', clave = la letra): preguntaras con las opciones reales y aplicaras
+  (tema 'section', clave = la letra): preguntaras con las opciones reales y aplicaras
   su regla adaptativa en lugar de improvisar.
 - ANTES de puntuar un factor de riesgo, consulta `consultar_cuestionario` con
   tema 'factor': te dice que preguntas lo alimentan y como interpretarlas. Si esas

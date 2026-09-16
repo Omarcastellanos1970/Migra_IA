@@ -102,7 +102,7 @@ class Caso:
     def _tocar(self, accion: str, detalle: dict | None = None) -> None:
         self.actualizado = _ahora()
         self.auditoria.append(
-            {"ts": self.actualizado, "accion": accion, "detalle": detalle or {}}
+            {"ts": self.actualizado, "accion": accion, "detail": detalle or {}}
         )
 
     # ------------------------------------------------------------------ #
@@ -116,20 +116,20 @@ class Caso:
         fuente: str = "",
     ) -> None:
         self.respuestas[codigo] = {
-            "seccion": seccion,
-            "pregunta": pregunta,
-            "valor": valor,
-            "nivel_confianza": nivel_confianza,
-            "fuente": fuente,
+            "section": seccion,
+            "question": pregunta,
+            "value": valor,
+            "confidence_level": nivel_confianza,
+            "source": fuente,
             "ts": _ahora(),
         }
-        self._tocar("guardar_respuesta", {"codigo": codigo})
+        self._tocar("guardar_respuesta", {"code": codigo})
 
     def registrar_activo(self, activo: dict) -> str:
         aid = self._nuevo_id("AST")
         registro = {"id": aid, "ts": _ahora(), **activo}
         self.activos.append(registro)
-        self._tocar("registrar_activo", {"id": aid, "tipo": activo.get("tipo")})
+        self._tocar("registrar_activo", {"id": aid, "type": activo.get("type")})
         return aid
 
     def fijar_equipo(self, identificacion: dict) -> None:
@@ -139,18 +139,18 @@ class Caso:
         (modelo exacto > familia > marca): asi, registrar despues un modulo de E/S
         o una HMI no borra la CPU ya identificada.
         """
-        orden = {"modelo_exacto": 3, "familia": 2, "marca": 1}
-        nuevo = orden.get(identificacion.get("estado", ""), 0)
+        orden = {"modelo_exacto": 3, "family": 2, "brand": 1}
+        nuevo = orden.get(identificacion.get("status", ""), 0)
         if nuevo == 0:
             return
-        actual = orden.get((self.equipo_identificado or {}).get("estado", ""), 0)
+        actual = orden.get((self.equipo_identificado or {}).get("status", ""), 0)
         if nuevo >= actual:
             self.equipo_identificado = identificacion
             self._tocar(
                 "fijar_equipo",
-                {"marca": identificacion.get("marca"),
-                 "familia": identificacion.get("familia"),
-                 "estado": identificacion.get("estado")},
+                {"brand": identificacion.get("brand"),
+                 "family": identificacion.get("family"),
+                 "status": identificacion.get("status")},
             )
 
     def registrar_evidencia(self, evidencia: dict) -> str:
@@ -162,14 +162,14 @@ class Caso:
 
     def registrar_dato_faltante(self, descripcion: str, impacto: str = "") -> None:
         self.datos_faltantes.append(
-            {"descripcion": descripcion, "impacto": impacto, "ts": _ahora()}
+            {"description": descripcion, "impacto": impacto, "ts": _ahora()}
         )
-        self._tocar("registrar_dato_faltante", {"descripcion": descripcion})
+        self._tocar("registrar_dato_faltante", {"description": descripcion})
 
     def registrar_bandera(self, texto: str) -> None:
-        if texto not in [b["texto"] for b in self.banderas]:
-            self.banderas.append({"texto": texto, "ts": _ahora()})
-            self._tocar("registrar_bandera", {"texto": texto})
+        if texto not in [b["text"] for b in self.banderas]:
+            self.banderas.append({"text": texto, "ts": _ahora()})
+            self._tocar("registrar_bandera", {"text": texto})
 
     def guardar_riesgo(self, resultado: dict) -> None:
         self.riesgo = {"ts": _ahora(), **resultado}
@@ -185,9 +185,9 @@ class Caso:
     def registrar_informe(self, ruta: str, resumen: str = "") -> str:
         iid = self._nuevo_id("INF")
         self.informes.append(
-            {"id": iid, "ruta": ruta, "resumen": resumen, "ts": _ahora()}
+            {"id": iid, "route": ruta, "resumen": resumen, "ts": _ahora()}
         )
-        self._tocar("registrar_informe", {"id": iid, "ruta": ruta})
+        self._tocar("registrar_informe", {"id": iid, "route": ruta})
         return iid
 
     # ------------------------------------------------------------------ #
@@ -197,24 +197,24 @@ class Caso:
                           decidido_por: str = "usuario") -> dict:
         """Abre el modo guia. Es idempotente: no reinicia un avance ya empezado."""
         if self.migracion and self.migracion.get("activa"):
-            self.migracion.setdefault("disparadores", [])
-            if disparador not in self.migracion["disparadores"]:
-                self.migracion["disparadores"].append(disparador)
-                self._tocar("migracion_disparador", {"disparador": disparador})
+            self.migracion.setdefault("triggers", [])
+            if disparador not in self.migracion["triggers"]:
+                self.migracion["triggers"].append(disparador)
+                self._tocar("migracion_disparador", {"trigger": disparador})
             return self.migracion
         self.migracion = {
             "activa": True,
             "abierta": _ahora(),
-            "disparadores": [disparador],
+            "triggers": [disparador],
             "motivo": motivo,
             "decidido_por": decidido_por,
             "destino": None,
             "cambio_marca": False,
             "sin_respaldo": False,
-            "pasos": {},
+            "steps": {},
         }
         self._tocar("iniciar_migracion",
-                    {"disparador": disparador, "decidido_por": decidido_por})
+                    {"trigger": disparador, "decidido_por": decidido_por})
         return self.migracion
 
     def declarar_sin_respaldo(self, sin_respaldo: bool = True) -> None:
@@ -230,19 +230,19 @@ class Caso:
         """Registra la CPU destino elegida (paso 13) y deduce si cambia la marca."""
         if not self.migracion:
             self.iniciar_migracion("decision_del_usuario", "Eleccion de CPU destino")
-        origen = (self.equipo_identificado or {}).get("marca") or ""
+        origen = (self.equipo_identificado or {}).get("brand") or ""
         cambio = bool(origen) and not _misma_marca(marca, origen)
         self.migracion["destino"] = {
-            "marca": marca,
-            "familia": familia,
-            "modelo": modelo,
+            "brand": marca,
+            "family": familia,
+            "model": modelo,
             "justificacion": justificacion,
-            "fuente": fuente,
+            "source": fuente,
             "ts": _ahora(),
         }
         self.migracion["cambio_marca"] = cambio
         self._tocar("fijar_destino",
-                    {"marca": marca, "familia": familia, "cambio_marca": cambio})
+                    {"brand": marca, "family": familia, "cambio_marca": cambio})
         return self.migracion["destino"]
 
     def marcar_paso(self, clave, estado: str, nota: str = "",
@@ -257,13 +257,13 @@ class Caso:
         texto = str(clave).strip()
         c = texto if not texto.isdigit() else str(int(texto))
         registro = {
-            "estado": estado,
-            "nota": nota,
-            "evidencia": evidencia or [],
+            "status": estado,
+            "note": nota,
+            "evidence": evidencia or [],
             "ts": _ahora(),
         }
-        self.migracion.setdefault("pasos", {})[c] = registro
-        self._tocar("marcar_paso", {"paso": c, "estado": estado})
+        self.migracion.setdefault("steps", {})[c] = registro
+        self._tocar("marcar_paso", {"step": c, "status": estado})
         return registro
 
     # ------------------------------------------------------------------ #
@@ -274,25 +274,25 @@ class Caso:
             "respuestas_registradas": sorted(self.respuestas.keys()),
             "num_activos": len(self.activos),
             "activos": [
-                {"id": a["id"], "tipo": a.get("tipo"), "descripcion": a.get("descripcion")}
+                {"id": a["id"], "type": a.get("type"), "description": a.get("description")}
                 for a in self.activos
             ],
             "equipo_identificado": (
                 {
-                    "marca": self.equipo_identificado.get("marca"),
-                    "familia": self.equipo_identificado.get("familia"),
-                    "modelo": self.equipo_identificado.get("modelo_identificado"),
-                    "etapa": self.equipo_identificado.get("etapa"),
-                    "estado_identificacion": self.equipo_identificado.get("estado"),
+                    "brand": self.equipo_identificado.get("brand"),
+                    "family": self.equipo_identificado.get("family"),
+                    "model": self.equipo_identificado.get("modelo_identificado"),
+                    "stage": self.equipo_identificado.get("stage"),
+                    "estado_identificacion": self.equipo_identificado.get("status"),
                 }
                 if self.equipo_identificado
                 else None
             ),
             "num_evidencias": len(self.evidencias),
-            "datos_faltantes": [d["descripcion"] for d in self.datos_faltantes],
-            "banderas": [b["texto"] for b in self.banderas],
+            "datos_faltantes": [d["description"] for d in self.datos_faltantes],
+            "banderas": [b["text"] for b in self.banderas],
             "aprobaciones_pendientes": self.aprobaciones_pendientes,
-            "riesgo": self.riesgo,
+            "risk": self.riesgo,
             "migracion": self._resumen_migracion(),
             "num_recomendaciones": len(self.recomendaciones),
             "num_informes": len(self.informes),
@@ -302,14 +302,14 @@ class Caso:
         """Avance del procedimiento de 50 pasos, si el modo guia esta abierto."""
         if not self.migracion or not self.migracion.get("activa"):
             return None
-        pasos = self.migracion.get("pasos", {}) or {}
+        pasos = self.migracion.get("steps", {}) or {}
         cerrados = [c for c, r in pasos.items()
-                    if r.get("estado") in ("completado", "no_aplica")]
+                    if r.get("status") in ("completado", "no_aplica")]
         # Ordena 1..50 antes que P1..P7, sin romper con las claves no numericas.
         cerrados.sort(key=lambda c: (0, int(c)) if c.isdigit() else (1, c))
         return {
             "activa": True,
-            "disparadores": self.migracion.get("disparadores", []),
+            "triggers": self.migracion.get("triggers", []),
             "destino": self.migracion.get("destino"),
             "cambio_marca": self.migracion.get("cambio_marca", False),
             "sin_respaldo": self.migracion.get("sin_respaldo", False),

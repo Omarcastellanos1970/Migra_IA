@@ -51,7 +51,7 @@ def main() -> int:
         return 2
 
     print("\n--- RESPUESTA DEL AGENTE ---")
-    print(resultado["texto"][:2000])
+    print(resultado["text"][:2000])
     print("\n--- HERRAMIENTAS INVOCADAS ---")
     print(resultado["acciones"] or "(ninguna en este turno)")
     print("\n[OK] Turno end-to-end completado. Expediente:", caso.case_id)

@@ -23,7 +23,7 @@ ESCENARIOS = {
     "critico": {
         "equipo": "Siemens S7-300 CPU 315-2 DP",
         "destino": "A",
-        "respuestas": {
+        "answers": {
             "C08": "Alta: afecta una linea importante",
             "C10": "4 a 12 horas",
             "Q04": "En el paro anual de planta o vacaciones",
@@ -53,7 +53,7 @@ ESCENARIOS = {
     "sano": {
         "equipo": "Siemens S7-1500 CPU 1515-2 PN",
         "destino": "A",
-        "respuestas": {
+        "answers": {
             "C08": "Baja: puede detenerse varios dias",
             "C10": "Mas de 24 horas",
             "Q04": "En cualquier momento",
@@ -89,7 +89,7 @@ ESCENARIOS["otra_marca"] = {**ESCENARIOS["critico"], "destino": "B OMRON"}
 ESCENARIOS["otra_marca_con_codigo"] = {
     **ESCENARIOS["critico"],
     "destino": "B OMRON",
-    "respuestas": {**ESCENARIOS["critico"]["respuestas"],
+    "answers": {**ESCENARIOS["critico"]["answers"],
                    "F01": "Si", "F06": "Si", "F07": "Si", "N06": "Si, todas"},
 }
 
@@ -110,8 +110,8 @@ def main() -> None:
     print("=" * 70)
 
     apertura = interactivo.iniciar()
-    estado = apertura["estado"]
-    print("\n[apertura]", apertura["texto"].splitlines()[0])
+    estado = apertura["status"]
+    print("\n[apertura]", apertura["text"].splitlines()[0])
 
     entradas = [esc["equipo"]]
     turno = 0
@@ -122,8 +122,8 @@ def main() -> None:
             break
         entrada = entradas.pop(0) if entradas else _siguiente_entrada(estado, esc)
         paso = interactivo.responder(caso, entrada, estado)
-        estado = paso["estado"]
-        cabecera = paso["texto"].strip().splitlines()[0]
+        estado = paso["status"]
+        cabecera = paso["text"].strip().splitlines()[0]
         marca = f" -> {', '.join(paso['acciones'])}" if paso["acciones"] else ""
         print(f"[{turno:>3}] entrada={entrada!r:<42} {cabecera[:70]}{marca}")
         if paso["fin"]:
@@ -133,7 +133,7 @@ def main() -> None:
     print("RESULTADO (motor real, sin modelo de lenguaje)")
     print("=" * 70)
     r = caso.resumen()
-    print("riesgo    :", r["riesgo"]["puntuacion"], "-", r["riesgo"]["clasificacion"])
+    print("riesgo    :", r["risk"]["puntuacion"], "-", r["risk"]["classification"])
     print("respuestas:", len(r["respuestas_registradas"]))
     print("faltantes :", len(r["datos_faltantes"]))
     print("migracion :", json.dumps(r["migracion"], ensure_ascii=False)
@@ -143,10 +143,10 @@ def main() -> None:
 
 def _siguiente_entrada(estado: dict, esc: dict) -> str:
     """Lo que 'escribiria' el usuario, segun la fase y la pregunta en curso."""
-    fase = estado.get("fase")
+    fase = estado.get("phase")
     if fase == interactivo.F_PREGUNTAS:
         codigo = estado.get("actual")
-        return esc["respuestas"].get(codigo, "1")
+        return esc["answers"].get(codigo, "1")
     if fase == interactivo.F_DESTINO:
         return esc["destino"] if estado.get("opciones_mostradas") else "continuar"
     if fase == interactivo.F_GUIA:

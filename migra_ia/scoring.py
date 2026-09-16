@@ -42,7 +42,7 @@ class ResultadoRiesgo:
     def to_dict(self) -> dict:
         return {
             "puntuacion": self.puntuacion,
-            "clasificacion": self.clasificacion,
+            "classification": self.clasificacion,
             "detalle_factores": self.detalle_factores,
         }
 
@@ -64,7 +64,7 @@ def calcular_riesgo(factores: dict[str, dict]) -> ResultadoRiesgo:
     """Calcula el riesgo de obsolescencia ponderado.
 
     `factores` es un dict con claves de PESOS. Cada valor es un dict con:
-        - "valor": puntuacion 0-100 del factor (mayor = mas riesgo)
+        - "value": puntuacion 0-100 del factor (mayor = mas riesgo)
         - "justificacion": texto que explica la puntuacion (obligatorio)
 
     Los factores no provistos se omiten y los pesos se renormalizan sobre los
@@ -81,15 +81,15 @@ def calcular_riesgo(factores: dict[str, dict]) -> ResultadoRiesgo:
             detalle.append(
                 {
                     "factor": ETIQUETAS_FACTOR[clave],
-                    "clave": clave,
+                    "key": clave,
                     "peso": peso,
-                    "valor": None,
+                    "value": None,
                     "justificacion": "Sin datos suficientes (no incluido en el calculo).",
                 }
             )
             continue
 
-        valor = float(entrada.get("valor", 0))
+        valor = float(entrada.get("value", 0))
         valor = max(0.0, min(100.0, valor))  # acotar 0-100
         justif = str(entrada.get("justificacion", "")).strip() or "(sin justificacion)"
 
@@ -98,9 +98,9 @@ def calcular_riesgo(factores: dict[str, dict]) -> ResultadoRiesgo:
         detalle.append(
             {
                 "factor": ETIQUETAS_FACTOR[clave],
-                "clave": clave,
+                "key": clave,
                 "peso": peso,
-                "valor": valor,
+                "value": valor,
                 "justificacion": justif,
             }
         )
