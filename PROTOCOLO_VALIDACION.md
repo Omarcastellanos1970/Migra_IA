@@ -1,5 +1,7 @@
 # Protocolo de validación — riesgo ordinal y prioridad de reemplazo
 
+**English:** [VALIDATION_PROTOCOL.md](VALIDATION_PROTOCOL.md)
+
 **Firmado el 2026-09-04.** Desde esta fecha el protocolo manda: si un resultado
 posterior no gusta, se reporta igual. Cambiar cualquiera de los seis puntos
 obliga a anotar aquí qué se cambió, cuándo y por qué, antes de volver a correr
@@ -103,7 +105,7 @@ promediar sobre pliegues *y* semillas.
 
 **Preprocesamiento dentro del pliegue.** La media y la escala con que se
 estandariza la antigüedad se calculan **solo con el entrenamiento de cada
-pliegue** (`b1_logistica_ordinal()`). No hay ningún ajuste hecho una sola vez
+pliegue** (`b1_ordinal_logistic()`). No hay ningún ajuste hecho una sola vez
 sobre las nueve filas.
 
 ### 3. Las métricas — congeladas desde hoy
@@ -123,7 +125,7 @@ la cola no cambia ninguna decisión.
 
 Las dos métricas de P2 se adaptan de su forma habitual, porque P2 es una
 permutación completa y no una recuperación con un solo elemento relevante. La
-adaptación está escrita en el docstring de `metricas_ranking()`.
+adaptación está escrita en el docstring de `ranking_metrics()`.
 
 ### 4. La búsqueda permitida
 

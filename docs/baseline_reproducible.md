@@ -95,7 +95,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
 
   Preprocesamiento DENTRO del pliegue: la media y la desviacion con que se
   estandariza la antiguedad se calculan solo con el entrenamiento de cada
-  pliegue, en b1_logistica_ordinal(). No hay ningun ajuste hecho una sola
+  pliegue, en b1_ordinal_logistic(). No hay ningun ajuste hecho una sola
   vez sobre las nueve filas.
 
   Contraste con leave-one-manufacturer-out (k=5), que agrupa pero NO

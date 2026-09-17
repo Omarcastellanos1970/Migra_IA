@@ -626,7 +626,7 @@ def report(data, pliegues, res, fuga, versiones, k_note="") -> str:
     a("")
     a("  Preprocesamiento DENTRO del pliegue: la media y la desviacion con que se")
     a("  estandariza la antiguedad se calculan solo con el entrenamiento de cada")
-    a("  pliegue, en b1_logistica_ordinal(). No hay ningun ajuste hecho una sola")
+    a("  pliegue, en b1_ordinal_logistic(). No hay ningun ajuste hecho una sola")
     a("  vez sobre las nueve filas.")
     a("")
     a("  Contraste con leave-one-manufacturer-out (k=5), que agrupa pero NO")
