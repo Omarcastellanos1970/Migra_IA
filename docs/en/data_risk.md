@@ -25,7 +25,7 @@ exist.
 
 **Status.** The instrument is ready and costs no new work:
 `docs/en/labelling_form.md`, with no output of the engine inside it, 20-30
-minutes per evaluator. `python _labeling.py comparar` reads what comes back and
+minutes per evaluator. `python _labeling.py compare` reads what comes back and
 measures the agreement between evaluators. In the meantime there is a
 provisional rule-based labelling, stamped `provisional_regla`, which **cannot be
 published as validation**.

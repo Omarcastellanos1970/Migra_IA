@@ -24,7 +24,7 @@ modo ranking— necesita un orden de referencia que no existe.
 
 **Estado.** El instrumento está listo y no cuesta trabajo nuevo:
 `docs/formulario_etiquetado.md`, sin ninguna salida del motor dentro, 20-30
-minutos por evaluador. `python _labeling.py comparar` lee lo devuelto y mide
+minutos por evaluador. `python _labeling.py compare` lee lo devuelto y mide
 el acuerdo entre evaluadores. Mientras tanto hay un etiquetado provisional por
 regla, estampado `provisional_regla`, que **no puede publicarse como validación**.
 

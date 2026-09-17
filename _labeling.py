@@ -11,11 +11,11 @@ disponible. Este script hace dos cosas distintas y no las confunde:
                  circuito completo corra de punta a punta y para que P2 deje de
                  estar bloqueado, NO para validar nada.
 
-  `formulario`   escribe docs/formulario_etiquetado.md, que es lo que se le
+  `form`         escribe docs/formulario_etiquetado.md, que es lo que se le
                  manda a cada coautor. No lleva ninguna salida del motor ni el
                  etiquetado provisional: quien lo responde no ve la respuesta.
 
-  `comparar`     lee los formularios devueltos y mide el acuerdo entre expertos
+  `compare`      lee los formularios devueltos y mide el acuerdo entre expertos
                  y su distancia contra la regla provisional.
 
 LO QUE HAY QUE DECLARAR EN EL PAPER
@@ -27,9 +27,9 @@ de aprendizaje real. Mientras el campo `procedencia` del JSON diga
 `provisional_regla`, ninguna cifra que salga de aqui puede presentarse como
 validacion.
 
-    python _etiquetado.py provisional
-    python _etiquetado.py formulario
-    python _etiquetado.py comparar respuestas_julio.md respuestas_isidoro.md
+    python _labeling.py provisional
+    python _labeling.py form
+    python _labeling.py compare respuestas_julio.md respuestas_isidoro.md
 """
 from __future__ import annotations
 
@@ -281,8 +281,8 @@ def compare(files: list[Path]) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Etiquetado de P1 y P2.")
-    ap.add_argument("accion", choices=["provisional", "form", "compare", "p2"])
-    ap.add_argument("archivos", nargs="*", type=Path)
+    ap.add_argument("action", choices=["provisional", "form", "compare", "p2"])
+    ap.add_argument("files", nargs="*", type=Path)
     args = ap.parse_args()
 
     if args.action == "provisional":
@@ -326,7 +326,7 @@ def main() -> None:
         print("lleguen los formularios, este mismo comando lo mide.")
     else:
         if not args.files:
-            ap.error("comparar necesita al menos un formulario rellenado")
+            ap.error("compare necesita al menos un formulario rellenado")
         compare(args.files)
 
 

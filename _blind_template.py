@@ -38,11 +38,11 @@ si discrimina es A.
 
 USO
 ---
-    python _plantilla_ciega.py generar
+    python _blind_template.py generate
         Escribe docs/plantilla_casos_ciegos.md (esto es lo que se envia) y
         _plantilla_clave.json (esto NO se envia: es el mapa caso -> id real).
 
-    python _plantilla_ciega.py comparar respuestas_ana.md respuestas_luis.md
+    python _blind_template.py compare respuestas_ana.md respuestas_luis.md
         Lee las plantillas rellenadas y emite el informe de concordancia.
         Con --md lo escribe ademas en docs/concordancia_expertos.md
 """
@@ -379,7 +379,7 @@ def main() -> None:
                    help="semilla del barajado; si falta se busca en %s "
                         "o en la clave local" % SEED_ENV)
     c = sub.add_parser("compare", help="lee plantillas rellenadas y mide concordancia")
-    c.add_argument("archivos", nargs="+", type=Path)
+    c.add_argument("files", nargs="+", type=Path)
     c.add_argument("--md", action="store_true")
     args = ap.parse_args()
 
