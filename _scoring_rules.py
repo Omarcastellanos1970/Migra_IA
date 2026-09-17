@@ -40,22 +40,8 @@ def output_path() -> Path:
 
 
 def _answer_text(code: str | None, canonico: str) -> str:
-    """La respuesta de la tabla, dicha en el idioma del documento.
-
-    Las tablas del motor estan escritas con la opcion CANONICA en castellano
-    ---es contra lo que se compara---, asi que para el documento ingles hay que
-    buscar su hermana por posicion. Lo que no sea una opcion pasa tal cual.
-    """
-    if not code or config.language() == config.CANONICAL_LANGUAGE:
-        return canonico
-    ops_can = (questionnaire.question(code, config.CANONICAL_LANGUAGE) or {}).get("options") or []
-    ops_loc = (questionnaire.question(code) or {}).get("options") or []
-    if len(ops_loc) < len(ops_can):
-        return canonico
-    for i, op in enumerate(ops_can):
-        if op == canonico:
-            return ops_loc[i]
-    return canonico
+    """La respuesta de la tabla, dicha en el idioma del documento."""
+    return questionnaire.option_in(code, canonico) if code else canonico
 
 # Nombre de la funcion que implementa cada factor de scoring.PESOS.
 FUNCTION = {

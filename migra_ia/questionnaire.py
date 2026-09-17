@@ -99,6 +99,27 @@ def question(code: str, lang: str | None = None) -> dict | None:
     return _all_questions(lang).get((code or "").strip().upper())
 
 
+def option_in(code: str, canonical: str, lang: str | None = None) -> str:
+    """La opcion hermana de una CANONICA, dicha en el idioma pedido.
+
+    Las tablas del motor y las escalas declaradas estan escritas con la opcion
+    en castellano ---es contra lo que se compara---, asi que quien las muestra
+    en otro idioma tiene que buscar su equivalente por POSICION, que es lo unico
+    que los dos archivos comparten. Lo que no sea una opcion pasa tal cual.
+    """
+    destino = lang or config.language()
+    if destino == config.CANONICAL_LANGUAGE:
+        return canonical
+    canonicas = (question(code, config.CANONICAL_LANGUAGE) or {}).get("options") or []
+    locales = (question(code, destino) or {}).get("options") or []
+    if len(locales) < len(canonicas):
+        return canonical
+    for i, op in enumerate(canonicas):
+        if op == canonical:
+            return locales[i]
+    return canonical
+
+
 def _code_range(items: list[dict]) -> str:
     """Etiqueta compacta del rango de codigos de una seccion (p. ej. 'M01-M10')."""
     codigos = [i["code"] for i in items if i.get("code")]

@@ -4,9 +4,9 @@ No necesita clave de API ni casos de campo: todo lo que se mide sale del propio
 motor determinista, asi que el informe es reproducible en cualquier maquina.
 
 Uso:
-    python _evaluacion.py                  # informe en pantalla
-    python _evaluacion.py --md             # ademas escribe docs/evaluacion_interna.md
-    python _evaluacion.py --muestras 20000 --semilla 7
+    python _evaluation.py                  # informe en pantalla
+    python _evaluation.py --md             # ademas escribe el documento del idioma
+    python _evaluation.py --samples 20000 --seed 7
 
 Que mide, y por que:
 
@@ -51,11 +51,26 @@ import statistics
 from contextlib import contextmanager
 from pathlib import Path
 
-from migra_ia import interactive, scoring
+from migra_ia import config, interactive, questionnaire, scoring
+import _interactive_run as run
 from _interactive_run import ESCENARIOS
 
 ROOT = Path(__file__).resolve().parent
 UMBRALES = [20, 40, 60, 80]
+
+
+def D(key: str) -> str:
+    """Texto del informe en el idioma de esta ejecucion."""
+    return config.doc_tools().get(key, key)
+
+
+def output_path() -> Path:
+    return ROOT / D("ev_path")
+
+
+def L10N(clas: str) -> str:
+    """La clasificacion, para MOSTRARLA. Lo que se compara sigue siendo canonico."""
+    return scoring.risk_label(clas)
 
 # Valores de referencia publicados en ARTIFACT.md. Si el motor deja de
 # producirlos, el informe se detiene en vez de publicar cifras que no cuadran.
@@ -75,10 +90,12 @@ def resolve(esc: dict) -> dict:
     for code, text in esc["answers"].items():
         p = interactive._question(code)
         if p is None:
-            raise SystemExit("El codigo " + code + " no existe en questionnaire.json")
-        value = interactive._interpret(p, text)
+            raise SystemExit(D("ev_bad_code") % code)
+        # El escenario se escribe con las opciones canonicas; aqui se dice en el
+        # idioma de la sesion, igual que en el recorrido headless.
+        value = interactive._interpret(p, run._dicho_en_el_idioma(code, text))
         if value is None:
-            raise SystemExit("No se pudo interpretar " + code + "=" + repr(text))
+            raise SystemExit(D("ev_bad_answer") % (code, repr(text)))
         resueltas[code] = value
     return resueltas
 
@@ -125,7 +142,8 @@ def trivial_baseline(answers: dict):
     """B0: solo mira M01. Puntuacion = valor del factor de ciclo de vida."""
     f = interactive._f_lifecycle(answers)
     punt = None if f is None else float(f["value"])
-    return punt, answers.get("M01") in _M01_MIGRATE
+    # La comparacion va contra la opcion canonica, como en el motor.
+    return punt, interactive._canon("M01", answers.get("M01")) in _M01_MIGRATE
 
 
 # --------------------------------------------------------------------------- #
@@ -253,19 +271,23 @@ def monotonicity(answers: dict):
     filas = []
     for code, escala, direction in ORDINALES:
         p = interactive._question(code)
-        documentadas = (p or {}).get("options") or []
+        documentadas = (questionnaire.question(code, config.CANONICAL_LANGUAGE)
+                        or {}).get("options") or []
         faltan = [op for op in escala if op not in documentadas]
         serie, violations = [], []
         for op in escala:
             test = dict(answers)
-            test[code] = op
+            # La escala esta declarada en canonico; se dice en el idioma activo
+            # para que el motor la lea igual que cualquier otra respuesta y para
+            # que el documento la muestre en su lengua.
+            test[code] = questionnaire.option_in(code, op)
             punt, _, _ = score(test)
-            serie.append((op, punt))
+            serie.append((questionnaire.option_in(code, op), punt))
         for (a, va), (b, vb) in zip(serie, serie[1:]):
             if direction == "sube" and vb < va - 1e-9:
-                violations.append("'%s' (%s) -> '%s' (%s): baja" % (a, va, b, vb))
+                violations.append(D("ev_violation_down") % (a, va, b, vb))
             if direction == "baja" and vb > va + 1e-9:
-                violations.append("'%s' (%s) -> '%s' (%s): sube" % (a, va, b, vb))
+                violations.append(D("ev_violation_up") % (a, va, b, vb))
         filas.append({"code": code, "direccion": direction, "serie": serie,
                       "violaciones": violations, "no_documentadas": faltan})
     return filas
@@ -276,7 +298,8 @@ def monotonicity(answers: dict):
 # --------------------------------------------------------------------------- #
 def main() -> None:
     ap = argparse.ArgumentParser(description="Verificacion interna del motor MIGRA-IA")
-    ap.add_argument("--md", action="store_true", help="escribe docs/evaluacion_interna.md")
+    ap.add_argument("--md", action="store_true",
+                    help="escribe el documento del idioma activo")
     ap.add_argument("--samples", type=int, default=5000)
     ap.add_argument("--seed", type=int, default=42)
     args = ap.parse_args()
@@ -289,33 +312,31 @@ def main() -> None:
         L.append(linea)
 
     w("=" * 74)
-    w("VERIFICACION INTERNA DEL MOTOR - MIGRA-IA")
+    w(D("ev_title"))
     w("=" * 74)
-    w("Sin clave de API, sin datos de campo. Determinista y reproducible.")
+    w(D("ev_subtitle"))
     w("")
 
     # --- 0. Anclaje contra las cifras publicadas -------------------------- #
-    w("0. ANCLAJE CONTRA ARTIFACT.md")
+    w(D("ev_s0"))
     w("-" * 74)
     for name, esperado in ESPERADO.items():
         punt, clas, _ = score(cases[name])
         ok = abs(punt - esperado) < 1e-9
-        w("  %-8s %-12s %6.1f  esperado %s  (%s)"
-          % ("OK" if ok else "DIFIERE", name, punt, esperado, clas))
+        w(D("ev_anchor_line")
+          % (D("ev_anchor_ok") if ok else D("ev_anchor_bad"),
+             name, punt, esperado, L10N(clas)))
         if not ok:
-            raise SystemExit("El motor ya no reproduce las cifras publicadas en "
-                             "ARTIFACT.md. Revisa el cambio antes de seguir.")
+            raise SystemExit(D("ev_anchor_abort"))
     w("")
 
     # --- 1. Baselines ----------------------------------------------------- #
-    w("1. BASELINE vs PROPUESTA")
+    w(D("ev_s1"))
     w("-" * 74)
-    w("  AVISO: son 3 filas pero 2 casos independientes. 'otra_marca' es 'critico'")
-    w("  con otro destino -las mismas 24 respuestas-, asi que sus tres cifras")
-    w("  coinciden por construccion y no por coincidencia. No cuenta como")
-    w("  evidencia adicional.")
+    w(D("ev_s1_warn"))
     w("")
-    w("  %-12s %12s %13s %11s   decision" % ("case", "B0 trivial", "B1 uniforme", "propuesta"))
+    w(D("ev_s1_head") % (D("ev_col_case"), D("ev_col_b0"),
+                         D("ev_col_b1"), D("ev_col_prop")))
     tabla_base = []
     for name, resp in cases.items():
         p_prop, c_prop, _ = score(resp)
@@ -323,125 +344,123 @@ def main() -> None:
         p_triv, m_triv = trivial_baseline(resp)
         m_prop = migrate(resp, p_prop, c_prop)
         tabla_base.append({"case": name, "b1": p_uni, "prop": p_prop})
-        d = ("migrar" if m_prop else "no migrar")
+        d = (D("ev_migrate") if m_prop else D("ev_no_migrate"))
         if m_triv != m_prop:
-            d += "  (B0 dice: %s)" % ("migrar" if m_triv else "no migrar")
+            d += D("ev_b0_says") % (D("ev_migrate") if m_triv else D("ev_no_migrate"))
         w("  %-12s %12s %13.1f %11.1f   %s" % (name, p_triv, p_uni, p_prop, d))
     w("")
     dif = [f for f in tabla_base if abs(f["b1"] - f["prop"]) >= 0.05]
     if dif:
-        w("  Los pesos de la Seccion 6 SI cambian el resultado frente a pesos")
-        w("  uniformes en: " + ", ".join("%s (%s vs %s)" % (f["case"], f["b1"], f["prop"])
-                                         for f in dif))
+        w(D("ev_weights_matter")
+          % ", ".join("%s (%s vs %s)" % (f["case"], f["b1"], f["prop"]) for f in dif))
     else:
-        w("  ATENCION: pesos uniformes reproducen la propuesta en todos los casos.")
-        w("  Los pesos elegidos a mano no aportan nada medible en este conjunto.")
+        w(D("ev_weights_flat"))
     w("")
 
     # --- 2. Sensibilidad -------------------------------------------------- #
-    w("2. SENSIBILIDAD DE LOS PESOS")
+    w(D("ev_s2"))
     w("-" * 74)
     for name, resp in cases.items():
         if name == "otra_marca":
             continue  # identico a 'critico' en puntuacion; solo cambia el destino
         p_base, c_base, _ = score(resp)
-        w("  [%s]  base = %s (%s)" % (name, p_base, c_base))
+        w(D("ev_base_line") % (name, p_base, L10N(c_base)))
         for row in individual_sensitivity(resp, c_base):
-            brand = "  <-- cambia de clase" if row["cambios"] else ""
-            w("    %-26s peso %.2f  -50%%:%6.1f  -20%%:%6.1f  +20%%:%6.1f  +50%%:%6.1f%s"
+            brand = D("ev_class_change") if row["cambios"] else ""
+            w(D("ev_sens_line")
               % (row["factor"], row["peso"], row["-50%"], row["-20%"],
                  row["+20%"], row["+50%"], brand))
         m = montecarlo_sensitivity(resp, c_base, args.samples, args.seed)
-        w("    Monte Carlo (%d muestras, pesos x U(0.5,1.5) renormalizados):"
-          % m["muestras"])
-        w("      puntuacion %s .. %s   media %s   sd %s"
-          % (m["min"], m["max"], m["mean"], m["desv"]))
-        w("      la clasificacion se mantiene en %s%% de las muestras" % m["estabilidad"])
+        w(D("ev_mc_line") % m["muestras"])
+        w(D("ev_mc_range") % (m["min"], m["max"], m["mean"], m["desv"]))
+        w(D("ev_mc_stable") % m["estabilidad"])
         w("")
 
     # --- 3. Influencia ---------------------------------------------------- #
-    w("3. INFLUENCIA DE CADA PREGUNTA (escenario 'critico')")
+    w(D("ev_s3"))
     w("-" * 74)
     infl = influence_by_question(cases["critico"])
-    w("  %-5s %7s %7s %7s  pregunta" % ("cod", "rango", "min", "max"))
+    w(D("ev_s3_head") % (D("ev_col_code"), D("ev_col_range"),
+                         D("ev_col_min"), D("ev_col_max")))
     for f in infl[:12]:
         w("  %-5s %7.1f %7.1f %7.1f  %s" % (f["code"], f["rango"], f["min"],
                                             f["max"], f["text"][:42]))
     sin_efecto = [f["code"] for f in infl if f["rango"] == 0]
     if sin_efecto:
         w("")
-        w("  Sin efecto sobre la puntuacion: " + ", ".join(sin_efecto))
-        w("  (no implica que sean inutiles: ver seccion 4, pueden mover la ruta)")
+        w(D("ev_no_effect") % ", ".join(sin_efecto))
+        w(D("ev_no_effect_note"))
     w("")
 
     # --- 4. Influencia sobre la ruta de decision ------------------------- #
-    w("4. INFLUENCIA SOBRE LA RUTA DE DECISION")
+    w(D("ev_s4"))
     w("-" * 74)
-    w("  Una pregunta puede no mover el numero y aun asi cambiar la recomendacion.")
+    w(D("ev_s4_intro"))
     inert_per_case = {}
     for name, resp in cases.items():
         if name == "otra_marca":
             continue
         mueven, inertes = decision_influence(resp)
         inert_per_case[name] = set(inertes)
-        w("  [%s] ruta base: %s" % (name, " > ".join(decision_route(resp))))
-        w("    cambian la ruta: " + (", ".join("%s (%d rutas)" % m for m in mueven)
-                                     if mueven else "ninguna"))
-        w("    no mueven ni puntuacion ni ruta: "
-          + (", ".join(inertes) if inertes else "ninguna"))
+        w(D("ev_route_base") % (name, " > ".join(decision_route(resp))))
+        w(D("ev_route_change")
+          % (", ".join(D("ev_routes_count") % m for m in mueven)
+             if mueven else D("ev_none_f")))
+        w(D("ev_route_inert")
+          % (", ".join(inertes) if inertes else D("ev_none_f")))
     comunes = set.intersection(*inert_per_case.values()) if inert_per_case else set()
     if comunes:
         w("")
-        w("  Inertes en TODOS los escenarios probados: " + ", ".join(sorted(comunes)))
-        w("  Revisar si estan implementadas o solo declaradas en el mapa de decision.")
+        w(D("ev_inert_all") % ", ".join(sorted(comunes)))
+        w(D("ev_inert_note"))
     w("")
 
     # --- 5. Monotonia ----------------------------------------------------- #
-    w("5. MONOTONIA SOBRE ESCALAS ORDINALES (escenario 'critico')")
+    w(D("ev_s5"))
     w("-" * 74)
     for f in monotonicity(cases["critico"]):
-        flecha = "riesgo debe subir" if f["direccion"] == "sube" else "riesgo debe bajar"
+        flecha = D("ev_must_rise") if f["direccion"] == "sube" else D("ev_must_fall")
         w("  [%s] %s" % (f["code"], flecha))
         w("    " + " -> ".join(str(v) for _, v in f["serie"]))
         if f["no_documentadas"]:
-            w("    AVISO: opciones ausentes de questionnaire.json: "
-              + ", ".join(f["no_documentadas"]))
-        w("    " + ("sin violaciones" if not f["violaciones"]
-                    else "VIOLACIONES: " + "; ".join(f["violaciones"])))
+            w(D("ev_missing_options") % ", ".join(f["no_documentadas"]))
+        w("    " + (D("ev_no_violations") if not f["violaciones"]
+                    else D("ev_violations") % "; ".join(f["violaciones"])))
     w("")
 
     # --- 6. Margen -------------------------------------------------------- #
-    w("6. MARGEN HASTA EL UMBRAL MAS CERCANO (20/40/60/80)")
+    w(D("ev_s6"))
     w("-" * 74)
     for name, resp in cases.items():
         punt, clas, _ = score(resp)
         dist, u = threshold_margin(punt)
-        w("  %-12s %6.1f (%s) a %s puntos del umbral %s" % (name, punt, clas, dist, u))
+        w(D("ev_margin_line") % (name, punt, L10N(clas), dist, u))
     w("")
 
     # --- 7. Relacion puntuacion / decision -------------------------------- #
-    w("7. RELACION ENTRE LA PUNTUACION Y LA DECISION")
+    w(D("ev_s7"))
     w("-" * 74)
-    w("  Se fuerza la puntuacion a los extremos dejando las respuestas intactas.")
+    w(D("ev_s7_intro"))
     resp = cases["critico"]
     p0, c0, _ = score(resp)
-    for label, pp in (("puntuacion real", p0), ("forzada a 0", 0.0),
-                         ("forzada a 100", 100.0)):
-        w("    %-18s (%s) -> migrar = %s"
-          % (label, scoring.classify(pp), migrate(resp, pp, scoring.classify(pp))))
+    for label, pp in ((D("ev_real_score"), p0), (D("ev_forced_0"), 0.0),
+                         (D("ev_forced_100"), 100.0)):
+        w(D("ev_forced_line")
+          % (label, L10N(scoring.classify(pp)),
+             migrate(resp, pp, scoring.classify(pp))))
     w("")
 
     print("")
     if args.md:
-        target = ROOT / "docs" / "evaluacion_interna.md"
+        target = output_path()
+        target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(
-            "# Verificacion interna del motor MIGRA-IA\n\n"
-            "Generado por `_evaluacion.py`. Reproducible: mismas respuestas, "
-            "mismos numeros, sin clave de API.\n\n"
-            "Semilla Monte Carlo: `%d` - muestras: `%d`.\n\n" % (args.seed, args.samples)
+            D("ev_doc_title") + "\n\n"
+            + D("ev_doc_intro") + "\n\n"
+            + D("ev_doc_seed") % (args.seed, args.samples) + "\n\n"
             + "```\n" + "\n".join(L) + "\n```\n",
             encoding="utf-8")
-        print("Informe escrito en " + str(target))
+        print(D("ev_written") % target)
 
 
 if __name__ == "__main__":
