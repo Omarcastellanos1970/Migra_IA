@@ -101,7 +101,8 @@ DOI ya asignados (verificados en la API de Zenodo):
 
 | Alcance | DOI |
 | --- | --- |
-| Version v0.4.0 (la ultima publicada) | `10.5281/zenodo.22683608` |
+| Version v0.5.0 (la ultima publicada) | `10.5281/zenodo.22820575` |
+| Version v0.4.0 | `10.5281/zenodo.22683608` |
 | Version v0.3.0 | `10.5281/zenodo.21659730` |
 | Version v0.2.0 | `10.5281/zenodo.21480950` |
 | Concept (resuelve siempre a la ultima) | `10.5281/zenodo.21480949` |
@@ -111,7 +112,7 @@ Referencia IEEE:
 ```
 C. O. Castellanos, J. N. Castillo, I. Medina y L. Loo, "MIGRA-IA: Agente
 inteligente para diagnóstico de obsolescencia y migración de sistemas de
-automatización industrial (v0.4.0)," Zenodo, 2026. doi: 10.5281/zenodo.22683608.
+automatización industrial (v0.5.0)," Zenodo, 2026. doi: 10.5281/zenodo.22820575.
 ```
 
 En LaTeX (IEEEtran), en tu `.bib`. Usa `@misc` y **no** `@software`: `IEEEtran.bst`
@@ -120,11 +121,11 @@ no reconoce ese tipo de entrada y la referencia no se renderiza.
 ```bibtex
 @misc{migra_ia_2026,
   author       = {Castellanos, Carlos Omar and Castillo, Julio No\'e and Medina, Isidoro and Loo, Luis},
-  title        = {{MIGRA-IA: Agente inteligente para diagn\'ostico de obsolescencia y migraci\'on de sistemas de automatizaci\'on industrial (v0.4.0)}},
+  title        = {{MIGRA-IA: Agente inteligente para diagn\'ostico de obsolescencia y migraci\'on de sistemas de automatizaci\'on industrial (v0.5.0)}},
   howpublished = {Zenodo},
   year         = {2026},
-  doi          = {10.5281/zenodo.22683608},
-  url          = {https://doi.org/10.5281/zenodo.22683608}
+  doi          = {10.5281/zenodo.22820575},
+  url          = {https://doi.org/10.5281/zenodo.22820575}
 }
 ```
 
