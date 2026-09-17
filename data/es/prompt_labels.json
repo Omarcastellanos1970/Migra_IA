@@ -28,5 +28,12 @@
   "Riesgo importante": "Riesgo importante",
   "Riesgo alto": "Riesgo alto",
   "Riesgo critico": "Riesgo critico"
+ },
+ "confidence_levels": {
+  "confianza_alta": "confianza_alta",
+  "confianza_media": "confianza_media",
+  "confianza_baja": "confianza_baja",
+  "baja_confianza": "baja_confianza",
+  "no_determinado": "no_determinado"
  }
 }

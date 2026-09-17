@@ -713,14 +713,18 @@ def _generate_report(case: Case, entry: dict) -> str:
     file_name = f"{case.case_id}_{iid_previo}.md"
     path = config.CASES_DIR / file_name
 
+    M = config.messages()
+    # El nivel de confianza se GUARDA con su valor canonico; aqui se muestra con
+    # la etiqueta del idioma, igual que la clasificacion de riesgo.
+    confianza = entry.get("nivel_confianza_global", "no_determinado")
+    confianza = config.labels().get("confidence_levels", {}).get(confianza, confianza)
     encabezado = (
-        f"# {entry.get('title', 'Informe tecnico MIGRA-IA')}\n\n"
-        f"- Caso: {case.case_id}\n"
-        f"- Agente: {config.AGENT_NAME} v{config.AGENT_VERSION}\n"
-        f"- Fecha: {datetime.now().astimezone().isoformat(timespec='seconds')}\n"
-        f"- Nivel de confianza global: {entry.get('nivel_confianza_global', 'no_determinado')}\n"
-        f"- Aprobacion humana: PENDIENTE (este informe es una asistencia tecnica; "
-        f"debe ser verificado por personal autorizado antes de intervenir).\n\n"
+        f"# {entry.get('title') or M['rp001']}\n\n"
+        f"{M['rp002']}{case.case_id}\n"
+        f"{M['rp003']}{config.AGENT_NAME} v{config.AGENT_VERSION}\n"
+        f"{M['rp004']}{datetime.now().astimezone().isoformat(timespec='seconds')}\n"
+        f"{M['rp005']}{confianza}\n"
+        f"{M['rp006']}"
         "---\n\n"
     )
     path.write_text(encabezado + entry.get("cuerpo_markdown", ""), encoding="utf-8")

@@ -44,5 +44,11 @@
  "rn012": "migracion :",
  "rn013": "no abierta",
  "rn014": "informes  :",
- "rn015": "entrada="
+ "rn015": "entrada=",
+ "rp001": "Informe tecnico MIGRA-IA",
+ "rp002": "- Caso: ",
+ "rp003": "- Agente: ",
+ "rp004": "- Fecha: ",
+ "rp005": "- Nivel de confianza global: ",
+ "rp006": "- Aprobacion humana: PENDIENTE (este informe es una asistencia tecnica; debe ser verificado por personal autorizado antes de intervenir).\n\n"
 }

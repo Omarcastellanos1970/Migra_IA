@@ -28,5 +28,12 @@
   "Riesgo importante": "Significant risk",
   "Riesgo alto": "High risk",
   "Riesgo critico": "Critical risk"
+ },
+ "confidence_levels": {
+  "confianza_alta": "high_confidence",
+  "confianza_media": "medium_confidence",
+  "confianza_baja": "low_confidence",
+  "baja_confianza": "low_confidence",
+  "no_determinado": "not_determined"
  }
 }

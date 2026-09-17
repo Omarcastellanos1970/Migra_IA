@@ -220,7 +220,7 @@ def _f_spare_parts(r: dict) -> dict | None:
     rm, rc = _rank("M06", m06), _rank("C10", c10)
     if rm is not None and rc is not None and rm >= 2:
         base = max(base, 85)
-        partes.append(f"M06 '{m06}' frente a C10 '{c10}{T('i002')}")
+        partes.append(f"M06 '{m06}{T('i149')}{c10}{T('i002')}")
     elif rm is not None:
         partes.append(f"M06: '{m06}'.")
     return {"value": _cap(base), "justificacion": " ".join(partes)}
@@ -248,24 +248,24 @@ def _f_software(r: dict) -> dict | None:
     so = {"Windows XP": 25, "Windows 7": 20, "Windows 10": 0, "Windows 11": 0,
           "Linux": 0, "Maquina virtual sobre un equipo moderno": 0}.get(_canon("N02", n02), 10)
     if so:
-        partes.append(f"N02 sistema operativo '{n02}'")
+        partes.append(f"N02 {T('i150')} '{n02}'")
     value += so
     lic = {"Original con licencia vigente": 0, "Original con licencia vencida": 15,
            "Licencia flotante en servidor": 5, "Llave fisica (dongle)": 15,
            "Version de demostracion o limitada": 20,
            "No se tiene licencia": 30}.get(_canon("N03", n03), 10)
     if lic:
-        partes.append(f"N03 licencia '{n03}'")
+        partes.append(f"N03 {T('i151')} '{n03}'")
     value += lic
     ada = {"Si, ya probado con este PLC": 0, "Si, pero sin probar": 10,
            "No": 25}.get(_canon("N05", n05), 10)
     if ada:
-        partes.append(f"N05 adaptador '{n05}'")
+        partes.append(f"N05 {T('i152')} '{n05}'")
     value += ada
     pwd = {"Si, todas": 0, "Parcialmente": 15, "No": 30,
            "No hay contrasenas": 0}.get(_canon("N06", n06), 15)
     if pwd:
-        partes.append(f"N06 contrasenas '{n06}'")
+        partes.append(f"N06 {T('i153')} '{n06}'")
     value += pwd
     return {"value": _cap(value),
             "justificacion": T("i081") + "; ".join(partes) + "."}
@@ -379,7 +379,7 @@ def _f_history(r: dict) -> dict | None:
     value += {"En aumento": 20, "Estable": 0, "En disminucion": -10,
               "Sin fallas registradas": -15}.get(_canon("L03", l03), 5)
     if l03:
-        partes.append(f"L03 tendencia '{l03}'")
+        partes.append(f"L03 {T('i154')} '{l03}'")
     causas = _external_root_cause(r)
     if causas:
         value = min(value, 55.0)
@@ -401,7 +401,7 @@ def _f_criticality(r: dict) -> dict | None:
     value += {"No hay ventana disponible": 15, "En el paro anual de planta o vacaciones": 10,
               "Fines de semana": 5}.get(_canon("Q04", q04), 0)
     return {"value": _cap(value),
-            "justificacion": f"C08 criticidad '{c08}'; C10 parada tolerable '{c10}{T('i010')}{q04}'."}
+            "justificacion": f"C08 {T('i155')} '{c08}'; C10 {T('i156')} '{c10}{T('i010')}{q04}'."}
 
 
 REGLAS = {
@@ -929,17 +929,17 @@ def _phase_end(case: Case, status: dict) -> dict:
 
     path = "\n".join(f"{i}. **{a['alternative']}** — {a['porque_en_este_caso']}"
                      for i, a in enumerate(decision.get("route", []), 1)) or T("i053")
-    detail = "\n".join(f"- {d['factor']} (peso {d['peso']:.2f}): {d['value']:.0f} — "
+    detail = "\n".join(f"- {d['factor']} ({T('i147')} {d['peso']:.2f}): {d['value']:.0f} — "
                         f"{d['justificacion']}"
                         for d in risk.get("detalle_factores", []))
     equipo = f"{ident.get('brand')} {ident.get('family') or ''}".strip() or T("i054")
 
     cuerpo = (
-        f"## 1. Identificacion\nCaso interactivo. {equipo}"
+        f"{T('i141')}{equipo}"
         + (f" ({ident.get('modelo_identificado')})" if ident.get("modelo_identificado") else "")
-        + f"{T('i029')}{len(summary['respuestas_registradas'])} respuestas registradas: {', '.join(summary['respuestas_registradas'])}{T('i030')}"
-        + ("\n".join(f"- {d}" for d in summary["missing_data"]) or "Ninguno registrado.")
-        + f"{T('i031')}{risk.get('puntuacion')} / 100 — **{risk.get('classification')}**.\n\n{detail}{T('i032')}{path}\n\n## 9. Recomendacion principal\n"
+        + f"{T('i029')}{len(summary['respuestas_registradas'])}{T('i142')}{', '.join(summary['respuestas_registradas'])}{T('i030')}"
+        + ("\n".join(f"- {d}" for d in summary["missing_data"]) or T("i143"))
+        + f"{T('i031')}{risk.get('puntuacion')} / 100 — **{scoring.risk_label(risk.get('classification'))}**.\n\n{detail}{T('i032')}{path}{T('i144')}"
         + (f"Migrar a **{target.get('brand')} {target.get('family')}**"
            + ((T("i128")
                 if procedure.context(case).get("con_codigo_fuente") else
@@ -947,14 +947,14 @@ def _phase_end(case: Case, status: dict) -> dict:
               if mig.get("cambio_marca") else T("i127"))
            if target else T("i126"))
         + T("i096")
-        + (f"Procedimiento MIGRA-IA-PROC-050, avance {procedure.status(case)['cerrados']} de {procedure.total_steps()}{T('i033')}"
+        + (f"{T('i145')}{procedure.status(case)['cerrados']}{T('i146')}{procedure.total_steps()}{T('i033')}"
            if mig.get("activa") else T("i097"))
         + T("i055")
     )
     run_tool(case, "generate_report", {
-        "title": f"Diagnostico interactivo — {equipo}",
+        "title": f"{T('i148')}{equipo}",
         "nivel_confianza_global": "confianza_media",
-        "resumen": f"{risk.get('classification')}{T('i034')}",
+        "resumen": f"{scoring.risk_label(risk.get('classification'))}{T('i034')}",
         "cuerpo_markdown": cuerpo,
     }, pending_approver)
 

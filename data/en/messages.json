@@ -44,5 +44,11 @@
  "rn012": "migration :",
  "rn013": "not opened",
  "rn014": "reports   :",
- "rn015": "input="
+ "rn015": "input=",
+ "rp001": "MIGRA-IA technical report",
+ "rp002": "- Case: ",
+ "rp003": "- Agent: ",
+ "rp004": "- Date: ",
+ "rp005": "- Overall confidence level: ",
+ "rp006": "- Human approval: PENDING (this report is technical assistance; it must be verified by authorized staff before any intervention).\n\n"
 }
