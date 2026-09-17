@@ -23,7 +23,7 @@ any intervention on real equipment belong to authorized personnel.
 > If the first load takes a while, that is the free plan waking the service up (~50 s).
 
 > **Are you a reviewer?** The project can be assessed **with no API key and at no
-> cost** using the *interactive demo*. Follow [`ARTIFACT.md`](ARTIFACT.md).
+> cost** using the *interactive demo*. Follow [`ARTIFACT.en.md`](ARTIFACT.en.md).
 
 ---
 
@@ -63,7 +63,7 @@ any intervention on real equipment belong to authorized personnel.
 
 **Windows (without using the terminal):** double-click **`INSTALAR.bat`** and,
 when it finishes, double-click **`Iniciar_MIGRA-IA.bat`**. Step by step in
-[`EMPIEZA_AQUI.txt`](EMPIEZA_AQUI.txt).
+[`START_HERE.txt`](START_HERE.txt).
 
 **Any system:**
 

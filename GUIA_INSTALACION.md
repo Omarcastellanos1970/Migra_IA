@@ -1,5 +1,7 @@
 # 🚀 Guía rápida — Instalar y probar MIGRA-IA
 
+**English:** [INSTALL_GUIDE.md](INSTALL_GUIDE.md)
+
 > **Para:** coautores del proyecto (Julio, Isidoro).
 > **Tiempo:** ~15 minutos.
 > ✅ **Puedes probarlo GRATIS**, sin clave y sin costo, gracias a la **demo interactiva**.

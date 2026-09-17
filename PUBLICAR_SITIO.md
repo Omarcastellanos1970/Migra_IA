@@ -1,5 +1,7 @@
 # Publicar la página de MIGRA-IA como URL pública
 
+**English:** [PUBLISH_SITE.md](PUBLISH_SITE.md)
+
 La página del artefacto es un HTML autocontenido. Ya está lista en dos lugares:
 
 - `MIGRA-IA_sitio.html` (raíz) — para enviar el archivo directamente (correo/USB).

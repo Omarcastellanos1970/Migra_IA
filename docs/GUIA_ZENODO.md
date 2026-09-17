@@ -1,5 +1,7 @@
 # Cómo publicar el artefacto en Zenodo y obtener un DOI
 
+**English:** [en/ZENODO_GUIDE.md](en/ZENODO_GUIDE.md)
+
 Zenodo (del CERN) es un repositorio gratuito que asigna un **DOI citable** a tu
 código. Es aceptado por IEEE/ACM como artefacto. Hay dos vías; la **A** es la
 recomendada porque versiona automáticamente.
@@ -43,10 +45,11 @@ correctos (autores, afiliación, ORCID si tienen).
 
 5. **Coloca el DOI en el proyecto y en el paper:**
    - El `README.md` cita el **concept DOI**, así que no hay que tocarlo en cada
-     versión: resuelve solo a la más reciente.
+     versión: resuelve solo a la más reciente. Lo mismo vale para `README.en.md`.
    - Actualiza el DOI de la versión y el número de versión en `docs/index.html`
-     (y sus copias `docs/proyecto.html` y `MIGRA-IA_sitio.html`, que deben quedar
-     idénticas), en `CITATION.cff` y en `.zenodo.json`.
+     (y sus copias `docs/en/index.html`, `docs/proyecto.html` y
+     `MIGRA-IA_sitio.html`, que deben quedar idénticas), en `CITATION.cff` y en
+     `.zenodo.json`.
    - Cita el artefacto en el artículo (ver más abajo).
 
 ---
@@ -142,4 +145,4 @@ no reconoce ese tipo de entrada y la referencia no se renderiza.
 - [ ] `CITATION.cff` y `.zenodo.json` con autores/afiliación correctos.
 - [ ] El `.env` con la clave **no** está en el repositorio ni en el ZIP.
 - [ ] El artefacto arranca y la demo interactiva da el resultado esperado (ver `ARTIFACT.md`).
-- [ ] DOI generado y colocado en `README.md` y en el `.bib` del paper.
+- [ ] DOI generado y colocado en `README.md`, en `README.en.md` y en el `.bib` del paper.

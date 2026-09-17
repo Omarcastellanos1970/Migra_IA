@@ -1,5 +1,7 @@
 # Riesgo de datos
 
+**English:** [en/data_risk.md](en/data_risk.md)
+
 **Actualizado el 2026-09-04.** Qué falta, quién lo consigue y para qué fecha.
 Los hechos están verificados contra el repositorio; las columnas **quién** y
 **para cuándo** marcadas con `POR DECIDIR` las tiene que fijar el equipo, no
