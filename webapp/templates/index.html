@@ -272,19 +272,20 @@ const COLORES = {
 
 function pintarPanel(r){
   if(!r) return;
-  // Riesgo
-  const rg = r.riesgo;
-  if(rg){
+  // Riesgo. La clase que viaja es la canonica (COLORES va por ella); lo que
+  // se escribe es su etiqueta en el idioma de la pagina.
+  const rg = r.risk;
+  if(rg && rg.puntuacion !== undefined && rg.puntuacion !== null){
     $("r-num").textContent = Math.round(rg.puntuacion);
-    $("r-cls").textContent = rg.clasificacion;
-    const c = COLORES[rg.clasificacion] || "var(--accent)";
+    $("r-cls").textContent = rg.label || rg.classification || "";
+    const c = COLORES[rg.classification] || "var(--accent)";
     $("r-num").style.color = c; $("r-cls").style.color = c;
     $("r-sub").textContent = UI.risk_scale;
   }
-  llenar("activos", (r.activos||[]).map(a => '<span class="tag">'+escapar(a.id||"")+'</span>'+escapar((a.tipo||"")+" — "+(a.descripcion||""))), "Ninguno aún");
-  llenar("faltantes", (r.datos_faltantes||[]).map(escapar), "Ninguno");
-  llenar("banderas", (r.banderas||[]).map(escapar), "Ninguna", "bandera");
-  llenar("pendientes", (r.aprobaciones_pendientes||[]).map(p => escapar(p.accion||"")), "Ninguna", "pend");
+  llenar("activos", (r.assets||[]).map(a => '<span class="tag">'+escapar(a.id||"")+'</span>'+escapar((a.type||"")+" — "+(a.description||""))), UI.empty_m);
+  llenar("faltantes", (r.missing_data||[]).map(escapar), UI.empty_none_m);
+  llenar("banderas", (r.flags||[]).map(escapar), UI.empty_none_f, "bandera");
+  llenar("pendientes", (r.aprobaciones_pendientes||[]).map(p => escapar(p.accion||"")), UI.empty_none_f, "pend");
 }
 
 function llenar(id, items, vacio, clase){
@@ -330,8 +331,7 @@ const nuevoCaso = () => iniciar("api");
 const nuevoInteractivo = () => iniciar("interactivo");
 
 function bienvenida(){
-  addMsg("agent",
-    UI.welcome;
+  addMsg("agent", UI.welcome);
 }
 
 async function enviar(){
