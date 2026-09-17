@@ -108,13 +108,13 @@ DOIs already assigned (verified against the Zenodo API):
 | Version v0.2.0 | `10.5281/zenodo.21480950` |
 | Concept (always resolves to the latest one) | `10.5281/zenodo.21480949` |
 
-IEEE reference —the title is the one of the published record, which is in
-Spanish, and a citation quotes the record as it stands:
+IEEE reference —the title is the one of the published record, which since
+v0.5.0 is in English, and a citation quotes the record as it stands:
 
 ```
-C. O. Castellanos, J. N. Castillo, I. Medina y L. Loo, "MIGRA-IA: Agente
-inteligente para diagnóstico de obsolescencia y migración de sistemas de
-automatización industrial (v0.5.0)," Zenodo, 2026. doi: 10.5281/zenodo.22820575.
+C. O. Castellanos, J. N. Castillo, I. Medina and L. Loo, "MIGRA-IA: Intelligent
+agent for obsolescence diagnosis and migration of industrial automation
+systems (v0.5.0)," Zenodo, 2026. doi: 10.5281/zenodo.22820575.
 ```
 
 In LaTeX (IEEEtran), in your `.bib`. Use `@misc` and **not** `@software`: `IEEEtran.bst`
@@ -123,7 +123,7 @@ does not recognize that entry type and the reference does not render.
 ```bibtex
 @misc{migra_ia_2026,
   author       = {Castellanos, Carlos Omar and Castillo, Julio No\'e and Medina, Isidoro and Loo, Luis},
-  title        = {{MIGRA-IA: Agente inteligente para diagn\'ostico de obsolescencia y migraci\'on de sistemas de automatizaci\'on industrial (v0.5.0)}},
+  title        = {{MIGRA-IA: Intelligent agent for obsolescence diagnosis and migration of industrial automation systems (v0.5.0)}},
   howpublished = {Zenodo},
   year         = {2026},
   doi          = {10.5281/zenodo.22820575},

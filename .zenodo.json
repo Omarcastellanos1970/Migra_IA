@@ -1,24 +1,36 @@
 {
-  "title": "MIGRA-IA: Agente inteligente para diagnóstico de obsolescencia y migración de sistemas de automatización industrial",
-  "description": "El agente se puede probar en línea, sin instalar nada y sin clave de API, en https://migra-ia.onrender.com — es la demo interactiva del propio artefacto; si el servicio está en reposo, la primera carga puede tardar cerca de un minuto. Agente conversacional asistido que guía paso a paso al personal técnico en el diagnóstico de obsolescencia de hardware (PLC, módulos de E/S, HMI, redes industriales, variadores) y en la planificación de migraciones. Implementa un cuestionario adaptativo, un motor ponderado de puntuación de riesgo de obsolescencia (0–100), un expediente trazable con registro de auditoría, reglas de seguridad obligatorias y validación humana. Incluye un modo de demostración reproducible que funciona sin clave de API (artefacto evaluable de forma independiente). La versión 0.3.0 incorporó la base de conocimiento estructurada MIGRA-IA-GUIA-001 (6 etapas metodológicas, 24 capítulos, rutas de migración de 5 fabricantes, 20 pruebas de verificación, 22 plantillas y 5 casos de estudio), consultable por el agente mediante una herramienta dedicada. La versión 0.4.0 añade un catálogo de plataformas de 30 fabricantes y 469 modelos, el procedimiento de migración MIGRA-IA-PROC-050 (50 pasos numerados más 7 previos, en 7 fases), el cuestionario de diagnóstico ampliado a 17 secciones y un modo interactivo que se ejecuta sin clave de API; retira el modo de demostración guiada, con lo que la interfaz queda con dos entradas, e incorpora una línea base reproducible del riesgo ordinal con su partición congelada. Añade también dos rutas que especializan el procedimiento según el caso: la del fabricante cuando se permanece en la misma marca, y la de porte entre fabricantes distintos cuando el destino es de otra marca y el programa de origen es accesible y verificado, que cubre el inventario de memoria interna y el censo de lenguajes, la tabla de equivalencia de instrucciones entre ambos fabricantes, el triaje de la lógica trasladable frente a la que hay que reprogramar, el mapeo de direcciones desde la tabla de símbolos original y la comparación de comportamiento contra el programa de partida, con el límite explícito de que el agente no publica equivalencias que no pueda citar. La versión 0.5.0 publica el artefacto en dos idiomas — código, datos, documentación, guías de instalación, interfaz y demostración en español e inglés, cada documento entero en una sola lengua — y corrige un fallo que interrumpía la demostración cuando el estado de ciclo de vida del equipo se declaraba desconocido.",
+  "title": "MIGRA-IA: Intelligent agent for obsolescence diagnosis and migration of industrial automation systems",
+  "description": "The agent can be tried online, with nothing to install and no API key, at https://migra-ia.onrender.com — it is the interactive demo of the artifact itself; if the service is asleep, the first load may take about a minute. MIGRA-IA is an assisted conversational agent that guides technical staff step by step through the diagnosis of hardware obsolescence (PLCs, I/O modules, HMIs, industrial networks, drives) and through migration planning. It implements an adaptive questionnaire, a weighted obsolescence risk scoring engine (0–100), a traceable case file with an audit trail, mandatory safety rules and human validation. It includes a reproducible demonstration mode that runs without an API key (an independently evaluable artifact). Version 0.3.0 added the structured knowledge base MIGRA-IA-GUIA-001 (6 methodological stages, 24 chapters, migration routes for 5 manufacturers, 20 verification tests, 22 templates and 5 case studies), which the agent queries through a dedicated tool. Version 0.4.0 adds a platform catalog of 30 manufacturers and 469 models, the migration procedure MIGRA-IA-PROC-050 (50 numbered steps plus 7 preliminary ones, in 7 phases), the diagnostic questionnaire extended to 17 sections and an interactive mode that runs with no API key; it withdraws the guided demonstration mode, leaving the interface with two entry points, and incorporates a reproducible ordinal risk baseline with its frozen split. It also adds two routes that specialize the procedure according to the case: the manufacturer route when staying with the same brand, and the cross-manufacturer porting route when the target is from another brand and the source program is accessible and verified, which covers the internal memory inventory and the language census, the instruction equivalence table between both manufacturers, the triage of logic that can be carried over versus logic that must be rewritten, the address mapping from the original symbol table and the behavior comparison against the starting program, with the explicit limit that the agent does not publish equivalences it cannot cite. Version 0.5.0 publishes the artifact in two languages — code, data, documentation, installation guides, interface and demonstration in Spanish and English, each document entirely in one language — and fixes a defect that interrupted the demonstration when the equipment's life-cycle status was declared unknown.",
   "upload_type": "software",
   "license": "MIT",
   "version": "0.5.0",
-  "language": "spa",
+  "language": "eng",
   "keywords": [
-    "obsolescencia",
-    "migración de hardware",
-    "base de conocimiento",
-    "automatización industrial",
+    "obsolescence",
+    "hardware migration",
+    "knowledge base",
+    "industrial automation",
     "PLC",
-    "agente de IA",
-    "sistemas de control",
-    "mantenimiento industrial"
+    "AI agent",
+    "control systems",
+    "industrial maintenance"
   ],
   "creators": [
-    { "name": "Castellanos, Carlos Omar", "affiliation": "Universidad Tecnológica de Honduras" },
-    { "name": "Castillo, Julio Noé", "affiliation": "Universidad Tecnológica de Honduras" },
-    { "name": "Medina, Isidoro", "affiliation": "Universidad Tecnológica de Honduras" },
-    { "name": "Loo, Luis", "affiliation": "Universidad Tecnológica de Honduras" }
+    {
+      "name": "Castellanos, Carlos Omar",
+      "affiliation": "Universidad Tecnológica de Honduras"
+    },
+    {
+      "name": "Castillo, Julio Noé",
+      "affiliation": "Universidad Tecnológica de Honduras"
+    },
+    {
+      "name": "Medina, Isidoro",
+      "affiliation": "Universidad Tecnológica de Honduras"
+    },
+    {
+      "name": "Loo, Luis",
+      "affiliation": "Universidad Tecnológica de Honduras"
+    }
   ]
 }
