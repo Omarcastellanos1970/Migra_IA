@@ -1,5 +1,7 @@
 # Artefacto reproducible — MIGRA-IA
 
+**English:** [ARTIFACT.en.md](ARTIFACT.en.md)
+
 **Autores:** Carlos Omar Castellanos · Julio Noé Castillo · Isidoro Medina · Luis Loo
 **Versión:** 0.4.0 · **Licencia:** MIT
 
@@ -131,7 +133,7 @@ factores, cada uno citando los códigos de pregunta que lo sustentan.
 También puede reproducirse el motor de riesgo de forma aislada:
 
 ```bash
-python -c "from migra_ia.scoring import calcular_riesgo; r=calcular_riesgo({'estado_ciclo_vida':{'valor':90,'justificacion':'fin de vida'},'disponibilidad_respaldo':{'valor':100,'justificacion':'sin respaldo'}}); print(r.puntuacion, r.clasificacion)"
+python -c "from migra_ia.scoring import compute_risk; r=compute_risk({'estado_ciclo_vida':{'value':90,'justificacion':'fin de vida'},'disponibilidad_respaldo':{'value':100,'justificacion':'sin respaldo'}}); print(r.score, r.classification)"
 ```
 
 ---
