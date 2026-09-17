@@ -52,13 +52,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+from migra_ia import config
+
 DATA = ROOT / "data" / "platform_lifecycle.csv"
 PARTITION = ROOT / "data" / "lifecycle_partition.json"
 
 
 def D(key: str) -> str:
     """Texto del informe en el idioma de esta ejecucion."""
-    from migra_ia import config
     return config.doc_tools().get(key, key)
 
 
@@ -281,14 +282,16 @@ def stratified_partition(data: list[Platform],
                     "train": [p.platform for p in data
                                       if p.platform not in set(test)],
                 })
-            note = D("bl_k_note") % (
-                k, len(clases_totales),
-                sum(1 for g in groupings
-                    if any(p.class_label == minoritaria for p in groupings[g])),
-                minoritaria)
-            return pliegues, k, note
+            # Se devuelven los DATOS de la nota, no la frase: el informe la
+            # quiere en el idioma de la sesion y el archivo de datos en el
+            # canonico.
+            return pliegues, k, (k, len(clases_totales),
+                                 sum(1 for g in groupings
+                                     if any(p.class_label == minoritaria
+                                            for p in groupings[g])),
+                                 minoritaria)
 
-    return partition(data), len(groupings), D("bl_k_none")
+    return partition(data), len(groupings), None
 
 
 # --------------------------------------------------------------------------
@@ -559,6 +562,15 @@ def _wrap(text: str, ancho: int) -> list[str]:
     return lineas
 
 
+def k_note_text(k_args, lang: str | None = None) -> str:
+    """La nota del techo de k, en el idioma pedido."""
+    from migra_ia import config
+    textos = (config.doc_tools_in(lang) if lang else config.doc_tools())
+    if k_args is None:
+        return textos.get("bl_k_none", "bl_k_none")
+    return textos.get("bl_k_note", "bl_k_note") % k_args
+
+
 def report(data, pliegues, res, fuga, versiones, k_note="") -> str:
     L: list[str] = []
     a = L.append
@@ -726,11 +738,12 @@ def main() -> None:
     args = ap.parse_args()
 
     data = load()
-    pliegues, k, k_note = stratified_partition(data)
+    pliegues, k, k_args = stratified_partition(data)
     PARTITION.write_text(json.dumps({
         "scheme": "estratificada por nivel de obsolescencia, agrupada por fabricante",
         "k": k,
-        "k_note": k_note,
+        # El archivo de datos no tiene idioma: la nota va en el canonico.
+        "k_note": k_note_text(k_args, config.CANONICAL_LANGUAGE),
         "grouping": "manufacturer",
         "preprocessing": "ajustado dentro de cada pliegue (media y escala del entrenamiento)",
         "reference_date": "%04d-%02d-%02d" % FECHA_REF,
@@ -743,7 +756,7 @@ def main() -> None:
 
     res = evaluate(data, pliegues)
     fuga = audit_leakage(data)
-    text = report(data, pliegues, res, fuga, _versions(), k_note)
+    text = report(data, pliegues, res, fuga, _versions(), k_note_text(k_args))
     print(text)
 
     if args.md:

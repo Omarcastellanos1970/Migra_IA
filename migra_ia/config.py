@@ -218,6 +218,15 @@ def _doc_tools(lang: str) -> dict:
         return json.load(fh)
 
 
+def doc_tools_in(lang: str) -> dict:
+    """El texto de los guiones en un idioma CONCRETO.
+
+    Lo necesita quien escribe un archivo de datos sin idioma desde una sesion
+    que si lo tiene: la nota va en el canonico, pase lo que pase.
+    """
+    return _doc_tools(lang)
+
+
 def doc_tools() -> dict:
     """Texto de los guiones que ESCRIBEN documentacion.
 
