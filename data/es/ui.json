@@ -28,5 +28,6 @@
  "err_empty_message": "Mensaje vacio.",
  "err_no_credential": "No hay credencial valida de Anthropic. Configura ANTHROPIC_API_KEY en el archivo .env (ver .env.example).",
  "console_open": "\nAbre http://127.0.0.1:5000 en tu navegador.\n",
+ "language_prompt": "Seleccione idioma:",
  "aria_language": "Idioma"
 }
