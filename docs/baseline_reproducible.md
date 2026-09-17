@@ -173,7 +173,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
                       la semilla, y por eso se dice en vez de sugerir que si.
   Python            : 3.14.6 (Windows)
   Dependencias del calculo: ninguna de terceros (biblioteca estandar)
-  Entorno congelado : 25 paquetes
+  Entorno congelado : 26 paquetes
      Flask==3.1.3
      Jinja2==3.1.6
      MarkupSafe==3.0.3
@@ -187,6 +187,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
      colorama==0.4.6
      distro==1.9.0
      docstring_parser==0.18.0
+     gunicorn==26.2.0
      h11==0.16.0
      httpcore==1.0.9
      httpx==0.28.1
