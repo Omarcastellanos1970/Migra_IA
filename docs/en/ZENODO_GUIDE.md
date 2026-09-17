@@ -47,9 +47,12 @@ data (authors, affiliation, ORCID if they have one).
    - The `README.md` cites the **concept DOI**, so there is no need to touch it on
      every version: it resolves to the most recent one by itself. The same goes
      for `README.en.md`.
-   - Update the version DOI and the version number in `docs/index.html` (and its
-     copies `docs/en/index.html`, `docs/proyecto.html` and `MIGRA-IA_sitio.html`,
-     which must stay identical), in `CITATION.cff` and in `.zenodo.json`.
+   - Update the version DOI and the version number in the five copies of the
+     page —`docs/index.html`, `docs/en/index.html`, `docs/proyecto.html`,
+     `MIGRA-IA_sitio.html` and `MIGRA-IA_site.html`—, in `CITATION.cff` and in
+     `.zenodo.json`. All five carry the same DOI and the same version; the only
+     thing they differ in is the language selector, which in the two standalone
+     ones links by file name and in the site ones by folder.
    - Cite the artifact in the article (see below).
 
 ---

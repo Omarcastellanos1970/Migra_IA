@@ -46,10 +46,12 @@ correctos (autores, afiliación, ORCID si tienen).
 5. **Coloca el DOI en el proyecto y en el paper:**
    - El `README.md` cita el **concept DOI**, así que no hay que tocarlo en cada
      versión: resuelve solo a la más reciente. Lo mismo vale para `README.en.md`.
-   - Actualiza el DOI de la versión y el número de versión en `docs/index.html`
-     (y sus copias `docs/en/index.html`, `docs/proyecto.html` y
-     `MIGRA-IA_sitio.html`, que deben quedar idénticas), en `CITATION.cff` y en
-     `.zenodo.json`.
+   - Actualiza el DOI de la versión y el número de versión en las cinco copias
+     de la página —`docs/index.html`, `docs/en/index.html`, `docs/proyecto.html`,
+     `MIGRA-IA_sitio.html` y `MIGRA-IA_site.html`—, en `CITATION.cff` y en
+     `.zenodo.json`. Las cinco llevan el mismo DOI y la misma versión; lo único
+     en lo que difieren es el selector de idioma, que en las dos sueltas enlaza
+     por nombre de archivo y en las del sitio por carpeta.
    - Cita el artefacto en el artículo (ver más abajo).
 
 ---

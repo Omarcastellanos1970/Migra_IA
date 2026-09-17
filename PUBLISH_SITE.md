@@ -4,8 +4,12 @@
 
 The artifact page is a self-contained HTML file. It is already in place in two locations:
 
-- `MIGRA-IA_sitio.html` (root) — to send the file directly (email/USB).
-- `docs/index.html` (+ `docs/.nojekyll`) — ready to be published as a website.
+- `MIGRA-IA_sitio.html` and `MIGRA-IA_site.html` (root) — to send the file
+  directly (email/USB). They are the same page in Spanish and in English, and
+  their **ES | EN** selector links them by file name: they travel together or
+  the selector leads nowhere.
+- `docs/index.html` and `docs/en/index.html` (+ `docs/.nojekyll`) — ready to be
+  published as a website.
 
 > An honest note: a public URL always needs a host (an account/service).
 > It cannot be created "out of nothing"; the two simplest routes are below.

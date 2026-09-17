@@ -4,8 +4,12 @@
 
 La página del artefacto es un HTML autocontenido. Ya está lista en dos lugares:
 
-- `MIGRA-IA_sitio.html` (raíz) — para enviar el archivo directamente (correo/USB).
-- `docs/index.html` (+ `docs/.nojekyll`) — preparada para publicar como sitio web.
+- `MIGRA-IA_sitio.html` y `MIGRA-IA_site.html` (raíz) — para enviar el archivo
+  directamente (correo/USB). Son la misma página en castellano y en inglés, y su
+  selector **ES | EN** las enlaza por nombre de archivo: viajan juntas o el
+  selector no lleva a ninguna parte.
+- `docs/index.html` y `docs/en/index.html` (+ `docs/.nojekyll`) — preparadas para
+  publicar como sitio web.
 
 > Nota honesta: una URL pública siempre necesita un anfitrión (una cuenta/servicio).
 > No se puede crear "de la nada"; abajo van las dos vías más simples.
