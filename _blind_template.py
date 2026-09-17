@@ -56,11 +56,20 @@ import re
 import statistics
 from pathlib import Path
 
-from migra_ia import knowledge, interactive, scoring
+from migra_ia import config, knowledge, interactive, scoring
 
 ROOT = Path(__file__).resolve().parent
-TEMPLATE = ROOT / "docs" / "plantilla_casos_ciegos.md"
 KEY = ROOT / "_plantilla_clave.json"
+
+
+def D(key: str) -> str:
+    """Texto de la plantilla en el idioma de esta ejecucion."""
+    return config.doc_tools().get(key, key)
+
+
+def template_path() -> Path:
+    """Donde va la plantilla de este idioma. La ruta la declara el idioma."""
+    return ROOT / D("bc_path")
 SEED_ENV = "MIGRA_SEMILLA_ORDEN"
 
 
@@ -89,7 +98,12 @@ def order_seed(given: int | None = None) -> int:
 
 
 ANSWER_LINE = re.compile(r"^\s*([A-Z][0-9]{2})\s*=\s*(.*?)\s*$")
-CASE_HEADER = re.compile(r"^##\s+Caso\s+(\d+)\s*$", re.IGNORECASE)
+
+
+def case_header():
+    """La cabecera de caso, con la palabra que use este idioma."""
+    return re.compile(r"^##\s+%s\s+(\d+)\s*$" % re.escape(D("bc_case")),
+                      re.IGNORECASE)
 
 
 # --------------------------------------------------------------------------- #
@@ -126,21 +140,21 @@ def question_block() -> list[str]:
             continue
         note = ""
         if code in ("F06", "F07"):
-            note = "   *(responda solo si F01 = Si)*"
+            note = D("bc_note_f06")
         elif code in ("F12", "F13"):
-            note = "   *(responda solo si F01 = No o No se conoce)*"
+            note = D("bc_note_f12")
         L.append("**%s.** %s%s" % (code, p.get("text", ""), note))
         kind = p.get("type")
         options = p.get("options") or []
         if kind == "numero":
-            L.append("  _escriba un numero_")
+            L.append(D("bc_write_number"))
         elif not options:
-            L.append("  _escriba su respuesta_")
+            L.append(D("bc_write_answer"))
         else:
             enum = "  ".join("%d) %s" % (i, op) for i, op in enumerate(options, 1))
             L.append("  " + enum)
             if kind == "seleccion_multiple":
-                L.append("  _puede marcar varias, separadas por coma (ej. 1,3)_")
+                L.append(D("bc_multi_note"))
         L.append("")
         L.append("`%s = `" % code)
         L.append("")
@@ -151,33 +165,25 @@ def generate(given_seed: int | None = None) -> None:
     seed = order_seed(given_seed)
     cases = blind_cases(seed)
     L = [
-        "# MIGRA-IA - Valoracion ciega de casos",
+        D("bc_title"),
         "",
-        "Gracias por ayudar con esto. Son cinco casos y toma alrededor de una hora.",
+        D("bc_thanks"),
         "",
-        "## Que se le pide",
+        D("bc_asked_header"),
         "",
-        "Lea la situacion de cada caso y responda el cuestionario **con su propio",
-        "criterio profesional**, como lo haria ante ese equipo en planta.",
+        D("bc_asked_body"),
         "",
-        "## Tres reglas que hacen valido el ejercicio",
+        D("bc_rules_header"),
         "",
-        "1. **No ejecute el agente MIGRA-IA antes de terminar.** El objetivo es",
-        "   comparar su criterio contra el del programa; si ve la salida primero,",
-        "   el resultado ya no mide nada.",
-        "2. **No consulte con los demas coautores hasta entregar.** Lo que se mide",
-        "   es cuanto coinciden ustedes de forma independiente.",
-        "3. **Si un dato no se puede saber con lo que dice el caso, respondalo como",
-        "   'No se conoce'.** No lo adivine. Que falte informacion es un resultado",
-        "   valido y el motor lo trata como tal.",
+        D("bc_rule_1"),
+        D("bc_rule_2"),
+        D("bc_rule_3"),
         "",
-        "## Como responder",
+        D("bc_how_header"),
         "",
-        "Escriba el **numero** de la opcion despues del `=`, dentro de las comillas",
-        "invertidas. Por ejemplo: `` `M01 = 4` ``. Tambien puede escribir el texto",
-        "completo de la opcion si lo prefiere.",
+        D("bc_how_body"),
         "",
-        "Guarde el archivo como `respuestas_SUNOMBRE.md` y devuelvalo.",
+        D("bc_save_as"),
         "",
         "---",
         "",
@@ -185,36 +191,36 @@ def generate(given_seed: int | None = None) -> None:
     questions = question_block()
     for c in cases:
         L += [
-            "## Caso %d" % c["n"],
+            "## %s %d" % (D("bc_case"), c["n"]),
             "",
-            "**Contexto:** %s" % c["contexto"],
+            "%s %s" % (D("bc_context"), c["contexto"]),
             "",
-            "**Situacion:** %s" % c["situation"],
+            "%s %s" % (D("bc_situation"), c["situation"]),
             "",
-            "### Cuestionario - Caso %d" % c["n"],
+            "%s %d" % (D("bc_questionnaire"), c["n"]),
             "",
         ]
         L += questions
         L += ["---", ""]
 
-    TEMPLATE.parent.mkdir(parents=True, exist_ok=True)
-    TEMPLATE.write_text("\n".join(L), encoding="utf-8")
+    destino = template_path()
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_text("\n".join(L), encoding="utf-8")
 
     KEY.write_text(json.dumps(
         {"semilla_orden": seed,
-         "note": "NO enviar este archivo a los coautores: mapea cada caso ciego "
-                 "a su id en la guia, que revela el desenlace.",
+         "note": D("bc_key_note"),
          "mapa": {str(c["n"]): c["id_real"] for c in cases}},
         ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print("Plantilla   : %s" % TEMPLATE)
-    print("Clave local : %s   (NO enviar)" % KEY)
+    print(D("bc_out_template") % destino)
+    print(D("bc_out_key") % KEY)
     print("")
-    print("Casos incluidos, en el orden barajado:")
+    print(D("bc_out_cases"))
     for c in cases:
-        print("  Caso %d  <- guia %s  (%s)" % (c["n"], c["id_real"], c["contexto"]))
+        print(D("bc_out_case_line") % (c["n"], c["id_real"], c["contexto"]))
     print("")
-    print("Se ocultan: titulo completo, estrategia, riesgos y pruebas de cada caso.")
+    print(D("bc_out_hidden"))
 
 
 # --------------------------------------------------------------------------- #
@@ -226,7 +232,7 @@ def read_template(path: Path):
     cases: dict[int, dict] = {}
     actual = None
     for linea in text.splitlines():
-        m = CASE_HEADER.match(linea.strip())
+        m = case_header().match(linea.strip())
         if m:
             actual = int(m.group(1))
             cases.setdefault(actual, {})

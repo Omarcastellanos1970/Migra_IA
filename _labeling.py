@@ -41,10 +41,20 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _baseline import CLASES, FECHA_REF, load          # noqa: E402
+from migra_ia import config                            # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 LABELS = ROOT / "data" / "labels_p1_p2.json"
-FORMULARIO = ROOT / "docs" / "formulario_etiquetado.md"
+
+
+def D(key: str) -> str:
+    """Texto del formulario en el idioma de esta ejecucion."""
+    return config.doc_tools().get(key, key)
+
+
+def form_path() -> Path:
+    """Donde va el formulario de este idioma. La ruta la declara el idioma."""
+    return ROOT / D("lf_path")
 
 # Criterio de prioridad de reemplazo, escrito antes de mirar los datos para que
 # no se pueda acomodar al resultado. Ordena por urgencia de suministro, que es
@@ -175,68 +185,60 @@ def order_by_age(data) -> list[str]:
 
 def write_form() -> None:
     data = load()
-    L = ["# Formulario de etiquetado por juicio experto",
+    L = [D("lf_title"),
          "",
-         "Para: coautores del trabajo. Tiempo estimado: 20-30 minutos.",
+         D("lf_for"),
          "",
-         "Este formulario **no contiene ninguna salida del agente** ni el etiquetado",
-         "provisional que hay en el repositorio. Se responde con criterio propio; ese",
-         "es justamente el valor de lo que se pide.",
+         D("lf_intro"),
          "",
-         "Rellena tu nombre y responde las dos partes. Devuelve el archivo tal cual,",
-         "renombrado con tu apellido.",
+         D("lf_return"),
          "",
-         "**Evaluador:** `_______________________`   **Fecha:** `___________`",
+         D("lf_evaluator"),
          "",
          "---",
          "",
-         "## Parte 1 — Nivel de obsolescencia",
+         D("lf_part1"),
          "",
-         "Para cada plataforma, marca **una** clase de la escala:",
+         D("lf_mark_one"),
          ""]
+    # Las clases se nombran en el idioma del formulario; CLASES es el valor
+    # canonico con el que se etiqueta y no cambia.
     for c in sorted(CLASES):
-        L.append(f"- **{c}** — {CLASES[c]}")
-    L += ["",
-          "Los datos que se te dan son los publicados por el fabricante. Si consideras",
-          "que falta informacion para decidir, escribe `NS` en vez de adivinar: un",
-          "dato faltante declarado vale mas que una clase inventada.",
-          ""]
+        L.append(f"- **{c}** — {D('lf_class_%d' % c)}")
+    L += ["", D("lf_ns_note"), ""]
 
     for p in data:
         L += [f"### {p.platform}  ({p.manufacturer})",
               "",
-              f"- Lanzamiento: **{p.release}**",
-              f"- Anuncio de fin de vida: **{_fmt(p.announcement)}**",
-              f"- Fin de comercializacion: **{_fmt(p.end_of_manufacturing)}**",
-              f"- Fin de repuestos y reparacion: **{_fmt(p.end_of_spare_parts)}**",
+              f"- {D('lf_release')}: **{p.release}**",
+              f"- {D('lf_announcement')}: **{_fmt(p.announcement)}**",
+              f"- {D('lf_end_manufacturing')}: **{_fmt(p.end_of_manufacturing)}**",
+              f"- {D('lf_end_spares')}: **{_fmt(p.end_of_spare_parts)}**",
               "",
-              "Clase (1-4, o NS): `____`    Comentario: `______________________________`",
+              D("lf_class_line"),
               ""]
 
     L += ["---",
           "",
-          "## Parte 2 — Prioridad de reemplazo",
+          D("lf_part2"),
           "",
-          "Ordena las nueve plataformas de **1 = se reemplaza primero** a **9 = puede",
-          "esperar**, suponiendo que las nueve estan instaladas en la misma planta y",
-          "compiten por el mismo presupuesto. Usa el criterio que usarias en tu planta;",
-          "no hay respuesta oficial.",
+          D("lf_part2_intro"),
           ""]
     for p in sorted(data, key=lambda x: x.platform):
         L.append(f"- `____`  {p.platform}  ({p.manufacturer})")
     L += ["",
-          "En una linea, que peso le diste a cada cosa (obsolescencia, criticidad,",
-          "coste, riesgo de parada):",
+          D("lf_weights"),
           "",
-          "`__________________________________________________________________`",
+          D("lf_blank_field"),
           ""]
-    FORMULARIO.write_text("\n".join(L), encoding="utf-8")
-    print(f"Escrito {FORMULARIO.relative_to(ROOT).as_posix()} "
-          f"({len(data)} plataformas, sin salida del motor)")
+    destino = form_path()
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_text("\n".join(L), encoding="utf-8")
+    print(D("lf_written") % (destino.relative_to(ROOT).as_posix(), len(data)))
 
 
 def _fmt(f) -> str:
-    return "no publicado" if f is None else "%04d-%02d" % (f[0], f[1])
+    return D("lf_not_published") if f is None else "%04d-%02d" % (f[0], f[1])
 
 
 def compare(files: list[Path]) -> None:
@@ -254,7 +256,7 @@ def compare(files: list[Path]) -> None:
             m = re.match(r"^###\s+(.+?)\s+\(", linea)
             if m:
                 actual = m.group(1).strip()
-            m = re.search(r"Clase \(1-4, o NS\):\s*`?\s*([1-4]|NS)\s*`?", linea)
+            m = re.search(D("lf_class_regex"), linea)
             if m and actual:
                 clases[actual] = m.group(1)
         answers[a.stem] = clases

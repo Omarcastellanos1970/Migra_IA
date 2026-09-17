@@ -208,6 +208,26 @@ def labels() -> dict:
     return _labels(language())
 
 
+def doc_tools_path(lang: str | None = None) -> Path:
+    return content_dir(lang) / "doc_tools.json"
+
+
+@lru_cache(maxsize=len(LANGUAGES))
+def _doc_tools(lang: str) -> dict:
+    with open(doc_tools_path(lang), encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def doc_tools() -> dict:
+    """Texto de los guiones que ESCRIBEN documentacion.
+
+    No esta en CONTENT_FILES a proposito: no es contenido del agente y su falta
+    no debe esconder un idioma del selector. Es texto de herramientas de
+    trabajo, pero alguien lo lee, asi que tambien va por idioma.
+    """
+    return _doc_tools(language())
+
+
 def available_languages() -> tuple[str, ...]:
     """Idiomas que se pueden OFRECER: los que tienen sus cuatro archivos.
 
