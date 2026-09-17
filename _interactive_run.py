@@ -4,10 +4,14 @@ Simula a un usuario respondiendo, para comprobar de punta a punta que el motor
 real trabaja con esas respuestas: identificacion contra el catalogo, puntuacion
 de riesgo, mapa de decision, eleccion de CPU destino y procedimiento de 50 pasos.
 
-    python _interactivo_run.py                 # caso critico, misma marca
-    python _interactivo_run.py sano            # caso sin obsolescencia
-    python _interactivo_run.py otra_marca      # cambio de marca sin acceso al codigo
-    python _interactivo_run.py otra_marca_con_codigo   # cambio de marca con el codigo
+    python _interactive_run.py                 # caso critico, misma marca
+    python _interactive_run.py sano            # caso sin obsolescencia
+    python _interactive_run.py otra_marca      # cambio de marca sin acceso al codigo
+    python _interactive_run.py otra_marca_con_codigo   # cambio de marca con el codigo
+
+El escenario se escribe con las opciones en castellano, que es el idioma
+canonico del proyecto, y se dice en el idioma de la sesion (MIGRA_IA_LANG): el
+mismo caso tiene que dar la misma puntuacion en los dos.
 """
 
 from __future__ import annotations
@@ -16,7 +20,7 @@ import json
 import sys
 
 from migra_ia.case import Case
-from migra_ia import interactive
+from migra_ia import config, interactive, questionnaire
 
 # Respuestas por codigo. Lo que un usuario elegiria en cada escenario.
 ESCENARIOS = {
@@ -141,17 +145,51 @@ def main() -> None:
     print("informes  :", r["num_informes"])
 
 
+def _dicho_en_el_idioma(code: str, value: str) -> str:
+    """La respuesta canonica, dicha como la tecleria un usuario de este idioma.
+
+    Busca la opcion por su POSICION, que es la misma en los dos cuestionarios.
+    Lo que no es una opcion ---un numero, una lista como "1,2"--- pasa tal cual.
+    """
+    if config.language() == config.CANONICAL_LANGUAGE:
+        return value
+    pregunta = questionnaire.question(code, config.CANONICAL_LANGUAGE) or {}
+    # Incluye las opciones de si/no que el codigo pone a las preguntas de rama.
+    canonicas = interactive._canonical_options(code)
+    locales = (interactive._question(code) or {}).get("options") or []
+    if not canonicas or len(locales) < len(canonicas):
+        return value
+    # La coma solo separa respuestas cuando la pregunta admite varias: hay
+    # opciones que llevan coma dentro ("Descontinuado, aun con soporte...").
+    partes = (value.split(",") if pregunta.get("type") == "seleccion_multiple"
+              else [value])
+    dichas = []
+    for parte in partes:
+        p = parte.strip()
+        if p.isdigit():
+            dichas.append(p)
+            continue
+        elegida = p
+        for i, op in enumerate(canonicas):
+            if op.strip().lower() == p.lower():
+                elegida = locales[i]
+                break
+        dichas.append(elegida)
+    return ", ".join(dichas)
+
+
 def _next_entry(status: dict, esc: dict) -> str:
     """Lo que 'escribiria' el usuario, segun la fase y la pregunta en curso."""
     phase = status.get("phase")
     if phase == interactive.F_PREGUNTAS:
         code = status.get("actual")
-        return esc["answers"].get(code, "1")
+        return _dicho_en_el_idioma(code, esc["answers"].get(code, "1"))
+    seguir = interactive.C("cmd_continue")[0]
     if phase == interactive.F_TARGET:
-        return esc["destino"] if status.get("opciones_mostradas") else "continuar"
+        return esc["destino"] if status.get("opciones_mostradas") else seguir
     if phase == interactive.F_GUIDE:
-        return "hecho"
-    return "continuar"
+        return interactive.C("cmd_done")[0]
+    return seguir
 
 
 if __name__ == "__main__":
