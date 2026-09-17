@@ -7,7 +7,7 @@
   "reference_date": "2026-09-04",
   "seed": 42,
   "origin": "data/platform_lifecycle.csv",
-  "allowed_variable": "antiguedad = 2026 - Lanzamiento",
+  "allowed_variable": "antiguedad = 2026 - release",
   "folds": [
     {
       "fold": 0,

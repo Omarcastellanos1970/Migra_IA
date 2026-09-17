@@ -401,5 +401,6 @@
  "cc_b_warn1": "     AVISO: los 5 casos comparten desenlace, asi que B no discrimina.",
  "cc_b_warn2": "     Un motor que dijera 'migrar' siempre sacaria el mismo resultado.",
  "cc_need_file": "Indique al menos un archivo de respuestas.",
- "cc_no_file": "No existe: %s"
+ "cc_no_file": "No existe: %s",
+ "t2_v_feature_val": "%s"
 }

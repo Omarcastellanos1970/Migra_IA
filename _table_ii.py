@@ -509,7 +509,10 @@ def verify(med, with_classic, hw=None):
          D("t2_v_prep_src") % part["preprocessing"]
          if "%s" in D("t2_v_prep_src") else D("t2_v_prep_src"),
          "pliegue" in part["preprocessing"])
-    row(D("t2_v_feature"), part["allowed_variable"], D("t2_v_feature_src"), True)
+    row(D("t2_v_feature"),
+         D("t2_v_feature_val") % part["allowed_variable"]
+         if "%s" in D("t2_v_feature_val") else D("t2_v_feature_val"),
+         D("t2_v_feature_src"), True)
     row(D("t2_v_metric"), D("t2_v_metric_val"), D("t2_v_metric_src"), True)
     row(D("t2_v_secondary"), D("t2_v_secondary_val"), D("t2_v_secondary_src"), True)
     row(D("t2_v_average"), D("t2_v_average_val"), D("t2_v_average_src"), True)

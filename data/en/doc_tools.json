@@ -401,5 +401,6 @@
  "cc_b_warn1": "     NOTE: the 5 cases share an outcome, so B does not discriminate.",
  "cc_b_warn2": "     An engine that always said 'migrate' would get the same result.",
  "cc_need_file": "Give at least one file of answers.",
- "cc_no_file": "It does not exist: %s"
+ "cc_no_file": "It does not exist: %s",
+ "t2_v_feature_val": "age = 2026 - release"
 }

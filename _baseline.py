@@ -749,7 +749,7 @@ def main() -> None:
         "reference_date": "%04d-%02d-%02d" % FECHA_REF,
         "seed": SEED,
         "origin": "data/platform_lifecycle.csv",
-        "allowed_variable": "antiguedad = 2026 - Lanzamiento",
+        "allowed_variable": "antiguedad = 2026 - release",
         "folds": pliegues,
         "labels": {p.platform: p.class_label for p in data},
     }, ensure_ascii=False, indent=2), encoding="utf-8")
