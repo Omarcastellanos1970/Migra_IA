@@ -10,16 +10,17 @@
     --tx: #e6edf3; --tx2: #9fb0c3; --accent: #22d3ee; --accent2: #0ea5b7;
     --user: #1f3a5f; --agent: #1c2a3a;
     --ok:#22c55e; --mod:#a3e635; --imp:#f59e0b; --alto:#f97316; --crit:#ef4444;
-    /* El amarillo de la frase del selector: en tema claro hace falta uno mas
-       hondo, porque el de arriba sobre blanco casi no se lee. */
-    --amarillo:#efb52e;
+    /* El amarillo de la frase del selector: UNO SOLO para los dos temas.
+       Es el que menos cede en ambos fondos ---4.05:1 sobre blanco y 4.02:1
+       sobre el panel oscuro---; mas claro se pierde en blanco y mas hondo,
+       en negro. */
+    --amarillo:#a97400;
   }
   @media (prefers-color-scheme: light) {
     :root {
       --bg:#f4f6f9; --panel:#ffffff; --panel2:#f0f4f8; --line:#dbe3ec;
       --tx:#0f1720; --tx2:#5b6b7c; --accent:#0ea5b7; --accent2:#0b8ea0;
       --user:#dceafe; --agent:#eef2f7;
-      --amarillo:#a16207;
     }
   }
   * { box-sizing: border-box; }

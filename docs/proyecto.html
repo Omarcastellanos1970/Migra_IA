@@ -26,7 +26,10 @@
     --r-importante: #c69402;
     --r-alto: #df6410;
     --r-critico: #d22f2f;
-    --amarillo: #a16207;
+    /* Un solo amarillo para los dos temas: el que menos cede en ambos
+       fondos (4.05:1 sobre blanco, 4.02:1 sobre el oscuro). Por eso no
+       se redefine en los bloques de tema de abajo. */
+    --amarillo: #a97400;
     --shadow: 0 1px 2px rgba(21, 32, 43, 0.04), 0 8px 24px rgba(21, 32, 43, 0.06);
     --font-sans: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
     --font-mono: "Cascadia Code", "Cascadia Mono", ui-monospace, "Consolas", "SFMono-Regular", Menlo, monospace;
@@ -52,7 +55,6 @@
       --r-importante: #efb52e;
       --r-alto: #fb8b3c;
       --r-critico: #f2564e;
-      --amarillo: #efb52e;
       --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
     }
   }
@@ -61,7 +63,7 @@
     --ink: #15202b; --ink-soft: #53616d; --ink-faint: #8593a0;
     --line: #d4dbe2; --line-strong: #bcc7d0;
     --accent: #0b8f88; --accent-ink: #06726c; --accent-soft: rgba(11,143,136,0.10); --accent-line: rgba(11,143,136,0.30);
-    --r-bajo: #16a34a; --r-moderado: #7f9c0c; --r-importante: #c69402; --r-alto: #df6410; --r-critico: #d22f2f; --amarillo: #a16207;
+    --r-bajo: #16a34a; --r-moderado: #7f9c0c; --r-importante: #c69402; --r-alto: #df6410; --r-critico: #d22f2f;
     --shadow: 0 1px 2px rgba(21,32,43,0.04), 0 8px 24px rgba(21,32,43,0.06);
   }
   :root[data-theme="dark"] {
@@ -69,7 +71,7 @@
     --ink: #e3ebf1; --ink-soft: #9fb0bd; --ink-faint: #66788a;
     --line: #223140; --line-strong: #33475a;
     --accent: #2ed3c5; --accent-ink: #63e2d6; --accent-soft: rgba(46,211,197,0.12); --accent-line: rgba(46,211,197,0.28);
-    --r-bajo: #2fce7d; --r-moderado: #a6cf2b; --r-importante: #efb52e; --r-alto: #fb8b3c; --r-critico: #f2564e; --amarillo: #efb52e;
+    --r-bajo: #2fce7d; --r-moderado: #a6cf2b; --r-importante: #efb52e; --r-alto: #fb8b3c; --r-critico: #f2564e;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.35);
   }
 
