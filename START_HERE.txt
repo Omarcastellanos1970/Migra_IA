@@ -4,7 +4,9 @@
   industrial hardware (PLC, I/O modules, HMI, networks, drives)
 ===========================================================
 
-  Espanol : EMPIEZA_AQUI.txt
+  Select language:
+    Espanol : EMPIEZA_AQUI.txt
+    English : START_HERE.txt  (this file)
 
   Authors : Carlos Omar Castellanos - Julio Noe Castillo -
             Isidoro Emilio Medina

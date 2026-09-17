@@ -4,7 +4,9 @@
   industrial (PLC, modulos de E/S, HMI, redes, variadores)
 ===========================================================
 
-  English : START_HERE.txt
+  Seleccione idioma:
+    Espanol : EMPIEZA_AQUI.txt  (este archivo)
+    English : START_HERE.txt
 
   Autores : Carlos Omar Castellanos - Julio Noe Castillo -
             Isidoro Emilio Medina
