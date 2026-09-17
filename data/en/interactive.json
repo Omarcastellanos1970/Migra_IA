@@ -154,5 +154,7 @@
  "i157": "**Question %s of %s** \u00b7 Section %s \u2014 %s  \u00b7  `%s`",
  "i158": "Recorded \u2014 `%s`: **%s**",
  "i159": "Target set: **%s %s**.",
- "i160": "\n\n---\n\n*Progress: %s of %s (%s%%) \u00b7 phase %s"
+ "i160": "\n\n---\n\n*Progress: %s of %s (%s%%) \u00b7 phase %s",
+ "i161": "no data",
+ "i162": "Not enough data (not included in the calculation)."
 }

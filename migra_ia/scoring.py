@@ -81,6 +81,13 @@ def classify(score: float) -> str:
     return "Riesgo critico"
 
 
+def _omitted_reason() -> str:
+    """Por que un factor no entra en el calculo, en el idioma de la peticion."""
+    from . import config
+    return config.interactive_text().get(
+        "i162", "Sin datos suficientes (no incluido en el calculo).")
+
+
 def compute_risk(factors: dict[str, dict]) -> RiskResult:
     """Calcula el riesgo de obsolescencia ponderado.
 
@@ -105,7 +112,7 @@ def compute_risk(factors: dict[str, dict]) -> RiskResult:
                     "key": key,
                     "peso": peso,
                     "value": None,
-                    "justificacion": "Sin datos suficientes (no incluido en el calculo).",
+                    "justificacion": _omitted_reason(),
                 }
             )
             continue

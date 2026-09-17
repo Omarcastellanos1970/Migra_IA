@@ -717,11 +717,15 @@ def _phase_risk(case: Case, status: dict, actions=None) -> dict:
     status["risk"] = {"puntuacion": risk.get("puntuacion"),
                         "classification": risk.get("classification")}
 
+    # Un factor omitido llega sin valor: se dice, no se formatea como numero.
     filas = "\n".join(
-        f"| {d['factor']} | {d['peso']:.2f} | {d['value']:.0f} | {d['justificacion']} |"
+        f"| {d['factor']} | {d['peso']:.2f} | "
+        f"{T('i161') if d['value'] is None else format(d['value'], '.0f')} | "
+        f"{d['justificacion']} |"
         for d in risk.get("detalle_factores", []))
     text = (
-        f"{T('i021')}{risk.get('puntuacion')} / 100 — {risk.get('classification')}{T('i022')}" + filas
+        f"{T('i021')}{risk.get('puntuacion')} / 100 — "
+        f"{scoring.risk_label(risk.get('classification'))}{T('i022')}" + filas
     )
     if omitidos:
         text += (T("i090")
@@ -929,7 +933,8 @@ def _phase_end(case: Case, status: dict) -> dict:
 
     path = "\n".join(f"{i}. **{a['alternative']}** — {a['porque_en_este_caso']}"
                      for i, a in enumerate(decision.get("route", []), 1)) or T("i053")
-    detail = "\n".join(f"- {d['factor']} ({T('i147')} {d['peso']:.2f}): {d['value']:.0f} — "
+    detail = "\n".join(f"- {d['factor']} ({T('i147')} {d['peso']:.2f}): "
+                        f"{T('i161') if d['value'] is None else format(d['value'], '.0f')} — "
                         f"{d['justificacion']}"
                         for d in risk.get("detalle_factores", []))
     equipo = f"{ident.get('brand')} {ident.get('family') or ''}".strip() or T("i054")
