@@ -1,12 +1,12 @@
 # Reglas de puntuacion de los 8 factores
 
-Extraido automaticamente de `migra_ia/interactivo.py` por `_scoring_rules.py`. Si el codigo cambia, este documento cambia.
+Extraido automaticamente de `migra_ia/interactive.py` por `_scoring_rules.py`. Si el codigo cambia, este documento cambia.
 
 Cada factor produce un valor 0-100 (mayor = mas riesgo). El riesgo total es la media ponderada de los ocho, con los pesos de la Seccion 6.
 
 ## Estado del ciclo de vida
 
-**Peso 0.20** - implementado en `_f_ciclo_vida()` - lee: `M01`
+**Peso 0.20** - implementado en `_f_lifecycle()` - lee: `M01`
 
 *Sin tabla de consulta: la regla es condicional. Ver notas.*
 
@@ -14,7 +14,7 @@ Cada factor produce un valor 0-100 (mayor = mas riesgo). El riesgo total es la m
 
 ## Disponibilidad de repuestos
 
-**Peso 0.15** - implementado en `_f_repuestos()` - lee: `M04`, `M06`, `C10`
+**Peso 0.15** - implementado en `_f_spare_parts()` - lee: `M04`, `M06`, `C10`
 
 | Respuesta | Valor |
 |---|---|
@@ -28,7 +28,7 @@ Cada factor produce un valor 0-100 (mayor = mas riesgo). El riesgo total es la m
 
 ## Soporte del fabricante
 
-**Peso 0.15** - implementado en `_f_soporte()` - lee: `M09`, `M07`
+**Peso 0.15** - implementado en `_f_support()` - lee: `M09`, `M07`
 
 Segun `M09`:
 
@@ -102,7 +102,7 @@ Segun `N06`:
 
 ## Disponibilidad de respaldo
 
-**Peso 0.15** - implementado en `_f_respaldo()` - lee: `F01`, `F06`, `F07`
+**Peso 0.15** - implementado en `_f_backup()` - lee: `F01`, `F06`, `F07`
 
 *Sin tabla de consulta: la regla es condicional. Ver notas.*
 
@@ -122,7 +122,7 @@ La logica es la Regla 3 de la guia: un respaldo que no se puede verificar se tra
 
 ## Compatibilidad con sistemas actuales
 
-**Peso 0.10** - implementado en `_f_compatibilidad()` - lee: `G01`, `O07`, `O08`, `O02`
+**Peso 0.10** - implementado en `_f_compatibility()` - lee: `G01`, `O07`, `O08`, `O02`
 
 *Sin tabla de consulta: la regla es condicional. Ver notas.*
 
@@ -144,7 +144,7 @@ Las dos de G01 son excluyentes: propietaria tiene prioridad sobre legado. Las de
 
 ## Historial de fallas
 
-**Peso 0.05** - implementado en `_f_historial()` - lee: `L01`, `L03`
+**Peso 0.05** - implementado en `_f_history()` - lee: `L01`, `L03`
 
 | Respuesta | Valor |
 |---|---|
@@ -168,7 +168,7 @@ Sobre ese escalon se suma la tabla de L03 de arriba. Despues se aplica un TOPE: 
 
 ## Criticidad productiva
 
-**Peso 0.10** - implementado en `_f_criticidad()` - lee: `C08`, `C10`, `Q04`
+**Peso 0.10** - implementado en `_f_criticality()` - lee: `C08`, `C10`, `Q04`
 
 Segun `C08`:
 

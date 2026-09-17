@@ -1,13 +1,13 @@
 """Extrae del codigo las tablas completas de puntuacion de los 8 factores.
 
 Las constantes que convierten una respuesta en un valor 0-100 viven dentro de
-las funciones `_f_*` de `migra_ia/interactivo.py`. Este script las lee del
+las funciones `_f_*` de `migra_ia/interactive.py`. Este script las lee del
 arbol sintactico del propio modulo, de modo que el documento generado no puede
 divergir del motor: si alguien cambia un numero en el codigo, el documento
 cambia en la siguiente corrida.
 
-    python _reglas_puntuacion.py          # resumen en pantalla
-    python _reglas_puntuacion.py --md     # escribe docs/reglas_de_puntuacion.md
+    python _scoring_rules.py          # resumen en pantalla
+    python _scoring_rules.py --md     # escribe el documento del idioma activo
 
 Lo que el arbol sintactico SI captura: las tablas de consulta literales
 (respuesta -> numero), los valores de arranque y los incrementos constantes.
@@ -23,10 +23,39 @@ import argparse
 import ast
 from pathlib import Path
 
-from migra_ia import scoring
+from migra_ia import config, questionnaire, scoring
 
 ROOT = Path(__file__).resolve().parent
 SOURCE = ROOT / "migra_ia" / "interactive.py"
+
+
+def D(key: str) -> str:
+    """Texto del documento en el idioma de esta ejecucion."""
+    return config.doc_tools().get(key, key)
+
+
+def output_path() -> Path:
+    """Donde va el documento de este idioma. La ruta la declara el idioma."""
+    return ROOT / D("sr_path")
+
+
+def _answer_text(code: str | None, canonico: str) -> str:
+    """La respuesta de la tabla, dicha en el idioma del documento.
+
+    Las tablas del motor estan escritas con la opcion CANONICA en castellano
+    ---es contra lo que se compara---, asi que para el documento ingles hay que
+    buscar su hermana por posicion. Lo que no sea una opcion pasa tal cual.
+    """
+    if not code or config.language() == config.CANONICAL_LANGUAGE:
+        return canonico
+    ops_can = (questionnaire.question(code, config.CANONICAL_LANGUAGE) or {}).get("options") or []
+    ops_loc = (questionnaire.question(code) or {}).get("options") or []
+    if len(ops_loc) < len(ops_can):
+        return canonico
+    for i, op in enumerate(ops_can):
+        if op == canonico:
+            return ops_loc[i]
+    return canonico
 
 # Nombre de la funcion que implementa cada factor de scoring.PESOS.
 FUNCTION = {
@@ -40,7 +69,9 @@ FUNCTION = {
     "criticidad_productiva": "_f_criticality",
 }
 
-NOTAS = {
+# Las notas describen lo que el arbol sintactico NO captura. Viven en
+# data/<idioma>/doc_tools.json, con la clave sr_note_<factor>.
+_NOTAS_VIEJAS = {
     "estado_ciclo_vida":
         "Tabla directa sobre M01. Si M01 es 'No se conoce' el factor NO se "
         "puntua: se omite, los pesos se renormalizan y el hueco se registra "
@@ -124,11 +155,20 @@ def _number(nodo):
 
 
 def _code_read(nodo):
-    """Codigo de pregunta del argumento de `.get(...)`, si se puede determinar."""
+    """Codigo de pregunta del argumento de `.get(...)`, si se puede determinar.
+
+    Tambien lo ve a traves de `_canon("M09", m09)`, que es como el motor lleva
+    la respuesta a su opcion canonica antes de compararla: el codigo esta ahi,
+    en el primer argumento.
+    """
     if isinstance(nodo, ast.Constant) and isinstance(nodo.value, str):
         return nodo.value
     if isinstance(nodo, ast.Name):
         return nodo.id.upper()          # variables locales m01, n03, c08...
+    if (isinstance(nodo, ast.Call) and nodo.args
+            and isinstance(nodo.args[0], ast.Constant)
+            and isinstance(nodo.args[0].value, str)):
+        return nodo.args[0].value
     return None
 
 
@@ -197,60 +237,57 @@ def main() -> None:
         print(linea)
         L.append(linea)
 
-    w("# Reglas de puntuacion de los 8 factores")
+    w(D("sr_title"))
     w("")
-    w("Extraido automaticamente de `migra_ia/interactivo.py` por "
-      "`_reglas_puntuacion.py`. Si el codigo cambia, este documento cambia.")
+    w(D("sr_intro1"))
     w("")
-    w("Cada factor produce un valor 0-100 (mayor = mas riesgo). El riesgo total "
-      "es la media ponderada de los ocho, con los pesos de la Seccion 6.")
+    w(D("sr_intro2"))
     w("")
 
+    etiquetas = scoring.factor_labels()
     for key, peso in scoring.WEIGHTS.items():
-        label = scoring.FACTOR_LABELS[key]
+        label = etiquetas.get(key, key)
         fn = FUNCTION[key]
         w("## %s" % label)
         w("")
-        w("**Peso %.2f** - implementado en `%s()` - lee: %s"
-          % (peso, fn, ", ".join("`%s`" % c for c in codes_of(fn)) or "(ninguno)"))
+        w(D("sr_weight_line")
+          % (peso, fn, ", ".join("`%s`" % c for c in codes_of(fn)) or D("sr_none")))
         w("")
         tablas = tables_of(fn)
         if tablas:
             for t in tablas:
                 if len(tablas) > 1:
-                    w("Segun `%s`:" % (t["code"] or "?"))
+                    w(D("sr_according") % (t["code"] or "?"))
                     w("")
-                w("| Respuesta | Valor |")
+                w(D("sr_table_head"))
                 w("|---|---|")
                 for text, value in t["filas"]:
-                    w("| %s | %s |" % (text, ("%+g" % value) if value < 0 else "%g" % value))
+                    w("| %s | %s |" % (_answer_text(t["code"], text),
+                                       ("%+g" % value) if value < 0 else "%g" % value))
                 if t["defecto"] is not None:
-                    w("| *(cualquier otra / no se conoce)* | %g |" % t["defecto"])
+                    w(D("sr_other") % t["defecto"])
                 else:
-                    w("| *(no se conoce)* | sin defecto: ver notas |")
+                    w(D("sr_unknown"))
                 w("")
         else:
-            w("*Sin tabla de consulta: la regla es condicional. Ver notas.*")
+            w(D("sr_no_table"))
             w("")
-        w("**Notas:** %s" % NOTAS[key])
+        w(D("sr_notes") % D("sr_note_%s" % key))
         w("")
 
     w("---")
     w("")
-    w("## Lo que estas tablas no dicen")
+    w(D("sr_tail_title"))
     w("")
-    w("Todas estas constantes estan puestas a mano, igual que los pesos. El "
-      "analisis de sensibilidad de `_evaluacion.py` perturba **solo los ocho "
-      "pesos**, no estas constantes: la estabilidad del 100% que reporta vale "
-      "para la ponderacion, no para las reglas. Es el siguiente hueco de la "
-      "misma familia.")
+    w(D("sr_tail"))
     w("")
 
     if args.md:
-        target = ROOT / "docs" / "reglas_de_puntuacion.md"
+        target = output_path()
+        target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text("\n".join(L) + "\n", encoding="utf-8")
         print("")
-        print("Escrito en %s" % target)
+        print(D("sr_written") % target)
 
 
 if __name__ == "__main__":
