@@ -61,8 +61,8 @@ any intervention on real equipment belong to authorized personnel.
 
 ## Installation
 
-**Windows (without using the terminal):** double-click **`INSTALAR.bat`** and,
-when it finishes, double-click **`Iniciar_MIGRA-IA.bat`**. Step by step in
+**Windows (without using the terminal):** double-click **`INSTALL.bat`** and,
+when it finishes, double-click **`Start_MIGRA-IA.bat`**. Step by step in
 [`START_HERE.txt`](START_HERE.txt).
 
 **Any system:**

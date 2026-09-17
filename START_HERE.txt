@@ -34,24 +34,24 @@
   STEP 2 - Install  (once only, a few minutes)
 -----------------------------------------------------------
 
-  Double-click on:   INSTALAR.bat
+  Double-click on:   INSTALL.bat
 
   A black window opens and installs everything by itself.
-  It needs the internet. Wait until it says "INSTALACION TERMINADA".
+  It needs the internet. Wait until it says "INSTALLATION FINISHED".
 
   If it tells you that it cannot find Python:
      1. Go to  https://www.python.org/downloads/
      2. Download Python 3.10 or above.
      3. When installing, TICK the box "Add Python to PATH".
         (it is the box at the bottom, it is easy to miss)
-     4. Double-click on INSTALAR.bat again
+     4. Double-click on INSTALL.bat again
 
 
 -----------------------------------------------------------
   STEP 3 - Use it
 -----------------------------------------------------------
 
-  Double-click on:   Iniciar_MIGRA-IA.bat
+  Double-click on:   Start_MIGRA-IA.bat
 
   - A black window opens. DO NOT CLOSE IT while you use it.
   - A few seconds later your browser opens at
@@ -91,7 +91,7 @@
 -----------------------------------------------------------
 
   The black window opens and closes instantly
-     -> You have not run INSTALAR.bat yet (Step 2).
+     -> You have not run INSTALL.bat yet (Step 2).
 
   "python is not recognized as a command"
      -> Reinstall Python ticking "Add Python to PATH".

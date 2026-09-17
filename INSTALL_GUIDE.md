@@ -37,7 +37,7 @@ pip install -r requirements.txt
 > If `Activate.ps1` gives you a permissions error, use this instead: `.venv\Scripts\activate.bat`
 
 ## ✅ Step 5 — Run it and try it FREE (interactive demo)
-- **The easiest way (Windows):** double-click on the file **`Iniciar_MIGRA-IA.bat`**. A black window will open and then your browser at http://127.0.0.1:5000
+- **The easiest way (Windows):** double-click on the file **`Start_MIGRA-IA.bat`**. A black window will open and then your browser at http://127.0.0.1:5000
 - **Or from the terminal:** run `python -m webapp.app` and open http://127.0.0.1:5000
 
 In the browser, press **"Interactive demo (no API key)"** → answer each question with the number of the option and press *Send*.

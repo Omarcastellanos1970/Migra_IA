@@ -54,9 +54,9 @@ Claims supported by the artifact (verifiable with the interactive demo):
 
 ### Windows — assisted installation (recommended)
 
-Unzip the package and **double-click `INSTALAR.bat`**. It detects Python,
+Unzip the package and **double-click `INSTALL.bat`**. It detects Python,
 creates the virtual environment, installs the dependencies and verifies the
-installation. Once it finishes, **double-clicking `Iniciar_MIGRA-IA.bat`**
+installation. Once it finishes, **double-clicking `Start_MIGRA-IA.bat`**
 starts the agent and opens the browser. Step-by-step instructions in
 `START_HERE.txt`.
 
@@ -165,8 +165,8 @@ data/            questionnaire.json (A–K catalog with adaptive rules)
                  knowledge_base.json (MIGRA-IA-GUIA-001 guide)
 docs/            example_report.md, example_case_file.json, Zenodo guide
 cases/           Case files and reports generated at run time
-INSTALAR.bat     Assisted installation on Windows (double click)
-Iniciar_MIGRA-IA.bat  Start-up of the agent on Windows (double click)
+INSTALL.bat      Assisted installation on Windows (double click)
+Start_MIGRA-IA.bat    Start-up of the agent on Windows (double click)
 START_HERE.txt   Step-by-step instructions for non-technical users
 ARTIFACT.en.md   This document
 BITACORA.md      Log of the assisted sessions: what was asked, what came back,
@@ -188,7 +188,7 @@ LICENSE          MIT
 
 ## 7. Checklist for the reviewer
 
-- [ ] The installation finishes without errors (`INSTALAR.bat` on Windows, or
+- [ ] The installation finishes without errors (`INSTALL.bat` on Windows, or
       `pip install -r requirements.txt`).
 - [ ] The app starts at http://127.0.0.1:5000.
 - [ ] `python _interactive_run.py` produces a risk of **85.0 / "Critical risk"**
