@@ -1,6 +1,6 @@
 # MIGRA-IA — Advisory agent for hardware obsolescence and migration
 
-**Español:** [README.md](README.md)
+**Select language:** [Español](README.md) · [English](README.en.md)
 
 A conversational agent that assists technical staff **step by step** in
 diagnosing hardware obsolescence and planning the migration of industrial
