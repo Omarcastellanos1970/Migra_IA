@@ -62,7 +62,7 @@
      "text": "Are you authorized to access or modify the system?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Authorized for diagnosis only",
       "Authorization pending"
@@ -116,7 +116,7 @@
      "text": "Does the plant have internal standards or procedures for modifications?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not known"
      ]
@@ -355,7 +355,7 @@
      "text": "Does the CPU have error indicators?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not verified"
      ],
@@ -366,7 +366,7 @@
      "text": "Is the CPU password protected?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not known"
      ]
@@ -387,7 +387,7 @@
      "text": "Are there spare modules?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "Partially",
       "No",
       "Not known"
@@ -487,7 +487,7 @@
      "text": "Is there a copy of the PLC program?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not known"
      ],
@@ -572,7 +572,7 @@
      "text": "Is there an HMI backup?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not applicable",
       "Not known"
@@ -583,7 +583,7 @@
      "text": "Is there a backup of the drives or servo drives?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not applicable",
       "Partially"
@@ -789,7 +789,7 @@
      "text": "Will the migration affect safety functions?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not known"
      ],
@@ -874,7 +874,7 @@
      "text": "Do you want to keep the same brand?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Preferable, but not mandatory",
       "Not yet decided"
@@ -1006,7 +1006,7 @@
      "text": "Does the machine lose the program, the data or the time when power is removed?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "It has not been tested",
       "Not known"
@@ -1148,7 +1148,7 @@
      "text": "Does the manufacturer offer an official migration path or kit for this family?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not known"
      ],
@@ -1331,7 +1331,7 @@
      "text": "Does the program use blocks, libraries or functions proprietary to the machine manufacturer?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "Not known"
      ],
@@ -1542,7 +1542,7 @@
      "text": "Are the maintenance staff trained on the target platform?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "Partially",
       "No",
       "The platform has not been defined yet"
@@ -1554,7 +1554,7 @@
      "text": "Would a controlled temporary solution be acceptable while a migration is prepared?",
      "type": "seleccion",
      "options": [
-      "Si",
+      "Yes",
       "No",
       "It depends on the risk",
       "Not known"
