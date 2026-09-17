@@ -28,9 +28,9 @@ COMO SE CUMPLE AQUI
 
 Ningun numero se teclea: se importan de _baseline.py y se vuelven a calcular.
 
-    python _tabla_ii.py                  # tabla, parrafo y verificacion
-    python _tabla_ii.py --con-clasico    # ademas, llena la fila del clasico
-    python _tabla_ii.py --salida "C:\\ruta\\Figures\\Tables"
+    python _table_ii.py                   # tabla, parrafo y verificacion
+    python _table_ii.py --with-classic    # ademas, llena la fila del clasico
+    python _table_ii.py --output "C:\\ruta\\Figures\\Tables"
 
 CONVENCION: codigo y pantalla en ASCII; el LaTeX y el Markdown que se escriben
 llevan tildes, porque son texto del paper, y se guardan en UTF-8.
@@ -49,8 +49,32 @@ import time
 import _baseline as bl
 
 TEX_OUTPUT = os.path.join("docs", "figuras")
-MD_OUTPUT = os.path.join("docs", "tabla_ii_y_configuracion.md")
-PROTOCOL_OUTPUT = "PROTOCOLO.md"
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+
+def D(key):
+    """Texto del documento en el idioma de esta ejecucion."""
+    from migra_ia import config
+    return config.doc_tools().get(key, key)
+
+
+def _english():
+    """Si el documento de esta ejecucion va en ingles."""
+    from migra_ia import config
+    return config.language() != config.CANONICAL_LANGUAGE
+
+
+def machine_text(hw):
+    """La descripcion de la maquina, en el idioma del documento."""
+    return hw["texto_en"] if _english() else hw["texto_es"]
+
+
+def md_output():
+    return D("t2_path")
+
+
+def protocol_output():
+    return D("pt_path")
 REPO = "github.com/Omarcastellanos1970/Migra_IA"
 
 # Repeticiones de la medida de tiempo. Se toma el mejor de varias rondas: lo
@@ -203,7 +227,7 @@ def cells(med, key, with_classic, es=True):
 
 TABLA_TEX = r"""%% %(comentario)s
 %% -------------------------------------------------------------------------
-%% GENERADO POR _tabla_ii.py DEL REPOSITORIO MIGRA-IA. NO EDITAR A MANO.
+%% GENERADO POR _table_ii.py DEL REPOSITORIO MIGRA-IA. NO EDITAR A MANO.
 %% Los numeros salen de correr _baseline.py; el coste, de medir la inferencia.
 %% ESTADO: %(status)s
 %%
@@ -470,213 +494,81 @@ def verify(med, with_classic, hw=None):
     def row(dato, value, source, ok):
         filas.append((dato, str(value), source, ok))
 
-    row("Plataformas", med["n"], "len(cargar()) sobre "
-         "data/platform_lifecycle.csv", med["n"] == 9)
-    row("Fabricantes", len(marcas), ", ".join(marcas), len(marcas) == 5)
-    row("Unidad de observacion", "la plataforma",
-         "lifecycle_partition.json: agrupamiento = %s" % part["grouping"],
+    row(D("t2_v_platforms"), med["n"], D("t2_v_platforms_src"), med["n"] == 9)
+    row(D("t2_v_brands"), len(marcas), ", ".join(marcas), len(marcas) == 5)
+    row(D("t2_v_unit"), D("t2_v_unit_val"),
+         D("t2_v_unit_src") % part["grouping"],
          part["grouping"] == "manufacturer")
-    row("k", med["k"], "particionar_estratificado(); json k=%s" % part["k"],
-         med["k"] == part["k"])
-    row("Agrupamiento", part["grouping"],
-         "ningun fabricante en train y test a la vez", True)
-    row("Semilla", bl.SEED, "_baseline.SEMILLA; json semilla=%s"
-         % part["seed"], bl.SEED == part["seed"])
-    row("Preprocesamiento", "dentro del pliegue", part["preprocessing"],
+    row("k", med["k"], D("t2_v_k_src") % part["k"], med["k"] == part["k"])
+    row(D("t2_v_grouping"), part["grouping"], D("t2_v_grouping_src"), True)
+    row(D("t2_v_seed"), bl.SEED, D("t2_v_seed_src") % part["seed"],
+         bl.SEED == part["seed"])
+    # La comprobacion mira el valor CANONICO guardado; lo que se muestra es su
+    # version en el idioma del documento.
+    row(D("t2_v_prep"), D("t2_v_prep_val"),
+         D("t2_v_prep_src") % part["preprocessing"]
+         if "%s" in D("t2_v_prep_src") else D("t2_v_prep_src"),
          "pliegue" in part["preprocessing"])
-    row("Caracteristica admitida", part["allowed_variable"],
-         "auditoria de fuga: unica superviviente", True)
-    row("Metrica principal", "F1 macro",
-         "PROTOCOLO_VALIDACION.md punto 3, congelada", True)
-    row("Secundarias", "exactitud, error ordinal medio",
-         "metricas() de _baseline.py", True)
-    row("Promedio", "media +- desv. tipica muestral entre pliegues",
-         "_media_sd(), n-1", True)
+    row(D("t2_v_feature"), part["allowed_variable"], D("t2_v_feature_src"), True)
+    row(D("t2_v_metric"), D("t2_v_metric_val"), D("t2_v_metric_src"), True)
+    row(D("t2_v_secondary"), D("t2_v_secondary_val"), D("t2_v_secondary_src"), True)
+    row(D("t2_v_average"), D("t2_v_average_val"), D("t2_v_average_src"), True)
     row("Python", platform.python_version(), "platform.python_version()",
          sys.version_info[0] == 3)
 
     f1_b0, sd_b0 = med["cv"]["b0"]["f1_macro"]
-    row("Tabla, fila trivial", "%.3f +- %.3f" % (f1_b0, sd_b0),
-         "cv['b0']['f1_macro'], la misma llamada que pinta la tabla", True)
+    row(D("t2_v_row_trivial"), "%.3f +- %.3f" % (f1_b0, sd_b0),
+         D("t2_v_row_trivial_src"), True)
     if with_classic:
         f1_b1, sd_b1 = med["cv"]["b1"]["f1_macro"]
-        row("Tabla, fila clasico", "%.3f +- %.3f" % (f1_b1, sd_b1),
+        row(D("t2_v_row_classic"), "%.3f +- %.3f" % (f1_b1, sd_b1),
              "cv['b1']['f1_macro']", True)
     else:
-        row("Tabla, fila clasico", "vacia por el ejercicio",
-             "medida y disponible: %.3f +- %.3f, se llena con --con-clasico"
-             % med["cv"]["b1"]["f1_macro"], True)
-    row("Tabla, fila propuesta", "vacia",
-         "NO EXISTE TODAVIA: el agente no se ha ejecutado bajo esta particion",
-         True)
-    for etq, cual in (("trivial", "b0"), ("clasico", "b1")):
+        row(D("t2_v_row_classic"), D("t2_v_row_classic_empty"),
+             D("t2_v_row_classic_src") % med["cv"]["b1"]["f1_macro"], True)
+    row(D("t2_v_row_proposal"), D("t2_v_empty"), D("t2_v_row_proposal_src"), True)
+    for etq, cual in ((D("t2_v_trivial"), "b0"), (D("t2_v_classic"), "b1")):
         best, dispersion = med["tiempos"][cual]
-        row("Coste, %s" % etq, "%.3f us/caso" % best,
-             "mejor de %d rondas x %d repeticiones; dispersion %.3f us "
-             "(%.0f %% del valor), por eso la tabla lleva dos cifras "
-             "significativas"
+        row(D("t2_v_cost") % etq, D("t2_v_cost_val") % best,
+             D("t2_v_cost_src")
              % (RONDAS_TIEMPO, REPETITIONS, dispersion,
                 100.0 * dispersion / best),
              dispersion / best < TOLERANCIA_TIEMPO)
 
     # Lo que anadio el ejercicio 2: clases, proporciones, repeticiones,
     # tiempo de entrenamiento y maquina.
-    row("Clases", "%d de 4 (%s)"
+    row(D("t2_v_classes"), D("t2_v_classes_val")
          % (len(med["clases"]), ", ".join(str(c) for c in med["clases"])),
-         "etiquetas del CSV; los niveles 1 y 2 no aparecen en la muestra",
-         len(med["clases"]) == 2)
-    row("Proporciones", "prueba de %s de %d"
+         D("t2_v_classes_src"), len(med["clases"]) == 2)
+    row(D("t2_v_props"), D("t2_v_props_val")
          % (" y ".join(str(t) for t in med["tam_prueba"]), med["n"]),
-         "tamano real de cada pliegue de prueba",
-         sum(med["tam_prueba"]) == med["n"])
-    row("Prueba apartada", "si", "el pliegue de prueba no entra en ningun "
-         "ajuste: el preprocesamiento se ajusta en entrenamiento", True)
-    row("Repeticiones", 1, "una sola pasada; el ajuste es determinista y "
-         "repetirla da lo mismo", True)
-    row("Tiempo de entrenamiento", _elapsed(med["train"]),
-         "medido aqui: entrenar la validacion cruzada completa, mejor de "
-         "%d rondas" % RONDAS, True)
+         D("t2_v_props_src"), sum(med["tam_prueba"]) == med["n"])
+    row(D("t2_v_holdout"), D("t2_v_holdout_val"), D("t2_v_holdout_src"), True)
+    row(D("t2_v_reps"), 1, D("t2_v_reps_src"), True)
+    row(D("t2_v_traintime"), _elapsed(med["train"]),
+         D("t2_v_traintime_src") % RONDAS, True)
     if hw is not None:
-        row("Maquina", hw["fields"].get("cpu", "?"),
-             "Win32_Processor, consultado al sistema", hw["completo"])
-        row("Memoria", "%s GB" % hw["fields"].get("ram", "?"),
+        row(D("t2_v_machine"), hw["fields"].get("cpu", "?"),
+             D("t2_v_machine_src"), hw["completo"])
+        row(D("t2_v_ram"), "%s GB" % hw["fields"].get("ram", "?"),
              "Win32_ComputerSystem", hw["completo"])
-        row("Sistema operativo", "%s build %s"
+        row(D("t2_v_os"), D("t2_v_os_val")
              % (hw["fields"].get("so", "?"), hw["fields"].get("build", "?")),
              "Win32_OperatingSystem", hw["completo"])
-        row("Aceleracion", "ninguna, todo en CPU",
-             "no hay GPU en el calculo: es biblioteca estandar", True)
-    row("Repositorio", "https://" + REPO, "publico, con DOI de Zenodo", True)
+        row(D("t2_v_accel"), D("t2_v_accel_val"), D("t2_v_accel_src"), True)
+    row(D("t2_v_repo"), "https://" + REPO, D("t2_v_repo_src"), True)
     return filas
 
 
-NO_EXISTE = [
-    "El tiempo de inferencia depende de lo que este haciendo la maquina: se "
-    "mide en microsegundos y una ventana abierta lo mueve. El numero que entre "
-    "al paper hay que tomarlo con el equipo en reposo, y el script avisa si la "
-    "dispersion entre rondas pasa del %d %% del valor." % int(
-        TOLERANCIA_TIEMPO * 100),
-    "La fila de la propuesta entera: el agente no se ha ejecutado bajo esta "
-    "particion. Ninguna celda suya puede llenarse hoy.",
-    "El coste de la propuesta no es comparable en microsegundos: llevara "
-    "llamada de red y recuperacion, y habra que reportarlo en segundos por "
-    "caso, no en la misma unidad.",
-    "kappa entre evaluadores: el paper lo declara como secundaria de P1, pero "
-    "no hay panel todavia, asi que no aparece en la tabla.",
-]
+def missing_items():
+    """Lo que no coincide o no existe todavia, en el idioma del documento."""
+    return [D("t2_missing_1") % int(TOLERANCIA_TIEMPO * 100),
+            D("t2_missing_2"),
+            D("t2_missing_3"),
+            D("t2_missing_4")]
 
 
 # --------------------------------------------------------------------------
-
-MD = """# Tabla II y párrafo de configuración experimental
-
-Generado por `_tabla_ii.py`. Ningún número está escrito a mano: salen de correr
-`_baseline.py` sobre la partición congelada, y el coste de medir la inferencia
-aquí mismo.
-
-**Estado:** %(status)s
-
----
-
-## 1. El título, en una línea
-
-> %(titulo_plano)s
-
-Contiene las cuatro cosas que pide el ejercicio: el conjunto de datos
-(%(n)d plataformas de automatización), la métrica principal ($F_1$ macro),
-sobre qué se promedia (%(k)d pliegues) y el agrupamiento (por fabricante).
-
-## 2. La tabla
-
-| Modelo | $F_1$ macro (media ± desv.) | Exactitud | Coste (µs/caso) |
-|---|---|---|---|
-%(filas_md)s
-%(note)s
-
-## 3. El párrafo de configuración experimental (siete frases)
-
-### Español
-
-%(parrafo_es)s
-
-### English
-
-%(parrafo_en)s
-
-## 4. Verificación dato a dato
-
-Cada dato del párrafo, contra el código y contra la tabla.
-
-| Dato | Valor | De dónde sale | ¿Coincide? |
-|---|---|---|---|
-%(verificacion)s
-
-## 5. Lo que no coincide o no existe todavía
-
-%(no_existe)s
-"""
-
-
-PROTOCOLO = """# PROTOCOLO — configuración experimental
-
-**Este párrafo es la sección de configuración experimental del artículo.**
-Sustituye al protocolo escrito como documento aparte: se pega casi literal en
-Overleaf, y lo que dice aquí manda sobre lo que digan los resultados después.
-
-Generado por `_tabla_ii.py`. Ningún dato está escrito a mano: salen de correr
-`_baseline.py`, de medir los tiempos y de consultar la máquina al sistema. Para
-actualizarlo se vuelve a ejecutar el script, no se edita este archivo.
-
-Las siete frases cubren, en orden, lo que la pauta exige: conjunto de datos
-—fuente, tamaño, clases y unidad de observación—; partición —proporciones,
-agrupamiento, semilla y prueba apartada—; preprocesamiento y características
-—qué se calcula y qué se ajusta dentro de cada pliegue—; modelos comparados
-—cuáles, con biblioteca y versión—; búsqueda de hiperparámetros —espacio,
-criterio y el mismo esfuerzo para todos—; validación y métricas —esquema, *k*,
-repeticiones, principal y secundarias—; y hardware y reproducibilidad
-—máquina, tiempo de entrenamiento, semilla y enlace al repositorio—.
-
----
-
-## Español (%(frases_es)d frases)
-
-%(parrafo_es_plano)s
-
-<details><summary>El mismo párrafo con las marcas de LaTeX, para pegar en Overleaf</summary>
-
-```latex
-%(parrafo_es)s
-```
-
-</details>
-
-## English (%(frases_en)d sentences)
-
-%(parrafo_en_plano)s
-
-<details><summary>Same paragraph with LaTeX markup, to paste into Overleaf</summary>
-
-```latex
-%(parrafo_en)s
-```
-
-</details>
-
----
-
-## La máquina, declarada
-
-%(hw)s
-
-## Relación con `PROTOCOLO_VALIDACION.md`
-
-Aquel documento es el contrato de validación de los seis puntos, firmado el
-2026-09-04: qué se congela, qué métrica decide y cuándo se abre la prueba. Este
-es la configuración experimental que va al artículo. No se contradicen, pero si
-alguna cifra difiere, **manda la de aquí**, porque esta se regenera desde el
-código en cada ejecución.
-"""
-
 
 def main():
     ap = argparse.ArgumentParser(description="Tabla II del taller")
@@ -698,30 +590,29 @@ def main():
 
     frases_es = _count_sentences(parrafo_es)
     frases_en = _count_sentences(parrafo_en)
-    print("Tabla II del taller")
-    print("  filas     trivial | clasico | propuesta   (tres, ni una mas)")
-    print("  columnas  F1 macro +- desv. | exactitud | coste us/caso")
-    print("  trivial   F1 %.3f +-%.3f | exactitud %.3f | %.3f us/caso"
+    print(D("t2_c_title"))
+    print(D("t2_c_rows"))
+    print(D("t2_c_cols"))
+    print(D("t2_c_trivial")
           % (med["cv"]["b0"]["f1_macro"][0], med["cv"]["b0"]["f1_macro"][1],
              med["cv"]["b0"]["exactitud"][0], med["tiempos"]["b0"][0]))
-    print("  clasico   %s"
-          % ("F1 %.3f +-%.3f | exactitud %.3f | %.3f us/caso"
+    print(D("t2_c_classic")
+          % (D("t2_c_classic_full")
              % (med["cv"]["b1"]["f1_macro"][0], med["cv"]["b1"]["f1_macro"][1],
                 med["cv"]["b1"]["exactitud"][0], med["tiempos"]["b1"][0])
-             if con else "VACIA por el ejercicio (medida y disponible)"))
-    print("  propuesta VACIA: no se ha ejecutado")
-    show.append(("Frases del parrafo", "ES %d, EN %d" % (frases_es, frases_en),
-                "el ejercicio exige exactamente siete",
+             if con else D("t2_c_classic_empty")))
+    print(D("t2_c_proposal"))
+    show.append((D("t2_v_sentences"), D("t2_v_sentences_val") % (frases_es, frases_en),
+                D("t2_v_sentences_src"),
                 frases_es == 7 and frases_en == 7))
-    print("  parrafo   ES %d frases, EN %d frases%s"
+    print(D("t2_c_paragraph")
           % (frases_es, frases_en,
-             "" if frases_es == frases_en == 7 else "   <-- NO SON SIETE"))
-    print("  maquina   %s" % hw["texto_es"])
+             "" if frases_es == frases_en == 7 else D("t2_c_not_seven")))
+    print(D("t2_c_machine") % machine_text(hw))
     fallos = [f for f in show if not f[3]]
-    print("  verificacion  %d datos, %d discrepancias"
-          % (len(show), len(fallos)))
+    print(D("t2_c_verify") % (len(show), len(fallos)))
     for f in fallos:
-        print("    DISCREPANCIA: %s = %s (%s)" % (f[0], f[1], f[2]))
+        print(D("t2_c_mismatch") % (f[0], f[1], f[2]))
     print("")
 
     escritos = []
@@ -736,44 +627,50 @@ def main():
             escritos.append(path)
 
     filas_md = ""
-    for name, justification, key in FILAS_ES:
-        f1, exa, coste = cells(med, key, con)
+    # El separador decimal tambien es del idioma: 0.402 en ingles, 0,402 en
+    # castellano, igual que en los dos .tex.
+    es_decimal = not _english()
+    for name, justification, key in (FILAS_EN if _english() else FILAS_ES):
+        f1, exa, coste = cells(med, key, con, es=es_decimal)
         clean = _plain
         filas_md += ("| **%s**<br><sub>%s</sub> | %s | %s | %s |\n"
                      % (name, justification, clean(f1), clean(exa),
                         clean(coste)))
 
-    plain_title = (TITLE_ES % {"n": med["n"], "k": med["k"]}).replace(
+    titulo = TITLE_EN if _english() else TITLE_ES
+    plain_title = (titulo % {"n": med["n"], "k": med["k"]}).replace(
         "$F_1$", "F1").replace("$\\pm$", "±")
-    with open(MD_OUTPUT, "w", encoding="utf-8") as fh:
-        fh.write(MD % {
-            "status": ("fila del trivial con números%s; el resto vacío, que es "
-                       "el plan de experimentos"
-                       % (" y del clásico" if con else "")),
+    md_path = os.path.join(ROOT, md_output())
+    os.makedirs(os.path.dirname(md_path), exist_ok=True)
+    with open(md_path, "w", encoding="utf-8") as fh:
+        fh.write(D("t2_md") % {
+            "status": D("t2_status") % (D("t2_status_classic") if con else ""),
             "titulo_plano": plain_title,
             "n": med["n"], "k": med["k"],
             "filas_md": filas_md,
-            "note": NOTE_ES,
+            "note": NOTE_EN if _english() else NOTE_ES,
             "parrafo_es": _plain(parrafo_es),
             "parrafo_en": _plain(parrafo_en),
             "verificacion": "".join(
                 "| %s | %s | %s | %s |\n"
-                % (d, v, f, "sí" if ok else "**NO**") for d, v, f, ok in show),
-            "no_existe": "".join("- %s\n" % x for x in NO_EXISTE),
+                % (d, v, f, D("t2_yes") if ok else D("t2_no"))
+                for d, v, f, ok in show),
+            "no_existe": "".join("- %s\n" % x for x in missing_items()),
         })
-    escritos.append(MD_OUTPUT)
+    escritos.append(md_output())
 
-    with open(PROTOCOL_OUTPUT, "w", encoding="utf-8") as fh:
-        fh.write(PROTOCOLO % {
+    protocol_path = os.path.join(ROOT, protocol_output())
+    with open(protocol_path, "w", encoding="utf-8") as fh:
+        fh.write(D("t2_protocol") % {
             "parrafo_es": parrafo_es, "parrafo_en": parrafo_en,
             "parrafo_es_plano": _plain(parrafo_es),
             "parrafo_en_plano": _plain(parrafo_en),
             "frases_es": frases_es, "frases_en": frases_en,
-            "hw": hw["texto_es"],
+            "hw": machine_text(hw),
         })
-    escritos.append(PROTOCOL_OUTPUT)
+    escritos.append(protocol_output())
 
-    print("Escritos %d archivos:" % len(escritos))
+    print(D("t2_c_written") % len(escritos))
     for r in escritos:
         print("  %s" % r)
     return 1 if fallos else 0

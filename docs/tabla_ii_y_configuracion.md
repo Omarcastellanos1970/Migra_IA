@@ -42,23 +42,23 @@ Cada dato del párrafo, contra el código y contra la tabla.
 
 | Dato | Valor | De dónde sale | ¿Coincide? |
 |---|---|---|---|
-| Plataformas | 9 | len(cargar()) sobre data/platform_lifecycle.csv | sí |
+| Plataformas | 9 | len(load()) sobre data/platform_lifecycle.csv | sí |
 | Fabricantes | 5 | Mitsubishi, Omron, Rockwell, Schneider, Siemens | sí |
-| Unidad de observacion | la plataforma | lifecycle_partition.json: agrupamiento = Fabricante | sí |
-| k | 2 | particionar_estratificado(); json k=2 | sí |
-| Agrupamiento | Fabricante | ningun fabricante en train y test a la vez | sí |
-| Semilla | 42 | _baseline.SEMILLA; json semilla=42 | sí |
+| Unidad de observacion | la plataforma | lifecycle_partition.json: agrupamiento = manufacturer | sí |
+| k | 2 | stratified_partition(); json k=2 | sí |
+| Agrupamiento | manufacturer | ningun fabricante en train y test a la vez | sí |
+| Semilla | 42 | _baseline.SEED; json semilla=42 | sí |
 | Preprocesamiento | dentro del pliegue | ajustado dentro de cada pliegue (media y escala del entrenamiento) | sí |
 | Caracteristica admitida | antiguedad = 2026 - Lanzamiento | auditoria de fuga: unica superviviente | sí |
 | Metrica principal | F1 macro | PROTOCOLO_VALIDACION.md punto 3, congelada | sí |
-| Secundarias | exactitud, error ordinal medio | metricas() de _baseline.py | sí |
-| Promedio | media +- desv. tipica muestral entre pliegues | _media_sd(), n-1 | sí |
+| Secundarias | exactitud, error ordinal medio | metrics() de _baseline.py | sí |
+| Promedio | media +- desv. tipica muestral entre pliegues | _mean_sd(), n-1 | sí |
 | Python | 3.14.6 | platform.python_version() | sí |
 | Tabla, fila trivial | 0.402 +- 0.038 | cv['b0']['f1_macro'], la misma llamada que pinta la tabla | sí |
-| Tabla, fila clasico | vacia por el ejercicio | medida y disponible: 0.688 +- 0.442, se llena con --con-clasico | sí |
+| Tabla, fila clasico | vacia por el ejercicio | medida y disponible: 0.688 +- 0.442, se llena con --with-classic | sí |
 | Tabla, fila propuesta | vacia | NO EXISTE TODAVIA: el agente no se ha ejecutado bajo esta particion | sí |
-| Coste, trivial | 0.024 us/caso | mejor de 9 rondas x 2000 repeticiones; dispersion 0.031 us (131 % del valor), por eso la tabla lleva dos cifras significativas | **NO** |
-| Coste, clasico | 0.542 us/caso | mejor de 9 rondas x 2000 repeticiones; dispersion 0.049 us (9 % del valor), por eso la tabla lleva dos cifras significativas | sí |
+| Coste, trivial | 0.024 us/caso | mejor de 9 rondas x 2000 repeticiones; dispersion 0.005 us (19 % del valor), por eso la tabla lleva dos cifras significativas | sí |
+| Coste, clasico | 0.540 us/caso | mejor de 9 rondas x 2000 repeticiones; dispersion 0.069 us (13 % del valor), por eso la tabla lleva dos cifras significativas | sí |
 | Clases | 2 de 4 (3, 4) | etiquetas del CSV; los niveles 1 y 2 no aparecen en la muestra | sí |
 | Proporciones | prueba de 5 y 4 de 9 | tamano real de cada pliegue de prueba | sí |
 | Prueba apartada | si | el pliegue de prueba no entra en ningun ajuste: el preprocesamiento se ajusta en entrenamiento | sí |
