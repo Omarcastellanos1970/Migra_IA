@@ -64,8 +64,8 @@
   - Responde cada pregunta con el numero de la opcion y pulsa Enviar.
 
   Veras el diagnostico paso a paso, el panel del expediente,
-  la puntuacion de riesgo de obsolescencia (75.2, "Riesgo alto")
-  y al final el informe tecnico generado.
+  la puntuacion de riesgo de obsolescencia (85.0, "Riesgo critico"
+  en el caso de ejemplo) y al final el informe tecnico generado.
 
   Para apagarlo: cierra la ventana negra.
 

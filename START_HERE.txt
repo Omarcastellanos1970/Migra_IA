@@ -64,8 +64,8 @@
   - Answer each question with the number of the option and press Send.
 
   You will see the diagnosis step by step, the case file panel,
-  the obsolescence risk score (75.2, "High risk")
-  and, at the end, the technical report that is generated.
+  the obsolescence risk score (85.0, "Critical risk" in the example
+  case) and, at the end, the technical report that is generated.
 
   To shut it down: close the black window.
 
