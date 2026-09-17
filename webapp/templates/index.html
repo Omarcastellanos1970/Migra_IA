@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es">
+<html lang="{{ lang }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ agente }} — Diagnóstico de obsolescencia y migración</title>
+<title>{{ agent }} — {{ ui.title_suffix }}</title>
 <style>
   :root {
     --bg: #0f1720; --panel: #16212e; --panel2: #1c2a3a; --line: #26374b;
@@ -32,6 +32,12 @@
                   padding:8px 14px; font-weight:600; cursor:pointer; margin-left:8px; }
   header button:hover { filter:brightness(1.1); }
   header button.sec { background:transparent; color:var(--tx2); border:1px solid var(--line); }
+  header .idiomas { display:flex; gap:2px; margin-left:10px; }
+  header .idioma { font-size:12px; padding:3px 9px; border:1px solid var(--line);
+    border-radius:6px; color:var(--tx2); text-decoration:none; letter-spacing:.04em; }
+  header .idioma:hover { color:var(--tx); }
+  header .idioma.activo { color:#fff; background:var(--user); border-color:var(--user);
+    font-weight:700; }
   header .badge.demo { color:#111; background:var(--imp); border-color:var(--imp); font-weight:700; }
 
   main { flex:1; display:flex; min-height:0; }
@@ -96,52 +102,62 @@
 </head>
 <body>
 <header>
-  <span class="logo">{{ agente }}</span>
-  <span class="sub">Diagnóstico de obsolescencia y migración de hardware</span>
+  <span class="logo">{{ agent }}</span>
+  <span class="sub">{{ ui.subtitle }}</span>
   <span class="badge" id="badge">v{{ version }}</span>
-  <button id="btn-interactivo">Demo interactiva (sin clave)</button>
-  <button id="btn-nuevo" class="sec">Caso real (API)</button>
+  {% if languages|length > 1 %}
+  <!-- Selector de idioma. Solo aparecen los idiomas COMPLETOS: uno a medio
+       traducir no se ofrece, en vez de ofrecerse y fallar al elegirlo.
+       Cambiar de idioma recarga la pagina y empieza un caso nuevo: una
+       conversacion no cambia de lengua a mitad. -->
+  <nav class="idiomas" aria-label="{{ ui.aria_language }}">
+    {% for l in languages %}
+    <a href="?lang={{ l }}" class="idioma {% if l == lang %}activo{% endif %}"
+       {% if l == lang %}aria-current="true"{% endif %}>{{ l|upper }}</a>
+    {% endfor %}
+  </nav>
+  {% endif %}
+  <button id="btn-interactivo">{{ ui.btn_demo }}</button>
+  <button id="btn-nuevo" class="sec">{{ ui.btn_real }}</button>
 </header>
 
 <main>
   <section class="chat">
     <div class="msgs" id="msgs"></div>
     <div class="compose">
-      <textarea id="entrada" placeholder="Escribe tu respuesta…  (Enter para enviar, Shift+Enter salto de línea)"></textarea>
-      <button id="enviar">Enviar</button>
+      <textarea id="entrada" placeholder="{{ ui.placeholder }}"></textarea>
+      <button id="enviar">{{ ui.btn_send }}</button>
     </div>
   </section>
 
   <aside>
-    <h2>Riesgo de obsolescencia</h2>
+    <h2>{{ ui.panel_risk }}</h2>
     <div class="riesgo" id="riesgo">
       <div class="num" id="r-num">—</div>
-      <div class="cls" id="r-cls">Sin evaluar</div>
-      <div class="sub" id="r-sub">se calcula durante el diagnóstico</div>
+      <div class="cls" id="r-cls">{{ ui.risk_unset }}</div>
+      <div class="sub" id="r-sub">{{ ui.risk_hint }}</div>
     </div>
 
-    <h2>Activos registrados</h2>
-    <ul class="lista" id="activos"><li class="vacio">Ninguno aún</li></ul>
+    <h2>{{ ui.panel_assets }}</h2>
+    <ul class="lista" id="activos"><li class="vacio">{{ ui.empty_m }}</li></ul>
 
-    <h2>Datos faltantes</h2>
-    <ul class="lista" id="faltantes"><li class="vacio">Ninguno</li></ul>
+    <h2>{{ ui.panel_missing }}</h2>
+    <ul class="lista" id="faltantes"><li class="vacio">{{ ui.empty_none_m }}</li></ul>
 
-    <h2>Banderas de seguridad</h2>
-    <ul class="lista" id="banderas"><li class="vacio">Ninguna</li></ul>
+    <h2>{{ ui.panel_flags }}</h2>
+    <ul class="lista" id="banderas"><li class="vacio">{{ ui.empty_none_f }}</li></ul>
 
-    <h2>Aprobaciones pendientes</h2>
-    <ul class="lista" id="pendientes"><li class="vacio">Ninguna</li></ul>
+    <h2>{{ ui.panel_approvals }}</h2>
+    <ul class="lista" id="pendientes"><li class="vacio">{{ ui.empty_none_f }}</li></ul>
 
-    <div class="aviso">
-      Asistencia técnica. No sustituye la evaluación de seguridad funcional, el
-      bloqueo/etiquetado ni la autorización de personal competente. Verifica toda
-      recomendación antes de intervenir equipos reales.
-    </div>
+    <div class="aviso">{{ ui.disclaimer }}</div>
   </aside>
 </main>
 
 <script>
-let caseId = null;
+const LANG = "{{ lang }}";
+  const UI = {{ ui|tojson }};
+  let caseId = null;
 let ocupado = false;
 let esInteractivo = false;
 const $ = (id) => document.getElementById(id);
@@ -231,7 +247,7 @@ function fmt(t){
 function addMsg(quien, texto){
   const div = document.createElement("div");
   div.className = "msg " + quien;
-  div.innerHTML = '<div class="who">' + (quien==="user"?"Tú":"MIGRA-IA") + '</div>' + fmt(texto);
+  div.innerHTML = '<div class="who">' + (quien==="user"?UI.who_user:"MIGRA-IA") + '</div>' + fmt(texto);
   $("msgs").appendChild(div);
   $("msgs").scrollTop = $("msgs").scrollHeight;
 }
@@ -242,7 +258,7 @@ function pensando(on){
     if(!el){
       el = document.createElement("div");
       el.id = "thinking"; el.className = "thinking";
-      el.innerHTML = "MIGRA-IA está analizando <span class='dot'>●</span><span class='dot'>●</span><span class='dot'>●</span>";
+      el.innerHTML = UI.thinking + " <span class='dot'>●</span><span class='dot'>●</span><span class='dot'>●</span>";
       $("msgs").appendChild(el);
       $("msgs").scrollTop = $("msgs").scrollHeight;
     }
@@ -256,19 +272,20 @@ const COLORES = {
 
 function pintarPanel(r){
   if(!r) return;
-  // Riesgo
-  const rg = r.riesgo;
-  if(rg){
+  // Riesgo. La clase que viaja es la canonica (COLORES va por ella); lo que
+  // se escribe es su etiqueta en el idioma de la pagina.
+  const rg = r.risk;
+  if(rg && rg.puntuacion !== undefined && rg.puntuacion !== null){
     $("r-num").textContent = Math.round(rg.puntuacion);
-    $("r-cls").textContent = rg.clasificacion;
-    const c = COLORES[rg.clasificacion] || "var(--accent)";
+    $("r-cls").textContent = rg.label || rg.classification || "";
+    const c = COLORES[rg.classification] || "var(--accent)";
     $("r-num").style.color = c; $("r-cls").style.color = c;
-    $("r-sub").textContent = "escala 0–100 (mayor = más riesgo)";
+    $("r-sub").textContent = UI.risk_scale;
   }
-  llenar("activos", (r.activos||[]).map(a => '<span class="tag">'+escapar(a.id||"")+'</span>'+escapar((a.tipo||"")+" — "+(a.descripcion||""))), "Ninguno aún");
-  llenar("faltantes", (r.datos_faltantes||[]).map(escapar), "Ninguno");
-  llenar("banderas", (r.banderas||[]).map(escapar), "Ninguna", "bandera");
-  llenar("pendientes", (r.aprobaciones_pendientes||[]).map(p => escapar(p.accion||"")), "Ninguna", "pend");
+  llenar("activos", (r.assets||[]).map(a => '<span class="tag">'+escapar(a.id||"")+'</span>'+escapar((a.type||"")+" — "+(a.description||""))), UI.empty_m);
+  llenar("faltantes", (r.missing_data||[]).map(escapar), UI.empty_none_m);
+  llenar("banderas", (r.flags||[]).map(escapar), UI.empty_none_f, "bandera");
+  llenar("pendientes", (r.aprobaciones_pendientes||[]).map(p => escapar(p.accion||"")), UI.empty_none_f, "pend");
 }
 
 function llenar(id, items, vacio, clase){
@@ -292,7 +309,7 @@ async function iniciar(modo){
   try{
     const r = await fetch("/api/nuevo", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({interactivo: inter})
+      body: JSON.stringify({ interactivo: inter, lang: LANG })
     });
     const d = await r.json();
     pensando(false);
@@ -303,31 +320,18 @@ async function iniciar(modo){
     b.className = "badge" + (inter ? " demo" : "");
     // La interactiva lee TODAS las respuestas y con ellas mueve el motor real.
     $("entrada").placeholder = inter
-      ? "DEMO INTERACTIVA: responde con el número de la opción, o escríbela"
-      : "Escribe tu respuesta…  (Enter para enviar, Shift+Enter salto de línea)";
-    addMsg("agent", d.texto);
-    pintarPanel(d.resumen);
-  }catch(e){ pensando(false); addMsg("agent","⚠️ Error de conexión con el servidor."); }
+      ? UI.placeholder_demo
+      : UI.placeholder;
+    addMsg("agent", d.text);
+    pintarPanel(d.summary);
+  }catch(e){ pensando(false); addMsg("agent",UI.error_conn); }
   finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
 }
 const nuevoCaso = () => iniciar("api");
 const nuevoInteractivo = () => iniciar("interactivo");
 
 function bienvenida(){
-  addMsg("agent",
-    "**Bienvenido a MIGRA-IA.** Dos formas de usarlo; la primera **no necesita " +
-    "clave ni tiene costo**.\n\n" +
-    "• **Demo interactiva** — aquí **respondes tú**. Tu equipo se identifica " +
-    "contra el catálogo verificado de **30 fabricantes, 130 generaciones y 469 " +
-    "modelos de CPU**; las preguntas y sus opciones salen del cuestionario " +
-    "maestro; el motor de riesgo puntúa **tus** respuestas; el mapa de decisión " +
-    "dice qué procede en **tu** caso y, si toca migrar, el procedimiento de " +
-    "**50 pasos** te guía con la CPU destino que elijas (misma marca u otra). " +
-    "Sin modelo de lenguaje: mismo caso, mismo resultado, siempre.\n\n" +
-    "• **Caso real (API)** — diálogo en lenguaje libre con el agente completo. " +
-    "Es lo único que la demo no puede hacer, y requiere tu ANTHROPIC_API_KEY " +
-    "en el archivo .env."
-  );
+  addMsg("agent", UI.welcome);
 }
 
 async function enviar(){
@@ -349,9 +353,9 @@ async function enviar(){
     const d = await r.json();
     pensando(false);
     if(d.error){ addMsg("agent","⚠️ "+d.error); return; }
-    addMsg("agent", d.texto);
-    pintarPanel(d.resumen);
-  }catch(e){ pensando(false); addMsg("agent","⚠️ Error de conexión con el servidor."); }
+    addMsg("agent", d.text);
+    pintarPanel(d.summary);
+  }catch(e){ pensando(false); addMsg("agent",UI.error_conn); }
   finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
 }
 

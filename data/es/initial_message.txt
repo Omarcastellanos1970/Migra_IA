@@ -1,0 +1,1 @@
+Inicia el caso. Presentate en una o dos lineas y comienza el diagnostico guiado paso a paso: pregunta primero por la identificacion del usuario y su autorizacion, y luego avanza segun mis respuestas. Haz pocas preguntas a la vez.

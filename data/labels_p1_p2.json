@@ -1,0 +1,101 @@
+{
+  "provenance": "provisional_regla",
+  "warning": "ETIQUETADO PROVISIONAL. No es juicio experto: sale de una regla escrita, no de criterio humano. No usar como validacion. Se sustituye por las respuestas del panel en cuanto esten.",
+  "reference_date": "2026-09-04",
+  "raters": [],
+  "p2_criterion": [
+    "1. Primero las que YA no tienen repuestos: fin de reparacion publicado y pasado.",
+    "2. Despues aquellas cuyo fin de repuestos NO esta publicado. Es un riesgo de suministro no confirmado y no se cuenta como si ya hubiera terminado.",
+    "3. Al final las que tienen repuestos confirmados, menos anios restantes primero.",
+    "4. Dentro de cada banda, mas antigua primero.",
+    "5. Empate final: orden alfabetico de plataforma, para que sea reproducible."
+  ],
+  "p1_class": {
+    "PLC-5 (1785)": 4,
+    "SLC 500": 3,
+    "S7-300 / ET 200M": 3,
+    "Modicon Quantum": 3,
+    "Modicon Premium": 3,
+    "MELSEC-A/QnA (tipo grande)": 4,
+    "MELSEC AnS/QnAS": 4,
+    "SYSMAC CS1": 3,
+    "SYSMAC CJ1 (Europa)": 3
+  },
+  "p1_rule": "derivada de las fechas contra la fecha de referencia; por eso las columnas de fecha quedan excluidas como variable en _baseline.py. Ver la auditoria de fuga.",
+  "p2_ranking": [
+    "MELSEC-A/QnA (tipo grande)",
+    "MELSEC AnS/QnAS",
+    "PLC-5 (1785)",
+    "SLC 500",
+    "Modicon Quantum",
+    "Modicon Premium",
+    "SYSMAC CJ1 (Europa)",
+    "SYSMAC CS1",
+    "S7-300 / ET 200M"
+  ],
+  "p2_detail": [
+    {
+      "rank": 1,
+      "platform": "MELSEC-A/QnA (tipo grande)",
+      "spare_parts_years_left": -13.0,
+      "age_years": 41,
+      "spare_parts_status": "sin repuestos confirmado"
+    },
+    {
+      "rank": 2,
+      "platform": "MELSEC AnS/QnAS",
+      "spare_parts_years_left": -5.0,
+      "age_years": 33,
+      "spare_parts_status": "sin repuestos confirmado"
+    },
+    {
+      "rank": 3,
+      "platform": "PLC-5 (1785)",
+      "spare_parts_years_left": -0.8,
+      "age_years": 40,
+      "spare_parts_status": "sin repuestos confirmado"
+    },
+    {
+      "rank": 4,
+      "platform": "SLC 500",
+      "spare_parts_years_left": null,
+      "age_years": 35,
+      "spare_parts_status": "fin de repuestos NO publicado"
+    },
+    {
+      "rank": 5,
+      "platform": "Modicon Quantum",
+      "spare_parts_years_left": null,
+      "age_years": 32,
+      "spare_parts_status": "fin de repuestos NO publicado"
+    },
+    {
+      "rank": 6,
+      "platform": "Modicon Premium",
+      "spare_parts_years_left": null,
+      "age_years": 30,
+      "spare_parts_status": "fin de repuestos NO publicado"
+    },
+    {
+      "rank": 7,
+      "platform": "SYSMAC CJ1 (Europa)",
+      "spare_parts_years_left": 5.3,
+      "age_years": 25,
+      "spare_parts_status": "con repuestos"
+    },
+    {
+      "rank": 8,
+      "platform": "SYSMAC CS1",
+      "spare_parts_years_left": 5.5,
+      "age_years": 27,
+      "spare_parts_status": "con repuestos"
+    },
+    {
+      "rank": 9,
+      "platform": "S7-300 / ET 200M",
+      "spare_parts_years_left": 7.1,
+      "age_years": 31,
+      "spare_parts_status": "con repuestos"
+    }
+  ]
+}

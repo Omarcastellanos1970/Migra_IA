@@ -1,0 +1,336 @@
+"""Etiquetas de P1 y P2 para las nueve plataformas, y el formulario para los expertos.
+
+POR QUE EXISTE
+--------------
+P1 y P2 necesitan una etiqueta de referencia. La buena es la de un panel de
+ingenieros -asi lo declara el plan de evaluacion del paper- y hoy no esta
+disponible. Este script hace dos cosas distintas y no las confunde:
+
+  `provisional`  escribe data/labels_p1_p2.json con un etiquetado derivado de
+                 UNA REGLA ESCRITA, no de criterio humano. Sirve para que el
+                 circuito completo corra de punta a punta y para que P2 deje de
+                 estar bloqueado, NO para validar nada.
+
+  `form`         escribe docs/formulario_etiquetado.md, que es lo que se le
+                 manda a cada coautor. No lleva ninguna salida del motor ni el
+                 etiquetado provisional: quien lo responde no ve la respuesta.
+
+  `compare`      lee los formularios devueltos y mide el acuerdo entre expertos
+                 y su distancia contra la regla provisional.
+
+LO QUE HAY QUE DECLARAR EN EL PAPER
+-----------------------------------
+Con etiqueta derivada de regla, P1 no es una prediccion: es la re-derivacion de
+una definicion, y por eso la auditoria de fuga de _baseline.py deja fuera todas
+las columnas de fecha. La etiqueta experta es lo que convierte P1 en un problema
+de aprendizaje real. Mientras el campo `procedencia` del JSON diga
+`provisional_regla`, ninguna cifra que salga de aqui puede presentarse como
+validacion.
+
+    python _labeling.py provisional
+    python _labeling.py form
+    python _labeling.py compare respuestas_julio.md respuestas_isidoro.md
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _baseline import CLASES, FECHA_REF, load          # noqa: E402
+from migra_ia import config                            # noqa: E402
+
+ROOT = Path(__file__).resolve().parent
+LABELS = ROOT / "data" / "labels_p1_p2.json"
+
+
+def D(key: str) -> str:
+    """Texto del formulario en el idioma de esta ejecucion."""
+    return config.doc_tools().get(key, key)
+
+
+def form_path() -> Path:
+    """Donde va el formulario de este idioma. La ruta la declara el idioma."""
+    return ROOT / D("lf_path")
+
+# Criterio de prioridad de reemplazo, escrito antes de mirar los datos para que
+# no se pueda acomodar al resultado. Ordena por urgencia de suministro, que es
+# lo unico que esta tabla soporta: no trae criticidad de proceso ni coste de
+# parada, que son las otras dos mitades de la decision real.
+P2_CRITERION = [
+    "1. Primero las que YA no tienen repuestos: fin de reparacion publicado y pasado.",
+    "2. Despues aquellas cuyo fin de repuestos NO esta publicado. Es un riesgo de "
+    "suministro no confirmado y no se cuenta como si ya hubiera terminado.",
+    "3. Al final las que tienen repuestos confirmados, menos anios restantes primero.",
+    "4. Dentro de cada banda, mas antigua primero.",
+    "5. Empate final: orden alfabetico de plataforma, para que sea reproducible.",
+]
+
+
+def _years_left(p) -> float | None:
+    """Anios desde FECHA_REF hasta el fin de repuestos. Negativo si ya paso.
+
+    None cuando el fabricante no lo publica. NO se sustituye por el peor caso:
+    decir "sin repuestos ya" de un dato que nadie publico es inventarlo, y el
+    proyecto marca el hueco en vez de suponerlo.
+    """
+    if p.end_of_spare_parts is None:
+        return None
+    return (p.end_of_spare_parts[0] - FECHA_REF[0]) + (p.end_of_spare_parts[1] - FECHA_REF[1]) / 12
+
+
+def _band(p) -> int:
+    """0 = sin repuestos confirmado, 1 = fin no publicado, 2 = con repuestos."""
+    r = _years_left(p)
+    if r is None:
+        return 1
+    return 0 if r <= 0 else 2
+
+
+def provisional() -> dict:
+    data = load()
+    order = sorted(
+        data,
+        key=lambda p: (_band(p),
+                       _years_left(p) if _years_left(p) is not None else 0.0,
+                       -p.age_years, p.platform),
+    )
+    return {
+        "provenance": "provisional_regla",
+        "warning": (
+            "ETIQUETADO PROVISIONAL. No es juicio experto: sale de una regla "
+            "escrita, no de criterio humano. No usar como validacion. Se "
+            "sustituye por las respuestas del panel en cuanto esten."
+        ),
+        "reference_date": "%04d-%02d-%02d" % FECHA_REF,
+        "raters": [],
+        "p2_criterion": P2_CRITERION,
+        "p1_class": {p.platform: p.class_label for p in data},
+        "p1_rule": ("derivada de las fechas contra la fecha de referencia; por eso "
+                     "las columnas de fecha quedan excluidas como variable en "
+                     "_baseline.py. Ver la auditoria de fuga."),
+        "p2_ranking": [p.platform for p in order],
+        "p2_detail": [
+            {"rank": i + 1, "platform": p.platform,
+             "spare_parts_years_left": (None if _years_left(p) is None
+                                           else round(_years_left(p), 1)),
+             "age_years": p.age_years,
+             "spare_parts_status": ["sin repuestos confirmado",
+                                  "fin de repuestos NO publicado",
+                                  "con repuestos"][_band(p)]}
+            for i, p in enumerate(order)
+        ],
+    }
+
+
+# --------------------------------------------------------------------------
+# Metricas de P2: importa el orden
+# --------------------------------------------------------------------------
+
+def ranking_metrics(propuesto: list[str], referencia: list[str],
+                     ks: tuple[int, ...] = (1, 3, 5)) -> dict:
+    """Compara un orden propuesto contra el de referencia.
+
+    ADAPTACION DECLARADA. El rubro pide "precision en los primeros k" y
+    "posicion media del elemento correcto", que estan pensadas para una
+    recuperacion donde hay un elemento relevante y muchos que no. P2 es una
+    permutacion completa de las mismas nueve plataformas, asi que:
+
+      - precision@k se mide como el solapamiento entre los k primeros del orden
+        propuesto y los k primeros de la referencia, dividido por k. Responde a
+        "de las k que dije que hay que reemplazar antes, cuantas lo son".
+
+      - posicion media del elemento correcto se mide sobre los elementos que la
+        REFERENCIA pone en cabeza: en que puesto medio los coloca el orden
+        propuesto. Si la referencia dice que hay tres urgentes y el modelo los
+        pone en los puestos 1, 2 y 5, la posicion media es 2.67 frente a un
+        ideal de 2.0.
+
+    Se anade el desplazamiento medio absoluto sobre TODOS los elementos, que es
+    lo unico que resume la permutacion entera sin privilegiar la cabeza.
+    """
+    puesto_prop = {p: i + 1 for i, p in enumerate(propuesto)}
+    puesto_ref = {p: i + 1 for i, p in enumerate(referencia)}
+    comunes = set(puesto_prop) & set(puesto_ref)
+    if not comunes:
+        return {"error": "los dos ordenes no comparten ningun elemento"}
+
+    res: dict = {"n": len(comunes), "precision_en_k": {}, "posicion_media_en_k": {}}
+    for k in ks:
+        if k > len(referencia):
+            continue
+        cabeza_ref = set(referencia[:k])
+        cabeza_prop = set(propuesto[:k])
+        res["precision_en_k"][k] = round(len(cabeza_ref & cabeza_prop) / k, 3)
+        puestos = [puesto_prop[p] for p in referencia[:k] if p in puesto_prop]
+        res["posicion_media_en_k"][k] = {
+            "obtenida": round(sum(puestos) / len(puestos), 2),
+            "ideal": round(sum(range(1, k + 1)) / k, 2),
+        }
+
+    res["desplazamiento_medio"] = round(
+        sum(abs(puesto_prop[p] - puesto_ref[p]) for p in comunes) / len(comunes), 2)
+    return res
+
+
+def order_by_age(data) -> list[str]:
+    """Orden trivial de P2: la mas antigua primero. Es el B0 del ordenamiento,
+    el suelo contra el que cualquier propuesta tiene que ganar."""
+    return [p.platform for p in sorted(data, key=lambda x: (-x.age_years,
+                                                              x.platform))]
+
+
+def write_form() -> None:
+    data = load()
+    L = [D("lf_title"),
+         "",
+         D("lf_for"),
+         "",
+         D("lf_intro"),
+         "",
+         D("lf_return"),
+         "",
+         D("lf_evaluator"),
+         "",
+         "---",
+         "",
+         D("lf_part1"),
+         "",
+         D("lf_mark_one"),
+         ""]
+    # Las clases se nombran en el idioma del formulario; CLASES es el valor
+    # canonico con el que se etiqueta y no cambia.
+    for c in sorted(CLASES):
+        L.append(f"- **{c}** — {D('lf_class_%d' % c)}")
+    L += ["", D("lf_ns_note"), ""]
+
+    for p in data:
+        L += [f"### {p.platform}  ({p.manufacturer})",
+              "",
+              f"- {D('lf_release')}: **{p.release}**",
+              f"- {D('lf_announcement')}: **{_fmt(p.announcement)}**",
+              f"- {D('lf_end_manufacturing')}: **{_fmt(p.end_of_manufacturing)}**",
+              f"- {D('lf_end_spares')}: **{_fmt(p.end_of_spare_parts)}**",
+              "",
+              D("lf_class_line"),
+              ""]
+
+    L += ["---",
+          "",
+          D("lf_part2"),
+          "",
+          D("lf_part2_intro"),
+          ""]
+    for p in sorted(data, key=lambda x: x.platform):
+        L.append(f"- `____`  {p.platform}  ({p.manufacturer})")
+    L += ["",
+          D("lf_weights"),
+          "",
+          D("lf_blank_field"),
+          ""]
+    destino = form_path()
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_text("\n".join(L), encoding="utf-8")
+    print(D("lf_written") % (destino.relative_to(ROOT).as_posix(), len(data)))
+
+
+def _fmt(f) -> str:
+    return D("lf_not_published") if f is None else "%04d-%02d" % (f[0], f[1])
+
+
+def compare(files: list[Path]) -> None:
+    """Lee formularios rellenados y mide el acuerdo. El resultado con valor
+    cientifico es el acuerdo ENTRE expertos: si dos ingenieros leen los mismos
+    datos y clasifican distinto, el problema no es el motor sino que el criterio
+    admite lecturas distintas."""
+    base = json.loads(LABELS.read_text(encoding="utf-8")) if LABELS.exists() else {}
+    answers: dict[str, dict[str, str]] = {}
+    for a in files:
+        text = a.read_text(encoding="utf-8")
+        clases = {}
+        actual = None
+        for linea in text.splitlines():
+            m = re.match(r"^###\s+(.+?)\s+\(", linea)
+            if m:
+                actual = m.group(1).strip()
+            m = re.search(D("lf_class_regex"), linea)
+            if m and actual:
+                clases[actual] = m.group(1)
+        answers[a.stem] = clases
+        print(f"{a.name}: {len(clases)} clases leidas")
+
+    nombres = list(answers)
+    if len(nombres) >= 2:
+        comunes = set.intersection(*(set(answers[n]) for n in nombres))
+        acuerdos = sum(len({answers[n][p] for n in nombres}) == 1 for p in comunes)
+        print(f"\nAcuerdo entre {len(nombres)} evaluadores: {acuerdos}/{len(comunes)} "
+              f"plataformas con clase identica")
+        for p in sorted(comunes):
+            votos = {n: answers[n][p] for n in nombres}
+            if len(set(votos.values())) > 1:
+                print(f"  DESACUERDO {p}: {votos}")
+
+    if base.get("p1_class"):
+        print("\nDistancia contra la regla provisional (no es una nota, es un contraste):")
+        for n in nombres:
+            comunes = set(answers[n]) & set(base["p1_class"])
+            iguales = sum(str(base["p1_class"][p]) == answers[n][p] for p in comunes)
+            print(f"  {n}: {iguales}/{len(comunes)} coinciden con la regla")
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Etiquetado de P1 y P2.")
+    ap.add_argument("action", choices=["provisional", "form", "compare", "p2"])
+    ap.add_argument("files", nargs="*", type=Path)
+    args = ap.parse_args()
+
+    if args.action == "provisional":
+        d = provisional()
+        LABELS.write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"Escrito {LABELS.relative_to(ROOT).as_posix()}")
+        print(f"procedencia = {d['provenance']}  <-- NO es juicio experto")
+        print("\nOrden de prioridad provisional (P2):")
+        for e in d["p2_detail"]:
+            status = e["spare_parts_status"]
+            restan = e["spare_parts_years_left"]
+            if restan is not None and restan > 0:
+                status += f" ({restan} anios)"
+            print(f"  {e['rank']}. {e['platform']:<30s} antig {e['age_years']:>2d}  {status}")
+    elif args.action == "form":
+        write_form()
+    elif args.action == "p2":
+        if not LABELS.exists():
+            ap.error("falta data/labels_p1_p2.json; corre primero 'provisional'")
+        ref = json.loads(LABELS.read_text(encoding="utf-8"))
+        data = load()
+        print("=" * 70)
+        print("P2 PRIORIDAD DE REEMPLAZO - METRICAS DE ORDENAMIENTO")
+        print("=" * 70)
+        print(f"Orden de referencia: procedencia = {ref['provenance']}")
+        if ref["provenance"] != "panel_experto":
+            print("AVISO: la referencia NO es juicio experto. Lo que sigue mide")
+            print("coherencia interna, no acierto. No publicar como validacion.")
+        print()
+        trivial = order_by_age(data)
+        m = ranking_metrics(trivial, ref["p2_ranking"])
+        print("B0 trivial: ordenar por antiguedad, la mas vieja primero")
+        for k, v in m["precision_en_k"].items():
+            pm = m["posicion_media_en_k"][k]
+            print(f"   precision@{k} = {v:<5}   posicion media de los {k} primeros "
+                  f"de la referencia = {pm['obtenida']} (ideal {pm['ideal']})")
+        print(f"   desplazamiento medio de puesto = {m['desplazamiento_medio']}")
+        print()
+        print("El clasico de P2 -gradient boosting en modo ranking- no se evalua:")
+        print("sigue sin haber un orden de referencia de juicio experto. En cuanto")
+        print("lleguen los formularios, este mismo comando lo mide.")
+    else:
+        if not args.files:
+            ap.error("compare necesita al menos un formulario rellenado")
+        compare(args.files)
+
+
+if __name__ == "__main__":
+    main()

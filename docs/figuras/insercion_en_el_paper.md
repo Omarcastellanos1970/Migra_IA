@@ -1,5 +1,7 @@
 # Figuras preparadas para el paper — recetas listas, SIN aplicar
 
+**English:** [../en/figure_insertion_in_the_paper.md](../en/figure_insertion_in_the_paper.md)
+
 Estado: **preparadas y no aplicadas**. El paper no se ha tocado. Estas recetas
 existen para que insertar sea un solo paso cuando se decida, y para poder
 deshacerlo igual de rápido.
@@ -24,7 +26,7 @@ es la Figura A.
 ## Figura A — comparación de modelos en P1 *(la que responde al requisito)*
 
 Archivos: `Figura_P1_comparacion_ES.tex` · `Figure_P1_comparison_EN.tex`
-Generador: `_figura_comparacion.py` · Etiqueta: `fig:comparacion`
+Generador: `_figure_comparison.py` · Etiqueta: `fig:comparacion`
 
 Tres barras sobre la misma partición congelada (n=9, k=2), en la métrica que
 decide, el $F_1$ macro:
@@ -48,7 +50,7 @@ indicio de que la antigüedad lleva señal, no prueba de que el modelo funcione.
 ## Figura B — curva del verificador en el lazo, P3 *(la de la pauta de anatomía)*
 
 Archivos: `Figura_P3_verificador_ES.tex` · `Figure_P3_verifier_EN.tex`
-Generador: `_figura_p3.py` · Etiqueta: `fig:verificador`
+Generador: `_figure_p3.py` · Etiqueta: `fig:verificador`
 
 Proporción de programas que pasan el verificador contra iteraciones de
 corrección. Referencia propia: la iteración cero, sin verificador. Referencias
@@ -179,10 +181,10 @@ No se edita a mano ningún `.tex` de figura. La ruta de salida es la carpeta
 del paper de cada quien: sustituir la marca por la suya.
 
 ```
-python _figura_comparacion.py --salida "RUTA\DE\LA\CARPETA\DEL\PAPER\Figures"
-python _figura_p3.py          --salida "RUTA\DE\LA\CARPETA\DEL\PAPER\Figures"
+python _figure_comparison.py --output "RUTA\DE\LA\CARPETA\DEL\PAPER\Figures"
+python _figure_p3.py          --output "RUTA\DE\LA\CARPETA\DEL\PAPER\Figures"
 ```
 
-La barra de la propuesta se llena en `data\figura_comparacion_propuesta.csv`;
-la curva del verificador, en `data\figura_p3_verificador.csv`. El trivial y el
+La barra de la propuesta se llena en `data\figure_comparison_proposal.csv`;
+la curva del verificador, en `data\figure_p3_verifier.csv`. El trivial y el
 clásico no se escriben en ningún sitio: salen de correr `_baseline.py`.

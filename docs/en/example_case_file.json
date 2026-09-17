@@ -1,0 +1,1414 @@
+{
+  "case_id": "CAS-2026-046177",
+  "agent_version": "0.4.0",
+  "created": "2026-09-16T21:20:46-06:00",
+  "updated": "2026-09-16T21:20:46-06:00",
+  "answers": {
+    "C08": {
+      "section": "C",
+      "question": "Machine criticality",
+      "value": "High: affects a major line",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "C10": {
+      "section": "C",
+      "question": "Maximum allowable downtime",
+      "value": "4 to 12 hours",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "Q04": {
+      "section": "Q",
+      "question": "When can the machine be worked on?",
+      "value": "During the annual plant shutdown or the holidays",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "M01": {
+      "section": "M",
+      "question": "Product status declared by the manufacturer",
+      "value": "Discontinued, still with support and spare parts",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "M04": {
+      "section": "M",
+      "question": "Are NEW spare parts available from the manufacturer or an authorized distributor?",
+      "value": "Only by special order",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "M06": {
+      "section": "M",
+      "question": "Typical lead time for a critical spare part (CPU or module)",
+      "value": "From 2 to 8 weeks",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "M09": {
+      "section": "M",
+      "question": "Is there a current support or maintenance contract with the manufacturer or with an integrator?",
+      "value": "No",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "M07": {
+      "section": "M",
+      "question": "Is there a repair service for the CPU or the modules?",
+      "value": "Yes, from an uncertified third party",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "F01": {
+      "section": "F",
+      "question": "Is there a copy of the PLC program?",
+      "value": "No",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "F12": {
+      "section": "F",
+      "question": "Is the CPU operational?",
+      "value": "Yes",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "F13": {
+      "section": "F",
+      "question": "Is a programming cable available?",
+      "value": "No",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "N02": {
+      "section": "N",
+      "question": "Operating system of that PC",
+      "value": "Windows 7",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "N03": {
+      "section": "N",
+      "question": "Type of license of the programming software",
+      "value": "Physical key (dongle)",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "N05": {
+      "section": "N",
+      "question": "Is the correct programming cable or adapter available, with its driver installed?",
+      "value": "Yes, but untested",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "N06": {
+      "section": "N",
+      "question": "Are the passwords for the project and for the protected blocks known?",
+      "value": "No",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "G01": {
+      "section": "G",
+      "question": "Which networks does the machine use?",
+      "value": "MPI, Profibus DP",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "O07": {
+      "section": "O",
+      "question": "In which languages is the program written?",
+      "value": "Ladder (KOP / LD), Instruction list (AWL / STL / IL)",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "O08": {
+      "section": "O",
+      "question": "Does the program use blocks, libraries or functions proprietary to the machine manufacturer?",
+      "value": "Yes",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "O02": {
+      "section": "O",
+      "question": "Is there motion control, positioning or synchronized axes (servos, electronic cams, interpolation)?",
+      "value": "No",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "L01": {
+      "section": "L",
+      "question": "How many unplanned stoppages attributable to the control system has the machine had in the last 12 months?",
+      "value": "6",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "L03": {
+      "section": "L",
+      "question": "How has the frequency of faults evolved over the last 24 months?",
+      "value": "Increasing",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "L07": {
+      "section": "L",
+      "question": "Does the machine lose the program, the data or the time when power is removed?",
+      "value": "Yes",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "P01": {
+      "section": "P",
+      "question": "Temperature inside the control panel",
+      "value": "Between 40 and 50 C",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "P04": {
+      "section": "P",
+      "question": "Quality of the electrical supply",
+      "value": "Frequent voltage variations, Grounding doubtful or non-existent",
+      "confidence_level": "confianza_media",
+      "source": "the user's answer in the interactive demo",
+      "ts": "2026-09-16T21:20:46-06:00"
+    }
+  },
+  "assets": [
+    {
+      "id": "AST-2026-000001",
+      "ts": "2026-09-16T21:20:46-06:00",
+      "type": "cpu",
+      "description": "CPU CPU 315-2 DP",
+      "manufacturer": "Siemens",
+      "model": "CPU 315-2 DP",
+      "confidence_level": "confianza_media",
+      "notes": "Declared by the user: 'Siemens S7-300 CPU 315-2 DP'."
+    }
+  ],
+  "evidence_items": [],
+  "missing_data": [],
+  "equipment_identified": {
+    "consulta": "Siemens CPU 315-2 DP  CPU CPU 315-2 DP",
+    "cita_catalogo": "PLC MANUFACTURERS AND EVOLUTION OF CPU MODELS",
+    "version_catalogo": "Extended version: 25 August 2026",
+    "status": "modelo_exacto",
+    "confidence_level": "alta_confianza",
+    "brand": "Siemens",
+    "classification": "PLC",
+    "modelo_identificado": "CPU 315-2 DP",
+    "family": "SIMATIC S7-300",
+    "familia_documento": "SIMATIC S7-300",
+    "stage": "intermedia",
+    "posicion": "4 de 7",
+    "modelos_documentados": "CPU 312, CPU 313, CPU 314, CPU 315-2 DP, CPU 317-2 PN/DP, CPU 319-3 PN/DP",
+    "remark": "Widely installed modular family.",
+    "sources": [
+      {
+        "label": "S1d",
+        "description": "Siemens - S7-300/S7-1500 migration guide",
+        "url": "https://support.industry.siemens.com/cs/attachments/109478811/109478811_GuideForMigration_S7-300_S7-1500_V11_en.pdf"
+      }
+    ],
+    "generaciones_posteriores": [
+      {
+        "family": "SIMATIC S7-400",
+        "stage": "intermedia",
+        "models_text": "CPU 412-2, CPU 414-2, CPU 416-2, CPU 417-4"
+      },
+      {
+        "family": "Current - SIMATIC S7-1200",
+        "stage": "intermedia",
+        "models_text": "CPU 1211C, CPU 1212C, CPU 1214C, CPU 1215C, CPU 1217C"
+      },
+      {
+        "family": "Current - SIMATIC S7-1500",
+        "stage": "intermedia",
+        "models_text": "CPU 1511-1 PN, CPU 1513-1 PN, CPU 1515-2 PN, CPU 1516-3 PN/DP, CPU 1517-3 PN/DP"
+      }
+    ],
+    "generaciones_actuales_del_fabricante": [
+      {
+        "family": "Current - SIMATIC S7-1500",
+        "models_text": "CPU 1511-1 PN, CPU 1513-1 PN, CPU 1515-2 PN, CPU 1516-3 PN/DP, CPU 1517-3 PN/DP",
+        "sources": [
+          {
+            "label": "S1f",
+            "description": "Siemens - SIMATIC S7-1500",
+            "url": "https://www.siemens.com/en-us/products/simatic/s7-1500/"
+          }
+        ]
+      }
+    ],
+    "nota_generacion_actual": "The source document does not mark any generation of this manufacturer as 'Current'; the last one in the timeline is shown. Check the commercial status with the manufacturer.",
+    "ruta_migracion_guia": {
+      "marca_en_guia": "Siemens SIMATIC",
+      "legacy_software": "STEP 5 / STEP 7 Classic",
+      "target_software": "TIA Portal",
+      "legacy_networks": "MPI / PROFIBUS",
+      "typical_risk": "AWL/STL, SFC, system blocks.",
+      "destino_documentado": {
+        "origen_en_guia": "S7-300 / S7-400",
+        "destino": "S7-1500 or S7-1500R/H as needed",
+        "critical_aspects": "Siemens publishes a specific migration guide and TIA Portal tools. Review STL/AWL, system blocks, data and PROFIBUS."
+      },
+      "citation": "Guide MIGRA-IA-GUIA-001 v1.0"
+    },
+    "nota_verificacion": "Confirm the part number against the physical nameplate and the official source before specifying."
+  },
+  "risk": {
+    "ts": "2026-09-16T21:20:46-06:00",
+    "puntuacion": 85.0,
+    "classification": "Riesgo critico",
+    "detalle_factores": [
+      {
+        "factor": "Life cycle status",
+        "key": "estado_ciclo_vida",
+        "peso": 0.2,
+        "value": 75.0,
+        "justificacion": "M01: status declared by the manufacturer = 'Discontinued, still with support and spare parts'."
+      },
+      {
+        "factor": "Spare parts availability",
+        "key": "disponibilidad_repuestos",
+        "peso": 0.15,
+        "value": 85.0,
+        "justificacion": "M04: 'Only by special order'. M06 'From 2 to 8 weeks' against C10 '4 to 12 hours': the spare part arrives later than the line can tolerate, so the spare parts strategy does not cover the risk on its own."
+      },
+      {
+        "factor": "Manufacturer support",
+        "key": "soporte_fabricante",
+        "peso": 0.15,
+        "value": 90.0,
+        "justificacion": "M09 support contract: 'No'; M07 repair service: 'Yes, from an uncertified third party'."
+      },
+      {
+        "factor": "Software availability",
+        "key": "disponibilidad_software",
+        "peso": 0.1,
+        "value": 95.0,
+        "justificacion": "Barrier to accessing the program: N02 operating system 'Windows 7'; N03 license 'Physical key (dongle)'; N05 adapter 'Yes, but untested'; N06 passwords 'No'."
+      },
+      {
+        "factor": "Backup availability",
+        "key": "disponibilidad_respaldo",
+        "peso": 0.15,
+        "value": 100.0,
+        "justificacion": "F01: there is no copy of the program. Priority 1: recover it before any decision."
+      },
+      {
+        "factor": "Compatibility with current systems",
+        "key": "compatibilidad_sistemas",
+        "peso": 0.1,
+        "value": 75.0,
+        "justificacion": "How much the change drags along: G01 networks from an earlier generation (MPI, Profibus DP); O07 includes instruction list (AWL/STL), with no guaranteed automatic conversion; O08 usa librerias propietarias."
+      },
+      {
+        "factor": "Fault history",
+        "key": "historial_fallas",
+        "peso": 0.05,
+        "value": 55.0,
+        "justificacion": "L01 6 unplanned stoppages in 12 months; L03 trend 'Increasing'; EXTERNAL ROOT CAUSE not corrected (P01 panel temperature 'Between 40 and 50 C'; P04 puesta a tierra dudosa o inexistente; P04 poor quality of the electrical supply; L07 the machine loses the program, the data or the time without power (flat battery or degraded backup memory)): these faults are not attributable to the controller, so the factor is limited. Correcting it comes before any replacement."
+      },
+      {
+        "factor": "Production criticality",
+        "key": "criticidad_productiva",
+        "peso": 0.1,
+        "value": 90.0,
+        "justificacion": "C08 criticality 'High: affects a major line'; C10 tolerable downtime '4 to 12 hours'; Q04 intervention window 'During the annual plant shutdown or the holidays'."
+      }
+    ]
+  },
+  "migration": {
+    "activa": true,
+    "abierta": "2026-09-16T21:20:46-06:00",
+    "triggers": [
+      "sin_acceso_al_programa"
+    ],
+    "motivo": "Derived from the decision map applied to the user's answers.",
+    "decidido_por": "sugerencia_del_agente_aceptada",
+    "destino": {
+      "brand": "Siemens",
+      "family": "S7-1500 or S7-1500R/H as needed",
+      "model": "",
+      "justificacion": "Platform continuity: it keeps software, networks, spare parts and trained staff, and there is an official conversion tool.",
+      "source": "https://www.siemens.com/en-us/products/simatic/s7-1500/",
+      "ts": "2026-09-16T21:20:46-06:00"
+    },
+    "cambio_marca": false,
+    "sin_respaldo": true,
+    "steps": {
+      "1": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "2": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "3": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "4": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "5": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "6": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "7": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "8": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "9": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "10": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "11": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "12": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "13": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "14": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "15": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "16": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "17": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "18": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "19": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "20": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "P1": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "P2": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "P3": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "P4": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "P5": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "P6": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "P7": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "21": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "22": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "23": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "24": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "25": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "26": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "27": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "28": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "29": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "30": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "31": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "32": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "33": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "34": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "35": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "36": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "37": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "38": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "39": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "40": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "41": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "42": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "43": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "44": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "45": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "46": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "47": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "48": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "49": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      },
+      "50": {
+        "status": "completado",
+        "note": "Declared as met by the user in the demo.",
+        "evidence": [],
+        "ts": "2026-09-16T21:20:46-06:00"
+      }
+    }
+  },
+  "recommendations": [],
+  "reports": [
+    {
+      "id": "INF-2026-000001",
+      "route": "cases/CAS-2026-046177_INF-2026-000001.md",
+      "resumen": "Critical risk; decision route applied to the user's answers.",
+      "ts": "2026-09-16T21:20:46-06:00"
+    }
+  ],
+  "flags": [],
+  "pending_approvals": [],
+  "audit": [
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "fijar_equipo",
+      "detail": {
+        "brand": "Siemens",
+        "family": "SIMATIC S7-300",
+        "status": "modelo_exacto"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "register_asset",
+      "detail": {
+        "id": "AST-2026-000001",
+        "type": "cpu"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "fijar_equipo",
+      "detail": {
+        "brand": "Siemens",
+        "family": "SIMATIC S7-300",
+        "status": "modelo_exacto"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "C08"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "C10"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "Q04"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "M01"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "M04"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "M06"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "M09"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "M07"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "F01"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "F12"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "F13"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "N02"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "N03"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "N05"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "N06"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "G01"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "O07"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "O08"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "O02"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "L01"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "L03"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "L07"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "P01"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_respuesta",
+      "detail": {
+        "code": "P04"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "guardar_riesgo",
+      "detail": {
+        "puntuacion": 85.0
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "iniciar_migracion",
+      "detail": {
+        "trigger": "sin_acceso_al_programa",
+        "decidido_por": "sugerencia_del_agente_aceptada"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "declarar_sin_respaldo",
+      "detail": {
+        "sin_respaldo": true
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "fijar_destino",
+      "detail": {
+        "brand": "Siemens",
+        "family": "S7-1500 or S7-1500R/H as needed",
+        "cambio_marca": false
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "1",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "2",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "3",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "4",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "5",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "6",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "7",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "8",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "9",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "10",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "11",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "12",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "13",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "14",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "15",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "16",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "17",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "18",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "19",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "20",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "P1",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "P2",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "P3",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "P4",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "P5",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "P6",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "P7",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "21",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "22",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "23",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "24",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "25",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "26",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "27",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "28",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "29",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "30",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "31",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "32",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "33",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "34",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "35",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "36",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "37",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "38",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "39",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "40",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "41",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "42",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "43",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "44",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "45",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "46",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "47",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "48",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "49",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "marcar_paso",
+      "detail": {
+        "step": "50",
+        "status": "completado"
+      }
+    },
+    {
+      "ts": "2026-09-16T21:20:46-06:00",
+      "accion": "registrar_informe",
+      "detail": {
+        "id": "INF-2026-000001",
+        "route": "cases/CAS-2026-046177_INF-2026-000001.md"
+      }
+    }
+  ],
+  "_counters": {
+    "AST": 1,
+    "INF": 1
+  }
+}

@@ -8,6 +8,7 @@
 
 # Instrucciones pensadas para abrirse con el Bloc de notas en Windows.
 EMPIEZA_AQUI.txt text eol=crlf
+START_HERE.txt text eol=crlf
 
 # El resto se normaliza a LF en el repositorio.
 * text=auto

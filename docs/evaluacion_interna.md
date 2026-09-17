@@ -1,6 +1,6 @@
 # Verificacion interna del motor MIGRA-IA
 
-Generado por `_evaluacion.py`. Reproducible: mismas respuestas, mismos numeros, sin clave de API.
+Generado por `_evaluation.py`. Reproducible: mismas respuestas, mismos numeros, sin clave de API.
 
 Semilla Monte Carlo: `42` - muestras: `5000`.
 
@@ -17,13 +17,19 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
 
 1. BASELINE vs PROPUESTA
 --------------------------------------------------------------------------
+  AVISO: son 3 filas pero 2 casos independientes. 'otra_marca' es 'critico'
+  con otro destino -las mismas 24 respuestas-, asi que sus tres cifras
+  coinciden por construccion y no por coincidencia. No cuenta como
+  evidencia adicional.
+
   caso           B0 trivial   B1 uniforme   propuesta   decision
   critico              75.0          83.1        85.0   migrar
   sano                 10.0          11.9        11.8   no migrar
   otra_marca           75.0          83.1        85.0   migrar
+  otra_marca_con_codigo         75.0          68.8        69.2   migrar
 
   Los pesos de la Seccion 6 SI cambian el resultado frente a pesos
-  uniformes en: critico (83.1 vs 85.0), sano (11.9 vs 11.8), otra_marca (83.1 vs 85.0)
+  uniformes en: critico (83.1 vs 85.0), sano (11.9 vs 11.8), otra_marca (83.1 vs 85.0), otra_marca_con_codigo (68.8 vs 69.2)
 
 2. SENSIBILIDAD DE LOS PESOS
 --------------------------------------------------------------------------
@@ -51,6 +57,19 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
     criticidad_productiva      peso 0.10  -50%:  11.3  -20%:  11.6  +20%:  11.9  +50%:  12.1
     Monte Carlo (5000 muestras, pesos x U(0.5,1.5) renormalizados):
       puntuacion 9.3 .. 13.9   media 11.8   sd 0.71
+      la clasificacion se mantiene en 100.0% de las muestras
+
+  [otra_marca_con_codigo]  base = 69.2 (Riesgo alto)
+    estado_ciclo_vida          peso 0.20  -50%:  68.6  -20%:  69.0  +20%:  69.5  +50%:  69.8
+    disponibilidad_repuestos   peso 0.15  -50%:  68.0  -20%:  68.8  +20%:  69.7  +50%:  70.3
+    soporte_fabricante         peso 0.15  -50%:  67.6  -20%:  68.6  +20%:  69.9  +50%:  70.7
+    disponibilidad_software    peso 0.10  -50%:  69.5  -20%:  69.3  +20%:  69.2  +50%:  69.0
+    disponibilidad_respaldo    peso 0.15  -50%:  73.6  -20%:  70.9  +20%:  67.7  +50%:  65.5
+    compatibilidad_sistemas    peso 0.10  -50%:  68.9  -20%:  69.1  +20%:  69.4  +50%:  69.5
+    historial_fallas           peso 0.05  -50%:  69.6  -20%:  69.4  +20%:  69.1  +50%:  68.9
+    criticidad_productiva      peso 0.10  -50%:  68.2  -20%:  68.8  +20%:  69.7  +50%:  70.2
+    Monte Carlo (5000 muestras, pesos x U(0.5,1.5) renormalizados):
+      puntuacion 59.6 .. 75.9   media 69.2   sd 2.76
       la clasificacion se mantiene en 100.0% de las muestras
 
 3. INFLUENCIA DE CADA PREGUNTA (escenario 'critico')
@@ -81,6 +100,9 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
   [sano] ruta base: Reparacion del equipo existente
     cambian la ruta: Q04 (2 rutas), M01 (4 rutas), F01 (2 rutas), F06 (2 rutas), F07 (2 rutas), L07 (2 rutas), P01 (2 rutas), P04 (2 rutas)
     no mueven ni puntuacion ni ruta: ninguna
+  [otra_marca_con_codigo] ruta base: Correccion de causa raiz (sin cambiar el controlador) > Migracion a plataforma moderna
+    cambian la ruta: Q04 (2 rutas), M01 (4 rutas), M06 (2 rutas), F01 (2 rutas), F06 (2 rutas), F07 (2 rutas)
+    no mueven ni puntuacion ni ruta: F12, F13, L03, L07, P01, P04
 
 5. MONOTONIA SOBRE ESCALAS ORDINALES (escenario 'critico')
 --------------------------------------------------------------------------
@@ -99,6 +121,7 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
   critico        85.0 (Riesgo critico) a 5.0 puntos del umbral 80
   sano           11.8 (Riesgo bajo) a 8.2 puntos del umbral 20
   otra_marca     85.0 (Riesgo critico) a 5.0 puntos del umbral 80
+  otra_marca_con_codigo   69.2 (Riesgo alto) a 9.2 puntos del umbral 60
 
 7. RELACION ENTRE LA PUNTUACION Y LA DECISION
 --------------------------------------------------------------------------

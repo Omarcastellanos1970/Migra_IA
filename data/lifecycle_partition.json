@@ -1,0 +1,58 @@
+{
+  "scheme": "estratificada por nivel de obsolescencia, agrupada por fabricante",
+  "k": 2,
+  "k_note": "k=2 es la mayor con la que todo pliegue de prueba tiene las 2 clases. Con k mayor es imposible: solo 2 fabricantes aportan clase 4, asi que no hay con que llenar mas pliegues sin partir una marca.",
+  "grouping": "manufacturer",
+  "preprocessing": "ajustado dentro de cada pliegue (media y escala del entrenamiento)",
+  "reference_date": "2026-09-04",
+  "seed": 42,
+  "origin": "data/platform_lifecycle.csv",
+  "allowed_variable": "antiguedad = 2026 - release",
+  "folds": [
+    {
+      "fold": 0,
+      "test_brands": "Mitsubishi + Schneider + Siemens",
+      "test": [
+        "MELSEC-A/QnA (tipo grande)",
+        "MELSEC AnS/QnAS",
+        "Modicon Quantum",
+        "Modicon Premium",
+        "S7-300 / ET 200M"
+      ],
+      "train": [
+        "PLC-5 (1785)",
+        "SLC 500",
+        "SYSMAC CS1",
+        "SYSMAC CJ1 (Europa)"
+      ]
+    },
+    {
+      "fold": 1,
+      "test_brands": "Omron + Rockwell",
+      "test": [
+        "PLC-5 (1785)",
+        "SLC 500",
+        "SYSMAC CS1",
+        "SYSMAC CJ1 (Europa)"
+      ],
+      "train": [
+        "S7-300 / ET 200M",
+        "Modicon Quantum",
+        "Modicon Premium",
+        "MELSEC-A/QnA (tipo grande)",
+        "MELSEC AnS/QnAS"
+      ]
+    }
+  ],
+  "labels": {
+    "PLC-5 (1785)": 4,
+    "SLC 500": 3,
+    "S7-300 / ET 200M": 3,
+    "Modicon Quantum": 3,
+    "Modicon Premium": 3,
+    "MELSEC-A/QnA (tipo grande)": 4,
+    "MELSEC AnS/QnAS": 4,
+    "SYSMAC CS1": 3,
+    "SYSMAC CJ1 (Europa)": 3
+  }
+}

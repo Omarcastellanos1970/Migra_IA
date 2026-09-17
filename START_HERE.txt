@@ -1,0 +1,133 @@
+===========================================================
+  MIGRA-IA  v0.3.0
+  Advisory agent for the obsolescence and migration of
+  industrial hardware (PLC, I/O modules, HMI, networks, drives)
+===========================================================
+
+  Espanol : EMPIEZA_AQUI.txt
+
+  Authors : Carlos Omar Castellanos - Julio Noe Castillo -
+            Isidoro Emilio Medina
+            Universidad Tecnologica de Honduras
+  License : MIT
+
+
+  IT IS 3 STEPS. YOU DO NOT NEED TO KNOW HOW TO PROGRAM.
+  You can try it FREE: the "interactive demo" asks for no API key
+  and costs nothing.
+
+
+-----------------------------------------------------------
+  STEP 1 - Unzip  (important)
+-----------------------------------------------------------
+
+  If you are reading this INSIDE the .zip file, unzip it
+  first:
+
+     Right-click on the .zip  ->  "Extract all..."  ->  Extract
+
+  It does not work if you run it from inside the zip.
+  Leave the folder somewhere easy, for example the Desktop.
+
+
+-----------------------------------------------------------
+  STEP 2 - Install  (once only, a few minutes)
+-----------------------------------------------------------
+
+  Double-click on:   INSTALL.bat
+
+  A black window opens and installs everything by itself.
+  It needs the internet. Wait until it says "INSTALLATION FINISHED".
+
+  If it tells you that it cannot find Python:
+     1. Go to  https://www.python.org/downloads/
+     2. Download Python 3.10 or above.
+     3. When installing, TICK the box "Add Python to PATH".
+        (it is the box at the bottom, it is easy to miss)
+     4. Double-click on INSTALL.bat again
+
+
+-----------------------------------------------------------
+  STEP 3 - Use it
+-----------------------------------------------------------
+
+  Double-click on:   Start_MIGRA-IA.bat
+
+  - A black window opens. DO NOT CLOSE IT while you use it.
+  - A few seconds later your browser opens at
+    http://127.0.0.1:5000
+    (if it does not open by itself, type that address in the browser)
+
+  - Press the button  "Interactive demo (no API key)"
+  - Answer each question with the number of the option and press Send.
+
+  You will see the diagnosis step by step, the case file panel,
+  the obsolescence risk score (75.2, "High risk")
+  and, at the end, the technical report that is generated.
+
+  To shut it down: close the black window.
+
+
+-----------------------------------------------------------
+  OPTIONAL - "Real case (API)" mode
+-----------------------------------------------------------
+
+  The interactive demo already shows the complete engine. If on top
+  of that you want the real conversation with the AI:
+
+     1. Get your key at
+        https://console.anthropic.com/settings/keys
+        (it is a PAID Anthropic service; everyone uses their
+         own, it is not shared)
+     2. In the folder, copy the file  .env.example
+        and rename the copy to   .env
+     3. Open it with Notepad and paste your key where it says
+        sk-ant-...
+     4. Start it again and choose "Real case (API)".
+
+
+-----------------------------------------------------------
+  IF SOMETHING GOES WRONG
+-----------------------------------------------------------
+
+  The black window opens and closes instantly
+     -> You have not run INSTALL.bat yet (Step 2).
+
+  "python is not recognized as a command"
+     -> Reinstall Python ticking "Add Python to PATH".
+
+  The page does not open
+     -> Wait a few more seconds and go manually to
+        http://127.0.0.1:5000
+        Check that the black window is still open.
+
+  Windows shows a warning when opening the .bat
+     -> It is normal with files downloaded from the internet.
+        "More info" -> "Run anyway".
+
+  The browser says the site is not secure / there is no internet
+     -> The agent runs LOCALLY on your own computer. The
+        address 127.0.0.1 is your machine, not a site on the
+        internet. That is correct.
+
+  Anything else: open an issue at
+  https://github.com/Omarcastellanos1970/Migra_IA/issues
+  attaching a screenshot of the black window.
+
+
+-----------------------------------------------------------
+  DOCUMENTS OF THE PROJECT
+-----------------------------------------------------------
+
+  README.en.md         What the agent does and how it is made
+  ARTIFACT.en.md       How to evaluate it (for reviewers)
+  INSTALL_GUIDE.md     Detailed installation from the terminal
+  LICENSE              MIT license
+  CITATION.cff         How to cite the software
+
+
+  NOTICE: MIGRA-IA is a TECHNICAL ASSISTANCE system. It does
+  not replace functional safety assessments, lockout and
+  tagout procedures, the standards of the plant or the
+  authorization of competent staff. Always verify before
+  working on real equipment.

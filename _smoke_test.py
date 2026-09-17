@@ -21,40 +21,40 @@ except Exception:
     pass
 
 from migra_ia import config
-from migra_ia.caso import Caso
-from migra_ia.prompt import construir_system_prompt, MENSAJE_INICIAL_USUARIO
-from migra_ia import nucleo
+from migra_ia.case import Case
+from migra_ia.prompt import build_system_prompt, initial_user_message
+from migra_ia import core
 
 
 def main() -> int:
     print("=== SMOKE TEST MIGRA-IA ===")
-    print(f"Modelo: {config.MODELO} | effort={config.EFFORT} | thinking={config.THINKING}")
+    print(f"Modelo: {config.MODEL} | effort={config.EFFORT} | thinking={config.THINKING}")
 
     try:
-        client = nucleo.nuevo_cliente()
+        client = core.new_client()
     except Exception as exc:  # noqa: BLE001
         print(f"[FALLO] No se pudo crear el cliente: {exc}")
         return 1
 
-    caso = Caso()
-    caso.guardar()
-    print(f"Caso abierto: {caso.case_id}")
+    case = Case()
+    case.save()
+    print(f"Caso abierto: {case.case_id}")
 
-    system = construir_system_prompt()
-    messages = [{"role": "user", "content": MENSAJE_INICIAL_USUARIO}]
+    system = build_system_prompt()
+    messages = [{"role": "user", "content": initial_user_message()}]
 
     try:
-        resultado = nucleo.ejecutar_turno(client, system, messages, caso)
+        resultado = core.run_turn(client, system, messages, case)
     except Exception as exc:  # noqa: BLE001
         print(f"[FALLO] Error durante el turno contra la API: {exc}")
         traceback.print_exc()
         return 2
 
     print("\n--- RESPUESTA DEL AGENTE ---")
-    print(resultado["texto"][:2000])
+    print(resultado["text"][:2000])
     print("\n--- HERRAMIENTAS INVOCADAS ---")
     print(resultado["acciones"] or "(ninguna en este turno)")
-    print("\n[OK] Turno end-to-end completado. Expediente:", caso.case_id)
+    print("\n[OK] Turno end-to-end completado. Expediente:", case.case_id)
     return 0
 
 

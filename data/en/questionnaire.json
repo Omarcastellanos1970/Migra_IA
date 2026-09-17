@@ -1,0 +1,1803 @@
+{
+ "agente": "MIGRA-IA",
+ "version": "0.4.0",
+ "language": "es",
+ "description": "Adaptive master questionnaire for diagnosing obsolescence and migration in industrial automation systems. The agent must NOT read it rigidly: answers enable, hide or modify the questions that follow (the adaptive questionnaire principle). Sections A-K survey the system; sections L-Q supply the evidence used to decide between REPAIR and MIGRATE. The 'decision_map' block links each question to the risk factor it feeds and to the criteria for each alternative.",
+ "sections": [
+  {
+   "id": "A",
+   "title": "User identification",
+   "what_it_decides": "Depth of the technical language and whether the agent may give operating instructions on the actual equipment.",
+   "questions": [
+    {
+     "code": "A01",
+     "text": "Name of the person responsible for the case",
+     "type": "texto",
+     "required": true
+    },
+    {
+     "code": "A02",
+     "text": "Job title or role",
+     "type": "seleccion",
+     "options": [
+      "Maintenance technician",
+      "Automation engineer",
+      "Electrical engineer",
+      "Production supervisor",
+      "Systems integrator",
+      "Student or researcher",
+      "Other"
+     ]
+    },
+    {
+     "code": "A03",
+     "text": "Level of experience in automation",
+     "type": "seleccion",
+     "options": [
+      "Basic",
+      "Intermediate",
+      "Advanced",
+      "Specialist"
+     ],
+     "adaptive_rule": "The level selected determines the depth of the technical language and how many explanations are shown."
+    },
+    {
+     "code": "A04",
+     "text": "Email address",
+     "type": "texto_validado"
+    },
+    {
+     "code": "A05",
+     "text": "Contact telephone number",
+     "type": "texto",
+     "required": false
+    },
+    {
+     "code": "A06",
+     "text": "Country",
+     "type": "seleccion"
+    },
+    {
+     "code": "A07",
+     "text": "Are you authorized to access or modify the system?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Authorized for diagnosis only",
+      "Authorization pending"
+     ],
+     "adaptive_rule": "If the answer is 'No', the agent may offer general information but NOT operating instructions for modification."
+    }
+   ]
+  },
+  {
+   "id": "B",
+   "title": "Company and plant identification",
+   "what_it_decides": "Applicable regulatory framework and internal procedures that condition any intervention.",
+   "questions": [
+    {
+     "code": "B01",
+     "text": "Company name",
+     "type": "texto"
+    },
+    {
+     "code": "B02",
+     "text": "Plant name or code",
+     "type": "texto"
+    },
+    {
+     "code": "B03",
+     "text": "Industrial sector",
+     "type": "seleccion",
+     "options": [
+      "Food and beverage",
+      "Textiles",
+      "Plastics",
+      "Footwear",
+      "Pharmaceutical",
+      "Mining",
+      "Energy",
+      "Water and sanitation",
+      "Manufacturing",
+      "Automotive",
+      "Cement",
+      "Chemical",
+      "Other"
+     ]
+    },
+    {
+     "code": "B04",
+     "text": "General location of the plant (city, region and country)",
+     "type": "texto"
+    },
+    {
+     "code": "B05",
+     "text": "Does the plant have internal standards or procedures for modifications?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not known"
+     ]
+    },
+    {
+     "code": "B06",
+     "text": "Applicable standards",
+     "type": "seleccion_multiple",
+     "options": [
+      "IEC",
+      "ISA",
+      "IEEE",
+      "NFPA",
+      "NEC",
+      "ISO",
+      "Local regulations",
+      "Internal standards",
+      "Not known"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "C",
+   "title": "Machine or process identification",
+   "what_it_decides": "Production criticality (risk factor) and the tolerable downtime, which narrows down which alternatives are viable.",
+   "questions": [
+    {
+     "code": "C01",
+     "text": "Machine name",
+     "type": "texto"
+    },
+    {
+     "code": "C02",
+     "text": "Internal machine code",
+     "type": "texto"
+    },
+    {
+     "code": "C03",
+     "text": "Machine manufacturer",
+     "type": "texto"
+    },
+    {
+     "code": "C04",
+     "text": "Machine model",
+     "type": "texto"
+    },
+    {
+     "code": "C05",
+     "text": "Approximate year of manufacture",
+     "type": "numero"
+    },
+    {
+     "code": "C06",
+     "text": "Process description: what it produces, what movements it performs, what variables it controls, and what conditions start and stop the cycle",
+     "type": "texto_extenso"
+    },
+    {
+     "code": "C07",
+     "text": "Current status",
+     "type": "seleccion",
+     "options": [
+      "Operating normally",
+      "Operating with faults",
+      "Intermittent operation",
+      "Out of service",
+      "Dismantled",
+      "Being modernized"
+     ]
+    },
+    {
+     "code": "C08",
+     "text": "Machine criticality",
+     "type": "seleccion",
+     "options": [
+      "Low: can be stopped for several days",
+      "Medium: partially affects production",
+      "High: affects a major line",
+      "Critical: stops the plant or presents a safety risk"
+     ]
+    },
+    {
+     "code": "C09",
+     "text": "Operating hours",
+     "type": "seleccion",
+     "options": [
+      "Less than 8 hours a day",
+      "Between 8 and 16 hours",
+      "Between 16 and 24 hours",
+      "Continuous operation"
+     ]
+    },
+    {
+     "code": "C10",
+     "text": "Maximum allowable downtime",
+     "type": "seleccion",
+     "options": [
+      "Less than 1 hour",
+      "1 to 4 hours",
+      "4 to 12 hours",
+      "12 to 24 hours",
+      "More than 24 hours"
+     ]
+    },
+    {
+     "code": "C11",
+     "text": "Is the control logic programmed in the PLC known exactly (how the system decides each action, conditions and interlocks)?",
+     "type": "seleccion",
+     "options": [
+      "Yes, documented and understood",
+      "Yes, partially",
+      "Only the external behavior is known",
+      "Not known"
+     ],
+     "adaptive_rule": "If the answer is not 'Yes, documented and understood', record missing data: without knowing the control logic, a migration requires recovering and analyzing the program (reverse engineering) before rebuilding it, which increases both risk and time."
+    },
+    {
+     "code": "C12",
+     "text": "Is the operating sequence of the machine known exactly (order of steps, start, stop and emergency conditions, timings and interlocks)?",
+     "type": "seleccion",
+     "options": [
+      "Yes, documented",
+      "Yes, from the experience of the staff",
+      "Partially",
+      "Not known"
+     ],
+     "adaptive_rule": "If it is not known, give priority to surveying the sequence (operator interviews, observation of the cycle and analysis of the program) before migrating; flag it as critical missing data for the SAT tests."
+    }
+   ]
+  },
+  {
+   "id": "D",
+   "title": "Controller identification",
+   "what_it_decides": "Exact identity of the equipment to be assessed and overall I/O sizing for the target platform (Rule 6).",
+   "questions": [
+    {
+     "code": "D01",
+     "text": "PLC manufacturer",
+     "type": "seleccion",
+     "options": [
+      "Siemens",
+      "Rockwell Automation/Allen-Bradley",
+      "Mitsubishi",
+      "Schneider Electric",
+      "Omron",
+      "ABB",
+      "Beckhoff",
+      "B&R",
+      "Delta",
+      "Keyence",
+      "GE/Emerson",
+      "Wago",
+      "Other",
+      "Unknown"
+     ]
+    },
+    {
+     "code": "D02",
+     "text": "PLC family (depends on the manufacturer)",
+     "type": "seleccion_dependiente",
+     "options_by_manufacturer": {
+      "Siemens": [
+       "S5",
+       "S7-200",
+       "S7-300",
+       "S7-400",
+       "S7-1200",
+       "S7-1500"
+      ],
+      "Mitsubishi": [
+       "FX",
+       "Q",
+       "iQ-R"
+      ],
+      "Rockwell Automation/Allen-Bradley": [
+       "SLC 500",
+       "MicroLogix",
+       "CompactLogix",
+       "ControlLogix"
+      ],
+      "Schneider Electric": [
+       "Modicon"
+      ],
+      "Omron": [
+       "CJ",
+       "NJ",
+       "NX"
+      ],
+      "Otro": [
+       "Other"
+      ]
+     }
+    },
+    {
+     "code": "D03",
+     "text": "Exact CPU model",
+     "type": "texto",
+     "adaptive_rule": "If the user does not know the model, ask for a photograph of the nameplate."
+    },
+    {
+     "code": "D04",
+     "text": "Catalog or part number",
+     "type": "texto"
+    },
+    {
+     "code": "D05",
+     "text": "Serial number",
+     "type": "texto",
+     "required": false
+    },
+    {
+     "code": "D06",
+     "text": "Firmware version",
+     "type": "texto"
+    },
+    {
+     "code": "D07",
+     "text": "Approximate year of installation",
+     "type": "numero",
+     "adaptive_rule": "Together with M01-M03 it allows the age of the equipment to be estimated against its life cycle. Age on its own is NOT a reason to migrate: old equipment with current support and spare parts can keep operating."
+    },
+    {
+     "code": "D08",
+     "text": "CPU status",
+     "type": "seleccion",
+     "options": [
+      "RUN",
+      "STOP",
+      "FAULT",
+      "No power",
+      "Unknown"
+     ]
+    },
+    {
+     "code": "D09",
+     "text": "Does the CPU have error indicators?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not verified"
+     ],
+     "adaptive_rule": "If the answer is 'Yes', ask for a photograph and identification of the active LEDs."
+    },
+    {
+     "code": "D10",
+     "text": "Is the CPU password protected?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not known"
+     ]
+    },
+    {
+     "code": "D11",
+     "text": "Is there a spare CPU?",
+     "type": "seleccion",
+     "options": [
+      "Yes, new",
+      "Yes, used",
+      "No",
+      "Not known"
+     ]
+    },
+    {
+     "code": "D12",
+     "text": "Are there spare modules?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "Partially",
+      "No",
+      "Not known"
+     ]
+    },
+    {
+     "code": "D13",
+     "text": "Total number of digital inputs (DI) in the system",
+     "type": "numero",
+     "adaptive_rule": "Overall count used to size the target CPU and periphery (Rule 6). It complements the detailed per-module inventory in Section E. If it is not known exactly, ask for an estimate and record missing data."
+    },
+    {
+     "code": "D14",
+     "text": "Total number of digital outputs (DO) in the system",
+     "type": "numero",
+     "adaptive_rule": "Same as D13: sizes the digital outputs of the target platform and helps estimate power draw and output type (relay, transistor, triac)."
+    },
+    {
+     "code": "D15",
+     "text": "Total number of analog inputs (AI) in the system",
+     "type": "numero",
+     "adaptive_rule": "Sizes the analog input channels; note the signal type (0-10 V, +-10 V, 4-20 mA, RTD/PT100, thermocouple) alongside the count where it is known."
+    },
+    {
+     "code": "D16",
+     "text": "Total number of analog outputs (AO) in the system",
+     "type": "numero",
+     "adaptive_rule": "Sizes the analog output channels; note the signal type (0-10 V, +-10 V, 4-20 mA) where it is known."
+    }
+   ]
+  },
+  {
+   "id": "E",
+   "title": "Inventory of input and output modules",
+   "what_it_decides": "Bill of materials (BOM) for the target platform and the address conversion map.",
+   "note": "The user may register as many modules as there are. Each record must be associated with the corresponding rack, station or cabinet.",
+   "fields_by_module": [
+    {
+     "code": "E01",
+     "field": "Position in rack",
+     "example": "Rack 0, slot 4"
+    },
+    {
+     "code": "E02",
+     "field": "Manufacturer",
+     "example": "Siemens, Mitsubishi, etc."
+    },
+    {
+     "code": "E03",
+     "field": "Part number",
+     "example": "Full catalog code"
+    },
+    {
+     "code": "E04",
+     "field": "Module type",
+     "example": "DI, DO, AI, AO, RTD, thermocouple, counter, communication, positioning, safety, power supply"
+    },
+    {
+     "code": "E05",
+     "field": "Number of channels",
+     "example": "8, 16, 32"
+    },
+    {
+     "code": "E06",
+     "field": "Electrical level",
+     "example": "24 VDC, 120 VAC, 230 VAC, 0-10 V, +-10 V, 4-20 mA, PT100, type K"
+    },
+    {
+     "code": "E07",
+     "field": "Channels used",
+     "example": "Number or percentage"
+    },
+    {
+     "code": "E08",
+     "field": "Channels available",
+     "example": "Number or percentage"
+    },
+    {
+     "code": "E09",
+     "field": "Status",
+     "example": "Operational, with faults, intermittent, not tested, out of service"
+    },
+    {
+     "code": "E10",
+     "field": "Electrical reference per channel",
+     "example": "Yes, partial or no"
+    }
+   ]
+  },
+  {
+   "id": "F",
+   "title": "Program, software and backups",
+   "what_it_decides": "'Backup availability' factor. Without a verified backup, priority 1 is to recover it before any other decision.",
+   "questions": [
+    {
+     "code": "F01",
+     "text": "Is there a copy of the PLC program?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "The questions that follow change according to the answer (Yes branch / No branch)."
+    }
+   ],
+   "branch_yes": [
+    {
+     "code": "F02",
+     "text": "File name"
+    },
+    {
+     "code": "F03",
+     "text": "Backup date"
+    },
+    {
+     "code": "F04",
+     "text": "Software used"
+    },
+    {
+     "code": "F05",
+     "text": "Software version"
+    },
+    {
+     "code": "F06",
+     "text": "Does the backup open correctly?"
+    },
+    {
+     "code": "F07",
+     "text": "Can it be compiled without errors?"
+    },
+    {
+     "code": "F08",
+     "text": "Does it match the program currently loaded?"
+    },
+    {
+     "code": "F09",
+     "text": "Does it include symbols and comments?"
+    },
+    {
+     "code": "F10",
+     "text": "Does it include protected blocks?"
+    },
+    {
+     "code": "F11",
+     "text": "Upload file (evidence)"
+    }
+   ],
+   "branch_no": [
+    {
+     "code": "F12",
+     "text": "Is the CPU operational?"
+    },
+    {
+     "code": "F13",
+     "text": "Is a programming cable available?"
+    },
+    {
+     "code": "F14",
+     "text": "Is the required software available?"
+    },
+    {
+     "code": "F15",
+     "text": "Can the machine be stopped?"
+    },
+    {
+     "code": "F16",
+     "text": "Is the password known?"
+    },
+    {
+     "code": "F17",
+     "text": "Has an upload of the program from the PLC been attempted?"
+    },
+    {
+     "code": "F18",
+     "text": "Is there a removable memory card?"
+    }
+   ],
+   "final_questions": [
+    {
+     "code": "F19",
+     "text": "Is there an HMI backup?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not applicable",
+      "Not known"
+     ]
+    },
+    {
+     "code": "F20",
+     "text": "Is there a backup of the drives or servo drives?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not applicable",
+      "Partially"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "G",
+   "title": "Industrial communications",
+   "what_it_decides": "'Compatibility with current systems' factor: which networks the target platform must keep or convert.",
+   "questions": [
+    {
+     "code": "G01",
+     "text": "Which networks does the machine use?",
+     "type": "seleccion_multiple",
+     "options": [
+      "MPI",
+      "Profibus DP",
+      "Profibus PA",
+      "Profinet",
+      "Industrial Ethernet",
+      "Modbus RTU",
+      "Modbus TCP",
+      "DeviceNet",
+      "ControlNet",
+      "EtherNet/IP",
+      "CANopen",
+      "AS-Interface",
+      "CC-Link",
+      "EtherCAT",
+      "RS-232",
+      "RS-485",
+      "Proprietary network",
+      "Not known"
+     ]
+    },
+    {
+     "code": "G02",
+     "text": "Does the PLC communicate with an HMI?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "G03",
+     "text": "Does it communicate with a SCADA system?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "G04",
+     "text": "Does it communicate with drives?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "G05",
+     "text": "Does it communicate with another PLC?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "G06",
+     "text": "Does it communicate with a management system or a database?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "G07",
+     "text": "Network speed and configuration",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "G08",
+     "text": "Node addresses",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "G09",
+     "text": "Is there a network diagram?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "G10",
+     "text": "Are there terminators, converters or gateways?",
+     "type": "si_no_detalle"
+    }
+   ]
+  },
+  {
+   "id": "H",
+   "title": "HMI and supervision",
+   "what_it_decides": "Whether the HMI can be kept or is dragged into the migration (scope and cost).",
+   "questions": [
+    {
+     "code": "H01",
+     "text": "HMI manufacturer",
+     "type": "texto"
+    },
+    {
+     "code": "H02",
+     "text": "Model",
+     "type": "texto"
+    },
+    {
+     "code": "H03",
+     "text": "Part number",
+     "type": "texto"
+    },
+    {
+     "code": "H04",
+     "text": "Screen size",
+     "type": "texto"
+    },
+    {
+     "code": "H05",
+     "text": "Programming software",
+     "type": "texto"
+    },
+    {
+     "code": "H06",
+     "text": "Software version",
+     "type": "texto"
+    },
+    {
+     "code": "H07",
+     "text": "Type of communication with the PLC",
+     "type": "texto"
+    },
+    {
+     "code": "H08",
+     "text": "Is the source file available?",
+     "type": "texto"
+    },
+    {
+     "code": "H09",
+     "text": "Are the passwords known?",
+     "type": "texto"
+    },
+    {
+     "code": "H10",
+     "text": "Approximate number of screens",
+     "type": "texto"
+    },
+    {
+     "code": "H11",
+     "text": "Existing functions",
+     "type": "seleccion_multiple",
+     "options": [
+      "Alarms",
+      "Trends",
+      "Recipes",
+      "Historical logging",
+      "Users and passwords",
+      "Parameter adjustment",
+      "Manual mode",
+      "Automatic mode",
+      "Maintenance",
+      "Diagnostics"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "I",
+   "title": "Functional safety",
+   "what_it_decides": "Whether the case calls for mandatory review by a specialist. It takes precedence over any economic criterion.",
+   "questions": [
+    {
+     "code": "I01",
+     "text": "Does the machine have an emergency stop?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "I02",
+     "text": "Are the stops wired to the standard PLC or to a safety system?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "I03",
+     "text": "Is there a safety PLC?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "I04",
+     "text": "Are there safety relays?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "I05",
+     "text": "Are there light curtains, scanners or interlocked doors?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "I06",
+     "text": "Is the required performance level known?",
+     "type": "seleccion",
+     "options": [
+      "PL",
+      "SIL",
+      "Safety category",
+      "Not known",
+      "Not applicable"
+     ]
+    },
+    {
+     "code": "I07",
+     "text": "Will the migration affect safety functions?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "If the answer is 'Yes' or 'Not known', flag 'MANDATORY REVIEW BY A FUNCTIONAL SAFETY SPECIALIST'."
+    }
+   ]
+  },
+  {
+   "id": "J",
+   "title": "Instrumentation and actuators",
+   "what_it_decides": "Actual extent of the wiring and of the field signals that the target platform must reproduce.",
+   "note": "It allows as many devices to be registered as needed: digital sensors, analog sensors, valves, motors, contactors, drives, servo motors, encoders, resolvers, flow meters, transmitters, weighing scales and pneumatic or hydraulic devices.",
+   "fields_by_device": [
+    {
+     "field": "Code",
+     "description": "Internal identifier"
+    },
+    {
+     "field": "Manufacturer and model",
+     "description": "Nameplate data"
+    },
+    {
+     "field": "Power supply",
+     "description": "Voltage and current type"
+    },
+    {
+     "field": "Signal type",
+     "description": "Digital, 0-10 V, 4-20 mA, pulse, bus, etc."
+    },
+    {
+     "field": "Range",
+     "description": "Measurement or actuation range"
+    },
+    {
+     "field": "PLC address",
+     "description": "Input, output, word or tag"
+    },
+    {
+     "field": "Function",
+     "description": "Role within the process"
+    },
+    {
+     "field": "Status",
+     "description": "Operational, intermittent, failed, not tested"
+    },
+    {
+     "field": "Criticality",
+     "description": "Low, medium, high or critical"
+    },
+    {
+     "field": "Documentation",
+     "description": "Manual, drawing, data sheet or no document"
+    }
+   ]
+  },
+  {
+   "id": "K",
+   "title": "Objective and constraints of the intervention",
+   "what_it_decides": "What the user wants and what constraints narrow down the admissible alternatives.",
+   "questions": [
+    {
+     "code": "K01",
+     "text": "What do you want to do?",
+     "type": "seleccion_multiple",
+     "options": [
+      "Identify obsolescence",
+      "Look for a direct spare part",
+      "Look for equivalent hardware",
+      "Migrate to a modern platform",
+      "Recover the program",
+      "Rebuild the program",
+      "Reduce the risk of downtime",
+      "Improve performance",
+      "Add new functions",
+      "Integrate with Industry 4.0",
+      "Improve safety",
+      "Other"
+     ]
+    },
+    {
+     "code": "K02",
+     "text": "Do you want to keep the same brand?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Preferable, but not mandatory",
+      "Not yet decided"
+     ]
+    },
+    {
+     "code": "K03",
+     "text": "Has new hardware already been selected?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "K04",
+     "text": "Is there an estimated budget?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "K05",
+     "text": "Is there a deadline?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "K06",
+     "text": "Must the existing wiring be kept?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "K07",
+     "text": "Must the existing HMI be kept?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "K08",
+     "text": "Must the existing industrial network be kept?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "K09",
+     "text": "Are changes to the control panel allowed?",
+     "type": "si_no_detalle"
+    },
+    {
+     "code": "K10",
+     "text": "Is future growth in inputs and outputs required?",
+     "type": "si_no_detalle"
+    }
+   ]
+  },
+  {
+   "id": "L",
+   "title": "Fault and maintenance history",
+   "what_it_decides": "'Fault history' factor. It distinguishes a one-off REPAIRABLE fault from systematic deterioration that justifies migrating. Many faults blamed on the PLC have an external root cause (battery, temperature, power supply); look for it BEFORE proposing a replacement.",
+   "questions": [
+    {
+     "code": "L01",
+     "text": "How many unplanned stoppages attributable to the control system has the machine had in the last 12 months?",
+     "type": "numero",
+     "adaptive_rule": "Feeds the 'historial_fallas' factor. If the user keeps no record, ask for an estimate and mark it as baja_confianza; do not invent a number."
+    },
+    {
+     "code": "L02",
+     "text": "Average duration of those stoppages",
+     "type": "seleccion",
+     "options": [
+      "Less than 1 hour",
+      "1 to 4 hours",
+      "4 to 12 hours",
+      "12 to 24 hours",
+      "More than 24 hours",
+      "Not known"
+     ],
+     "adaptive_rule": "Multiplied by L01 and by the hourly cost (Q01) it gives the annual loss; it is the figure that makes repairing and migrating comparable."
+    },
+    {
+     "code": "L03",
+     "text": "How has the frequency of faults evolved over the last 24 months?",
+     "type": "seleccion",
+     "options": [
+      "Increasing",
+      "Stable",
+      "Decreasing",
+      "No faults recorded",
+      "No record is kept"
+     ],
+     "adaptive_rule": "'Increasing' is the strongest sign of deterioration through ageing and raises the historial_fallas factor; 'No faults recorded' must NOT be read as healthy equipment when no record is kept either (L08)."
+    },
+    {
+     "code": "L04",
+     "text": "Which components of the control system have failed?",
+     "type": "seleccion_multiple",
+     "options": [
+      "CPU",
+      "Power supply unit",
+      "Digital input module",
+      "Digital output module",
+      "Analog input module",
+      "Analog output module",
+      "Communication module",
+      "Battery or memory backup",
+      "HMI",
+      "Drive or servo",
+      "Wiring, terminals or connectors",
+      "Field sensors or actuators",
+      "None",
+      "Not known"
+     ],
+     "adaptive_rule": "If the faults are concentrated in the periphery, the wiring or the field, the CPU may still be viable: assess REPAIR or partial replacement before a complete migration. If the CPU itself fails repeatedly, the weight of migrating goes up."
+    },
+    {
+     "code": "L05",
+     "text": "Have the CPU or any module been repaired previously?",
+     "type": "seleccion",
+     "options": [
+      "No",
+      "Yes, by the manufacturer",
+      "Yes, by a specialized third-party workshop",
+      "Yes, by in-house staff",
+      "Not known"
+     ],
+     "adaptive_rule": "Repairs without traceability or original spare parts reduce the expected reliability; record it as a risk and do not assume the equipment is 'as new'."
+    },
+    {
+     "code": "L06",
+     "text": "Current symptoms of the control system (random lock-ups, loss of communication, error LEDs, overheating, outputs that do not respond, etc.)",
+     "type": "texto_extenso",
+     "adaptive_rule": "The symptoms guide the root cause diagnosis. If the equipment is out of service, this data takes priority (step 2 of the decision tree)."
+    },
+    {
+     "code": "L07",
+     "text": "Does the machine lose the program, the data or the time when power is removed?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "It has not been tested",
+      "Not known"
+     ],
+     "adaptive_rule": "Classic symptom of a flat battery or a degraded backup memory. It is a low-cost REPAIR: assess and resolve it BEFORE considering any migration, but warn that replacing the battery with the CPU powered down can erase the program, so it requires a verified backup beforehand (Rules 3 and 5)."
+    },
+    {
+     "code": "L08",
+     "text": "Is there a historical maintenance record (logbook, work orders or CMMS)?",
+     "type": "seleccion",
+     "options": [
+      "Yes, digital",
+      "Yes, on paper",
+      "Partial",
+      "No"
+     ],
+     "adaptive_rule": "If there is no record, every answer in section L is an estimate: label them as baja_confianza and record missing data."
+    },
+    {
+     "code": "L09",
+     "text": "Is preventive maintenance applied to the control panel (cleaning, tightening terminals, checking ventilation)?",
+     "type": "seleccion",
+     "options": [
+      "Yes, scheduled",
+      "Occasional",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "The absence of preventive maintenance usually explains recurring faults; include its introduction in the plan, whether or not the plant migrates."
+    }
+   ]
+  },
+  {
+   "id": "M",
+   "title": "Life cycle, support and spare parts on the market",
+   "what_it_decides": "The three highest-weighted factors of the risk model: life cycle status, spare parts availability and manufacturer support. It is the objective core of the repair versus migrate decision.",
+   "note": "The life cycle status is NEVER assumed from the age of the equipment: it is verified on the manufacturer's official life cycle page or with the authorized distributor, and the source is cited (Rules 9 and 14).",
+   "questions": [
+    {
+     "code": "M01",
+     "text": "Product status declared by the manufacturer",
+     "type": "seleccion",
+     "options": [
+      "Active, on sale",
+      "Mature, a successor already exists",
+      "Discontinuation announced (phase-out)",
+      "Discontinued, still with support and spare parts",
+      "Discontinued and without support (end of life)",
+      "Not known"
+     ],
+     "adaptive_rule": "'estado_ciclo_vida' factor. If it is 'Not known', record missing data and offer to verify it; a recommendation issued without this data is preliminary by definition."
+    },
+    {
+     "code": "M02",
+     "text": "Year in which the manufacturer stopped (or will stop) selling the product, if known",
+     "type": "numero",
+     "required": false
+    },
+    {
+     "code": "M03",
+     "text": "Year in which technical support and the supply of spare parts end, if known",
+     "type": "numero",
+     "required": false,
+     "adaptive_rule": "Compare with Q05 (years of remaining useful life of the machine). If support ends before the machine is retired, migration stops being optional and becomes something that can be scheduled with a date."
+    },
+    {
+     "code": "M04",
+     "text": "Are NEW spare parts available from the manufacturer or an authorized distributor?",
+     "type": "seleccion",
+     "options": [
+      "Yes, without difficulty",
+      "Yes, but with a long lead time",
+      "Only by special order",
+      "No",
+      "It has not been checked"
+     ],
+     "adaptive_rule": "'disponibilidad_repuestos' factor. 'It has not been checked' is not the same as 'No': propose making the enquiry before concluding."
+    },
+    {
+     "code": "M05",
+     "text": "Are used or refurbished spare parts available on the secondary market?",
+     "type": "seleccion",
+     "options": [
+      "Yes, with warranty",
+      "Yes, without warranty",
+      "Scarce and expensive",
+      "No",
+      "It has not been checked"
+     ],
+     "adaptive_rule": "The secondary market does not guarantee provenance, hours of use or firmware version. It is acceptable as a temporary or contingency measure, never as the basis of a long-term plan; require a functional test before installing."
+    },
+    {
+     "code": "M06",
+     "text": "Typical lead time for a critical spare part (CPU or module)",
+     "type": "seleccion",
+     "options": [
+      "In stock at the plant or locally",
+      "Less than 2 weeks",
+      "From 2 to 8 weeks",
+      "More than 8 weeks",
+      "Not available",
+      "Not known"
+     ],
+     "adaptive_rule": "ALWAYS COMPARE against C10 (maximum allowable downtime). If the lead time exceeds the tolerable downtime, the spare parts strategy is NOT enough on its own: it calls for holding stock or migrating. Say so explicitly."
+    },
+    {
+     "code": "M07",
+     "text": "Is there a repair service for the CPU or the modules?",
+     "type": "seleccion",
+     "options": [
+      "Yes, from the manufacturer",
+      "Yes, from a certified third party",
+      "Yes, from an uncertified third party",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "Enables the REPAIR alternative. Warn that a repair by an uncertified third party restores neither warranty nor traceability."
+    },
+    {
+     "code": "M08",
+     "text": "Approximate cost of a spare part or of its repair, stating the currency",
+     "type": "texto",
+     "adaptive_rule": "It is weighed against Q03 (budget) and against the cost of the migration. Do not invent prices: if the user does not know, record it as missing data."
+    },
+    {
+     "code": "M09",
+     "text": "Is there a current support or maintenance contract with the manufacturer or with an integrator?",
+     "type": "seleccion",
+     "options": [
+      "Yes, current",
+      "Expired",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "'soporte_fabricante' factor."
+    },
+    {
+     "code": "M10",
+     "text": "Does the manufacturer offer an official migration path or kit for this family?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "Consult the reference base with `query_guide` (topic 'manufacturer') and cite the source. NEVER invent kit names or catalog numbers: describe them generically and refer the user to the manufacturer's official selection tool."
+    }
+   ]
+  },
+  {
+   "id": "N",
+   "title": "Programming environment, licenses and access",
+   "what_it_decides": "'Software availability' factor. It determines whether the program can be recovered and downloaded: without a PC, a license, a cable or a password, no alternative is executable, however cheap it may look.",
+   "questions": [
+    {
+     "code": "N01",
+     "text": "Is there a PC with the programming software installed?",
+     "type": "seleccion",
+     "options": [
+      "Yes, dedicated to maintenance",
+      "Yes, shared",
+      "No",
+      "Not known"
+     ]
+    },
+    {
+     "code": "N02",
+     "text": "Operating system of that PC",
+     "type": "seleccion",
+     "options": [
+      "Windows XP",
+      "Windows 7",
+      "Windows 10",
+      "Windows 11",
+      "Linux",
+      "Virtual machine on a modern computer",
+      "Other",
+      "Not known"
+     ],
+     "adaptive_rule": "Older software (for example STEP 7 v5.x or RSLogix 500) usually calls for an operating system that is already out of support, or a virtual machine. If the PC depends on an obsolete OS, that IS IN ITSELF an obsolescence risk: record it and add it to the disponibilidad_software factor."
+    },
+    {
+     "code": "N03",
+     "text": "Type of license of the programming software",
+     "type": "seleccion",
+     "options": [
+      "Original with a current license",
+      "Original with an expired license",
+      "Floating license on a server",
+      "Physical key (dongle)",
+      "Demonstration or limited version",
+      "No license is held",
+      "Not known"
+     ],
+     "adaptive_rule": "Without a valid license the project cannot be opened, modified or downloaded: it is CRITICAL missing data. If it depends on a physical key, warn that losing or damaging it leaves the system inaccessible. The agent does not help to circumvent licenses: the correct route is to purchase one or to go to the manufacturer or the integrator."
+    },
+    {
+     "code": "N04",
+     "text": "Communication ports and cards available on that PC",
+     "type": "seleccion_multiple",
+     "options": [
+      "RS-232 serial port",
+      "MPI or Profibus card (CP)",
+      "USB-MPI adapter",
+      "Ethernet port",
+      "USB-to-serial adapter",
+      "None available",
+      "Not known"
+     ],
+     "adaptive_rule": "Modern PCs no longer come with a serial port or a slot for CP cards; it is a common reason why a 'possible' backup turns out to be unworkable."
+    },
+    {
+     "code": "N05",
+     "text": "Is the correct programming cable or adapter available, with its driver installed?",
+     "type": "seleccion",
+     "options": [
+      "Yes, already tested with this PLC",
+      "Yes, but untested",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "'Untested' is not 'Yes': before planning a backup, ask for a communication test."
+    },
+    {
+     "code": "N06",
+     "text": "Are the passwords for the project and for the protected blocks known?",
+     "type": "seleccion",
+     "options": [
+      "Yes, all of them",
+      "Partially",
+      "No",
+      "There are no passwords",
+      "Not known"
+     ],
+     "adaptive_rule": "Links to D10 and F16. Without the password, recovering the program may be impossible and the balance tips towards rebuilding, which is more expensive and slower. The agent does NOT help to bypass protections: the correct route is the manufacturer, the integrator or the owner of the project (N07)."
+    },
+    {
+     "code": "N07",
+     "text": "Who holds the original source project of the program?",
+     "type": "seleccion",
+     "options": [
+      "The plant",
+      "The machine manufacturer",
+      "An external integrator",
+      "Not known",
+      "It does not exist"
+     ],
+     "adaptive_rule": "If a third party holds it, the first recommended action is to REQUEST it formally: it is faster and cheaper than any reverse engineering. Record it as a preliminary action in the plan."
+    },
+    {
+     "code": "N08",
+     "text": "Have the plant staff used that programming software before?",
+     "type": "seleccion",
+     "options": [
+      "Yes, fluently",
+      "Yes, at a basic level",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "It adjusts the level of detail of the step-by-step guides and anticipates the need for external support."
+    }
+   ]
+  },
+  {
+   "id": "O",
+   "title": "Special functions and program performance",
+   "what_it_decides": "The real effort of converting the program and the sizing of the target CPU (Rule 6). It is what separates a simple migration from a complex one.",
+   "questions": [
+    {
+     "code": "O01",
+     "text": "Does the program perform closed-loop control (PID) or continuous regulation?",
+     "type": "si_no_detalle",
+     "adaptive_rule": "If it does, check that the target platform offers equivalent blocks and warn that the tuning parameters are NOT transferred automatically: they have to be re-tuned and validated in the SAT."
+    },
+    {
+     "code": "O02",
+     "text": "Is there motion control, positioning or synchronized axes (servos, electronic cams, interpolation)?",
+     "type": "si_no_detalle",
+     "adaptive_rule": "Motion is the most expensive and riskiest point of a migration, and it rarely has automatic conversion. If it exists, raise the estimated effort, require specific FAT tests and consider support from the manufacturer."
+    },
+    {
+     "code": "O03",
+     "text": "Are high-speed counters, encoders or interrupt inputs used?",
+     "type": "si_no_detalle",
+     "adaptive_rule": "It conditions specific modules on the target platform; check the maximum frequency and the signal type (HTL/TTL, incremental or absolute)."
+    },
+    {
+     "code": "O04",
+     "text": "Are there recipe, batch, production counting or traceability functions?",
+     "type": "si_no_detalle",
+     "adaptive_rule": "They usually reside in the HMI or in external databases; check where they actually are before estimating the scope."
+    },
+    {
+     "code": "O05",
+     "text": "Program memory used and total memory available in the CPU",
+     "type": "texto",
+     "adaptive_rule": "Sizing data (Rule 6). If it is not known, it can be read with the programming software while online."
+    },
+    {
+     "code": "O06",
+     "text": "Typical and maximum scan cycle time observed",
+     "type": "texto",
+     "adaptive_rule": "Sizing data (Rule 6). If the current cycle is close to the configured limit, the target CPU must be chosen with margin; note it explicitly."
+    },
+    {
+     "code": "O07",
+     "text": "In which languages is the program written?",
+     "type": "seleccion_multiple",
+     "options": [
+      "Ladder (KOP / LD)",
+      "Function blocks (FUP / FBD)",
+      "Instruction list (AWL / STL / IL)",
+      "Structured text (SCL / ST)",
+      "GRAFCET, GRAPH or SFC",
+      "Proprietary blocks from the machine manufacturer",
+      "Not known"
+     ],
+     "adaptive_rule": "Determines how much of the conversion is automatic. Ladder and FBD usually convert well; instruction list, GRAPH and proprietary blocks call for manual rewriting and line-by-line review. Declare it as explicit effort in the plan, never hide it."
+    },
+    {
+     "code": "O08",
+     "text": "Does the program use blocks, libraries or functions proprietary to the machine manufacturer?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "If they exist and are protected, they probably cannot be rebuilt without the manufacturer; it links to N06 and N07 and may be the decisive argument for keeping the platform or negotiating with the OEM."
+    },
+    {
+     "code": "O09",
+     "text": "Are there critical timing functions (below 10 ms) or synchronization between stations?",
+     "type": "si_no_detalle",
+     "adaptive_rule": "It makes it necessary to verify the timings of the target platform and of the chosen network; do not take for granted that a modern network is always faster in the worst case."
+    }
+   ]
+  },
+  {
+   "id": "P",
+   "title": "Environmental conditions and installation",
+   "what_it_decides": "External root causes of the faults, which may make a migration unnecessary, and the physical feasibility of the target platform in the existing panel.",
+   "questions": [
+    {
+     "code": "P01",
+     "text": "Temperature inside the control panel",
+     "type": "seleccion",
+     "options": [
+      "Below 30 C",
+      "Between 30 and 40 C",
+      "Between 40 and 50 C",
+      "Above 50 C",
+      "It has not been measured"
+     ],
+     "adaptive_rule": "High temperature shortens the life of the electronics and explains many recurring faults. If it is high, it is a CORRECTABLE root cause (ventilation, filters, relocation): raise it before blaming the faults on the obsolescence of the PLC."
+    },
+    {
+     "code": "P02",
+     "text": "Does the panel have forced ventilation, filters or air conditioning?",
+     "type": "seleccion",
+     "options": [
+      "Yes, with periodic maintenance",
+      "Yes, without maintenance",
+      "No",
+      "Not known"
+     ]
+    },
+    {
+     "code": "P03",
+     "text": "Conditions of the machine environment",
+     "type": "seleccion_multiple",
+     "options": [
+      "Dust",
+      "High humidity",
+      "Corrosive or saline atmosphere",
+      "Steam",
+      "Washdown with water",
+      "Vibration",
+      "Impacts",
+      "Strong electromagnetic fields",
+      "None worth noting"
+     ],
+     "adaptive_rule": "It conditions the degree of protection (IP) and the type of equipment of the target platform; it also explains degradation of contacts and connectors."
+    },
+    {
+     "code": "P04",
+     "text": "Quality of the electrical supply",
+     "type": "seleccion_multiple",
+     "options": [
+      "Frequent voltage variations",
+      "Frequent outages",
+      "Presence of harmonics",
+      "Without UPS",
+      "With UPS",
+      "Grounding verified",
+      "Grounding doubtful or non-existent",
+      "Not known"
+     ],
+     "adaptive_rule": "A very common cause of faults wrongly blamed on the PLC. If the power supply or the grounding are poor, a new PLC will fail again: correcting it is part of the plan, whichever alternative is chosen."
+    },
+    {
+     "code": "P05",
+     "text": "Free space available in the panel and on the DIN rail",
+     "type": "seleccion",
+     "options": [
+      "Ample",
+      "Tight",
+      "There is no space",
+      "It has not been measured"
+     ],
+     "adaptive_rule": "If there is no space, the migration may call for a new panel: it is a cost that is usually forgotten in the estimate. It links to K09."
+    },
+    {
+     "code": "P06",
+     "text": "Control voltage of the system",
+     "type": "seleccion_multiple",
+     "options": [
+      "24 VDC",
+      "48 VDC",
+      "110 VAC",
+      "220 VAC",
+      "Other",
+      "Not known"
+     ],
+     "adaptive_rule": "Determines the type of input and output modules of the target platform. NEVER assume it (Rule 2): modern platforms are usually 24 VDC, and an old system at 110/220 VAC may need interposing relays, with their cost and their space."
+    },
+    {
+     "code": "P07",
+     "text": "Condition of the wiring, terminal blocks and trunking",
+     "type": "seleccion",
+     "options": [
+      "Good and labeled",
+      "Acceptable",
+      "Deteriorated",
+      "Unlabeled",
+      "Not known"
+     ],
+     "adaptive_rule": "It conditions K06 (keeping the wiring). Unlabeled wiring turns rewiring into the longest task of commissioning: it has to be surveyed and labeled before the changeover."
+    },
+    {
+     "code": "P08",
+     "text": "Are there up-to-date electrical drawings of the panel?",
+     "type": "seleccion",
+     "options": [
+      "Yes, up to date",
+      "Yes, but out of date",
+      "Partial",
+      "They do not exist",
+      "Not known"
+     ],
+     "adaptive_rule": "Without reliable drawings, every estimate of scope is preliminary; record missing data and propose surveying them as a preliminary task."
+    }
+   ]
+  },
+  {
+   "id": "Q",
+   "title": "Economics, schedule and decision",
+   "what_it_decides": "It turns the technical risk into a justifiable decision. Without the remaining life horizon of the machine (Q05) and the cost of downtime (Q01), the choice between repairing and migrating has no economic basis.",
+   "questions": [
+    {
+     "code": "Q01",
+     "text": "Approximate cost of one hour of downtime of this machine, stating the currency",
+     "type": "texto",
+     "adaptive_rule": "It is the figure that makes the alternatives comparable. If the user does not know it, ask for an estimated range (lost production per hour, idle labor, penalties) and mark it as baja_confianza. Never invent the figure."
+    },
+    {
+     "code": "Q02",
+     "text": "Estimated accumulated loss from control system stoppages in the last 12 months",
+     "type": "texto",
+     "required": false,
+     "adaptive_rule": "It can be calculated as L01 x L02 x Q01. Show the calculation to the user so that it can be validated, stating that it is an estimate."
+    },
+    {
+     "code": "Q03",
+     "text": "Is there a budget for the intervention? State the amount and the currency if known",
+     "type": "seleccion",
+     "options": [
+      "Yes, approved",
+      "Yes, estimated",
+      "Being arranged",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "It narrows down the realistic alternatives. If there is no budget, give priority to low-cost, high-impact actions: securing the backup, buying critical spare parts and correcting environmental root causes."
+    },
+    {
+     "code": "Q04",
+     "text": "When can the machine be worked on?",
+     "type": "seleccion",
+     "options": [
+      "There is an already scheduled shutdown",
+      "During the annual plant shutdown or the holidays",
+      "Weekends",
+      "At any time",
+      "There is no window available"
+     ],
+     "adaptive_rule": "If there is no shutdown window, rule out from the start the alternatives that require a long outage and consider staged strategies or a parallel system. It links to C10."
+    },
+    {
+     "code": "Q05",
+     "text": "How many more years is the machine expected to stay in production?",
+     "type": "seleccion",
+     "options": [
+      "Less than 2 years",
+      "From 2 to 5 years",
+      "From 5 to 10 years",
+      "More than 10 years",
+      "It is planned to be retired or replaced",
+      "It has not been defined"
+     ],
+     "adaptive_rule": "DECISIVE CRITERION. With less than 2 or 3 years of useful life left, a complete migration is rarely justified: give priority to repair, spare parts and securing the backup. With more than 5 years and support already ended (M03), migration becomes something that can be scheduled with a date. If it is 'It has not been defined', record it as missing data: the economic decision is left without a basis."
+    },
+    {
+     "code": "Q06",
+     "text": "Is there a plant policy on standard brands or platforms?",
+     "type": "seleccion",
+     "options": [
+      "Yes, mandatory",
+      "Yes, preferred",
+      "No",
+      "Not known"
+     ],
+     "adaptive_rule": "A mandatory policy may impose the target platform over the technical criterion; respect it and, if it creates a technical risk, state that explicitly. It links to K02."
+    },
+    {
+     "code": "Q07",
+     "text": "Are there other machines in the plant with the same obsolete PLC? State how many",
+     "type": "texto",
+     "adaptive_rule": "It changes the economics completely: with a fleet it is worth assessing a staged migration plan, a shared stock of spare parts and a single training course. It also allows retired equipment to be cannibalized as a temporary measure."
+    },
+    {
+     "code": "Q08",
+     "text": "Are the maintenance staff trained on the target platform?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "Partially",
+      "No",
+      "The platform has not been defined yet"
+     ],
+     "adaptive_rule": "If they are not, include the training in the plan and in the cost; a platform nobody knows how to maintain creates a new obsolescence, this time of knowledge."
+    },
+    {
+     "code": "Q09",
+     "text": "Would a controlled temporary solution be acceptable while a migration is prepared?",
+     "type": "seleccion",
+     "options": [
+      "Yes",
+      "No",
+      "It depends on the risk",
+      "Not known"
+     ],
+     "adaptive_rule": "It enables the controlled temporary operation alternative, useful when there is no budget or shutdown window but the risk is high."
+    }
+   ]
+  }
+ ],
+ "decision_map": {
+  "description": "Links the questions to the risk model and to the criteria of each alternative. The weights of the factors are defined by migra_ia/scoring.py (they are not duplicated here); the `query_questionnaire` tool attaches them live.",
+  "risk_factors": [
+   {
+    "key": "estado_ciclo_vida",
+    "questions": [
+     "M01",
+     "M02",
+     "M03",
+     "D07",
+     "C05"
+    ],
+    "guide": "It is scored on the status DECLARED by the manufacturer (M01), not on the age of the equipment. Active or mature = low risk; announced phase-out = significant risk; discontinued with support = high; end of life without support = critical. If M01 is 'Not known', omit the factor and record missing data instead of assuming."
+   },
+   {
+    "key": "disponibilidad_repuestos",
+    "questions": [
+     "M04",
+     "M05",
+     "M06",
+     "M07",
+     "D11",
+     "D12",
+     "Q07"
+    ],
+    "guide": "It combines the market (M04-M06) with the plant's own stock (D11-D12). The lead time (M06) is ALWAYS weighed against the tolerable downtime (C10): a spare part that arrives later than the plant can hold out does not cover the risk. Own stock or a cannibalizable fleet (Q07) lower the score."
+   },
+   {
+    "key": "soporte_fabricante",
+    "questions": [
+     "M09",
+     "M07",
+     "M10",
+     "M03"
+    ],
+    "guide": "A current contract and a repair service from the manufacturer = low risk. No contract, no service and support already ended = critical. The existence of an official migration path (M10) does not reduce the present risk, but it does make the plan easier."
+   },
+   {
+    "key": "disponibilidad_software",
+    "questions": [
+     "N01",
+     "N02",
+     "N03",
+     "N04",
+     "N05",
+     "N06",
+     "N07",
+     "F04",
+     "F05",
+     "F14"
+    ],
+    "guide": "It is the most underestimated practical barrier. The risk goes up if: there is no PC or the operating system is out of support (N02); the license is missing, expired or depends on a physical key (N03); there is no compatible port or adapter (N04-N05); or the passwords are not known (N06). The source project in the hands of a third party (N07) is a high risk, but one that is often solved with a formal request."
+   },
+   {
+    "key": "disponibilidad_respaldo",
+    "questions": [
+     "F01",
+     "F06",
+     "F07",
+     "F08",
+     "F19",
+     "F20"
+    ],
+    "guide": "Only a backup that OPENS, COMPILES and matches what is loaded counts as a backup (Rule 3). An unverified file is scored as if it did not exist. Without a backup, priority 1 is to recover it, ahead of any decision to repair or migrate."
+   },
+   {
+    "key": "compatibilidad_sistemas",
+    "questions": [
+     "G01",
+     "G02",
+     "G03",
+     "G04",
+     "G05",
+     "G06",
+     "O01",
+     "O02",
+     "O03",
+     "O07",
+     "O08",
+     "P06"
+    ],
+    "guide": "It measures how much the change drags along with it. Proprietary or obsolete networks (G01), motion (O02), proprietary blocks (O08), languages without automatic conversion (O07) and control voltages other than 24 VDC (P06) raise both the effort and the risk of the replacement."
+   },
+   {
+    "key": "historial_fallas",
+    "questions": [
+     "L01",
+     "L02",
+     "L03",
+     "L04",
+     "L05",
+     "L06",
+     "L07",
+     "P01",
+     "P04"
+    ],
+    "guide": "Before scoring high, look for an external root cause: temperature (P01), power quality and grounding (P04), a flat battery (L07) or faults concentrated in the field and the wiring (L04). Only faults attributable to the controller itself, and on an increasing trend (L03), justify a high score."
+   },
+   {
+    "key": "criticidad_productiva",
+    "questions": [
+     "C08",
+     "C09",
+     "C10",
+     "Q01",
+     "Q04",
+     "I07"
+    ],
+    "guide": "It combines the impact (C08, Q01) with the lack of slack (C09, C10, Q04). A critical machine, in continuous operation, with no shutdown window and a high hourly cost is scored as a critical risk even if the equipment works well today."
+   }
+  ],
+  "alternative_criteria": [
+   {
+    "alternative": "Correction of the root cause (without changing the controller)",
+    "evaluate_first": true,
+    "favorable_conditions": [
+     "Faults explained by temperature (P01), ventilation (P02), power or grounding (P04)",
+     "Loss of the program caused by the battery (L07)",
+     "Faults concentrated in the wiring, the terminals or the field (L04)",
+     "Absence of preventive maintenance (L09)"
+    ],
+    "advertencias": [
+     "It is the first hypothesis to rule out: replacing a PLC without correcting the root cause reproduces the fault on the new equipment.",
+     "Any intervention on the battery or the memory calls for a verified backup beforehand."
+    ]
+   },
+   {
+    "alternative": "Repair of the existing equipment",
+    "favorable_conditions": [
+     "There is a repair service, preferably from the manufacturer or certified (M07)",
+     "The fault is localized and not recurring (L03 stable or decreasing)",
+     "The machine has few years of useful life left (Q05 under 2-5 years)",
+     "There is no budget for a migration (Q03)",
+     "The repair time fits within the available window (Q04, C10)"
+    ],
+    "advertencias": [
+     "A repair does not reverse obsolescence: if M01 indicates end of life, it is a continuity measure, not a solution.",
+     "Third-party repairs without certification restore neither warranty nor traceability (L05).",
+     "It must ALWAYS be accompanied by a verified backup and, where possible, by a spare part in stock."
+    ]
+   },
+   {
+    "alternative": "Direct spare part (same model)",
+    "favorable_conditions": [
+     "New or reliable second-hand spare parts are available (M04, M05)",
+     "The lead time is shorter than the tolerable downtime (M06 against C10)",
+     "There is a verified backup from which to reload the program (F01, F06-F08)",
+     "The aim is to minimize the risk and the intervention time"
+    ],
+    "advertencias": [
+     "It calls for checking the firmware version and exact compatibility; a matching name or a partial part number is not enough (Rules 1 and 13).",
+     "If the product is at end of life (M01), it is a solution with an expiry date: plan the migration in parallel.",
+     "A used spare part must be functionally tested before being installed."
+    ]
+   },
+   {
+    "alternative": "Equivalent hardware or partial replacement",
+    "favorable_conditions": [
+     "There is no spare part of the original model, but there is one within the same family or a compatible one",
+     "The wiring, the HMI and the network can be kept (K06-K08)",
+     "The program is kept, or converted with bounded effort (O07)"
+    ],
+    "advertencias": [
+     "Equivalence is established on technical criteria (I/O, signals, networks, memory, cycle, special functions), NEVER on similarity of name (Rules 1 and 2).",
+     "Every catalog number is left 'to be verified with the manufacturer and its official selection tool'."
+    ]
+   },
+   {
+    "alternative": "Migration to a modern platform",
+    "favorable_conditions": [
+     "End of life without support or spare parts (M01, M03, M04)",
+     "Spare part lead time longer than the tolerable downtime (M06 against C10)",
+     "Increasing faults attributable to the controller, with the external root cause already ruled out (L03, L04)",
+     "Remaining useful life of the machine longer than 5 years (Q05)",
+     "Budget available or obtainable (Q03) and an intervention window identified (Q04)",
+     "There are several identical machines, which allow a staged plan (Q07)"
+    ],
+    "advertencias": [
+     "It calls for a verified backup and a rollback plan before touching anything (Rules 3 and 5).",
+     "The real effort is set by the special functions and the languages (O01-O09), not by the number of I/O points.",
+     "Check the space in the panel (P05) and the control voltage (P06): they are costs that are usually forgotten.",
+     "Include training of the staff (Q08) in the plan and in the cost.",
+     "Any safety function involved calls for review by a specialist (Section I).",
+     "Having the program accessible is NOT an argument for staying on equipment without spare parts: it only makes the way out cheaper. If the user decides to migrate with the code in hand, accept the decision and go straight to the conversion path for their brand."
+    ],
+    "execution_variants": [
+     {
+      "id": "conversion_con_codigo_accesible",
+      "trigger": "obsolescencia_con_acceso_al_codigo",
+      "when": "The passwords are known (N06 'Yes, all of them' or 'There are no passwords', or F16 affirmative) AND there is a copy of the program that opens and compiles (F01, F06, F07). The reason to migrate is obsolescence and the lack of spare parts (M01, M04, M06), not the loss of the program.",
+      "what_changes": "It is the CHEAPEST AND SHORTEST migration scenario: the program is CONVERTED with the manufacturer's official tools instead of being rewritten. Steps 21 and 22 of the procedure apply in full and the P1-P7 extension goes in a light version. The 'no_backup_variant' variant is NOT declared.",
+      "how_it_is_executed": "With the conversion path for the brand: `query_procedure` with topic 'ruta_fabricante'. For Siemens it is STEP 5 -> S5 File Converter -> SIMATIC Manager (STEP 7) -> MigrateProject -> TIA Portal, resolving the language before moving up to TIA. If the brand has no published path, that is declared and the generic step 21 is followed."
+     },
+     {
+      "id": "reconstruccion_sin_codigo",
+      "trigger": "contrasena_desconocida / sin_acceso_al_programa",
+      "when": "The passwords are not known (N06 'No') or there is no usable copy of the program (F01 'No', or F06/F07 negative).",
+      "what_changes": "There is nothing to convert: steps 21 and 22 do not apply and the real work is the P1-P7 extension. It is sized as new development, not as a migration."
+     }
+    ]
+   },
+   {
+    "alternative": "Rebuilding the program",
+    "favorable_conditions": [
+     "There is no backup and it cannot be recovered from the PLC (F01, F12-F18)",
+     "The passwords are not known and the owner of the project cannot supply it (N06, N07)",
+     "The program depends on inaccessible proprietary blocks (O08)"
+    ],
+    "advertencias": [
+     "It is the most expensive, slowest and riskiest alternative: propose it only as a last resort.",
+     "It calls for surveying the control logic and the operating sequence first (C11, C12), with interviews and observation of the cycle.",
+     "It needs a particularly demanding SAT test plan."
+    ]
+   },
+   {
+    "alternative": "Controlled temporary operation",
+    "favorable_conditions": [
+     "The risk is high but there is neither budget (Q03) nor an intervention window (Q04)",
+     "The user accepts a stopgap measure (Q09)"
+    ],
+    "advertencias": [
+     "It is not a solution: it is buying time, with the risk declared and accepted in writing.",
+     "It must be accompanied by a verified backup, a critical spare part in stock and a committed date for the definitive solution."
+    ]
+   }
+  ],
+  "priority_rules": [
+   "1. Functional safety overrides everything else: if Section I indicates that there are safety functions affected or unknown, no recommendation is closed without review by a specialist.",
+   "2. Without a verified backup, priority 1 is to recover it; no alternative is carried out before that.",
+   "3. Before blaming the faults on obsolescence, rule out an external root cause (temperature, power, grounding, battery, wiring).",
+   "4. The age of the equipment is NOT on its own a reason to migrate; the life cycle status, the spare parts and the support are.",
+   "5. No alternative is viable if its execution or supply lead time exceeds the tolerable downtime of the machine.",
+   "6. If critical data are missing, the recommendation is issued as 'preliminary', the missing data are listed and it is stated which decision each one unblocks.",
+   "7. Before sizing a migration, check whether the source program is accessible (N06, F16, F01, F06, F07). Converting an existing program and rewriting it from scratch are two jobs with very different costs and timescales: they are not budgeted, nor explained, in the same way."
+  ]
+ }
+}

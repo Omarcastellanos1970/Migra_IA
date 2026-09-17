@@ -1,0 +1,404 @@
+{
+  "agente": "MIGRA-IA",
+  "version": "0.4.0",
+  "language": "es",
+  "description": "Cuestionario maestro adaptativo para diagnostico de obsolescencia y migracion de sistemas de automatizacion industrial. El agente NO debe leerlo de forma rigida: las respuestas activan, ocultan o modifican las preguntas siguientes (principio de cuestionario adaptativo). Las secciones A-K levantan el sistema; las secciones L-Q aportan la evidencia con la que se decide entre REPARAR y MIGRAR. El bloque 'mapa_decision' enlaza cada pregunta con el factor de riesgo que alimenta y con los criterios de cada alternativa.",
+  "sections": [
+    {
+      "id": "A",
+      "title": "Identificacion del usuario",
+      "what_it_decides": "Profundidad del lenguaje tecnico y si el agente puede dar o no instrucciones operativas sobre el equipo real.",
+      "questions": [
+        {"code": "A01", "text": "Nombre del responsable del caso", "type": "texto", "required": true},
+        {"code": "A02", "text": "Cargo o funcion", "type": "seleccion", "options": ["Tecnico de mantenimiento", "Ingeniero de automatizacion", "Ingeniero electrico", "Supervisor de produccion", "Integrador de sistemas", "Estudiante o investigador", "Otro"]},
+        {"code": "A03", "text": "Nivel de experiencia en automatizacion", "type": "seleccion", "options": ["Basico", "Intermedio", "Avanzado", "Especialista"], "adaptive_rule": "El nivel seleccionado determina la profundidad del lenguaje tecnico y la cantidad de explicaciones mostradas."},
+        {"code": "A04", "text": "Correo electronico", "type": "texto_validado"},
+        {"code": "A05", "text": "Telefono de contacto", "type": "texto", "required": false},
+        {"code": "A06", "text": "Pais", "type": "seleccion"},
+        {"code": "A07", "text": "Esta autorizado para acceder o modificar el sistema?", "type": "seleccion", "options": ["Si", "No", "Solo autorizado para diagnostico", "Pendiente de autorizacion"], "adaptive_rule": "Si la respuesta es 'No', el agente puede ofrecer informacion general pero NO instrucciones operativas de modificacion."}
+      ]
+    },
+    {
+      "id": "B",
+      "title": "Identificacion de la empresa y planta",
+      "what_it_decides": "Marco normativo aplicable y procedimientos internos que condicionan cualquier intervencion.",
+      "questions": [
+        {"code": "B01", "text": "Nombre de la empresa", "type": "texto"},
+        {"code": "B02", "text": "Nombre o codigo de la planta", "type": "texto"},
+        {"code": "B03", "text": "Sector industrial", "type": "seleccion", "options": ["Alimentos y bebidas", "Textil", "Plasticos", "Calzado", "Farmaceutico", "Mineria", "Energia", "Agua y saneamiento", "Manufactura", "Automotriz", "Cemento", "Quimico", "Otro"]},
+        {"code": "B04", "text": "Ubicacion general de la planta (ciudad, region y pais)", "type": "texto"},
+        {"code": "B05", "text": "La planta cuenta con normas o procedimientos internos para modificaciones?", "type": "seleccion", "options": ["Si", "No", "No se conoce"]},
+        {"code": "B06", "text": "Normas aplicables", "type": "seleccion_multiple", "options": ["IEC", "ISA", "IEEE", "NFPA", "NEC", "ISO", "Normativas locales", "Normas internas", "No se conoce"]}
+      ]
+    },
+    {
+      "id": "C",
+      "title": "Identificacion de la maquina o proceso",
+      "what_it_decides": "Criticidad productiva (factor de riesgo) y el tiempo de parada tolerable, que acota que alternativas son viables.",
+      "questions": [
+        {"code": "C01", "text": "Nombre de la maquina", "type": "texto"},
+        {"code": "C02", "text": "Codigo interno de la maquina", "type": "texto"},
+        {"code": "C03", "text": "Fabricante de la maquina", "type": "texto"},
+        {"code": "C04", "text": "Modelo de la maquina", "type": "texto"},
+        {"code": "C05", "text": "Ano aproximado de fabricacion", "type": "numero"},
+        {"code": "C06", "text": "Descripcion del proceso: que produce, que movimientos realiza, que variables controla, y que condiciones inician y detienen el ciclo", "type": "texto_extenso"},
+        {"code": "C07", "text": "Estado actual", "type": "seleccion", "options": ["Operando normalmente", "Operando con fallas", "Operacion intermitente", "Fuera de servicio", "Desmontada", "En modernizacion"]},
+        {"code": "C08", "text": "Criticidad de la maquina", "type": "seleccion", "options": ["Baja: puede detenerse varios dias", "Media: afecta parcialmente la produccion", "Alta: afecta una linea importante", "Critica: detiene la planta o presenta riesgo de seguridad"]},
+        {"code": "C09", "text": "Horas de operacion", "type": "seleccion", "options": ["Menos de 8 horas diarias", "Entre 8 y 16 horas", "Entre 16 y 24 horas", "Operacion continua"]},
+        {"code": "C10", "text": "Tiempo maximo permitido de parada", "type": "seleccion", "options": ["Menos de 1 hora", "1 a 4 horas", "4 a 12 horas", "12 a 24 horas", "Mas de 24 horas"]},
+        {"code": "C11", "text": "Se conoce con exactitud la logica de control programada en el PLC (como decide el sistema cada accion, condiciones e interbloqueos)?", "type": "seleccion", "options": ["Si, documentada y comprendida", "Si, parcialmente", "Solo se conoce el comportamiento externo", "No se conoce"], "adaptive_rule": "Si la respuesta no es 'Si, documentada y comprendida', registrar dato faltante: sin conocer la logica de control, una migracion exige recuperar y analizar el programa (ingenieria inversa) antes de reconstruirlo, lo que aumenta el riesgo y el tiempo."},
+        {"code": "C12", "text": "Se conoce con exactitud la secuencia de operacion de la maquina (orden de pasos, condiciones de arranque, paro y emergencia, tiempos y enclavamientos)?", "type": "seleccion", "options": ["Si, documentada", "Si, por experiencia del personal", "Parcialmente", "No se conoce"], "adaptive_rule": "Si no se conoce, priorizar el levantamiento de la secuencia (entrevistas al operador, observacion del ciclo y analisis del programa) antes de migrar; marcarla como dato faltante critico para las pruebas SAT."}
+      ]
+    },
+    {
+      "id": "D",
+      "title": "Identificacion del controlador",
+      "what_it_decides": "Identidad exacta del equipo a evaluar y el dimensionamiento global de E/S para la plataforma destino (Regla 6).",
+      "questions": [
+        {"code": "D01", "text": "Fabricante del PLC", "type": "seleccion", "options": ["Siemens", "Rockwell Automation/Allen-Bradley", "Mitsubishi", "Schneider Electric", "Omron", "ABB", "Beckhoff", "B&R", "Delta", "Keyence", "GE/Emerson", "Wago", "Otro", "Desconocido"]},
+        {"code": "D02", "text": "Familia del PLC (dependiente del fabricante)", "type": "seleccion_dependiente", "options_by_manufacturer": {"Siemens": ["S5", "S7-200", "S7-300", "S7-400", "S7-1200", "S7-1500"], "Mitsubishi": ["FX", "Q", "iQ-R"], "Rockwell Automation/Allen-Bradley": ["SLC 500", "MicroLogix", "CompactLogix", "ControlLogix"], "Schneider Electric": ["Modicon"], "Omron": ["CJ", "NJ", "NX"], "Otro": ["Otra"]}},
+        {"code": "D03", "text": "Modelo exacto de CPU", "type": "texto", "adaptive_rule": "Si el usuario no conoce el modelo, solicitar fotografia de la placa."},
+        {"code": "D04", "text": "Numero de catalogo o referencia", "type": "texto"},
+        {"code": "D05", "text": "Numero de serie", "type": "texto", "required": false},
+        {"code": "D06", "text": "Version de firmware", "type": "texto"},
+        {"code": "D07", "text": "Ano aproximado de instalacion", "type": "numero", "adaptive_rule": "Junto con M01-M03 permite estimar la edad del equipo frente a su ciclo de vida. La edad por si sola NO es motivo de migracion: un equipo antiguo con soporte y repuestos vigentes puede seguir operando."},
+        {"code": "D08", "text": "Estado de la CPU", "type": "seleccion", "options": ["RUN", "STOP", "FALLA", "Sin energia", "Desconocido"]},
+        {"code": "D09", "text": "La CPU posee indicadores de error?", "type": "seleccion", "options": ["Si", "No", "No verificado"], "adaptive_rule": "Si responde 'Si', solicitar fotografia e identificacion de los LED activos."},
+        {"code": "D10", "text": "La CPU esta protegida con contrasena?", "type": "seleccion", "options": ["Si", "No", "No se conoce"]},
+        {"code": "D11", "text": "Existe una CPU de repuesto?", "type": "seleccion", "options": ["Si, nueva", "Si, usada", "No", "No se conoce"]},
+        {"code": "D12", "text": "Existen modulos de repuesto?", "type": "seleccion", "options": ["Si", "Parcialmente", "No", "No se conoce"]},
+        {"code": "D13", "text": "Cantidad total de entradas digitales (DI) del sistema", "type": "numero", "adaptive_rule": "Conteo global usado para dimensionar la CPU y la periferia destino (Regla 6). Complementa el inventario detallado por modulo de la Seccion E. Si no se conoce con exactitud, pedir una estimacion y marcar dato faltante."},
+        {"code": "D14", "text": "Cantidad total de salidas digitales (DO) del sistema", "type": "numero", "adaptive_rule": "Idem D13: dimensiona las salidas digitales de la plataforma destino y ayuda a estimar consumo y tipo de salida (rele, transistor, triac)."},
+        {"code": "D15", "text": "Cantidad total de entradas analogicas (AI) del sistema", "type": "numero", "adaptive_rule": "Dimensiona los canales analogicos de entrada; anotar el tipo de senal (0-10 V, +-10 V, 4-20 mA, RTD/PT100, termopar) junto al conteo cuando se conozca."},
+        {"code": "D16", "text": "Cantidad total de salidas analogicas (AO) del sistema", "type": "numero", "adaptive_rule": "Dimensiona los canales analogicos de salida; anotar el tipo de senal (0-10 V, +-10 V, 4-20 mA) cuando se conozca."}
+      ]
+    },
+    {
+      "id": "E",
+      "title": "Inventario de modulos de entradas y salidas",
+      "what_it_decides": "Lista de materiales (BOM) de la plataforma destino y el mapa de conversion de direcciones.",
+      "note": "El usuario podra registrar tantos modulos como existan. Cada registro debe quedar asociado al rack, estacion o gabinete correspondiente.",
+      "fields_by_module": [
+        {"code": "E01", "field": "Posicion en rack", "example": "Rack 0, slot 4"},
+        {"code": "E02", "field": "Fabricante", "example": "Siemens, Mitsubishi, etc."},
+        {"code": "E03", "field": "Numero de referencia", "example": "Codigo completo de catalogo"},
+        {"code": "E04", "field": "Tipo de modulo", "example": "DI, DO, AI, AO, RTD, termopar, contador, comunicacion, posicionamiento, seguridad, fuente"},
+        {"code": "E05", "field": "Cantidad de canales", "example": "8, 16, 32"},
+        {"code": "E06", "field": "Nivel electrico", "example": "24 VDC, 120 VAC, 230 VAC, 0-10 V, +-10 V, 4-20 mA, PT100, tipo K"},
+        {"code": "E07", "field": "Canales utilizados", "example": "Numero o porcentaje"},
+        {"code": "E08", "field": "Canales disponibles", "example": "Numero o porcentaje"},
+        {"code": "E09", "field": "Estado", "example": "Operativo, con fallas, intermitente, no probado, fuera de servicio"},
+        {"code": "E10", "field": "Referencia electrica por canal", "example": "Si, parcial o no"}
+      ]
+    },
+    {
+      "id": "F",
+      "title": "Programa, software y respaldos",
+      "what_it_decides": "Factor 'disponibilidad de respaldo'. Sin respaldo verificado, la prioridad 1 es recuperarlo antes que cualquier otra decision.",
+      "questions": [
+        {"code": "F01", "text": "Existe copia del programa del PLC?", "type": "seleccion", "options": ["Si", "No", "No se conoce"], "adaptive_rule": "Las preguntas posteriores cambian segun la respuesta (rama Si / rama No)."}
+      ],
+      "branch_yes": [
+        {"code": "F02", "text": "Nombre del archivo"},
+        {"code": "F03", "text": "Fecha del respaldo"},
+        {"code": "F04", "text": "Software utilizado"},
+        {"code": "F05", "text": "Version del software"},
+        {"code": "F06", "text": "El respaldo abre correctamente?"},
+        {"code": "F07", "text": "Puede compilarse sin errores?"},
+        {"code": "F08", "text": "Coincide con el programa cargado actualmente?"},
+        {"code": "F09", "text": "Incluye simbolos y comentarios?"},
+        {"code": "F10", "text": "Incluye bloques protegidos?"},
+        {"code": "F11", "text": "Cargar archivo (evidencia)"}
+      ],
+      "branch_no": [
+        {"code": "F12", "text": "La CPU esta operativa?"},
+        {"code": "F13", "text": "Existe cable de programacion?"},
+        {"code": "F14", "text": "Existe el software requerido?"},
+        {"code": "F15", "text": "Puede detenerse la maquina?"},
+        {"code": "F16", "text": "Se conoce la contrasena?"},
+        {"code": "F17", "text": "Se ha intentado cargar el programa desde el PLC?"},
+        {"code": "F18", "text": "Existe tarjeta de memoria extraible?"}
+      ],
+      "final_questions": [
+        {"code": "F19", "text": "Existe respaldo de la HMI?", "type": "seleccion", "options": ["Si", "No", "No aplica", "No se conoce"]},
+        {"code": "F20", "text": "Existe respaldo de variadores o servodrives?", "type": "seleccion", "options": ["Si", "No", "No aplica", "Parcialmente"]}
+      ]
+    },
+    {
+      "id": "G",
+      "title": "Comunicaciones industriales",
+      "what_it_decides": "Factor 'compatibilidad con sistemas actuales': que redes debe conservar o convertir la plataforma destino.",
+      "questions": [
+        {"code": "G01", "text": "Que redes utiliza la maquina?", "type": "seleccion_multiple", "options": ["MPI", "Profibus DP", "Profibus PA", "Profinet", "Industrial Ethernet", "Modbus RTU", "Modbus TCP", "DeviceNet", "ControlNet", "EtherNet/IP", "CANopen", "AS-Interface", "CC-Link", "EtherCAT", "RS-232", "RS-485", "Red propietaria", "No se conoce"]},
+        {"code": "G02", "text": "El PLC se comunica con una HMI?", "type": "si_no_detalle"},
+        {"code": "G03", "text": "Se comunica con un SCADA?", "type": "si_no_detalle"},
+        {"code": "G04", "text": "Se comunica con variadores?", "type": "si_no_detalle"},
+        {"code": "G05", "text": "Se comunica con otro PLC?", "type": "si_no_detalle"},
+        {"code": "G06", "text": "Se comunica con un sistema de gestion o base de datos?", "type": "si_no_detalle"},
+        {"code": "G07", "text": "Velocidad y configuracion de red", "type": "si_no_detalle"},
+        {"code": "G08", "text": "Direcciones de nodos", "type": "si_no_detalle"},
+        {"code": "G09", "text": "Existe diagrama de red?", "type": "si_no_detalle"},
+        {"code": "G10", "text": "Existen terminadores, convertidores o gateways?", "type": "si_no_detalle"}
+      ]
+    },
+    {
+      "id": "H",
+      "title": "HMI y supervision",
+      "what_it_decides": "Si la HMI puede conservarse o arrastra la migracion (alcance y costo).",
+      "questions": [
+        {"code": "H01", "text": "Fabricante de la HMI", "type": "texto"},
+        {"code": "H02", "text": "Modelo", "type": "texto"},
+        {"code": "H03", "text": "Numero de referencia", "type": "texto"},
+        {"code": "H04", "text": "Tamano de pantalla", "type": "texto"},
+        {"code": "H05", "text": "Software de programacion", "type": "texto"},
+        {"code": "H06", "text": "Version del software", "type": "texto"},
+        {"code": "H07", "text": "Tipo de comunicacion con el PLC", "type": "texto"},
+        {"code": "H08", "text": "Existe archivo fuente?", "type": "texto"},
+        {"code": "H09", "text": "Se conocen las contrasenas?", "type": "texto"},
+        {"code": "H10", "text": "Numero aproximado de pantallas", "type": "texto"},
+        {"code": "H11", "text": "Funciones existentes", "type": "seleccion_multiple", "options": ["Alarmas", "Tendencias", "Recetas", "Registro historico", "Usuarios y contrasenas", "Ajuste de parametros", "Modo manual", "Modo automatico", "Mantenimiento", "Diagnostico"]}
+      ]
+    },
+    {
+      "id": "I",
+      "title": "Seguridad funcional",
+      "what_it_decides": "Si el caso exige revision obligatoria por especialista. Tiene prioridad sobre cualquier criterio economico.",
+      "questions": [
+        {"code": "I01", "text": "La maquina posee paro de emergencia?", "type": "si_no_detalle"},
+        {"code": "I02", "text": "Los paros estan conectados al PLC normal o a un sistema de seguridad?", "type": "si_no_detalle"},
+        {"code": "I03", "text": "Existe PLC de seguridad?", "type": "si_no_detalle"},
+        {"code": "I04", "text": "Existen reles de seguridad?", "type": "si_no_detalle"},
+        {"code": "I05", "text": "Existen cortinas, escaneres o puertas con enclavamiento?", "type": "si_no_detalle"},
+        {"code": "I06", "text": "Se conoce el nivel de desempeno requerido?", "type": "seleccion", "options": ["PL", "SIL", "Categoria de seguridad", "No se conoce", "No aplica"]},
+        {"code": "I07", "text": "La migracion afectara funciones de seguridad?", "type": "seleccion", "options": ["Si", "No", "No se conoce"], "adaptive_rule": "Si la respuesta es 'Si' o 'No se conoce', marcar 'REVISION OBLIGATORIA POR ESPECIALISTA EN SEGURIDAD FUNCIONAL'."}
+      ]
+    },
+    {
+      "id": "J",
+      "title": "Instrumentacion y actuadores",
+      "what_it_decides": "Alcance real del cableado y de las senales de campo que la plataforma destino debe reproducir.",
+      "note": "Permite registrar sensores digitales, sensores analogicos, valvulas, motores, contactores, variadores, servomotores, encoders, resolvers, caudalimetros, transmisores, basculas y dispositivos neumaticos o hidraulicos.",
+      "fields_by_device": [
+        {"field": "Codigo", "description": "Identificador interno"},
+        {"field": "Fabricante y modelo", "description": "Datos de placa"},
+        {"field": "Alimentacion", "description": "Tension y tipo de corriente"},
+        {"field": "Tipo de senal", "description": "Digital, 0-10 V, 4-20 mA, pulso, bus, etc."},
+        {"field": "Rango", "description": "Rango de medida o actuacion"},
+        {"field": "Direccion de PLC", "description": "Entrada, salida, palabra o tag"},
+        {"field": "Funcion", "description": "Papel dentro del proceso"},
+        {"field": "Estado", "description": "Operativo, intermitente, fallado, no probado"},
+        {"field": "Criticidad", "description": "Baja, media, alta o critica"},
+        {"field": "Documentacion", "description": "Manual, plano, hoja tecnica o sin documento"}
+      ]
+    },
+    {
+      "id": "K",
+      "title": "Objetivo y restricciones de la intervencion",
+      "what_it_decides": "Que quiere el usuario y que restricciones acotan las alternativas admisibles.",
+      "questions": [
+        {"code": "K01", "text": "Que desea realizar?", "type": "seleccion_multiple", "options": ["Identificar obsolescencia", "Buscar repuesto directo", "Buscar hardware equivalente", "Migrar a una plataforma moderna", "Recuperar el programa", "Reconstruir el programa", "Reducir riesgo de parada", "Mejorar rendimiento", "Agregar nuevas funciones", "Integrar con Industria 4.0", "Mejorar seguridad", "Otro"]},
+        {"code": "K02", "text": "Desea conservar la misma marca?", "type": "seleccion", "options": ["Si", "No", "Preferible, pero no obligatorio", "No se ha decidido"]},
+        {"code": "K03", "text": "Existe hardware nuevo seleccionado?", "type": "si_no_detalle"},
+        {"code": "K04", "text": "Existe presupuesto estimado?", "type": "si_no_detalle"},
+        {"code": "K05", "text": "Existe una fecha limite?", "type": "si_no_detalle"},
+        {"code": "K06", "text": "Debe mantenerse el cableado existente?", "type": "si_no_detalle"},
+        {"code": "K07", "text": "Debe mantenerse la HMI existente?", "type": "si_no_detalle"},
+        {"code": "K08", "text": "Debe mantenerse la red industrial existente?", "type": "si_no_detalle"},
+        {"code": "K09", "text": "Se permiten cambios en el tablero?", "type": "si_no_detalle"},
+        {"code": "K10", "text": "Se requiere crecimiento futuro de entradas y salidas?", "type": "si_no_detalle"}
+      ]
+    },
+    {
+      "id": "L",
+      "title": "Historial de fallas y mantenimiento",
+      "what_it_decides": "Factor 'historial de fallas'. Distingue una falla puntual REPARABLE de un deterioro sistematico que justifica migrar. Muchas fallas atribuidas al PLC tienen causa raiz externa (bateria, temperatura, energia); buscarla ANTES de proponer un reemplazo.",
+      "questions": [
+        {"code": "L01", "text": "Cuantos paros no programados atribuibles al sistema de control ha tenido la maquina en los ultimos 12 meses?", "type": "numero", "adaptive_rule": "Alimenta el factor 'historial_fallas'. Si el usuario no lleva registro, pedir una estimacion y marcarla como baja_confianza; no inventar un numero."},
+        {"code": "L02", "text": "Duracion promedio de esos paros", "type": "seleccion", "options": ["Menos de 1 hora", "1 a 4 horas", "4 a 12 horas", "12 a 24 horas", "Mas de 24 horas", "No se conoce"], "adaptive_rule": "Multiplicado por L01 y por el costo horario (Q01) da la perdida anual; es la cifra que hace comparable reparar contra migrar."},
+        {"code": "L03", "text": "Como ha evolucionado la frecuencia de fallas en los ultimos 24 meses?", "type": "seleccion", "options": ["En aumento", "Estable", "En disminucion", "Sin fallas registradas", "No se lleva registro"], "adaptive_rule": "'En aumento' es la senal mas fuerte de deterioro por envejecimiento y eleva el factor historial_fallas; 'Sin fallas registradas' NO debe leerse como equipo sano si tampoco hay registro (L08)."},
+        {"code": "L04", "text": "Que componentes del sistema de control han fallado?", "type": "seleccion_multiple", "options": ["CPU", "Fuente de alimentacion", "Modulo de entradas digitales", "Modulo de salidas digitales", "Modulo de entradas analogicas", "Modulo de salidas analogicas", "Modulo de comunicacion", "Bateria o respaldo de memoria", "HMI", "Variador o servo", "Cableado, bornes o conectores", "Sensores o actuadores de campo", "Ninguno", "No se conoce"], "adaptive_rule": "Si las fallas se concentran en periferia, cableado o campo, la CPU puede seguir siendo viable: evaluar REPARACION o sustitucion parcial antes que migracion completa. Si la CPU misma falla de forma repetida, sube el peso de migrar."},
+        {"code": "L05", "text": "La CPU o algun modulo ha sido reparado previamente?", "type": "seleccion", "options": ["No", "Si, por el fabricante", "Si, por un taller de tercero especializado", "Si, por personal propio", "No se conoce"], "adaptive_rule": "Las reparaciones sin trazabilidad ni repuestos originales reducen la confiabilidad esperada; anotarlo como riesgo y no asumir que el equipo esta 'como nuevo'."},
+        {"code": "L06", "text": "Sintomas actuales del sistema de control (bloqueos aleatorios, perdida de comunicacion, LED de error, recalentamiento, salidas que no responden, etc.)", "type": "texto_extenso", "adaptive_rule": "Los sintomas guian el diagnostico de causa raiz. Si el equipo esta fuera de servicio, este dato es prioritario (paso 2 del arbol de decision)."},
+        {"code": "L07", "text": "La maquina pierde el programa, los datos o la hora al quitar la energia?", "type": "seleccion", "options": ["Si", "No", "No se ha probado", "No se conoce"], "adaptive_rule": "Sintoma clasico de bateria agotada o memoria de respaldo degradada. Es una REPARACION de bajo costo: evaluarla y resolverla ANTES de plantear cualquier migracion, pero advertir que sustituir la bateria con la CPU sin energia puede borrar el programa, por lo que exige respaldo verificado previo (Regla 3 y 5)."},
+        {"code": "L08", "text": "Existe un registro historico de mantenimiento (bitacora, ordenes de trabajo o CMMS)?", "type": "seleccion", "options": ["Si, digital", "Si, en papel", "Parcial", "No"], "adaptive_rule": "Si no hay registro, todas las respuestas de la seccion L son estimaciones: etiquetarlas como baja_confianza y registrar dato faltante."},
+        {"code": "L09", "text": "Se aplica mantenimiento preventivo al tablero de control (limpieza, ajuste de bornes, revision de ventilacion)?", "type": "seleccion", "options": ["Si, programado", "Ocasional", "No", "No se conoce"], "adaptive_rule": "La ausencia de preventivo suele explicar fallas recurrentes; incluir su implantacion en el plan, migre o no la planta."}
+      ]
+    },
+    {
+      "id": "M",
+      "title": "Ciclo de vida, soporte y repuestos en el mercado",
+      "what_it_decides": "Los tres factores de mayor peso del modelo de riesgo: estado del ciclo de vida, disponibilidad de repuestos y soporte del fabricante. Es el nucleo objetivo de la decision reparar vs. migrar.",
+      "note": "El estado de ciclo de vida NUNCA se supone por la edad del equipo: se verifica en la pagina oficial de ciclo de vida del fabricante o con el distribuidor autorizado, y se cita la fuente (Regla 9 y 14).",
+      "questions": [
+        {"code": "M01", "text": "Estado del producto declarado por el fabricante", "type": "seleccion", "options": ["Activo, en comercializacion", "En madurez, ya existe un sucesor", "Anuncio de descontinuacion (phase-out)", "Descontinuado, aun con soporte y repuestos", "Descontinuado y sin soporte (fin de vida)", "No se conoce"], "adaptive_rule": "Factor 'estado_ciclo_vida'. Si es 'No se conoce', registrar dato faltante y ofrecer verificarlo; una recomendacion emitida sin este dato es preliminar por definicion."},
+        {"code": "M02", "text": "Ano en que el fabricante dejo (o dejara) de vender el producto, si se conoce", "type": "numero", "required": false},
+        {"code": "M03", "text": "Ano de fin de soporte tecnico y de suministro de repuestos, si se conoce", "type": "numero", "required": false, "adaptive_rule": "Comparar con Q05 (anos de vida util restantes de la maquina). Si el soporte termina antes de que la maquina se retire, la migracion deja de ser opcional y pasa a ser planificable con fecha."},
+        {"code": "M04", "text": "Se consiguen repuestos NUEVOS del fabricante o de un distribuidor autorizado?", "type": "seleccion", "options": ["Si, sin problema", "Si, pero con plazo largo", "Solo por pedido especial", "No", "No se ha consultado"], "adaptive_rule": "Factor 'disponibilidad_repuestos'. 'No se ha consultado' no equivale a 'No': proponer la consulta antes de concluir."},
+        {"code": "M05", "text": "Se consiguen repuestos usados o reacondicionados en el mercado secundario?", "type": "seleccion", "options": ["Si, con garantia", "Si, sin garantia", "Escasos y caros", "No", "No se ha consultado"], "adaptive_rule": "El mercado secundario no garantiza procedencia, horas de uso ni version de firmware. Es aceptable como medida temporal o de contingencia, nunca como base de un plan a largo plazo; exigir prueba funcional antes de instalar."},
+        {"code": "M06", "text": "Plazo de entrega tipico de un repuesto critico (CPU o modulo)", "type": "seleccion", "options": ["En existencia en la planta o local", "Menos de 2 semanas", "De 2 a 8 semanas", "Mas de 8 semanas", "No se consigue", "No se conoce"], "adaptive_rule": "COMPARAR SIEMPRE contra C10 (tiempo maximo de parada permitido). Si el plazo de entrega supera el tiempo tolerable de parada, la estrategia de repuesto NO es suficiente por si sola: exige stock propio o migracion. Decirlo de forma explicita."},
+        {"code": "M07", "text": "Existe servicio de reparacion para la CPU o los modulos?", "type": "seleccion", "options": ["Si, del fabricante", "Si, de tercero certificado", "Si, de tercero sin certificar", "No", "No se conoce"], "adaptive_rule": "Habilita la alternativa REPARACION. Advertir que una reparacion de tercero sin certificar no restituye garantia ni trazabilidad."},
+        {"code": "M08", "text": "Costo aproximado de un repuesto o de su reparacion, indicando la moneda", "type": "texto", "adaptive_rule": "Se contrasta con Q03 (presupuesto) y con el costo de la migracion. No inventar precios: si el usuario no lo sabe, marcarlo como dato faltante."},
+        {"code": "M09", "text": "Existe contrato de soporte o mantenimiento vigente con el fabricante o con un integrador?", "type": "seleccion", "options": ["Si, vigente", "Vencido", "No", "No se conoce"], "adaptive_rule": "Factor 'soporte_fabricante'."},
+        {"code": "M10", "text": "El fabricante ofrece una ruta o kit de migracion oficial para esta familia?", "type": "seleccion", "options": ["Si", "No", "No se conoce"], "adaptive_rule": "Consultar la base de referencia con `query_guide` (tema 'fabricante') y citar la fuente. NUNCA inventar nombres de kits ni numeros de catalogo: describirlos de forma generica y remitir a la herramienta oficial de seleccion del fabricante."}
+      ]
+    },
+    {
+      "id": "N",
+      "title": "Entorno de programacion, licencias y accesos",
+      "what_it_decides": "Factor 'disponibilidad del software'. Determina si el programa puede recuperarse y cargarse: sin PC, licencia, cable o contrasena, ninguna alternativa es ejecutable, por barata que parezca.",
+      "questions": [
+        {"code": "N01", "text": "Existe una PC con el software de programacion instalado?", "type": "seleccion", "options": ["Si, dedicada al mantenimiento", "Si, compartida", "No", "No se conoce"]},
+        {"code": "N02", "text": "Sistema operativo de esa PC", "type": "seleccion", "options": ["Windows XP", "Windows 7", "Windows 10", "Windows 11", "Linux", "Maquina virtual sobre un equipo moderno", "Otro", "No se conoce"], "adaptive_rule": "El software antiguo (por ejemplo STEP 7 v5.x o RSLogix 500) suele exigir un sistema operativo ya sin soporte o una maquina virtual. Si la PC depende de un SO obsoleto, ES EN SI MISMO un riesgo de obsolescencia: registrarlo y sumarlo al factor disponibilidad_software."},
+        {"code": "N03", "text": "Tipo de licencia del software de programacion", "type": "seleccion", "options": ["Original con licencia vigente", "Original con licencia vencida", "Licencia flotante en servidor", "Llave fisica (dongle)", "Version de demostracion o limitada", "No se tiene licencia", "No se conoce"], "adaptive_rule": "Sin licencia valida no se puede abrir, modificar ni descargar el proyecto: es dato faltante CRITICO. Si depende de una llave fisica, advertir que su perdida o dano deja el sistema inaccesible. El agente no asiste a eludir licencias: la via correcta es adquirirla o recurrir al fabricante o integrador."},
+        {"code": "N04", "text": "Puertos y tarjetas de comunicacion disponibles en esa PC", "type": "seleccion_multiple", "options": ["Puerto serie RS-232", "Tarjeta MPI o Profibus (CP)", "Adaptador USB-MPI", "Puerto Ethernet", "Adaptador USB-serie", "No se tiene ninguno", "No se conoce"], "adaptive_rule": "Las PC modernas ya no traen puerto serie ni ranura para tarjetas CP; es una causa habitual de que un respaldo 'posible' resulte inejecutable."},
+        {"code": "N05", "text": "Se dispone del cable o adaptador de programacion correcto, con su driver instalado?", "type": "seleccion", "options": ["Si, ya probado con este PLC", "Si, pero sin probar", "No", "No se conoce"], "adaptive_rule": "'Sin probar' no es 'Si': antes de planificar un respaldo, pedir una prueba de comunicacion."},
+        {"code": "N06", "text": "Se conocen las contrasenas del proyecto y de los bloques protegidos?", "type": "seleccion", "options": ["Si, todas", "Parcialmente", "No", "No hay contrasenas", "No se conoce"], "adaptive_rule": "Enlaza con D10 y F16. Sin la contrasena, recuperar el programa puede ser imposible y la balanza se inclina hacia reconstruccion (mas cara y lenta). El agente NO asiste a saltarse protecciones: la via correcta es el fabricante, el integrador o el propietario del proyecto (N07)."},
+        {"code": "N07", "text": "Quien posee el proyecto fuente original del programa?", "type": "seleccion", "options": ["La planta", "El fabricante de la maquina", "Un integrador externo", "Se desconoce", "No existe"], "adaptive_rule": "Si lo posee un tercero, la primera accion recomendada es SOLICITARLO formalmente: es mas rapido y barato que cualquier ingenieria inversa. Registrarlo como accion previa en el plan."},
+        {"code": "N08", "text": "El personal de la planta ha usado antes ese software de programacion?", "type": "seleccion", "options": ["Si, con soltura", "Si, a nivel basico", "No", "No se conoce"], "adaptive_rule": "Ajusta el nivel de detalle de las guias paso a paso y anticipa necesidad de acompanamiento externo."}
+      ]
+    },
+    {
+      "id": "O",
+      "title": "Funciones especiales y desempeno del programa",
+      "what_it_decides": "El esfuerzo real de conversion del programa y el dimensionamiento de la CPU destino (Regla 6). Es lo que separa una migracion sencilla de una compleja.",
+      "questions": [
+        {"code": "O01", "text": "El programa realiza control de lazo cerrado (PID) o regulacion continua?", "type": "si_no_detalle", "adaptive_rule": "Si existe, verificar que la plataforma destino ofrezca bloques equivalentes y advertir que los parametros de sintonia NO se transfieren de forma automatica: hay que resintonizar y validarlo en SAT."},
+        {"code": "O02", "text": "Existe control de movimiento, posicionamiento o ejes sincronizados (servos, levas electronicas, interpolacion)?", "type": "si_no_detalle", "adaptive_rule": "El motion es el punto mas caro y riesgoso de una migracion, y rara vez tiene conversion automatica. Si existe, elevar el esfuerzo estimado, exigir pruebas FAT especificas y considerar acompanamiento del fabricante."},
+        {"code": "O03", "text": "Se usan contadores rapidos, encoders o entradas de interrupcion?", "type": "si_no_detalle", "adaptive_rule": "Condiciona modulos especificos en la plataforma destino; verificar frecuencia maxima y tipo de senal (HTL/TTL, incremental o absoluto)."},
+        {"code": "O04", "text": "Existen funciones de recetas, lotes, conteo de produccion o trazabilidad?", "type": "si_no_detalle", "adaptive_rule": "Suelen residir en la HMI o en bases de datos externas; verificar donde estan realmente antes de estimar el alcance."},
+        {"code": "O05", "text": "Memoria de programa utilizada y memoria total disponible en la CPU", "type": "texto", "adaptive_rule": "Dato de dimensionamiento (Regla 6). Si no se conoce, puede leerse con el software de programacion estando en linea."},
+        {"code": "O06", "text": "Tiempo de ciclo (scan) tipico y maximo observados", "type": "texto", "adaptive_rule": "Dato de dimensionamiento (Regla 6). Si el ciclo actual esta cerca del limite configurado, la CPU destino debe elegirse con margen; anotarlo de forma explicita."},
+        {"code": "O07", "text": "En que lenguajes esta escrito el programa?", "type": "seleccion_multiple", "options": ["Ladder (KOP / LD)", "Bloques de funciones (FUP / FBD)", "Lista de instrucciones (AWL / STL / IL)", "Texto estructurado (SCL / ST)", "GRAFCET, GRAPH o SFC", "Bloques propietarios del fabricante de la maquina", "No se conoce"], "adaptive_rule": "Determina cuanta conversion es automatica. Ladder y FBD suelen convertirse bien; lista de instrucciones, GRAPH y los bloques propietarios exigen reescritura manual y revision linea a linea. Declararlo como esfuerzo explicito en el plan, nunca ocultarlo."},
+        {"code": "O08", "text": "El programa usa bloques, librerias o funciones propietarias del fabricante de la maquina?", "type": "seleccion", "options": ["Si", "No", "No se conoce"], "adaptive_rule": "Si existen y estan protegidos, es probable que no puedan reconstruirse sin el fabricante; enlaza con N06 y N07 y puede ser el argumento decisivo para conservar plataforma o negociar con el OEM."},
+        {"code": "O09", "text": "Existen funciones de temporizacion critica (por debajo de 10 ms) o sincronismo entre estaciones?", "type": "si_no_detalle", "adaptive_rule": "Obliga a verificar tiempos de la plataforma destino y de la red elegida; no dar por hecho que una red moderna es siempre mas rapida en el peor caso."}
+      ]
+    },
+    {
+      "id": "P",
+      "title": "Condiciones ambientales e instalacion",
+      "what_it_decides": "Causas raiz externas de las fallas (que pueden hacer innecesaria una migracion) y la viabilidad fisica de la plataforma destino en el tablero existente.",
+      "questions": [
+        {"code": "P01", "text": "Temperatura dentro del tablero de control", "type": "seleccion", "options": ["Menor a 30 C", "Entre 30 y 40 C", "Entre 40 y 50 C", "Mayor a 50 C", "No se ha medido"], "adaptive_rule": "La temperatura alta acorta la vida de la electronica y explica muchas fallas recurrentes. Si es alta, es una causa raiz CORREGIBLE (ventilacion, filtros, reubicacion): plantearla antes de atribuir las fallas a la obsolescencia del PLC."},
+        {"code": "P02", "text": "El tablero cuenta con ventilacion forzada, filtros o climatizacion?", "type": "seleccion", "options": ["Si, con mantenimiento periodico", "Si, sin mantenimiento", "No", "No se conoce"]},
+        {"code": "P03", "text": "Condiciones del entorno de la maquina", "type": "seleccion_multiple", "options": ["Polvo", "Humedad alta", "Ambiente corrosivo o salino", "Vapor", "Lavado con agua", "Vibracion", "Golpes", "Campos electromagneticos fuertes", "Ninguna destacable"], "adaptive_rule": "Condiciona el grado de proteccion (IP) y el tipo de equipo de la plataforma destino; tambien explica degradaciones de contactos y conectores."},
+        {"code": "P04", "text": "Calidad de la energia electrica", "type": "seleccion_multiple", "options": ["Variaciones frecuentes de tension", "Cortes frecuentes", "Presencia de armonicos", "Sin UPS", "Con UPS", "Puesta a tierra verificada", "Puesta a tierra dudosa o inexistente", "No se conoce"], "adaptive_rule": "Causa muy frecuente de fallas erroneamente atribuidas al PLC. Si la energia o la tierra son deficientes, un PLC nuevo volvera a fallar: corregirlo forma parte del plan, sea cual sea la alternativa elegida."},
+        {"code": "P05", "text": "Espacio libre disponible en el tablero y en el riel DIN", "type": "seleccion", "options": ["Amplio", "Justo", "No hay espacio", "No se ha medido"], "adaptive_rule": "Si no hay espacio, la migracion puede exigir un tablero nuevo: es un costo que suele olvidarse en la estimacion. Enlaza con K09."},
+        {"code": "P06", "text": "Tension de mando del sistema", "type": "seleccion_multiple", "options": ["24 VDC", "48 VDC", "110 VAC", "220 VAC", "Otra", "No se conoce"], "adaptive_rule": "Determina el tipo de modulos de entrada y salida de la plataforma destino. NUNCA suponerla (Regla 2): las plataformas modernas suelen ser de 24 VDC y un sistema antiguo a 110/220 VAC puede requerir reles de interposicion, con su costo y espacio."},
+        {"code": "P07", "text": "Estado del cableado, borneras y canalizacion", "type": "seleccion", "options": ["Bueno y etiquetado", "Aceptable", "Deteriorado", "Sin etiquetar", "No se conoce"], "adaptive_rule": "Condiciona K06 (conservar el cableado). Un cableado sin etiquetar convierte el recableado en la tarea mas larga de la puesta en marcha: hay que levantarlo y rotularlo antes del corte."},
+        {"code": "P08", "text": "Existen planos electricos actualizados del tablero?", "type": "seleccion", "options": ["Si, actualizados", "Si, pero desactualizados", "Parciales", "No existen", "No se conoce"], "adaptive_rule": "Sin planos fiables, toda estimacion de alcance es preliminar; registrar dato faltante y proponer su levantamiento como tarea previa."}
+      ]
+    },
+    {
+      "id": "Q",
+      "title": "Economia, plazos y decision",
+      "what_it_decides": "Convierte el riesgo tecnico en una decision justificable. Sin el horizonte de vida de la maquina (Q05) y el costo de parada (Q01), la eleccion entre reparar y migrar no tiene sustento economico.",
+      "questions": [
+        {"code": "Q01", "text": "Costo aproximado de una hora de parada de esta maquina, indicando la moneda", "type": "texto", "adaptive_rule": "Es el dato que hace comparables las alternativas. Si el usuario no lo conoce, pedir un rango estimado (produccion perdida por hora, mano de obra parada, penalizaciones) y marcarlo como baja_confianza. Nunca inventar la cifra."},
+        {"code": "Q02", "text": "Perdida acumulada estimada por paros del sistema de control en los ultimos 12 meses", "type": "texto", "required": false, "adaptive_rule": "Puede calcularse como L01 x L02 x Q01. Mostrar el calculo al usuario para que lo valide, indicando que es una estimacion."},
+        {"code": "Q03", "text": "Existe presupuesto para la intervencion? Indicar monto y moneda si se conoce", "type": "seleccion", "options": ["Si, aprobado", "Si, estimado", "En gestion", "No", "No se conoce"], "adaptive_rule": "Acota las alternativas realistas. Si no hay presupuesto, priorizar acciones de bajo costo y alto impacto: asegurar el respaldo, comprar repuestos criticos y corregir causas raiz ambientales."},
+        {"code": "Q04", "text": "Cuando puede intervenirse la maquina?", "type": "seleccion", "options": ["Hay un paro programado ya definido", "En el paro anual de planta o vacaciones", "Fines de semana", "En cualquier momento", "No hay ventana disponible"], "adaptive_rule": "Si no hay ventana de parada, descartar de entrada las alternativas que exijan corte largo y plantear estrategias por etapas o con sistema en paralelo. Enlaza con C10."},
+        {"code": "Q05", "text": "Cuantos anos mas se espera que la maquina siga en produccion?", "type": "seleccion", "options": ["Menos de 2 anos", "De 2 a 5 anos", "De 5 a 10 anos", "Mas de 10 anos", "Se planea retirarla o sustituirla", "No se ha definido"], "adaptive_rule": "CRITERIO DECISIVO. Con menos de 2 o 3 anos de vida util restante, una migracion completa rara vez se justifica: priorizar reparacion, repuesto y aseguramiento del respaldo. Con mas de 5 anos y soporte terminado (M03), la migracion pasa a ser planificable con fecha. Si es 'No se ha definido', registrarlo como dato faltante: la decision economica queda sin base."},
+        {"code": "Q06", "text": "Existe una politica de planta sobre marcas o plataformas estandar?", "type": "seleccion", "options": ["Si, obligatoria", "Si, preferente", "No", "No se conoce"], "adaptive_rule": "Una politica obligatoria puede imponer la plataforma destino por encima del criterio tecnico; respetarla y, si genera un riesgo tecnico, declararlo de forma explicita. Enlaza con K02."},
+        {"code": "Q07", "text": "Existen otras maquinas en la planta con el mismo PLC obsoleto? Indicar cuantas", "type": "texto", "adaptive_rule": "Cambia por completo la economia: con una flota conviene evaluar un plan de migracion por etapas, un stock comun de repuestos y una unica capacitacion. Tambien permite canibalizar equipos retirados como medida temporal."},
+        {"code": "Q08", "text": "El personal de mantenimiento esta capacitado en la plataforma destino?", "type": "seleccion", "options": ["Si", "Parcialmente", "No", "Aun no se ha definido la plataforma"], "adaptive_rule": "Si no lo esta, incluir la capacitacion en el plan y en el costo; una plataforma que nadie sabe mantener genera una obsolescencia nueva, esta vez de conocimiento."},
+        {"code": "Q09", "text": "Se aceptaria una solucion temporal controlada mientras se prepara una migracion?", "type": "seleccion", "options": ["Si", "No", "Depende del riesgo", "No se conoce"], "adaptive_rule": "Habilita la alternativa de operacion temporal controlada, util cuando falta presupuesto o ventana de parada pero el riesgo es alto."}
+      ]
+    }
+  ],
+  "decision_map": {
+    "description": "Enlaza las preguntas con el modelo de riesgo y con los criterios de cada alternativa. Los pesos de los factores los define migra_ia/scoring.py (no se duplican aqui); la herramienta `query_questionnaire` los adjunta en vivo.",
+    "risk_factors": [
+      {
+        "key": "estado_ciclo_vida",
+        "questions": ["M01", "M02", "M03", "D07", "C05"],
+        "guide": "Se puntua sobre el estado DECLARADO por el fabricante (M01), no sobre la edad del equipo. Activo o en madurez = riesgo bajo; phase-out anunciado = riesgo importante; descontinuado con soporte = alto; fin de vida sin soporte = critico. Si M01 es 'No se conoce', omitir el factor y registrar dato faltante en vez de suponer."
+      },
+      {
+        "key": "disponibilidad_repuestos",
+        "questions": ["M04", "M05", "M06", "M07", "D11", "D12", "Q07"],
+        "guide": "Combina el mercado (M04-M06) con el stock propio (D11-D12). El plazo de entrega (M06) se contrasta SIEMPRE con el tiempo de parada tolerable (C10): un repuesto que llega despues de lo que la planta puede aguantar no cubre el riesgo. Existencias propias o flota canibalizable (Q07) bajan la puntuacion."
+      },
+      {
+        "key": "soporte_fabricante",
+        "questions": ["M09", "M07", "M10", "M03"],
+        "guide": "Contrato vigente y servicio de reparacion del fabricante = riesgo bajo. Sin contrato, sin servicio y con fin de soporte pasado = critico. La existencia de una ruta de migracion oficial (M10) no reduce el riesgo actual, pero facilita el plan."
+      },
+      {
+        "key": "disponibilidad_software",
+        "questions": ["N01", "N02", "N03", "N04", "N05", "N06", "N07", "F04", "F05", "F14"],
+        "guide": "Es la barrera practica mas subestimada. Sube el riesgo si: no hay PC o el sistema operativo esta sin soporte (N02), la licencia falta, esta vencida o depende de una llave fisica (N03), no hay puerto ni adaptador compatible (N04-N05), o no se conocen las contrasenas (N06). El proyecto fuente en manos de un tercero (N07) es riesgo alto pero a menudo resoluble con una solicitud formal."
+      },
+      {
+        "key": "disponibilidad_respaldo",
+        "questions": ["F01", "F06", "F07", "F08", "F19", "F20"],
+        "guide": "Solo un respaldo que ABRE, COMPILA y coincide con lo cargado cuenta como respaldo (Regla 3). Un archivo no verificado se puntua como si no existiera. Sin respaldo, la prioridad 1 es recuperarlo, por delante de cualquier decision de reparar o migrar."
+      },
+      {
+        "key": "compatibilidad_sistemas",
+        "questions": ["G01", "G02", "G03", "G04", "G05", "G06", "O01", "O02", "O03", "O07", "O08", "P06"],
+        "guide": "Mide cuanto arrastra el cambio. Redes propietarias u obsoletas (G01), motion (O02), bloques propietarios (O08), lenguajes sin conversion automatica (O07) y tensiones de mando distintas de 24 VDC (P06) elevan el esfuerzo y el riesgo de la sustitucion."
+      },
+      {
+        "key": "historial_fallas",
+        "questions": ["L01", "L02", "L03", "L04", "L05", "L06", "L07", "P01", "P04"],
+        "guide": "Antes de puntuar alto, buscar causa raiz externa: temperatura (P01), calidad de energia y tierra (P04), bateria agotada (L07) o fallas concentradas en campo y cableado (L04). Solo las fallas atribuibles al propio controlador, y en tendencia creciente (L03), justifican una puntuacion alta."
+      },
+      {
+        "key": "criticidad_productiva",
+        "questions": ["C08", "C09", "C10", "Q01", "Q04", "I07"],
+        "guide": "Combina el impacto (C08, Q01) con la falta de holgura (C09, C10, Q04). Una maquina critica, en operacion continua, sin ventana de parada y con alto costo horario se puntua como riesgo critico aunque el equipo hoy funcione bien."
+      }
+    ],
+    "alternative_criteria": [
+      {
+        "alternative": "Correccion de causa raiz (sin cambiar el controlador)",
+        "evaluate_first": true,
+        "favorable_conditions": ["Fallas explicadas por temperatura (P01), ventilacion (P02), energia o tierra (P04)", "Perdida de programa por bateria (L07)", "Fallas concentradas en cableado, bornes o campo (L04)", "Ausencia de mantenimiento preventivo (L09)"],
+        "advertencias": ["Es la primera hipotesis a descartar: reemplazar un PLC sin corregir la causa raiz reproduce la falla en el equipo nuevo.", "Toda intervencion sobre la bateria o la memoria exige respaldo verificado previo."]
+      },
+      {
+        "alternative": "Reparacion del equipo existente",
+        "favorable_conditions": ["Existe servicio de reparacion, preferiblemente del fabricante o certificado (M07)", "La falla esta localizada y no es recurrente (L03 estable o en disminucion)", "Quedan pocos anos de vida util a la maquina (Q05 menor a 2-5 anos)", "No hay presupuesto para migracion (Q03)", "El tiempo de reparacion cabe en la ventana disponible (Q04, C10)"],
+        "advertencias": ["Una reparacion no revierte la obsolescencia: si M01 indica fin de vida, es una medida de continuidad, no una solucion.", "Reparaciones de terceros sin certificacion no restituyen garantia ni trazabilidad (L05).", "Debe ir acompanada SIEMPRE de un respaldo verificado y, si es posible, de un repuesto en existencia."]
+      },
+      {
+        "alternative": "Repuesto directo (mismo modelo)",
+        "favorable_conditions": ["Se consiguen repuestos nuevos o de segunda mano fiables (M04, M05)", "El plazo de entrega es menor que el tiempo de parada tolerable (M06 frente a C10)", "Existe respaldo verificado para recargar el programa (F01, F06-F08)", "Se quiere minimizar el riesgo y el tiempo de intervencion"],
+        "advertencias": ["Exige verificar version de firmware y compatibilidad exacta; no basta la coincidencia de nombre o referencia parcial (Regla 1 y 13).", "Si el producto esta en fin de vida (M01), es una solucion con fecha de caducidad: planificar la migracion en paralelo.", "Un repuesto usado debe probarse funcionalmente antes de instalarse."]
+      },
+      {
+        "alternative": "Hardware equivalente o sustitucion parcial",
+        "favorable_conditions": ["No hay repuesto del modelo original pero si dentro de la misma familia o de una compatible", "Se puede conservar el cableado, la HMI y la red (K06-K08)", "El programa se conserva o se convierte con esfuerzo acotado (O07)"],
+        "advertencias": ["La equivalencia se establece por criterio tecnico (E/S, senales, redes, memoria, ciclo, funciones especiales), NUNCA por similitud de nombre (Regla 1 y 2).", "Todo numero de catalogo queda 'a verificar con el fabricante y su herramienta oficial de seleccion'."]
+      },
+      {
+        "alternative": "Migracion a plataforma moderna",
+        "favorable_conditions": ["Fin de vida sin soporte ni repuestos (M01, M03, M04)", "Plazo de entrega de repuestos superior a la parada tolerable (M06 frente a C10)", "Fallas en aumento atribuibles al controlador, con causa raiz externa ya descartada (L03, L04)", "Vida util restante de la maquina mayor a 5 anos (Q05)", "Presupuesto disponible o gestionable (Q03) y ventana de intervencion identificada (Q04)", "Existen varias maquinas iguales que permiten un plan por etapas (Q07)"],
+        "advertencias": ["Exige respaldo verificado y plan de retorno antes de tocar nada (Regla 3 y 5).", "El esfuerzo real lo marcan las funciones especiales y los lenguajes (O01-O09), no el numero de E/S.", "Verificar espacio en tablero (P05) y tension de mando (P06): son costos que suelen olvidarse.", "Incluir capacitacion del personal (Q08) en el plan y en el costo.", "Toda funcion de seguridad involucrada exige revision de especialista (Seccion I).", "Tener el programa accesible NO es un argumento para quedarse en un equipo sin repuestos: solo abarata la salida. Si el usuario decide migrar con el codigo en la mano, acatar la decision y pasar directo a la ruta de conversion de su marca."],
+        "execution_variants": [
+          {"id": "conversion_con_codigo_accesible", "trigger": "obsolescencia_con_acceso_al_codigo", "when": "Se conocen las contrasenas (N06 'Si, todas' o 'No hay contrasenas', o F16 afirmativa) Y existe copia del programa que abre y compila (F01, F06, F07). El motivo de migrar es la obsolescencia y la falta de repuestos (M01, M04, M06), no la perdida del programa.", "what_changes": "Es el escenario MAS BARATO Y CORTO de migracion: el programa se CONVIERTE con las herramientas oficiales del fabricante en vez de reescribirse. Los pasos 21 y 22 del procedimiento aplican enteros y la extension P1-P7 va en version ligera. NO se declara la variante 'sin_respaldo'.", "how_it_is_executed": "Con la ruta de conversion de la marca: `query_procedure` con tema 'ruta_fabricante'. Para Siemens es STEP 5 -> S5 File Converter -> SIMATIC Manager (STEP 7) -> MigrateProject -> TIA Portal, resolviendo el lenguaje antes de subir a TIA. Si la marca no tiene ruta publicada, se declara y se sigue con el paso 21 generico."},
+          {"id": "reconstruccion_sin_codigo", "trigger": "contrasena_desconocida / sin_acceso_al_programa", "when": "No se conocen las contrasenas (N06 'No') o no hay copia utilizable del programa (F01 'No', o F06/F07 negativas).", "what_changes": "No hay nada que convertir: los pasos 21 y 22 no aplican y el trabajo real es la extension P1-P7. Se dimensiona como desarrollo nuevo, no como migracion."}
+        ]
+      },
+      {
+        "alternative": "Reconstruccion del programa",
+        "favorable_conditions": ["No existe respaldo y no puede recuperarse del PLC (F01, F12-F18)", "No se conocen las contrasenas y el propietario del proyecto no puede facilitarlo (N06, N07)", "El programa depende de bloques propietarios inaccesibles (O08)"],
+        "advertencias": ["Es la alternativa mas cara, lenta y arriesgada: proponerla solo como ultimo recurso.", "Exige levantar antes la logica de control y la secuencia de operacion (C11, C12) con entrevistas y observacion del ciclo.", "Requiere un plan de pruebas SAT especialmente exigente."]
+      },
+      {
+        "alternative": "Operacion temporal controlada",
+        "favorable_conditions": ["El riesgo es alto pero no hay presupuesto (Q03) ni ventana de intervencion (Q04)", "El usuario acepta una medida puente (Q09)"],
+        "advertencias": ["No es una solucion: es ganar tiempo con el riesgo declarado y aceptado por escrito.", "Debe ir acompanada de respaldo verificado, repuesto critico en existencia y una fecha comprometida para la solucion definitiva."]
+      }
+    ],
+    "priority_rules": [
+      "1. La seguridad funcional manda sobre todo lo demas: si la Seccion I indica que hay funciones de seguridad afectadas o desconocidas, ninguna recomendacion se cierra sin revision de especialista.",
+      "2. Sin respaldo verificado, la prioridad 1 es recuperarlo; ninguna alternativa se ejecuta antes que eso.",
+      "3. Antes de atribuir las fallas a la obsolescencia, descartar causa raiz externa (temperatura, energia, tierra, bateria, cableado).",
+      "4. La edad del equipo NO es por si sola un motivo de migracion; el estado de ciclo de vida, los repuestos y el soporte si lo son.",
+      "5. Ninguna alternativa es viable si su plazo de ejecucion o de suministro supera el tiempo de parada tolerable de la maquina.",
+      "6. Si faltan datos criticos, la recomendacion se emite como 'preliminar', se listan los datos faltantes y se indica que decision desbloquea cada uno.",
+      "7. Antes de dimensionar una migracion, comprobar si el programa de origen es accesible (N06, F16, F01, F06, F07). Convertir un programa existente y reescribirlo desde cero son dos trabajos de costo y plazo muy distintos: no se presupuestan igual ni se explican igual."
+    ]
+  }
+}

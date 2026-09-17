@@ -1,0 +1,39 @@
+{
+ "_nota": "Rotulos con los que el codigo arma los indices que viajan en el prompt. El contenido sale de los otros archivos; esto es el andamiaje que lo rodea, y por eso tambien depende del idioma.",
+ "what_decides": "     que decide: {text}",
+ "alternatives_header": "  ALTERNATIVAS, en el orden en que deben evaluarse:",
+ "in_favor": "      a favor: {text}",
+ "watch_out": "      ojo: {text}",
+ "knowledge_index": "BASE DE REFERENCIA: {title} ({code} v{version}). Citala como '{citation}, cap. N' o por seccion.\nConsultala con la herramienta `query_guide` (tema, clave). Temas y claves:\n- metodologia: seis etapas (diagnostico, ingenieria, construccion, fat, corte_sat, cierre).\n- etapa (clave = id o numero): detalle de una etapa.\n- capitulo (clave = numero o titulo). Capitulos: {chapters}.\n- fabricante (clave = marca): {manufacturers}. Ademas 'matriz_fabricantes'.\n- prueba (clave = id o dispositivo): {tests}.\n- plantilla (clave = letra o nombre): {templates}.\n- anexo (clave = id o nombre): {annexes}.\n- caso (clave = id o titulo): {cases}.\n- principios | entregables | guia: informacion transversal.",
+ "manufacturers_header": "CATALOGO DE FABRICANTES Y CPU: {title} ({version}). {n_manufacturers} fabricantes, {n_generations} generaciones documentadas con modelos reales y fuente oficial.",
+ "manufacturers_howto": "Resuelve lo que diga el usuario con `identify_cpu` (texto libre de placa) y amplia con `query_catalog` (marca, familia). Marcas y familias:",
+ "manufacturers_footer": "Si el equipo del usuario NO esta en esta lista, dilo explicitamente y pide la placa: no lo asimiles a la marca mas parecida.",
+ "procedure_phase_item": "{id} (pasos {first}-{last}, etapa {stage})",
+ "procedure_no_routes": "ninguna publicada todavia",
+ "procedure_index": "PROCEDIMIENTO DE MIGRACION: {title} ({id}, {total_steps} pasos). Citalo como '{citation}, paso N'.\nCUANDO SE ABRE: al decidir cambiar la CPU. Disparadores: {triggers}.\nFases: {phases}.\nConsultalo con `query_procedure` (tema, clave). Temas: paso (clave = numero), fase (clave = id), disparadores, opciones_destino (las dos opciones de CPU del paso 13), ruta_fabricante (clave = marca), ruta_cambio_marca, estado (avance del caso), siguiente (paso que toca), bloqueos, huecos.\nRUTAS DE CONVERSION POR MARCA (especializan los pasos 21-23): {routes}. Se usan SOLO cuando el programa de origen es accesible y verificado (disparador 'obsolescencia_con_acceso_al_codigo'). Para las demas marcas rige el paso 21 generico y esa limitacion SE DECLARA, no se rellena inventando.\nRUTA DE CAMBIO DE MARCA (tema 'ruta_cambio_marca', especializa los pasos 11, 12, 18, 21 y 32): aplica cuando el destino es de OTRA marca Y el programa de origen es accesible. Entre fabricantes no hay conversor, pero con la fuente en la mano el trabajo NO empieza de cero: el programa original es la ESPECIFICACION y se porta contra ella. El agente NO publica equivalencias de instrucciones entre marcas: propone la tabla y pide verificarla contra los manuales de las dos.\nPasos: {steps}.",
+ "code_range_fields": "campos por registro",
+ "factor_labels": {
+  "estado_ciclo_vida": "Estado del ciclo de vida",
+  "disponibilidad_repuestos": "Disponibilidad de repuestos",
+  "soporte_fabricante": "Soporte del fabricante",
+  "criticidad_productiva": "Criticidad productiva",
+  "disponibilidad_software": "Disponibilidad del software",
+  "disponibilidad_respaldo": "Disponibilidad de respaldo",
+  "compatibilidad_sistemas": "Compatibilidad con sistemas actuales",
+  "historial_fallas": "Historial de fallas"
+ },
+ "risk_classes": {
+  "Riesgo bajo": "Riesgo bajo",
+  "Riesgo moderado": "Riesgo moderado",
+  "Riesgo importante": "Riesgo importante",
+  "Riesgo alto": "Riesgo alto",
+  "Riesgo critico": "Riesgo critico"
+ },
+ "confidence_levels": {
+  "confianza_alta": "confianza_alta",
+  "confianza_media": "confianza_media",
+  "confianza_baja": "confianza_baja",
+  "baja_confianza": "baja_confianza",
+  "no_determinado": "no_determinado"
+ }
+}

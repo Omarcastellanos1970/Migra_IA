@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="MIGRA-IA: an AI agent for diagnosing the obsolescence and migration of industrial automation hardware. Prototype v0.4.0, archived in Zenodo with DOI 10.5281/zenodo.21480949.">
+<title>MIGRA-IA — Software artifact</title>
+<style>
+  :root {
+    --bg: #e9edf1;
+    --surface: #ffffff;
+    --surface-2: #f3f6f8;
+    --surface-3: #eaeff3;
+    --ink: #15202b;
+    --ink-soft: #53616d;
+    --ink-faint: #8593a0;
+    --line: #d4dbe2;
+    --line-strong: #bcc7d0;
+    --accent: #0b8f88;
+    --accent-ink: #06726c;
+    --accent-soft: rgba(11, 143, 136, 0.10);
+    --accent-line: rgba(11, 143, 136, 0.30);
+    --r-bajo: #16a34a;
+    --r-moderado: #7f9c0c;
+    --r-importante: #c69402;
+    --r-alto: #df6410;
+    --r-critico: #d22f2f;
+    --shadow: 0 1px 2px rgba(21, 32, 43, 0.04), 0 8px 24px rgba(21, 32, 43, 0.06);
+    --font-sans: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "Cascadia Code", "Cascadia Mono", ui-monospace, "Consolas", "SFMono-Regular", Menlo, monospace;
+    --maxw: 1080px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1119;
+      --surface: #131d27;
+      --surface-2: #0f1822;
+      --surface-3: #172431;
+      --ink: #e3ebf1;
+      --ink-soft: #9fb0bd;
+      --ink-faint: #66788a;
+      --line: #223140;
+      --line-strong: #33475a;
+      --accent: #2ed3c5;
+      --accent-ink: #63e2d6;
+      --accent-soft: rgba(46, 211, 197, 0.12);
+      --accent-line: rgba(46, 211, 197, 0.28);
+      --r-bajo: #2fce7d;
+      --r-moderado: #a6cf2b;
+      --r-importante: #efb52e;
+      --r-alto: #fb8b3c;
+      --r-critico: #f2564e;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #e9edf1; --surface: #ffffff; --surface-2: #f3f6f8; --surface-3: #eaeff3;
+    --ink: #15202b; --ink-soft: #53616d; --ink-faint: #8593a0;
+    --line: #d4dbe2; --line-strong: #bcc7d0;
+    --accent: #0b8f88; --accent-ink: #06726c; --accent-soft: rgba(11,143,136,0.10); --accent-line: rgba(11,143,136,0.30);
+    --r-bajo: #16a34a; --r-moderado: #7f9c0c; --r-importante: #c69402; --r-alto: #df6410; --r-critico: #d22f2f;
+    --shadow: 0 1px 2px rgba(21,32,43,0.04), 0 8px 24px rgba(21,32,43,0.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1119; --surface: #131d27; --surface-2: #0f1822; --surface-3: #172431;
+    --ink: #e3ebf1; --ink-soft: #9fb0bd; --ink-faint: #66788a;
+    --line: #223140; --line-strong: #33475a;
+    --accent: #2ed3c5; --accent-ink: #63e2d6; --accent-soft: rgba(46,211,197,0.12); --accent-line: rgba(46,211,197,0.28);
+    --r-bajo: #2fce7d; --r-moderado: #a6cf2b; --r-importante: #efb52e; --r-alto: #fb8b3c; --r-critico: #f2564e;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+  /* ---- eyebrow / labels ---- */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 16px; height: 1.5px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  a { color: var(--accent-ink); text-decoration-color: var(--accent-line); text-underline-offset: 2px; }
+
+  /* ---- nameplate header ---- */
+  .nameplate {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nameplate-in {
+    max-width: var(--maxw); margin: 0 auto; padding: 11px 22px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .np-led {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--r-importante);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--r-importante) 22%, transparent);
+    flex: none;
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .np-code { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.03em; font-size: 15px; }
+  .np-code span { color: var(--ink-faint); font-weight: 500; }
+  .np-tag {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-soft); border: 1px solid var(--line-strong); border-radius: 4px; padding: 2px 7px;
+  }
+  .np-spacer { flex: 1; }
+  .theme-btn {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+    background: var(--surface-2); color: var(--ink-soft);
+    border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 10px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .theme-btn:hover { color: var(--ink); border-color: var(--accent); }
+
+  /* ---- hero ---- */
+  .hero { padding: 62px 0 34px; }
+  .hero h1 {
+    font-size: clamp(30px, 5.4vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    margin: 18px 0 0;
+    text-wrap: balance;
+    max-width: 17ch;
+  }
+  .hero h1 .hl { color: var(--accent-ink); }
+  .lede {
+    margin: 20px 0 0; max-width: 60ch; font-size: 18px; color: var(--ink-soft); line-height: 1.58;
+  }
+  .authorline {
+    margin-top: 22px; font-size: 14.5px; color: var(--ink); display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline;
+  }
+  .authorline b { font-weight: 600; }
+  .authorline .role { font-family: var(--font-mono); font-size: 12px; color: var(--ink-faint); letter-spacing: 0.04em; }
+
+  .chips { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+    color: var(--ink-soft); display: inline-flex; align-items: center; gap: 7px;
+  }
+  .chip b { color: var(--ink); font-weight: 600; }
+  .chip.free { border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent-ink); }
+  .chip.free b { color: var(--accent-ink); }
+  .dotk { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; }
+
+  /* ---- section scaffolding ---- */
+  section { padding: 30px 0; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .sec-head h2 {
+    font-size: clamp(21px, 3vw, 27px); font-weight: 700; letter-spacing: -0.015em; margin: 0; text-wrap: balance;
+  }
+  .sec-note { color: var(--ink-soft); font-size: 14.5px; max-width: 62ch; margin: 0 0 4px; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow);
+  }
+  .panel-pad { padding: clamp(20px, 3vw, 30px); }
+
+  /* ---- risk engine ---- */
+  .engine-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 20px; }
+  .engine-title { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+  .readout { display: flex; align-items: baseline; gap: 14px; margin-top: 8px; }
+  .score {
+    font-family: var(--font-mono); font-weight: 700; font-size: clamp(46px, 9vw, 66px);
+    line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+    color: var(--score-color, var(--ink)); transition: color .35s ease;
+  }
+  .score small { font-size: 0.34em; color: var(--ink-faint); font-weight: 600; letter-spacing: 0.02em; }
+  .clasif-pill {
+    align-self: center;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 7px 14px; border-radius: 999px;
+    color: #fff; background: var(--score-color, var(--ink)); white-space: nowrap;
+    transition: background .35s ease;
+  }
+  :root[data-theme="dark"] .clasif-pill, @media (prefers-color-scheme: dark) { }
+  .gauge { margin-top: 24px; }
+  .gauge-track {
+    position: relative; height: 16px; border-radius: 8px;
+    background: var(--surface-3); border: 1px solid var(--line); overflow: hidden;
+  }
+  .gauge-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    background: var(--score-color, var(--accent));
+    border-radius: 8px 0 0 8px;
+    transition: width .4s cubic-bezier(.4,0,.2,1), background .35s ease;
+  }
+  .gauge-ticks { position: relative; height: 0; }
+  .gauge-tick { position: absolute; top: -16px; width: 1px; height: 16px; background: var(--line-strong); }
+  .gauge-scale {
+    display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 9px;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  .gauge-scale span { text-align: center; transition: color .3s ease; position: relative; }
+  .gauge-scale span.on { color: var(--score-color); font-weight: 700; }
+  .gauge-scale span::before {
+    content: ""; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    width: 5px; height: 5px; border-radius: 50%; background: var(--zc); opacity: .55;
+  }
+
+  .factors { margin-top: 30px; display: grid; gap: 2px; }
+  .factor {
+    display: grid; grid-template-columns: minmax(0,1.5fr) 1.6fr auto auto; align-items: center; gap: 14px;
+    padding: 11px 12px; border-radius: 8px;
+  }
+  .factor:hover { background: var(--surface-2); }
+  .factor.off { opacity: 0.42; }
+  .f-name { font-size: 13.5px; line-height: 1.25; }
+  .f-name .w { font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-faint); letter-spacing: 0.03em; display: block; margin-top: 2px; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 4px;
+    background: linear-gradient(to right, var(--accent) var(--pct,50%), var(--line-strong) var(--pct,50%));
+    outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer; border-color: var(--accent);
+  }
+  input[type="range"]:focus-visible { box-shadow: 0 0 0 3px var(--accent-soft); }
+  .f-val { font-family: var(--font-mono); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; width: 3ch; text-align: right; color: var(--ink); }
+  .f-nd {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.05em; color: var(--ink-faint);
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer; user-select: none;
+  }
+  .f-nd input { accent-color: var(--accent); cursor: pointer; }
+  .engine-foot {
+    margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--line-strong);
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;
+  }
+  .engine-foot p { margin: 0; font-size: 12.5px; color: var(--ink-soft); max-width: 62ch; }
+  .btn-reset {
+    font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.05em;
+    background: var(--surface-2); color: var(--ink-soft); border: 1px solid var(--line-strong);
+    border-radius: 6px; padding: 7px 13px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-reset:hover { border-color: var(--accent); color: var(--ink); }
+
+  /* ---- feature grid ---- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card .k {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--accent-ink); font-weight: 600;
+    display: block; margin-bottom: 9px;
+  }
+  .card h3 { margin: 0 0 7px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+  .card p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* ---- diagnostic readout (demo case) ---- */
+  .diag { display: grid; grid-template-columns: 1fr; gap: 0; }
+  .diag-row { display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 13px 0; border-top: 1px solid var(--line); }
+  .diag-row:first-child { border-top: none; }
+  .diag-k { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); padding-top: 2px; }
+  .diag-v { font-size: 14.5px; color: var(--ink); }
+  .diag-v .muted { color: var(--ink-soft); }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
+  .tg { font-family: var(--font-mono); font-size: 11.5px; padding: 3px 9px; border-radius: 5px; border: 1px solid var(--line-strong); color: var(--ink-soft); }
+  .tg.warn { border-color: color-mix(in srgb, var(--r-importante) 55%, var(--line)); color: var(--r-importante); background: color-mix(in srgb, var(--r-importante) 10%, transparent); }
+  .tg.crit { border-color: color-mix(in srgb, var(--r-critico) 55%, var(--line)); color: var(--r-critico); background: color-mix(in srgb, var(--r-critico) 10%, transparent); }
+  .flag {
+    display: flex; gap: 11px; align-items: flex-start; padding: 13px 15px; border-radius: 9px;
+    background: color-mix(in srgb, var(--r-critico) 8%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--r-critico) 35%, var(--line));
+    margin-top: 16px;
+  }
+  .flag .ic { color: var(--r-critico); font-family: var(--font-mono); font-weight: 700; flex: none; }
+  .flag p { margin: 0; font-size: 13px; color: var(--ink); }
+  .flag b { color: var(--r-critico); }
+
+  /* ---- code / run ---- */
+  .run-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+  @media (max-width: 760px) { .run-grid { grid-template-columns: 1fr; } }
+  pre {
+    margin: 0; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; font-family: var(--font-mono); font-size: 13px; line-height: 1.65; color: var(--ink);
+  }
+  pre .c { color: var(--ink-faint); }
+  pre .p { color: var(--accent-ink); }
+  .steps { list-style: none; counter-reset: s; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: start; font-size: 14px; color: var(--ink-soft); }
+  .steps li::before {
+    content: counter(s, decimal-leading-zero);
+    font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--accent-ink);
+    background: var(--accent-soft); border: 1px solid var(--accent-line); border-radius: 6px;
+    width: 26px; height: 26px; display: grid; place-items: center;
+  }
+  .steps li b { color: var(--ink); font-weight: 600; }
+  kbd {
+    font-family: var(--font-mono); font-size: 12.5px; background: var(--surface-3); border: 1px solid var(--line-strong);
+    border-bottom-width: 2px; border-radius: 5px; padding: 1px 7px; color: var(--ink);
+  }
+
+  /* ---- cite ---- */
+  .cite-note { font-size: 13.5px; color: var(--ink-soft); margin: 0 0 14px; max-width: 64ch; }
+
+  /* ---- status banner ---- */
+  .status {
+    display: flex; gap: 15px; align-items: flex-start;
+    border: 1px solid var(--line-strong); border-left: 3px solid var(--accent);
+    background: var(--surface); border-radius: 12px; padding: 20px 22px;
+  }
+  .status .ic { font-family: var(--font-mono); color: var(--accent-ink); font-weight: 700; font-size: 18px; flex: none; }
+  .status h3 { margin: 0 0 6px; font-size: 15px; font-weight: 700; }
+  .status p { margin: 0; font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* ---- footer ---- */
+  footer { border-top: 1px solid var(--line); margin-top: 24px; padding: 34px 0 60px; }
+  .foot-grid { display: flex; flex-wrap: wrap; gap: 22px 40px; justify-content: space-between; }
+  .foot-brand { font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.03em; }
+  .foot-brand span { color: var(--ink-faint); font-weight: 500; }
+  .foot-meta { font-size: 12.5px; color: var(--ink-faint); max-width: 52ch; line-height: 1.6; }
+  .disclaimer {
+    margin-top: 22px; font-size: 12px; color: var(--ink-faint); line-height: 1.55;
+    border-top: 1px dashed var(--line); padding-top: 16px; max-width: 78ch;
+  }
+
+  @media (max-width: 620px) {
+    .factor { grid-template-columns: 1fr auto; grid-template-areas: "name val" "slider slider" "nd nd"; row-gap: 8px; }
+    .f-name { grid-area: name; } .f-val { grid-area: val; } .factor > input[type=range] { grid-area: slider; } .f-nd { grid-area: nd; justify-self: start; }
+    .diag-row { grid-template-columns: 1fr; gap: 4px; }
+    .hero { padding: 40px 0 24px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+  .langsel { display:inline-flex; gap:2px; margin-right:10px; }
+  .langsel a { font-size:12px; padding:3px 9px; border:1px solid var(--line, #d9d3ca);
+    border-radius:6px; text-decoration:none; letter-spacing:.04em; opacity:.72; }
+  .langsel a[aria-current] { opacity:1; font-weight:700; }
+</style>
+
+<header class="nameplate">
+  <div class="nameplate-in">
+    <span class="np-led" aria-hidden="true"></span>
+    <span class="np-code">MIGRA-IA <span>· MIGRA-AI-001</span></span>
+    <span class="np-tag">v0.4.0 · prototype</span>
+    <span class="np-spacer"></span>
+    <nav class="langsel" aria-label="Idioma / Language"><a href="../">ES</a><a href="./" aria-current="true">EN</a></nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">
+      <span id="themeIco">◐</span><span id="themeTxt">Tema</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section class="hero">
+      <span class="eyebrow">Software artifact · Industrial automation</span>
+      <h1>Diagnosis of hardware<span class="hl">obsolescence</span>and migration, guided by AI.</h1>
+      <p class="lede">MIGRA-IA is an<b>assisted</b>conversational agent that guides technical staff step by step in diagnosing the obsolescence of PLCs, I/O modules, HMIs, industrial networks and drives, and in planning their migration — with traceability, confidence levels and mandatory human validation.</p>
+      <div class="authorline">
+        <span><b>Carlos Omar Castellanos</b> · <b>Julio Noé Castillo</b> · <b>Isidoro Medina</b> · <b>Luis Loo</b></span>
+        <span class="role">Master's thesis · Industrial automation</span>
+      </div>
+      <div class="chips">
+        <span class="chip free"><span class="dotk"></span> <a href="https://migra-ia.onrender.com" style="color:inherit"><b>Try it online</b></a></span>
+        <span class="chip free"><span class="dotk"></span>Interactive demo<b>no API key · no cost</b></span>
+        <span class="chip">Licencia <b>MIT</b></span>
+        <span class="chip">Motor <b>claude-opus-4-8</b></span>
+        <span class="chip">Python <b>3.10+</b></span>
+        <span class="chip">DOI <b><a href="https://doi.org/10.5281/zenodo.21480949" style="color:inherit">10.5281/zenodo.21480949</a></b></span>
+      </div>
+    </section>
+
+    <!-- ================= RISK ENGINE ================= -->
+    <section id="motor">
+      <div class="sec-head">
+        <span class="eyebrow">Section 6 · live</span>
+      </div>
+      <div class="panel panel-pad">
+        <div class="engine-top">
+          <div>
+            <div class="engine-title">Obsolescence risk engine</div>
+            <div class="readout">
+              <div class="score" id="score">85.0<small>/100</small></div>
+              <div class="clasif-pill" id="pill">Critical risk</div>
+            </div>
+          </div>
+          <button class="btn-reset" id="resetBtn" type="button">↺ Reference case (S7-300)</button>
+        </div>
+
+        <div class="gauge">
+          <div class="gauge-ticks">
+            <div class="gauge-tick" style="left:20%"></div>
+            <div class="gauge-tick" style="left:40%"></div>
+            <div class="gauge-tick" style="left:60%"></div>
+            <div class="gauge-tick" style="left:80%"></div>
+          </div>
+          <div class="gauge-track"><div class="gauge-fill" id="fill"></div></div>
+          <div class="gauge-scale" id="scale">
+            <span style="--zc:var(--r-bajo)" data-z="0">Bajo</span>
+            <span style="--zc:var(--r-moderado)" data-z="1">Moderado</span>
+            <span style="--zc:var(--r-importante)" data-z="2">Importante</span>
+            <span style="--zc:var(--r-alto)" data-z="3">Alto</span>
+            <span style="--zc:var(--r-critico)" data-z="4">Critical</span>
+          </div>
+        </div>
+
+        <div class="factors" id="factors"></div>
+
+        <div class="engine-foot">
+          <p>It is the<b>mismo motor determinista</b>of the artifact (<span style="font-family:var(--font-mono)">migra_ia/scoring.py</span>), ported to your browser: eight weighted factors, renormalized when you mark a factor as<b>N/D</b>(no data), with Python's<i>half-to-even</i>rounding. Same case → same score.</p>
+          <button class="btn-reset" id="resetBtn2" type="button">Restablecer</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= WHAT IT DEMONSTRATES ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>What the artifact demonstrates</h2>
+        <p class="sec-note">Claims you can verify with the interactive demo, with no API key and in about 10-15 minutes.</p>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <span class="k">A–K</span>
+          <h3>Adaptive questionnaire</h3>
+          <p>It captures the equipment information section by section; the answers enable, hide or modify the questions that follow, with a confidence level per item.</p>
+        </div>
+        <div class="card">
+          <span class="k">0–100</span>
+          <h3>Obsolescence risk</h3>
+          <p>Eight weighted factors produce a deterministic score and its classification. Same case, same score — auditable.</p>
+        </div>
+        <div class="card">
+          <span class="k">ID + audit trail</span>
+          <h3>Traceable case file</h3>
+          <p>Every asset, piece of evidence and decision receives a unique identifier and is left in an audit trail that can be reconstructed.</p>
+        </div>
+        <div class="card">
+          <span class="k">Section 8</span>
+          <h3>Safety rules</h3>
+          <p>It does not invent catalog numbers, does not assume compatibility or backups, marks missing data and demands human approval before intervening.</p>
+        </div>
+        <div class="card">
+          <span class="k">Consulting</span>
+          <h3>It steers the solution</h3>
+          <p>Compared alternatives, equivalences suggested on technical criteria (to be verified with the manufacturer) and a staged migration procedure.</p>
+        </div>
+        <div class="card">
+          <span class="k">Section 9</span>
+          <h3>Technical report</h3>
+          <p>It automatically generates a traceable report that separates confirmed facts, inferences and recommendations, with their sources.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEMO CASE ================= -->
+    <section>
+      <div class="sec-head">
+        <span class="eyebrow">Demonstration case</span>
+      </div>
+      <div class="panel panel-pad">
+        <div class="engine-title" style="margin-bottom:6px">Diagnostic reading · scenario<span style="font-family:var(--font-mono)">critico</span></div>
+        <div class="diag">
+          <div class="diag-row">
+            <div class="diag-k">Equipo</div>
+            <div class="diag-v">CPU Siemens <b>S7-300 315-2 DP</b>— operating with intermittent faults</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Redes</div>
+            <div class="diag-v">Profibus DP · MPI</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Confianza global</div>
+            <div class="diag-v"><span class="muted">confianza media</span>— the 24 answers are declared by the user; none is verified against a nameplate, a manual or an official source</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Recommendation</div>
+            <div class="diag-v"><b>Prioridad 1:</b>correct the external root cause (panel at 40-50 °C, doubtful grounding, flat battery) — replacing the controller without correcting it reproduces the fault on the new equipment. Then<b>migrar a S7-1500</b>, rebuilding the program because there is no backup.</div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Alternativas</div>
+            <div class="diag-v">
+              <div class="tags">
+                <span class="tg">Root cause correction</span>
+                <span class="tg">Rebuilding the program</span>
+                <span class="tg">Migration to S7-1500</span>
+              </div>
+              <span class="muted">In this order: the decision map assesses the external root cause first.</span>
+            </div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Equivalencias <span style="text-transform:none;letter-spacing:0">(a verificar)</span></div>
+            <div class="diag-v">
+              S7-300 315-2 DP → familia <b>S7-1500</b>with Profibus DP · modules → ET 200MP / ET 200SP · STEP 7 Classic → TIA Portal.<span class="muted">No catalog numbers are confirmed: they must be verified with the manufacturer's official tool.</span>
+            </div>
+          </div>
+          <div class="diag-row">
+            <div class="diag-k">Banderas</div>
+            <div class="diag-v">
+              <div class="tags">
+                <span class="tg warn">Human approval mandatory before intervening</span>
+                <span class="tg warn">No backup of the program (F01)</span>
+              </div>
+              <span class="muted">This scenario does not raise the functional safety flag; the report declares that, instead of assuming it.</span>
+            </div>
+          </div>
+        </div>
+        <div class="flag">
+          <span class="ic" aria-hidden="true">▲</span>
+          <p>If the migration may affect safety functions (emergency stops, light curtains, safety PLCs or relays, PL/SIL), MIGRA-IA flags<b>'mandatory review by a functional safety specialist'</b>and stops every instruction that involves intervening until competent personnel validate it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= RUN ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>Run it with no API key and no cost</h2>
+        <p class="sec-note">The route recommended for reviewers: it exercises the real engine (questionnaire, risk, case file and report) with an example case. Natural language reasoning through the API is optional.</p>
+      </div>
+      <div class="panel panel-pad" style="margin-bottom:18px;border-color:var(--accent-line);background:var(--accent-soft)">
+        <div class="engine-title" style="margin-bottom:8px">Without installing anything</div>
+        <p class="sec-note" style="margin:0;max-width:none">The agent is deployed and running at<a href="https://migra-ia.onrender.com"><b>migra-ia.onrender.com</b></a>. Open the link, press<kbd>Interactive demo (no API key)</kbd>and answer the questionnaire: no account, no API key and no cost. If the first load takes about a minute, that is the free plan waking the service up.</p>
+      </div>
+      <div class="run-grid">
+        <div class="panel panel-pad">
+          <div class="engine-title" style="margin-bottom:12px">Interactive demo</div>
+          <pre><span class="c"># In the project folder</span>
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+<span class="c"># Start the web app</span>
+python -m webapp.app</pre>
+          <ol class="steps" style="margin-top:18px">
+            <li>Abre <b>http://127.0.0.1:5000</b>in your browser.</li>
+            <li>Pulsa <kbd>Interactive demo (no API key)</kbd>and answer the questionnaire.</li>
+            <li>The right-hand panel shows risk, assets, missing data and flags, live.</li>
+          </ol>
+        </div>
+        <div class="panel panel-pad">
+          <div class="engine-title" style="margin-bottom:12px">Expected deterministic outputs</div>
+          <div class="diag">
+            <div class="diag-row"><div class="diag-k">Risk</div><div class="diag-v"><b>85.0 / 100</b>→ Critical risk</div></div>
+            <div class="diag-row"><div class="diag-k">Answers</div><div class="diag-v">24 registradas · 0 datos faltantes</div></div>
+            <div class="diag-row"><div class="diag-k">Assets</div><div class="diag-v">1 · CPU S7-300 315-2 DP</div></div>
+            <div class="diag-row"><div class="diag-k">Migration</div><div class="diag-v">57 of 57 steps · target Siemens S7-1500</div></div>
+            <div class="diag-row"><div class="diag-k">Report</div><div class="diag-v">1 Markdown file in<span style="font-family:var(--font-mono)">cases/</span></div></div>
+          </div>
+          <div class="engine-title" style="margin:20px 0 10px">The engine only (no browser)</div>
+          <pre><span class="p">python</span> -c "from migra_ia.scoring
+  import calcular_riesgo; ..."</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CITE ================= -->
+    <section>
+      <div class="sec-head">
+        <h2>How to cite</h2>
+      </div>
+      <div class="panel panel-pad">
+        <p class="cite-note">Full metadata in<span style="font-family:var(--font-mono)">CITATION.cff</span>. The artifact is<b>archived in Zenodo with DOI</b>. Cite the DOI of the<b>version</b>, which pins the exact code described here; the<i>concept DOI</i> <span style="font-family:var(--font-mono)">10.5281/zenodo.21480949</span>always resolves to the latest published version. In LaTeX with<span style="font-family:var(--font-mono)">IEEEtran.bst</span> usa
+          <span style="font-family:var(--font-mono)">@misc</span>, since that style does not recognize<span style="font-family:var(--font-mono)">@software</span>.
+        </p>
+        <pre>@software{migra_ia_2026,
+  author  = {Castellanos, Carlos Omar and Castillo, Julio Noé
+             and Medina, Isidoro and Loo, Luis},
+  title   = {{MIGRA-IA: Agente inteligente para diagnóstico de
+             obsolescencia y migración de sistemas de
+             automatización industrial}},
+  version = {0.4.0},
+  year    = {2026},
+  license = {MIT},
+  doi     = {10.5281/zenodo.21480949},
+  url     = {https://doi.org/10.5281/zenodo.21480949}
+}</pre>
+      </div>
+    </section>
+
+    <!-- ================= STATUS ================= -->
+    <section>
+      <div class="status">
+        <span class="ic" aria-hidden="true">i</span>
+        <div>
+          <h3>State of the project — honest and verifiable</h3>
+          <p>MIGRA-IA is a<b>prototype (v0.4.0)</b>. The code and its documentation are public and reproducible, and the artifact is<b>archived in Zenodo with DOI</b> (<span style="font-family:var(--font-mono)">10.5281/zenodo.21480949</span>). Publishing the artifact<b>does not require an API key</b>; the key only enables natural language reasoning over arbitrary data (a paid Anthropic service; each user provides their own). Scope of the MVP: source Siemens S7-300/400, target S7-1500, STEP 7 Classic and TIA Portal, MPI/Profibus DP/Profinet/Ethernet networks.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">MIGRA-IA <span>· MIGRA-AI-001 · v0.4.0</span></div>
+        <p class="foot-meta" style="margin-top:8px">
+          Carlos Omar Castellanos · Julio Noé Castillo · Isidoro Medina · Luis Loo.<br>A contribution to the scientific community — master's thesis in Industrial Automation. MIT license.</p>
+      </div>
+      <div class="foot-meta">
+        <b style="color:var(--ink-soft)">Aviso.</b>A technical assistance system. It does not replace functional safety assessments, lockout and tagout procedures, plant standards or the authorization of competent personnel. Always verify the recommendations before intervening on real equipment.</div>
+    </div>
+    <p class="disclaimer">The hardware equivalences and families mentioned are indicative and must be verified with the manufacturer's official selection or migration tool. MIGRA-IA never confirms catalog numbers, part numbers or nameplate data.</p>
+  </div>
+</footer>
+
+<script>
+  // ---- Theme toggle ----
+  (function () {
+    var root = document.documentElement, btn = document.getElementById('themeBtn');
+    var txt = document.getElementById('themeTxt'), ico = document.getElementById('themeIco');
+    function apply(mode) {
+      root.setAttribute('data-theme', mode);
+      txt.textContent = mode === 'dark' ? 'Oscuro' : 'Claro';
+      ico.textContent = mode === 'dark' ? '☾' : '☀';
+    }
+    var start = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    apply(start);
+    btn.addEventListener('click', function () {
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  })();
+
+  // ---- Risk engine (faithful port of migra_ia/scoring.py) ----
+  (function () {
+    var FACTORS = [
+      { key: 'estado_ciclo_vida',        label: 'Life cycle status',        w: 0.20, v: 75 },
+      { key: 'disponibilidad_repuestos', label: 'Spare parts availability',     w: 0.15, v: 85 },
+      { key: 'soporte_fabricante',       label: 'Manufacturer support',          w: 0.15, v: 90 },
+      { key: 'disponibilidad_software',  label: 'Software availability',     w: 0.10, v: 95 },
+      { key: 'disponibilidad_respaldo',  label: 'Backup availability',      w: 0.15, v: 100 },
+      { key: 'compatibilidad_sistemas',  label: 'Compatibility with systems',     w: 0.10, v: 75 },
+      { key: 'historial_fallas',         label: 'Fault history',             w: 0.05, v: 55 },
+      { key: 'criticidad_productiva',    label: 'Production criticality',           w: 0.10, v: 90 }
+    ];
+    var DEFAULTS = FACTORS.map(function (f) { return { v: f.v, off: false }; });
+    var state = DEFAULTS.map(function (d) { return { v: d.v, off: d.off }; });
+
+    // Python round-half-to-even at 1 decimal.
+    function roundHalfEven1(x) {
+      var n = x * 10;
+      var r = Math.round(n);
+      if (Math.abs(n - (Math.floor(n) + 0.5)) < 1e-9) {
+        var fl = Math.floor(n);
+        r = (fl % 2 === 0) ? fl : fl + 1;
+      }
+      return r / 10;
+    }
+    function clasificar(p) {
+      if (p <= 20) return { t: 'Low risk', z: 0, c: 'var(--r-bajo)' };
+      if (p <= 40) return { t: 'Moderate risk', z: 1, c: 'var(--r-moderado)' };
+      if (p <= 60) return { t: 'Significant risk', z: 2, c: 'var(--r-importante)' };
+      if (p <= 80) return { t: 'High risk', z: 3, c: 'var(--r-alto)' };
+      return { t: 'Critical risk', z: 4, c: 'var(--r-critico)' };
+    }
+    function compute() {
+      var sw = 0, swv = 0;
+      for (var i = 0; i < FACTORS.length; i++) {
+        if (state[i].off) continue;
+        sw += FACTORS[i].w;
+        swv += FACTORS[i].w * state[i].v;
+      }
+      return sw === 0 ? 0 : roundHalfEven1(swv / sw);
+    }
+
+    var elFactors = document.getElementById('factors');
+    var elScore = document.getElementById('score');
+    var elPill = document.getElementById('pill');
+    var elFill = document.getElementById('fill');
+    var elScale = document.getElementById('scale');
+    var panel = document.getElementById('motor');
+    var rows = [];
+
+    FACTORS.forEach(function (f, i) {
+      var row = document.createElement('div');
+      row.className = 'factor';
+      row.innerHTML =
+        '<div class="f-name">' + f.label + '<span class="w">peso ' + f.w.toFixed(2) + '</span></div>' +
+        '<input type="range" min="0" max="100" step="1" value="' + f.v + '" aria-label="' + f.label + '">' +
+        '<div class="f-val">' + f.v + '</div>' +
+        '<label class="f-nd"><input type="checkbox"> N/D</label>';
+      elFactors.appendChild(row);
+      var range = row.querySelector('input[type=range]');
+      var val = row.querySelector('.f-val');
+      var nd = row.querySelector('input[type=checkbox]');
+      range.style.setProperty('--pct', f.v + '%');
+      range.addEventListener('input', function () {
+        state[i].v = parseInt(range.value, 10);
+        val.textContent = range.value;
+        range.style.setProperty('--pct', range.value + '%');
+        render();
+      });
+      nd.addEventListener('change', function () {
+        state[i].off = nd.checked;
+        row.classList.toggle('off', nd.checked);
+        range.disabled = nd.checked;
+        render();
+      });
+      rows.push({ range: range, val: val, nd: nd, row: row });
+    });
+
+    function render() {
+      var p = compute();
+      var cls = clasificar(p);
+      panel.style.setProperty('--score-color', cls.c);
+      elScore.innerHTML = p.toFixed(1) + '<small>/100</small>';
+      elPill.textContent = cls.t;
+      elFill.style.width = Math.max(0, Math.min(100, p)) + '%';
+      var spans = elScale.querySelectorAll('span');
+      spans.forEach(function (s) {
+        s.classList.toggle('on', parseInt(s.getAttribute('data-z'), 10) === cls.z);
+      });
+    }
+
+    function reset() {
+      DEFAULTS.forEach(function (d, i) {
+        state[i].v = d.v; state[i].off = d.off;
+        rows[i].range.value = d.v; rows[i].range.disabled = false;
+        rows[i].range.style.setProperty('--pct', d.v + '%');
+        rows[i].val.textContent = d.v;
+        rows[i].nd.checked = false;
+        rows[i].row.classList.remove('off');
+      });
+      render();
+    }
+    document.getElementById('resetBtn').addEventListener('click', reset);
+    document.getElementById('resetBtn2').addEventListener('click', reset);
+    render();
+  })();
+</script>
+
+</html>

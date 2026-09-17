@@ -1,5 +1,7 @@
 # Cómo publicar el artefacto en Zenodo y obtener un DOI
 
+**English:** [en/ZENODO_GUIDE.md](en/ZENODO_GUIDE.md)
+
 Zenodo (del CERN) es un repositorio gratuito que asigna un **DOI citable** a tu
 código. Es aceptado por IEEE/ACM como artefacto. Hay dos vías; la **A** es la
 recomendada porque versiona automáticamente.
@@ -43,10 +45,13 @@ correctos (autores, afiliación, ORCID si tienen).
 
 5. **Coloca el DOI en el proyecto y en el paper:**
    - El `README.md` cita el **concept DOI**, así que no hay que tocarlo en cada
-     versión: resuelve solo a la más reciente.
-   - Actualiza el DOI de la versión y el número de versión en `docs/index.html`
-     (y sus copias `docs/proyecto.html` y `MIGRA-IA_sitio.html`, que deben quedar
-     idénticas), en `CITATION.cff` y en `.zenodo.json`.
+     versión: resuelve solo a la más reciente. Lo mismo vale para `README.en.md`.
+   - Actualiza el DOI de la versión y el número de versión en las cinco copias
+     de la página —`docs/index.html`, `docs/en/index.html`, `docs/proyecto.html`,
+     `MIGRA-IA_sitio.html` y `MIGRA-IA_site.html`—, en `CITATION.cff` y en
+     `.zenodo.json`. Las cinco llevan el mismo DOI y la misma versión; lo único
+     en lo que difieren es el selector de idioma, que en las dos sueltas enlaza
+     por nombre de archivo y en las del sitio por carpeta.
    - Cita el artefacto en el artículo (ver más abajo).
 
 ---
@@ -80,7 +85,7 @@ se generó. Zenodo **no ofrece botón de reintento**. Qué hacer:
 
 ## Vía B — Subida directa del ZIP (sin GitHub)
 
-1. Comprime la carpeta del proyecto **sin** `.venv/`, `.env`, `casos/*` ni
+1. Comprime la carpeta del proyecto **sin** `.venv/`, `.env`, `cases/*` ni
    `__pycache__/` (deja `docs/`, el código y los archivos de metadatos).
 2. Entra a https://zenodo.org → **Upload → New upload**.
 3. Sube el ZIP y completa: *Upload type* = **Software**, título, autores
@@ -142,4 +147,4 @@ no reconoce ese tipo de entrada y la referencia no se renderiza.
 - [ ] `CITATION.cff` y `.zenodo.json` con autores/afiliación correctos.
 - [ ] El `.env` con la clave **no** está en el repositorio ni en el ZIP.
 - [ ] El artefacto arranca y la demo interactiva da el resultado esperado (ver `ARTIFACT.md`).
-- [ ] DOI generado y colocado en `README.md` y en el `.bib` del paper.
+- [ ] DOI generado y colocado en `README.md`, en `README.en.md` y en el `.bib` del paper.

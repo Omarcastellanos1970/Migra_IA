@@ -356,6 +356,10 @@
   @media (prefers-reduced-motion: reduce) {
     * { animation: none !important; transition: none !important; }
   }
+  .langsel { display:inline-flex; gap:2px; margin-right:10px; }
+  .langsel a { font-size:12px; padding:3px 9px; border:1px solid var(--line, #d9d3ca);
+    border-radius:6px; text-decoration:none; letter-spacing:.04em; opacity:.72; }
+  .langsel a[aria-current] { opacity:1; font-weight:700; }
 </style>
 
 <header class="nameplate">
@@ -364,6 +368,7 @@
     <span class="np-code">MIGRA-IA <span>· MIGRA-AI-001</span></span>
     <span class="np-tag">v0.4.0 · prototipo</span>
     <span class="np-spacer"></span>
+    <nav class="langsel" aria-label="Idioma / Language"><a href="./" aria-current="true">ES</a><a href="en/">EN</a></nav>
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Cambiar tema">
       <span id="themeIco">◐</span><span id="themeTxt">Tema</span>
     </button>
@@ -577,7 +582,7 @@ python -m webapp.app</pre>
             <div class="diag-row"><div class="diag-k">Respuestas</div><div class="diag-v">24 registradas · 0 datos faltantes</div></div>
             <div class="diag-row"><div class="diag-k">Activos</div><div class="diag-v">1 · CPU S7-300 315-2 DP</div></div>
             <div class="diag-row"><div class="diag-k">Migración</div><div class="diag-v">57 de 57 pasos · destino Siemens S7-1500</div></div>
-            <div class="diag-row"><div class="diag-k">Informe</div><div class="diag-v">1 archivo Markdown en <span style="font-family:var(--font-mono)">casos/</span></div></div>
+            <div class="diag-row"><div class="diag-k">Informe</div><div class="diag-v">1 archivo Markdown en <span style="font-family:var(--font-mono)">cases/</span></div></div>
           </div>
           <div class="engine-title" style="margin:20px 0 10px">Solo el motor (sin navegador)</div>
           <pre><span class="p">python</span> -c "from migra_ia.scoring

@@ -1,5 +1,7 @@
 # Riesgo de datos
 
+**English:** [en/data_risk.md](en/data_risk.md)
+
 **Actualizado el 2026-09-04.** Qué falta, quién lo consigue y para qué fecha.
 Los hechos están verificados contra el repositorio; las columnas **quién** y
 **para cuándo** marcadas con `POR DECIDIR` las tiene que fijar el equipo, no
@@ -22,7 +24,7 @@ modo ranking— necesita un orden de referencia que no existe.
 
 **Estado.** El instrumento está listo y no cuesta trabajo nuevo:
 `docs/formulario_etiquetado.md`, sin ninguna salida del motor dentro, 20-30
-minutos por evaluador. `python _etiquetado.py comparar` lee lo devuelto y mide
+minutos por evaluador. `python _labeling.py compare` lee lo devuelto y mide
 el acuerdo entre evaluadores. Mientras tanto hay un etiquetado provisional por
 regla, estampado `provisional_regla`, que **no puede publicarse como validación**.
 

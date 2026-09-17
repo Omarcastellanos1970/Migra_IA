@@ -1,5 +1,7 @@
 # MIGRA-IA — Agente de asesoría en obsolescencia y migración de hardware
 
+**English:** [README.en.md](README.en.md)
+
 Agente conversacional que asiste **paso a paso** al personal técnico para
 diagnosticar la obsolescencia de hardware y planificar la migración de sistemas
 de automatización industrial (PLC, módulos de E/S, HMI, redes industriales,
@@ -49,7 +51,7 @@ intervención sobre equipos reales corresponde a personal autorizado.
 - Marca **datos faltantes** y **banderas de seguridad funcional**.
 - Genera un **informe técnico trazable** en Markdown con la estructura estándar
   de la Sección 9.
-- Guarda todo el **expediente** (con registro de auditoría) en `casos/`.
+- Guarda todo el **expediente** (con registro de auditoría) en `cases/`.
 
 ## Requisitos
 
@@ -80,6 +82,22 @@ Copia `.env.example` a `.env` y coloca tu clave:
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
+## Idioma
+
+El agente existe en español y en inglés. Se elige con la variable de entorno
+`MIGRA_IA_LANG` (`es` por defecto), o con el selector **ES | EN** de la interfaz
+web:
+
+```bash
+# Inglés
+set MIGRA_IA_LANG=en        # Windows
+export MIGRA_IA_LANG=en     # Git Bash / Linux / macOS
+```
+
+El contenido de cada idioma vive en `data/<idioma>/`. Un idioma solo se ofrece
+cuando sus archivos están completos: nunca se sirve uno como respaldo del otro,
+porque eso daría una pantalla con los dos idiomas mezclados.
+
 ## Uso
 
 Hay dos formas de usar el mismo agente. Comparten el motor (cuestionario, reglas,
@@ -102,10 +120,10 @@ actualiza solo. El botón **Nuevo caso** reinicia el expediente.
 
 ```bash
 # Abrir un caso nuevo:
-python -m migra_ia.agente
+python -m migra_ia.agent
 
 # Continuar un caso existente:
-python -m migra_ia.agente CAS-2026-000123
+python -m migra_ia.agent CAS-2026-000123
 ```
 
 Comandos dentro de la sesión de consola:
@@ -126,21 +144,27 @@ Cuando el agente proponga una acción sobre el equipo real:
 ```
 MIGRA_IA_Cuestionario_y_Diseno_del_Agente/
 ├── data/
-│   ├── cuestionario.json     # Catálogo de preguntas A–K con reglas adaptativas
-│   └── base_conocimiento.json # Guía MIGRA-IA-GUIA-001 (etapas, rutas, pruebas)
+│   ├── es/                   # Contenido en español
+│   ├── en/                   # Contenido en inglés
+│   │   ├── questionnaire.json     # Catálogo de preguntas A–K con reglas adaptativas
+│   │   ├── knowledge_base.json    # Guía MIGRA-IA-GUIA-001 (etapas, rutas, pruebas)
+│   │   ├── migration_procedure.json
+│   │   ├── cpu_manufacturers.json
+│   │   └── system_prompt.md       # El prompt es contenido, no código
+│   └── platform_lifecycle.csv     # Mediciones del paper (sin idioma)
 ├── migra_ia/                 # Motor reutilizable
-│   ├── config.py             # Modelo, rutas e identidad del agente
-│   ├── prompt.py             # Prompt del sistema (reglas, confianza, estructura)
+│   ├── config.py             # Modelo, rutas, identidad e idioma del agente
+│   ├── prompt.py             # Arma el prompt del sistema del idioma activo
 │   ├── scoring.py            # Motor de puntuación de obsolescencia (Sec. 6)
-│   ├── caso.py               # Expediente trazable + IDs + auditoría (Sec. 2, 5, 13)
-│   ├── conocimiento.py       # Consultas a la base de conocimiento (guía)
-│   ├── herramientas.py       # Tools de registro, riesgo, aprobación e informe
-│   ├── nucleo.py             # Turno del agente (usado por la web)
-│   └── agente.py             # Bucle conversacional con streaming (CLI)
+│   ├── case.py               # Expediente trazable + IDs + auditoría (Sec. 2, 5, 13)
+│   ├── knowledge.py          # Consultas a la base de conocimiento (guía)
+│   ├── tools.py              # Tools de registro, riesgo, aprobación e informe
+│   ├── core.py               # Turno del agente (usado por la web)
+│   └── agent.py              # Bucle conversacional con streaming (CLI)
 ├── webapp/                   # App web (Flask)
 │   ├── app.py                # Servidor y API
 │   └── templates/index.html  # Interfaz de chat + panel del expediente
-├── casos/                    # Expedientes e informes generados (se crean al usar)
+├── cases/                    # Expedientes e informes generados (se crean al usar)
 ├── requirements.txt
 └── .env.example
 ```
@@ -169,7 +193,7 @@ recomendaciones antes de intervenir equipos reales.
 
 ## Próximos pasos (roadmap)
 
-1. Enriquecer las reglas de ramificación del cuestionario en `cuestionario.json`.
+1. Enriquecer las reglas de ramificación del cuestionario en `questionnaire.json`.
 2. Añadir carga de imágenes de placas (visión) para lectura de datos de placa.
 3. Base de datos de equivalencias verificadas (sin números de catálogo inventados).
 4. Exportación del informe a Word/PDF.

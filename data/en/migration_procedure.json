@@ -1,0 +1,1988 @@
+{
+ "document": {
+  "id": "MIGRA-IA-PROC-050",
+  "title": "Procedure for Migrating a PLC Project to a More Up-to-Date CPU",
+  "subtitle": "Detailed 50-step guide",
+  "objective": "to establish an orderly procedure for migrating an automation system from an existing or obsolete CPU/PLC to a more recent platform, preserving the functionality of the process, reducing risks and guaranteeing the traceability of the changes.",
+  "application_note": "This procedure can be adapted to different PLC manufacturers and families. The specific conversion tools, hardware compatibility, functional safety and tests must be verified for the source and target platform of each project.",
+  "source": "Procedimiento_Migracion_PLC_CPU_50_Pasos.docx",
+  "total_steps": 57,
+  "annotated_layer": {
+   "description": "The title and the detail of each step are literal from the source document. The fields exit_criterion, evidence, role, requires, prerequisites, agent_note, brand_change_variant and no_backup_variant are a PROPOSAL by MIGRA-IA, pending validation by the author.",
+   "proposed_fields": [
+    "phase",
+    "guide_stage",
+    "role",
+    "exit_criterion",
+    "evidence",
+    "prerequisites",
+    "requires",
+    "covered_by_questionnaire",
+    "agent_note",
+    "brand_change_variant",
+    "no_backup_variant",
+    "blocking",
+    "cpu_decision_point"
+   ]
+  }
+ },
+ "triggers": [
+  {
+   "id": "cpu_obsoleta",
+   "title": "Obsolete CPU, or CPU without support",
+   "description": "The CPU or its family are discontinued, without support from the manufacturer, without spare parts, or with a lead time longer than the tolerable downtime.",
+   "decision_map_alternative": "Migration to a modern platform",
+   "origin": "user, 2026-08-29"
+  },
+  {
+   "id": "obsolescencia_con_acceso_al_codigo",
+   "title": "Obsolescence without spare parts, with the program accessible",
+   "description": "The passwords are known (N06, F16) and the original program can be opened and compiled (F01, F06, F07): there is nothing to rebuild. Even so the CPU is discontinued and without spare parts or support (M01, M04, M06), and the user decides to migrate. It is the MOST FAVORABLE migration scenario: the existing program is CONVERTED with the manufacturer's official tools and steps 21 and 22 apply in their full form, without the 'no_backup_variant' variant.",
+   "decision_map_alternative": "Migration to a modern platform",
+   "activates_variant": "con_codigo_fuente",
+   "excludes_variant": "sin_respaldo",
+   "enables_manufacturer_route": true,
+   "origin": "user, 2026-09-07"
+  },
+  {
+   "id": "contrasena_desconocida",
+   "title": "CPU password unknown",
+   "description": "The CPU is protected and nobody knows the password, so the program can be neither read nor modified.",
+   "decision_map_alternative": "Rebuilding the program",
+   "activates_variant": "sin_respaldo",
+   "origin": "user, 2026-08-29"
+  },
+  {
+   "id": "sin_acceso_al_programa",
+   "title": "The previous program cannot be copied or opened",
+   "description": "There is no backup, or the one that exists does not open; the software, the license or the programming adapter is missing; or the project is corrupt or depends on inaccessible proprietary blocks.",
+   "decision_map_alternative": "Rebuilding the program",
+   "activates_variant": "sin_respaldo",
+   "origin": "user, 2026-08-29"
+  },
+  {
+   "id": "decision_del_usuario",
+   "title": "The user decides to change the CPU",
+   "description": "With or without a suggestion from the agent, the user resolves to migrate to a new CPU. The decision is theirs and the agent abides by it.",
+   "origin": "user, 2026-08-29"
+  }
+ ],
+ "target_cpu_options": {
+  "step": 13,
+  "rule": "The agent PRESENTS the two options and their consequences. The choice belongs to the user: a change of brand is never an assumption made by the agent.",
+  "options": [
+   {
+    "id": "misma_marca",
+    "title": "New CPU from the same manufacturer",
+    "what_it_offers": "The current generation from the same manufacturer, with the models that the catalog documents and their official source. When the guide publishes a path for the source family, that path is used and not a generic one.",
+    "pros": [
+     "There is an official tool for converting the program (steps 21 and 22)",
+     "The ecosystem is kept: software, networks, spare parts and staff already trained",
+     "The equivalence matrix of step 14 is done model by model"
+    ],
+    "cons": [
+     "It stays tied to the same manufacturer and to its life cycle policy"
+    ],
+    "data_support": "Complete: the 30 brands in the catalog have their current generation documented with models and source."
+   },
+   {
+    "id": "marca_alternativa",
+    "title": "Current platform from another brand",
+    "what_it_offers": "The current platforms of alternative brands at FAMILY level, with their documented models and their official source.",
+    "pros": [
+     "It may improve price, local availability or nearby technical support",
+     "It breaks the dependence on a single manufacturer"
+    ],
+    "cons": [
+     "There is no conversion tool between brands: the program is rewritten. With the source program accessible it is a port against the specification that the program itself already constitutes; without access, it is new development",
+     "New software, licenses and training, with their cost and their learning curve",
+     "The field networks may need conversion or a gateway",
+     "The spare parts ecosystem and the service provider change"
+    ],
+    "data_support": "Partial and declared: the catalog documents which current families exist and with which models, but it does NOT publish comparable attributes per model (memory, I/O, cycle time, networks). That is why the agent offers the comparison at platform level and refers the selection of the exact model to the manufacturer's official selection tool.",
+    "hard_limit": "The agent does NOT claim model-to-model equivalence between different brands, nor does it complete catalog numbers that the catalog does not list."
+   }
+  ]
+ },
+ "phases": [
+  {
+   "id": "levantamiento",
+   "name": "Survey and securing of the evidence",
+   "steps": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+   ],
+   "guide_stage": "diagnostico",
+   "purpose": "Knowing what is there, securing it and understanding it before deciding anything."
+  },
+  {
+   "id": "seleccion_e_ingenieria",
+   "name": "CPU selection and engineering of the solution",
+   "steps": [
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+   ],
+   "guide_stage": "ingenieria",
+   "purpose": "Choosing the target platform and designing the complete solution on paper."
+  },
+  {
+   "id": "conversion",
+   "name": "Conversion or rewriting of the program",
+   "steps": [
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+   ],
+   "guide_stage": "construccion",
+   "purpose": "Taking the logic to the new platform and leaving it compiling and simulated."
+  },
+  {
+   "id": "fat",
+   "name": "Factory acceptance tests and rollback plan",
+   "steps": [
+    31,
+    32,
+    33
+   ],
+   "guide_stage": "fat",
+   "purpose": "Demonstrating on the bench that it works, and having a way back if it fails."
+  },
+  {
+   "id": "corte_y_puesta_en_marcha",
+   "name": "Changeover, installation and commissioning",
+   "steps": [
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44
+   ],
+   "guide_stage": "corte_sat",
+   "purpose": "Working on the real machine, testing in the field and accepting the system."
+  },
+  {
+   "id": "cierre",
+   "name": "Documentation, training and closure",
+   "steps": [
+    45,
+    46,
+    47,
+    48,
+    49,
+    50
+   ],
+   "guide_stage": "cierre",
+   "purpose": "Leaving the system documented, backed up, understood and formally accepted."
+  },
+  {
+   "id": "construccion_del_programa",
+   "name": "Construction of the new program (P1-P7 extension)",
+   "steps": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7"
+   ],
+   "guide_stage": "construccion",
+   "purpose": "Specifying, modelling and writing the program. It is what the original document did not cover: its steps 21 to 23 assume that a program to convert already exists.",
+   "extension": true,
+   "depth": {
+    "conversion": "CONVERSION ROUTE (same brand, with a verified backup): light path. P1 and P2 are done in any case, because they are the reference against which the conversion is validated in step 32; P3 to P7 are largely covered by the official tool and by steps 21 to 23, and here it is only checked that the result meets the architecture and the traceability.",
+    "rebuild": "REBUILD OR BRAND CHANGE ROUTE: full path. There is no program to convert, so P1 to P7 are the main work and steps 21 and 22 do not apply. Size the effort as new development, not as a migration."
+   }
+  }
+ ],
+ "order": [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+  "17",
+  "18",
+  "19",
+  "20",
+  "P1",
+  "P2",
+  "P3",
+  "P4",
+  "P5",
+  "P6",
+  "P7",
+  "21",
+  "22",
+  "23",
+  "24",
+  "25",
+  "26",
+  "27",
+  "28",
+  "29",
+  "30",
+  "31",
+  "32",
+  "33",
+  "34",
+  "35",
+  "36",
+  "37",
+  "38",
+  "39",
+  "40",
+  "41",
+  "42",
+  "43",
+  "44",
+  "45",
+  "46",
+  "47",
+  "48",
+  "49",
+  "50"
+ ],
+ "steps": [
+  {
+   "key": "1",
+   "n": 1,
+   "label": "1",
+   "title": "Identify the existing system.",
+   "detail": "Record manufacturer, family and exact CPU model, part number, firmware version, I/O modules, special modules, power supplies, racks, communication cards, HMI/SCADA, drives, servos, instruments and any other connected devices.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "Complete system record: brand, family, exact model, part number and firmware of the CPU, plus the list of modules, racks, power supplies, networks, HMI/SCADA, drives and connected instruments.",
+   "evidence": [
+    "Legible photograph of the CPU nameplate and of each module",
+    "Part numbers transcribed exactly as they appear on the equipment, without completing codes"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "D, E, H, J"
+  },
+  {
+   "key": "2",
+   "n": 2,
+   "label": "2",
+   "title": "Determine the obsolescence status.",
+   "detail": "Verify whether the CPU and the modules are active, being phased out or discontinued. Also identify the availability of spare parts and the support from the manufacturer.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "Life cycle status declared by the manufacturer for the CPU and the modules (active, being phased out or discontinued), with the availability of spare parts and the lead time.",
+   "evidence": [
+    "Citation of the official manufacturer source that declares the status",
+    "Quoted lead time for the critical spare parts"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "M"
+  },
+  {
+   "key": "3",
+   "n": 3,
+   "label": "3",
+   "title": "Make a complete backup before intervening.",
+   "detail": "Extract and save the original project, CPU program, blocks, DBs, symbols/tags, hardware configuration, networks, parameters, recipes, alarms and HMI/SCADA configuration. Where possible, also perform an upload directly from the installed PLC.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "Copy of the original project and, where it was possible, of the direct upload from the PLC, saved with a checksum and in at least two different locations.",
+   "evidence": [
+    "Project file saved with the equipment and the date in its name",
+    "Checksum or size noted in the case file",
+    "Location of the two copies"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": true,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "F",
+   "no_backup_variant": "If the CPU has an unknown password, the software or the adapter is missing, or the upload fails: STOP and escalate. Do not force access. Record the case as WITHOUT A VERIFIED BACKUP and continue along the rebuild route (steps 6, 7 and 11), which is the 'Rebuilding the program' alternative of the decision map."
+  },
+  {
+   "key": "4",
+   "n": 4,
+   "label": "4",
+   "title": "Record the software versions.",
+   "detail": "Document with which software and version the project was created: STEP 7 Classic, TIA Portal, Studio 5000, GX Works, EcoStruxure Control Expert, Sysmac Studio, CODESYS or another.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "Exact name and version of the engineering software and of the firmware with which the project opens and compiles.",
+   "evidence": [
+    "Version noted exactly as the software itself reports it",
+    "Type of license and how it is activated"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "F, N"
+  },
+  {
+   "key": "5",
+   "n": 5,
+   "label": "5",
+   "title": "Verify that the backup can be opened.",
+   "detail": "Open the project in an independent environment and check that it is not corrupt. An unverified backup must not be considered a safe backup.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "The project opens in an independent environment and compiles without errors, and its checksum matches the one from step 3. A backup that cannot be verified is treated as ABSENT.",
+   "evidence": [
+    "Result of compiling the backup",
+    "Checksum verified against the one from step 3"
+   ],
+   "prerequisites": [
+    "3"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "F",
+   "no_backup_variant": "If it does not open, is corrupt or does not compile, it is NOT declared a backup: the case is marked as being without a backup and moves to the rebuild route."
+  },
+  {
+   "key": "6",
+   "n": 6,
+   "label": "6",
+   "title": "Document how the process currently works.",
+   "detail": "Record automatic sequences, manual operation, interlocks, permissives, alarms, faults, timings, setpoints, PID, recipes and safety conditions.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "Written description of how it actually works: automatic sequences, manual operation, interlocks, permissives, alarms, timings, setpoints, PID, recipes and safety conditions.",
+   "evidence": [
+    "Operating document validated by the machine operator",
+    "Record of the cycle observed in the plant"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "C",
+   "agent_note": "When there is no backup, this step stops being documentation and becomes the MAIN SOURCE for rebuilding the program: its quality determines that of the new system.",
+   "no_backup_variant": "It is the most important step of the whole procedure: without a source program, the specification of the new system comes from here, from the interviews and from the observation of the cycle."
+  },
+  {
+   "key": "7",
+   "n": 7,
+   "label": "7",
+   "title": "Create a complete I/O list.",
+   "detail": "Draw up a correspondence table with the current address, tag, description, signal type and field device.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "Complete I/O table: current address, tag, description, signal type and field device, with no incomplete rows.",
+   "evidence": [
+    "I/O table surveyed or exported",
+    "Cross-check against the actual wiring of at least one sample per signal type"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "E"
+  },
+  {
+   "key": "8",
+   "n": 8,
+   "label": "8",
+   "title": "Identify the communication interfaces.",
+   "detail": "Record PROFIBUS, PROFINET, Modbus RTU/TCP, EtherNet/IP, CAN, DeviceNet, AS-i, OPC, serial communication or other protocols in use.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "List of all the protocols in use, with the equipment at each end.",
+   "evidence": [
+    "Inventory of interfaces and protocols",
+    "Photograph of the communication cards installed"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "G"
+  },
+  {
+   "key": "9",
+   "n": 9,
+   "label": "9",
+   "title": "Record the network architecture.",
+   "detail": "Document IP addresses, masks, PROFINET names, PROFIBUS addresses, node numbers, ports, speeds and physical topology.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "Network map documented: addresses, masks, names, nodes, ports, speeds and physical topology.",
+   "evidence": [
+    "Up-to-date network diagram",
+    "Table of addresses and of nodes"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "G"
+  },
+  {
+   "key": "10",
+   "n": 10,
+   "label": "10",
+   "title": "Identify external dependencies.",
+   "detail": "Determine which equipment exchanges information with the CPU: HMI, SCADA, secondary PLCs, robots, drives, OPC servers, MES/ERP, weighing scales, code readers and vision systems.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "tecnico",
+   "exit_criterion": "List of all the systems that exchange data with the CPU, with the direction of the exchange and its criticality.",
+   "evidence": [
+    "External dependency matrix",
+    "Confirmation from the person responsible for each connected system"
+   ],
+   "prerequisites": [],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "G, H"
+  },
+  {
+   "key": "11",
+   "n": 11,
+   "label": "11",
+   "title": "Analyze the existing program.",
+   "detail": "Classify the blocks by function: sequences, motors, valves, alarms, communications, PID, calculations, safety, diagnostics and special functions.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "ingenieria",
+   "exit_criterion": "Program blocks classified by function, with the safety ones and the protected or proprietary ones identified separately.",
+   "evidence": [
+    "Inventory of blocks with their function",
+    "Marking of the inaccessible or protected blocks"
+   ],
+   "prerequisites": [
+    "5"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "O",
+   "no_backup_variant": "Without a backup there is no program to analyze: the classification is replaced by the logic surveyed in steps 6 and 7, and the scope of what could NOT be recovered is declared explicitly in the case file."
+  },
+  {
+   "key": "12",
+   "n": 12,
+   "label": "12",
+   "title": "Detect obsolete or incompatible instructions.",
+   "detail": "Identify instructions, system blocks, addressing, timers, counters or structures that the new CPU does not support in the same way.",
+   "phase": "levantamiento",
+   "guide_stage": "diagnostico",
+   "role": "ingenieria",
+   "exit_criterion": "List of instructions, system blocks, addressing and structures that the target platform does not support in the same way, each one with its estimated effort.",
+   "evidence": [
+    "List of incompatibilities detected",
+    "Reference to the manufacturer manual that supports each one"
+   ],
+   "prerequisites": [
+    "11"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "covered_by_questionnaire": "O",
+   "agent_note": "This step opens here but is only closed after step 13: until the target CPU is fixed, what it does not support is not known."
+  },
+  {
+   "key": "13",
+   "n": 13,
+   "label": "13",
+   "title": "Select the replacement CPU.",
+   "detail": "The new CPU must have sufficient memory, speed, I/O, communications, connections, technological functions and environmental characteristics.",
+   "phase": "seleccion_e_ingenieria",
+   "guide_stage": "ingenieria",
+   "role": "ingenieria",
+   "exit_criterion": "Target CPU chosen and justified against the memory, speed, I/O, communications, connections, technological functions and environmental conditions of the case, with its official source cited.",
+   "evidence": [
+    "Documented comparison between the requirements of the case and the published characteristics of the candidate CPU",
+    "Verification in the manufacturer's official selection tool"
+   ],
+   "prerequisites": [
+    "2",
+    "7",
+    "12"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "agent_note": "This is the point where the agent offers the two options: A) a CPU from the current generation of the SAME manufacturer, and B) current platforms from alternative brands. The choice is made by the user, never by the agent.",
+   "brand_change_variant": "If the user chooses another brand, the agent presents the current generation of the alternative brands at PLATFORM level (family, documented models and official source). It does not claim model-to-model equivalence: the catalog does not publish comparable attributes and that selection is closed in the manufacturer's official tool.",
+   "cpu_decision_point": true
+  },
+  {
+   "key": "14",
+   "n": 14,
+   "label": "14",
+   "title": "Create a hardware equivalence matrix.",
+   "detail": "Relate each old CPU, I/O module, special module and interface to its modern replacement and define the action needed.",
+   "phase": "seleccion_e_ingenieria",
+   "guide_stage": "ingenieria",
+   "role": "ingenieria",
+   "exit_criterion": "Matrix relating each old CPU, I/O module, special module and interface to its replacement and the action needed (direct replacement, equivalent, adapter, kept, removed), with no rows left to be defined.",
+   "evidence": [
+    "Complete hardware equivalence matrix"
+   ],
+   "prerequisites": [
+    "7",
+    "13"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "brand_change_variant": "Between different brands the matrix stops being model to model: equivalence is established on functional criteria (type and number of signals, ranges, networks, special functions) and NEVER on similarity of name or of part number."
+  },
+  {
+   "key": "15",
+   "n": 15,
+   "label": "15",
+   "title": "Check electrical compatibility.",
+   "detail": "Review voltages, maximum current, PNP/NPN, isolation, analog resolution, 0-10 V, ±10 V, 4-20 mA, RTD, thermocouples, frequency and output types.",
+   "phase": "seleccion_e_ingenieria",
+   "guide_stage": "ingenieria",
+   "role": "ingenieria",
+   "exit_criterion": "Each signal type verified against the new card: voltage, current, PNP/NPN, isolation, resolution, range, sensor type and output type.",
+   "evidence": [
+    "Electrical comparison sheet per signal type",
+    "Identification of the signals that need conditioning or an interposing relay"
+   ],
+   "prerequisites": [
+    "7",
+    "14"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "16",
+   "n": 16,
+   "label": "16",
+   "title": "Define which hardware will be kept.",
+   "detail": "Determine which remote modules, drives, instruments or other devices can be kept by means of compatible interfaces.",
+   "phase": "seleccion_e_ingenieria",
+   "guide_stage": "ingenieria",
+   "role": "ingenieria",
+   "exit_criterion": "List of what is kept and what is replaced, with the interface that makes it possible in each case.",
+   "evidence": [
+    "Decision documented per device, with its justification"
+   ],
+   "prerequisites": [
+    "14",
+    "15"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "agent_note": "Steps 15 and 16 usually force the selection of step 13 to be revisited: the CPU selection is iterative, not a single point."
+  },
+  {
+   "key": "17",
+   "n": 17,
+   "label": "17",
+   "title": "Design the new architecture.",
+   "detail": "Prepare the target configuration of CPU, network, I/O, HMI, drives and external devices.",
+   "phase": "seleccion_e_ingenieria",
+   "guide_stage": "ingenieria",
+   "role": "ingenieria",
+   "exit_criterion": "Target architecture defined: CPU, racks, local and remote I/O, networks, HMI, drives and external devices, with its diagram.",
+   "evidence": [
+    "Diagram of the new architecture",
+    "Preliminary bill of materials derived from the diagram"
+   ],
+   "prerequisites": [
+    "16"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "18",
+   "n": 18,
+   "label": "18",
+   "title": "Create an address mapping table.",
+   "detail": "Relate each old address or tag to its corresponding new address or tag, keeping traceability.",
+   "phase": "seleccion_e_ingenieria",
+   "guide_stage": "ingenieria",
+   "role": "ingenieria",
+   "exit_criterion": "Mapping table relating each old address or tag to the new one, complete, with no duplicates and with no I/O point from step 7 left outside the table.",
+   "evidence": [
+    "Mapping table from old to new",
+    "Coverage check against the I/O list from step 7"
+   ],
+   "prerequisites": [
+    "7",
+    "17"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "19",
+   "n": 19,
+   "label": "19",
+   "title": "Create the project for the new platform.",
+   "detail": "Install or verify the corresponding version of the engineering software and add the CPU, firmware, modules and devices needed.",
+   "phase": "seleccion_e_ingenieria",
+   "guide_stage": "ingenieria",
+   "role": "ingenieria",
+   "exit_criterion": "Project created in the correct version of the engineering software, with CPU, firmware, modules and devices added.",
+   "evidence": [
+    "New project created and saved",
+    "Software and firmware versions noted"
+   ],
+   "prerequisites": [
+    "17"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "brand_change_variant": "With a change of brand this means NEW software, licenses and training, not a more recent version of what is already held. Budget and plan the training before reaching this point."
+  },
+  {
+   "key": "20",
+   "n": 20,
+   "label": "20",
+   "title": "Configure the new hardware.",
+   "detail": "Create rack, CPU, local and remote I/O, industrial networks and associated devices.",
+   "phase": "seleccion_e_ingenieria",
+   "guide_stage": "ingenieria",
+   "role": "ingenieria",
+   "exit_criterion": "Complete and compilable hardware configuration: rack, CPU, local and remote I/O, networks and associated devices.",
+   "evidence": [
+    "Hardware configuration compiled without errors"
+   ],
+   "prerequisites": [
+    "19"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "21",
+   "n": 21,
+   "label": "21",
+   "title": "Migrate the program with official tools.",
+   "detail": "Use first the migration or conversion tools provided by the manufacturer, when they are available.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Program passed through the manufacturer's official migration tool, with its report saved and the version of the tool noted.",
+   "evidence": [
+    "Migration report archived",
+    "Version of the tool used"
+   ],
+   "prerequisites": [
+    "5",
+    "20"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "brand_change_variant": "NOT APPLICABLE: between different manufacturers there is no conversion tool. What replaces it depends on access to the code. If the source program is ACCESSIBLE, the work does NOT start from scratch: it is a PORT with the original program as a specification, already triaged in step 11 (sub-step C3 of the brand change route) and carried out by the P1-P7 extension, which by this point is already closed. If it is NOT, it is rewritten blind from steps 6, 7 and 18, and only then is it planned as new development.",
+   "no_backup_variant": "NOT APPLICABLE: without a source program there is nothing to convert. It is rewritten from the logic surveyed in steps 6 and 7."
+  },
+  {
+   "key": "22",
+   "n": 22,
+   "label": "22",
+   "title": "Review the migration report.",
+   "detail": "Classify each message as an error, a warning, an unsupported function, an automatic conversion or an item that requires manual modification.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Each message in the report classified as an error, a warning, an unsupported function, an automatic conversion or a pending manual modification. No message is left unreviewed.",
+   "evidence": [
+    "Report classified, with an owner and a status per message"
+   ],
+   "prerequisites": [
+    "21"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "brand_change_variant": "NOT APPLICABLE: there is no migration report. Its equivalent is the review of the rewritten functional specification against what is documented in step 6.",
+   "no_backup_variant": "NOT APPLICABLE: there is no report. The verification is done against step 6."
+  },
+  {
+   "key": "23",
+   "n": 23,
+   "label": "23",
+   "title": "Correct the incompatibilities manually.",
+   "detail": "Rebuild blocks, change instructions, adapt timers and counters, modify addressing and replace system functions where necessary.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "All the incompatibilities from step 22 resolved and tested; none is left pending or to be reviewed later.",
+   "evidence": [
+    "Record of each block rebuilt or instruction replaced",
+    "Clean compilation after each correction"
+   ],
+   "prerequisites": [
+    "22"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "brand_change_variant": "There is no report from step 22 to correct. What is corrected here is what the triage marked as adaptable or to be reprogrammed (brand change route, C3): data types, timers and counters, indirect addressing, proprietary system functions and technological blocks of the source brand. Each replacement is recorded against the row of the instruction equivalence table (C2) that justifies it."
+  },
+  {
+   "key": "24",
+   "n": 24,
+   "label": "24",
+   "title": "Migrate the communications.",
+   "detail": "Verify telegrams, communication DBs, PUT/GET connections, Modbus, OPC, TCP sockets, communication with drives and any other exchanges.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Each data exchange from step 10 rebuilt and verified on the new platform.",
+   "evidence": [
+    "List of exchanges tested, with their result"
+   ],
+   "prerequisites": [
+    "10",
+    "23"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "brand_change_variant": "Between different brands the field network is rarely kept: PROFIBUS, PROFINET, EtherNet/IP, Modbus and OPC UA are not interchangeable between platforms. Verify device by device whether the target speaks the same protocol and, if it does not, decide between a gateway, a change of device or a change of network architecture. It is budgeted as work in its own right, not as an adjustment."
+  },
+  {
+   "key": "25",
+   "n": 25,
+   "label": "25",
+   "title": "Migrate HMI/SCADA.",
+   "detail": "Update the connections to the new CPU and check that each screen tag corresponds to a valid variable of the new PLC.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Each screen tag points to a valid variable of the new PLC; the report of unresolved tags is left at zero.",
+   "evidence": [
+    "Report of unresolved tags at zero",
+    "Screens reviewed one by one"
+   ],
+   "prerequisites": [
+    "18",
+    "23"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "brand_change_variant": "The HMI/SCADA project is not converted between brands: it is re-tagged in full against the variable list of step P4 and, if the HMI also changes brand, it is redone. The screens, the navigation and the alarm texts of the old system are kept as a specification, and it is verified alarm by alarm that the condition that triggers it is still the same."
+  },
+  {
+   "key": "26",
+   "n": 26,
+   "label": "26",
+   "title": "Review the analog scaling.",
+   "detail": "Check that the signal conversions, for example 4-20 mA to engineering units, produce exactly the same interpretation.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "For each analog signal, the value in engineering units matches that of the previous system within the agreed and declared tolerance.",
+   "evidence": [
+    "Scaling comparison table per signal, with its tolerance"
+   ],
+   "prerequisites": [
+    "15",
+    "23"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "27",
+   "n": 27,
+   "label": "27",
+   "title": "Review PID and technological functions.",
+   "detail": "Keep setpoints, limits, units, tuning parameters and expected behavior, taking into account changes between generations of blocks.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Setpoints, limits, units and tuning parameters transferred, with the expected behavior documented and the differences between generations of blocks noted.",
+   "evidence": [
+    "Table of PID parameters before and after",
+    "Note on the differences in behavior between generations of blocks"
+   ],
+   "prerequisites": [
+    "6",
+    "23"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "28",
+   "n": 28,
+   "label": "28",
+   "title": "Review the safety functions separately.",
+   "detail": "If there are F-CPUs, a Safety PLC, E-Stop, light curtains, doors or STO, follow the applicable functional safety procedures and validate independently.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "especialista_seguridad",
+   "exit_criterion": "Safety functions validated INDEPENDENTLY by a specialist, according to the applicable functional safety procedure, with its signed record.",
+   "evidence": [
+    "Validation signed by the functional safety specialist",
+    "Record of the safety tests"
+   ],
+   "prerequisites": [
+    "23"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": true
+   },
+   "agent_note": "The agent does NOT give operating instructions on safety functions: it identifies them, warns about them and refers them to the specialist. It is a hard barrier of the project."
+  },
+  {
+   "key": "29",
+   "n": 29,
+   "label": "29",
+   "title": "Compile the complete project.",
+   "detail": "Obtain zero compilation errors and then analyze all the remaining warnings.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Compilation with zero errors; each remaining warning analyzed and either accepted or resolved, none ignored.",
+   "evidence": [
+    "Compilation output archived",
+    "List of warnings with the decision taken on each"
+   ],
+   "prerequisites": [
+    "23",
+    "24",
+    "25",
+    "26",
+    "27"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "30",
+   "n": 30,
+   "label": "30",
+   "title": "Carry out offline tests or tests by simulation.",
+   "detail": "Where the platform allows it, test sequences and logic without yet intervening on the real machine.",
+   "phase": "conversion",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Sequences and logic tested offline or in simulation, with the deviations corrected and WITHOUT having yet intervened on the real machine.",
+   "evidence": [
+    "Record of the simulation tests and their result"
+   ],
+   "prerequisites": [
+    "29"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "31",
+   "n": 31,
+   "label": "31",
+   "title": "Prepare a FAT (Factory Acceptance Test).",
+   "detail": "Create a list of tests for start-up, stop, automatic, manual, alarms, faults, interlocks, sequences, communications, PID and abnormal conditions.",
+   "phase": "fat",
+   "guide_stage": "fat",
+   "role": "ingenieria",
+   "exit_criterion": "FAT protocol written and approved, covering start-up, stop, automatic, manual, alarms, faults, interlocks, sequences, communications, PID and abnormal conditions, with the configuration frozen.",
+   "evidence": [
+    "FAT protocol approved",
+    "Configuration frozen and identified"
+   ],
+   "prerequisites": [
+    "30"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "32",
+   "n": 32,
+   "label": "32",
+   "title": "Compare the old PLC against the new PLC.",
+   "detail": "For each test define an expected result and check that the new CPU reproduces the required behavior of the original system.",
+   "phase": "fat",
+   "guide_stage": "fat",
+   "role": "ingenieria",
+   "exit_criterion": "For each test in the protocol there is a defined expected result and a recorded obtained result. No critical deviation is left open.",
+   "evidence": [
+    "Test matrix with expected against obtained",
+    "Record of deviations classified as critical, major and minor"
+   ],
+   "prerequisites": [
+    "31"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "agent_note": "A necessary clarification: the comparison is made against the behavior DOCUMENTED in step 6 and against the source program. It does not call for both CPUs to be energized at the same time, because in the plant the old CPU stays in production until the changeover."
+  },
+  {
+   "key": "33",
+   "n": 33,
+   "label": "33",
+   "title": "Prepare a rollback plan.",
+   "detail": "Document how to return temporarily to the previous PLC if the commissioning of the new platform fails.",
+   "phase": "fat",
+   "guide_stage": "fat",
+   "role": "ingenieria",
+   "exit_criterion": "Rollback plan written, with the original CPU, its verified backup and the wiring needed to revert, and the estimated reversion time.",
+   "evidence": [
+    "Rollback plan approved",
+    "Confirmation that the original CPU and its backup remain available"
+   ],
+   "prerequisites": [
+    "5",
+    "32"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "blocking": true
+  },
+  {
+   "key": "34",
+   "n": 34,
+   "label": "34",
+   "title": "Plan the production shutdown.",
+   "detail": "Define date, duration, staff, tools, backups, spare parts, responsibilities and work permits.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "responsable",
+   "exit_criterion": "Shutdown window authorized in writing, with date, duration, staff, tools, backups, spare parts, responsibilities and work permits issued.",
+   "evidence": [
+    "Signed shutdown authorization",
+    "Work permits issued"
+   ],
+   "prerequisites": [
+    "33"
+   ],
+   "requires": {
+    "human_approval": true,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "35",
+   "n": 35,
+   "label": "35",
+   "title": "Carry out the physical replacement.",
+   "detail": "Install the CPU, modules, interfaces, adapters, wiring and auxiliary equipment defined during the engineering.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "tecnico",
+   "exit_criterion": "Hardware installed according to the design of step 17, with the original CPU kept and identified for the rollback plan.",
+   "evidence": [
+    "Photographic record of the installation",
+    "Original CPU labeled and stored safely"
+   ],
+   "prerequisites": [
+    "3",
+    "5",
+    "33",
+    "34"
+   ],
+   "requires": {
+    "human_approval": true,
+    "machine_stopped": true,
+    "loto": true,
+    "safety_specialist": false
+   },
+   "agent_note": "IRREVERSIBLE STEP. It is not carried out without a verified backup (step 5) and a rollback plan (step 33). If there is no backup, the rebuild must be validated before reaching this point.",
+   "blocking": true
+  },
+  {
+   "key": "36",
+   "n": 36,
+   "label": "36",
+   "title": "Carry out electrical tests before energizing fully.",
+   "detail": "Check power supply, polarities, grounding, continuity, signals and connections.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "tecnico",
+   "exit_criterion": "Power supply, polarities, grounding, continuity and connections verified with an instrument BEFORE energizing fully.",
+   "evidence": [
+    "Signed electrical check sheet"
+   ],
+   "prerequisites": [
+    "35"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": true,
+    "loto": true,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "37",
+   "n": 37,
+   "label": "37",
+   "title": "Download the project to the new CPU.",
+   "detail": "Configure the IP address or the device name where applicable and load the hardware and software configuration.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "tecnico",
+   "exit_criterion": "Hardware configuration and program loaded into the new CPU, with the IP address or device name assigned and communication established.",
+   "evidence": [
+    "Confirmation of a download without errors",
+    "Assigned address or name noted"
+   ],
+   "prerequisites": [
+    "36"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "38",
+   "n": 38,
+   "label": "38",
+   "title": "Carry out point-by-point I/O tests.",
+   "detail": "Operate each input and output under controlled conditions and check that the corresponding physical device responds correctly.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "tecnico",
+   "exit_criterion": "Each input and each output operated and checked against its field device. No I/O point is left untested.",
+   "evidence": [
+    "I/O list signed point by point"
+   ],
+   "prerequisites": [
+    "18",
+    "37"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": true,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "39",
+   "n": 39,
+   "label": "39",
+   "title": "Run tests in manual mode.",
+   "detail": "Test motors, pumps, valves, cylinders, indicators and other actuators individually.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "tecnico",
+   "exit_criterion": "Each actuator tested individually in manual, with its correct response and its interlocks active.",
+   "evidence": [
+    "Record of the manual tests, per actuator"
+   ],
+   "prerequisites": [
+    "38"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "40",
+   "n": 40,
+   "label": "40",
+   "title": "Run tests in automatic mode.",
+   "detail": "Check the complete sequence of the process and the transitions between states.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "tecnico",
+   "exit_criterion": "Complete sequence run in automatic, with every transition between states correct.",
+   "evidence": [
+    "Record of the complete automatic cycle"
+   ],
+   "prerequisites": [
+    "39"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "41",
+   "n": 41,
+   "label": "41",
+   "title": "Provoke controlled fault conditions.",
+   "detail": "Verify missing sensors, overloads, loss of communication, maximum and minimum levels, E-Stop and other conditions foreseen in the design.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "ingenieria",
+   "exit_criterion": "Each fault condition foreseen in the design provoked in a controlled way, with its response verified against what was expected.",
+   "evidence": [
+    "Record of the faults provoked and of the response obtained"
+   ],
+   "prerequisites": [
+    "40"
+   ],
+   "requires": {
+    "human_approval": true,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": true
+   },
+   "agent_note": "Provoking faults is a deliberate risk maneuver: it is done under controlled conditions, with the staff warned and the area cleared. For E-Stop and safety functions, with the specialist present."
+  },
+  {
+   "key": "42",
+   "n": 42,
+   "label": "42",
+   "title": "Carry out the SAT (Site Acceptance Test).",
+   "detail": "Validate the complete system installed in the field under real operating conditions.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "responsable",
+   "exit_criterion": "Complete system validated in the field under real conditions, with the SAT protocol signed and no critical deviations left open.",
+   "evidence": [
+    "SAT protocol signed by the person responsible for the installation"
+   ],
+   "prerequisites": [
+    "41"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "43",
+   "n": 43,
+   "label": "43",
+   "title": "Compare indicators before and after.",
+   "detail": "Assess cycle times, production, accuracy, response times, alarms and control behavior to make sure there is no deterioration.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "ingenieria",
+   "exit_criterion": "Cycle times, production, accuracy, response times and alarms compared against those of the previous system, with no unjustified deterioration.",
+   "evidence": [
+    "Table of indicators before and after, with the source of the previous values"
+   ],
+   "prerequisites": [
+    "6",
+    "42"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "agent_note": "The 'before' values must come from step 6. If they were not recorded, the comparison is not possible and that has to be declared, instead of estimating them."
+  },
+  {
+   "key": "44",
+   "n": 44,
+   "label": "44",
+   "title": "Correct the differences detected.",
+   "detail": "Document and validate each modification made during commissioning.",
+   "phase": "corte_y_puesta_en_marcha",
+   "guide_stage": "corte_sat",
+   "role": "ingenieria",
+   "exit_criterion": "Each difference detected corrected, documented and tested again.",
+   "evidence": [
+    "Record of the commissioning changes, with the test that validates each one"
+   ],
+   "prerequisites": [
+    "43"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "agent_note": "It is a loop, not a linear step: each correction forces the tests of steps 38 to 43 that are affected to be repeated."
+  },
+  {
+   "key": "45",
+   "n": 45,
+   "label": "45",
+   "title": "Generate the final backup of the new CPU.",
+   "detail": "Save the final project so that it reflects exactly the software and configuration left working in the field.",
+   "phase": "cierre",
+   "guide_stage": "cierre",
+   "role": "ingenieria",
+   "exit_criterion": "Final backup that reflects exactly what was left working, verified by opening and compiling it, with a checksum and two copies.",
+   "evidence": [
+    "As-built project saved and verified",
+    "Checksum noted"
+   ],
+   "prerequisites": [
+    "44"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "46",
+   "n": 46,
+   "label": "46",
+   "title": "Update drawings and documentation.",
+   "detail": "Modify the electrical drawings, the network architecture, the I/O list, the IP addresses, the BOM, the manuals and the corresponding diagrams.",
+   "phase": "cierre",
+   "guide_stage": "cierre",
+   "role": "ingenieria",
+   "exit_criterion": "Electrical drawings, network architecture, I/O list, addresses, BOM, manuals and diagrams updated to the state actually installed.",
+   "evidence": [
+    "As-built documentation delivered"
+   ],
+   "prerequisites": [
+    "45"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "47",
+   "n": 47,
+   "label": "47",
+   "title": "Create a migration traceability table.",
+   "detail": "Document which old item was replaced by which new item and which software modifications were necessary.",
+   "phase": "cierre",
+   "guide_stage": "cierre",
+   "role": "ingenieria",
+   "exit_criterion": "Traceability table relating each old item to the new one and to the software modifications that were necessary.",
+   "evidence": [
+    "Complete migration traceability table"
+   ],
+   "prerequisites": [
+    "46"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "48",
+   "n": 48,
+   "label": "48",
+   "title": "Train the staff.",
+   "detail": "Train operators and maintenance in diagnostics, connection, backup, recovery and the operating differences of the new system.",
+   "phase": "cierre",
+   "guide_stage": "cierre",
+   "role": "responsable",
+   "exit_criterion": "Operators and maintenance trained in diagnostics, connection, backup, recovery and operating differences, with an attendance record.",
+   "evidence": [
+    "Signed training record",
+    "Reference material handed over"
+   ],
+   "prerequisites": [
+    "46"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "brand_change_variant": "With a change of brand, training is not a formality: the staff start from scratch on the new software. It is sized and budgeted from step 13 onwards."
+  },
+  {
+   "key": "49",
+   "n": 49,
+   "label": "49",
+   "title": "Establish version management.",
+   "detail": "Keep at least Proyecto_original, Proyecto_migrado_pruebas and Proyecto_final_as-built, identified with dates and versions.",
+   "phase": "cierre",
+   "guide_stage": "cierre",
+   "role": "ingenieria",
+   "exit_criterion": "The three projects kept and identified with date and version: Proyecto_original, Proyecto_migrado_pruebas and Proyecto_final_as-built.",
+   "evidence": [
+    "Repository or version folder holding the three projects"
+   ],
+   "prerequisites": [
+    "45"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "50",
+   "n": 50,
+   "label": "50",
+   "title": "Formally close the migration.",
+   "detail": "Finish with as-built documentation, FAT/SAT results, verified backups and acceptance by the person responsible for the installation.",
+   "phase": "cierre",
+   "guide_stage": "cierre",
+   "role": "responsable",
+   "exit_criterion": "Formal closure with as-built documentation, FAT and SAT results, verified backups and signed acceptance by the person responsible for the installation.",
+   "evidence": [
+    "Signed closure record"
+   ],
+   "prerequisites": [
+    "45",
+    "46",
+    "47",
+    "48",
+    "49"
+   ],
+   "requires": {
+    "human_approval": true,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   }
+  },
+  {
+   "key": "P1",
+   "n": null,
+   "label": "P1",
+   "title": "Write the brand-independent functional specification.",
+   "detail": "From what is documented in step 6, write what the machine must do without reference to a brand or to code: operating modes, sequences, permissives, interlocks, alarms, start and stop conditions, and safe states. It is the contract against which the new system will be validated even if all the code changes.",
+   "phase": "construccion_del_programa",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Functional document approved by operations and by maintenance, describing each mode and each sequence without naming hardware or instructions.",
+   "evidence": [
+    "Functional specification signed by production and by maintenance",
+    "Traceability of each function to step 6 or to the observation in the plant"
+   ],
+   "prerequisites": [
+    "6"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "extension": "programa",
+   "methodological_origin": "Guide MIGRA-IA-GUIA-001, ch. 6"
+  },
+  {
+   "key": "P2",
+   "n": null,
+   "label": "P2",
+   "title": "Formally model the control sequence (GRAFCET/SFC; Petri net for the critical parts).",
+   "detail": "Translate the specification into a model of states and transitions: stages, transition conditions, associated actions, automatic and manual modes, emergency stop and recovery. Where the sequence is critical or there is concurrency between subsystems, also draw up the Petri net and analyze deadlocks, reachability and dead states BEFORE writing a single line.",
+   "phase": "construccion_del_programa",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Model covering all the modes declared in P1, with no dead states and no ambiguous transitions. In the critical sequences, a Petri net analysis with no deadlocks and no unreachable states.",
+   "evidence": [
+    "GRAFCET/SFC diagram per subsystem",
+    "Petri net analysis of the critical sequences, with its conclusions",
+    "List of safe states and of how they are reached from any point"
+   ],
+   "prerequisites": [
+    "P1"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "extension": "programa",
+   "methodological_origin": "Guide MIGRA-IA-GUIA-001, ch. 6",
+   "agent_note": "This model is also the acceptance reference of step 32: comparing the new system against a formal model is stronger than comparing it against a description in prose."
+  },
+  {
+   "key": "P3",
+   "n": null,
+   "label": "P3",
+   "title": "Define the software architecture.",
+   "detail": "Break the program down by equipment and by function, and fix BEFORE coding: naming conventions, data types, retentive variables, task structure, priorities, target cycle time and watchdog.",
+   "phase": "construccion_del_programa",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Architecture written and reviewed, with the list of blocks and their responsibility, the naming conventions and the retentiveness declared.",
+   "evidence": [
+    "Software architecture document",
+    "Agreed template of names and data types"
+   ],
+   "prerequisites": [
+    "13",
+    "P2"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "extension": "programa",
+   "methodological_origin": "Guide MIGRA-IA-GUIA-001, ch. 10",
+   "agent_note": "It depends on step 13: the target platform conditions data types, tasks and retentiveness, so this architecture cannot be closed before the CPU is chosen."
+  },
+  {
+   "key": "P4",
+   "n": null,
+   "label": "P4",
+   "title": "Build the variable list and link it to the I/O map.",
+   "detail": "Declare each variable with its type, range, unit, initial value and retentiveness, and its correspondence with the mapping table of step 18. No I/O point from step 7 may be left without a variable, and no variable without an origin.",
+   "phase": "construccion_del_programa",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Variable list complete and reconciled against step 18 in both directions.",
+   "evidence": [
+    "Variable list exported from the project",
+    "Cross-check against the mapping table of step 18"
+   ],
+   "prerequisites": [
+    "18",
+    "P3"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "extension": "programa",
+   "methodological_origin": "Guide MIGRA-IA-GUIA-001, ch. 10"
+  },
+  {
+   "key": "P5",
+   "n": null,
+   "label": "P5",
+   "title": "Write the program block by block, following the model.",
+   "detail": "Code each block of the architecture implementing the stages and transitions of the model. Each block references the stage or the requirement it fulfills. No logic is improvised that is not in the specification: if something new is needed, go back to P1 and document it before coding it.",
+   "phase": "construccion_del_programa",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "All the blocks of the architecture written and compiling, with the reference to the requirement or stage they implement.",
+   "evidence": [
+    "Project under version control, with one commit per block or function",
+    "Requirement -> block traceability matrix"
+   ],
+   "prerequisites": [
+    "P4"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "extension": "programa",
+   "methodological_origin": "Guide MIGRA-IA-GUIA-001, ch. 10"
+  },
+  {
+   "key": "P6",
+   "n": null,
+   "label": "P6",
+   "title": "Have the code reviewed by someone other than the person who wrote it.",
+   "detail": "Review aimed at: critical logic, initialization and cold start, safe states, handling of communication failures, and traceability of each block to its requirement.",
+   "phase": "construccion_del_programa",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Review recorded, with each finding either closed or explicitly accepted.",
+   "evidence": [
+    "Code review record with the findings and their resolution"
+   ],
+   "prerequisites": [
+    "P5"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "extension": "programa",
+   "methodological_origin": "Guide MIGRA-IA-GUIA-001, ch. 18",
+   "agent_note": "If the program touches safety functions, this review does NOT replace the specialist validation of step 28."
+  },
+  {
+   "key": "P7",
+   "n": null,
+   "label": "P7",
+   "title": "Test each block separately before integrating.",
+   "detail": "Unit tests with normal inputs, limit values, errors, loss of communication, start-up, stop, reset and recovery, in a simulator or with forced signals in a controlled environment, documenting the limitations of the simulation.",
+   "phase": "construccion_del_programa",
+   "guide_stage": "construccion",
+   "role": "ingenieria",
+   "exit_criterion": "Each block tested with its set of cases and its result recorded; no block reaches integration untested.",
+   "evidence": [
+    "Record of the unit tests per block, with cases and results",
+    "Limitations of the simulation declared"
+   ],
+   "prerequisites": [
+    "P6"
+   ],
+   "requires": {
+    "human_approval": false,
+    "machine_stopped": false,
+    "loto": false,
+    "safety_specialist": false
+   },
+   "extension": "programa",
+   "methodological_origin": "Guide MIGRA-IA-GUIA-001, ch. 18"
+  }
+ ],
+ "declared_gaps": [
+  {
+   "id": "construccion_del_programa",
+   "description": "Steps 21 to 23 assume that a program to convert exists ('migrate with official tools', 'review the migration report'). No step covers WRITING the new program. On the rebuild route -without a backup, or with an unknown password- and on a brand change, steps 21 and 22 are left as 'not applicable' and nothing took their place: the gap fell exactly where the work is.",
+   "status": "CERRADO por la extension P1-P7 (construccion del programa), derivada de los capitulos 6, 10 y 18 de la guia. Pendiente de validacion del autor."
+  },
+  {
+   "id": "compra_y_plazos",
+   "description": "Between step 20 (configure the new hardware) and step 21 (migrate the program) there is no step for quoting, purchasing and receiving the hardware. In practice the lead time is what sets the date of the shutdown in step 34. The BOM only appears in step 46, as final documentation.",
+   "status": "pendiente de decision del autor"
+  },
+  {
+   "id": "cpu_bloqueada_sin_contrasena",
+   "description": "Step 3 assumes that the upload from the PLC can be done. There is no step covering what to do when the CPU is protected and the password is unknown, which is precisely one of the triggers of the migration. It is covered provisionally with the 'no_backup_variant' variant of steps 3, 5, 11, 21 and 22.",
+   "status": "cubierto por variante, pendiente de validacion del autor"
+  },
+  {
+   "id": "roles_no_declarados",
+   "description": "The document does not say who carries out each step. The 'role' field is a proposal, so that the agent can give warning when a step goes beyond the maintenance technician.",
+   "status": "propuesta, pendiente de validacion del autor"
+  },
+  {
+   "id": "ruta_de_conversion_por_marca",
+   "description": "Step 21 says 'use the manufacturer's official tools first', but it does not say WHICH ones, nor in what order. For a Siemens S5 the real chain (STEP 5 -> S5 File Converter -> SIMATIC Manager -> MigrateProject -> TIA Portal) was nowhere to be found, and it is exactly what is asked by someone who has the code accessible but is migrating for lack of spare parts.",
+   "status": "CERRADO PARA SIEMENS por el bloque 'rutas_por_fabricante' (2026-09-07). Abierto para las otras 29 marcas del catalogo. Pendiente de validacion del autor."
+  }
+ ],
+ "routes_by_manufacturer": {
+  "description": "Conversion routes specific to each manufacturer. They do NOT replace the 57-step procedure: they SPECIALIZE it in steps 21, 22 and 23 (conversion of the program) and they condition step 13 (choice of target CPU) and step 20 (configuration of the new hardware).",
+  "usage_condition": "They only apply when the source program is ACCESSIBLE AND VERIFIED: a backup that opens and compiles (F01, F06, F07) and known passwords (N06, F16). It is the 'obsolescencia_con_acceso_al_codigo' trigger. If the case runs with the 'no_backup_variant' variant there is no program to convert and these routes do NOT apply: it is rebuilt through the P1-P7 extension. The agent still does not help to circumvent protections or licenses.",
+  "coverage": "For now only Siemens (S5 -> STEP 7 -> TIA Portal). The other brands in the catalog continue with the generic step 21: 'use the manufacturer's official tools first'. This limitation is declared, not filled in by improvising a route.",
+  "routes": [
+   {
+    "id": "siemens_s5_a_tia_portal",
+    "brand": "Siemens",
+    "title": "SIMATIC S5 to STEP 7 and TIA Portal",
+    "source_families": [
+     "SIMATIC S5"
+    ],
+    "target_families": [
+     "S7-300",
+     "S7-400",
+     "S7-1200",
+     "S7-1500"
+    ],
+    "principle": "The migration from S5 to TIA Portal is NOT direct. The mandatory chain is STEP 5 -> STEP 7 (SIMATIC Manager) -> TIA Portal. There is no direct jump from STEP 5 to TIA Portal.",
+    "applies_to_steps": [
+     "13",
+     "20",
+     "21",
+     "22",
+     "23"
+    ],
+    "branches": {
+     "destino_step7_s7_300_400": "the target stays on STEP 7 over an S7-300 or an S7-400",
+     "destino_tia_portal": "the target goes up to TIA Portal over an S7-1200 or an S7-1500"
+    },
+    "steps": [
+     {
+      "n": "S1",
+      "title": "Extract the original program with the STEP 5 software",
+      "detail": "Upload the program from the S5 PLC with STEP 5 and archive the backup before touching anything else. This backup is the only reference for what the machine does today: if it is lost, the conversion route collapses and the case moves to a rebuild (P1-P7 extension).",
+      "specializes_step": "21",
+      "exit_criterion": "Complete S5 backup, opened and verified in STEP 5, archived with its date and with a copy outside the programming PC."
+     },
+     {
+      "n": "S2",
+      "title": "Convert the backup with the S5 File Converter tool",
+      "detail": "Translate the STEP 5 backup into the SIMATIC Manager (STEP 7) environment with Siemens' S5 file conversion tool. This is where care has to begin: the tool translates the logic, NOT the hardware.",
+      "specializes_step": "21",
+      "exit_criterion": "Project opened in SIMATIC Manager, with the conversion report saved and the exact version of the tool noted."
+     },
+     {
+      "n": "S3",
+      "title": "Fix the target before converting any further",
+      "detail": "The route branches here and the rest of the steps depend on this choice: staying on STEP 7 over an S7-300/S7-400, or going up to TIA Portal over an S7-1200/S7-1500. It is the decision of step 13 of the procedure and it is taken by the user, not by the agent.",
+      "specializes_step": "13",
+      "exit_criterion": "Target CPU family and model fixed by the user and recorded with `set_target_cpu`."
+     },
+     {
+      "n": "S4",
+      "title": "Adjust hardware, addresses and routines in STEP 7",
+      "detail": "Once migrated, adjust the hardware configuration to the model chosen, reassign the addresses and verify routine by routine that they have been converted correctly. Every instruction that does not exist in STEP 7 is recreated by hand so that it does exactly the same as in the original project.",
+      "specializes_step": "23",
+      "exit_criterion": "Hardware configured, addresses reassigned, each routine verified against the original S5 project, and each non-existent instruction recreated and tested.",
+      "branch": "destino_step7_s7_300_400"
+     },
+     {
+      "n": "S5",
+      "title": "Resolve the language BEFORE moving up to TIA Portal",
+      "detail": "Check which language the logic is written in and correct it in STEP 7 before migrating. If the target is an S7-1200, all the AWL logic has to be converted to KOP/ladder or to blocks, because TIA Portal does not allow programming in AWL for that family. If the target is an S7-1500, AWL is allowed: the conversion is more direct and does not call for the prior change of language.",
+      "specializes_step": "21",
+      "exit_criterion": "Program language compatible with the target family, verified and compiled clean in STEP 7 BEFORE launching the migration to TIA Portal.",
+      "branch": "destino_tia_portal",
+      "agent_note": "It is the point where most migrations get stuck: MigrateProject is launched with AWL logic destined for an S7-1200 and the problem is discovered halfway through."
+     },
+     {
+      "n": "S6",
+      "title": "Move up from STEP 7 to TIA Portal with MigrateProject",
+      "detail": "Use the MigrateProject utility, which comes built into TIA Portal itself, to take the project from STEP 7 into the TIA environment.",
+      "specializes_step": "21",
+      "exit_criterion": "Project opened in TIA Portal, with the MigrateProject report saved and classified according to step 22 of the procedure.",
+      "branch": "destino_tia_portal"
+     },
+     {
+      "n": "S7",
+      "title": "Close the migration by hand",
+      "detail": "Once migrated, ensure the compatibility of the instructions, adjust the hardware and manually replace any instruction that is not compatible. No migration is 100% automatic: the software only helps with the process, the rest is engineering.",
+      "specializes_step": "23",
+      "exit_criterion": "Clean compilation in the target environment, with no incompatible instructions outstanding, and each manual replacement recorded with its justification."
+     }
+    ],
+    "rules": [
+     {
+      "id": "version_mas_baja",
+      "rule": "If the exact target CPU model is not yet known, work with the LOWEST compatible version of the software. Moving up from a lower version to a higher one is straightforward; going back from a higher version to a lower one is not.",
+      "affects_steps": [
+       "13",
+       "20",
+       "21"
+      ]
+     },
+     {
+      "id": "ninguna_migracion_es_automatica",
+      "rule": "No migration is 100% automatic. The official tool translates what it can and leaves a report; the rest is manual engineering and is carried out in step 23. The agent must NEVER present the conversion as a formality.",
+      "affects_steps": [
+       "21",
+       "22",
+       "23"
+      ]
+     },
+     {
+      "id": "hardware_no_se_convierte",
+      "rule": "Siemens' conversion tools translate the logic of the program, not the hardware configuration. The rack, the addresses and the modules are redone in step 20 and adjusted in S4 and S7.",
+      "affects_steps": [
+       "20",
+       "23"
+      ]
+     }
+    ],
+    "sources": [
+     {
+      "type": "fabricante",
+      "description": "Siemens - Migration from S5 to S7",
+      "url": "https://support.industry.siemens.com/cs/attachments/105106251/105106251_Migration_guide_S5_S7_en.pdf",
+      "note": "Normative source for the STEP 5 -> STEP 7 chain. Already cited in data/es/cpu_manufacturers.json."
+     },
+     {
+      "type": "fabricante",
+      "description": "Siemens - S7-300 / S7-1500 migration guide",
+      "url": "https://support.industry.siemens.com/cs/attachments/109478811/109478811_GuideForMigration_S7-300_S7-1500_V11_en.pdf",
+      "note": "Normative source for the STEP 7 -> TIA Portal leg. Already cited in data/es/cpu_manufacturers.json."
+     }
+    ],
+    "technical_note": "The route talks about the S7-1200 and not the S7-200 because the language restriction belongs to that family: TIA Portal does not allow AWL for the S7-1200, whereas the S7-1500 does allow it. Hence step S5 only calls for converting AWL to KOP or to blocks when the target is an S7-1200. Verified 2026-09-07."
+   }
+  ]
+ },
+ "brand_change_route": {
+  "id": "cambio_de_marca_con_codigo_accesible",
+  "type": "cambio_de_marca",
+  "title": "Port between different manufacturers with the source program accessible",
+  "description": "A single route, valid for any pair of brands. It does NOT replace the 57-step procedure: it SPECIALIZES it in steps 11, 12, 18, 21 and 32, and it relies on the P1-P7 extension to write the new program.",
+  "usage_condition": "It only applies when both things hold at once: the target is from ANOTHER brand (step 13, option 'marca_alternativa') and the source program is ACCESSIBLE AND VERIFIED -known passwords (N06, F16) and a backup that opens and compiles (F01, F06, F07)-. If the case runs with the 'no_backup_variant' variant this route does NOT apply: there is no source to read and the program is rebuilt blind through the P1-P7 extension, from steps 6 and 7.",
+  "coverage": "It describes the METHOD, not the specific equivalences. Those depend on the pair of brands and are built case by case against the official manuals of both manufacturers: the agent does not publish them from memory.",
+  "principle": "With the source in hand the work does NOT start from scratch: the original program is the SPECIFICATION of what the machine does today, and this is a PORT against that specification. But it is still a rewrite: between different manufacturers there is no conversion tool and it is not translated line by line.",
+  "hard_limit": "The agent does NOT publish instruction equivalences between brands, nor does it claim model-to-model CPU equivalence (step 13): it proposes the structure of the table, points out what has to be verified and declares what could not be cited.",
+  "applies_to_steps": [
+   "11",
+   "12",
+   "18",
+   "21",
+   "32"
+  ],
+  "steps": [
+   {
+    "n": "C1",
+    "title": "Inventory the internal memory and take a census of the languages used in the program",
+    "detail": "Step 11 classifies the blocks by function; between brands an inventory of what is not I/O is also needed: internal flags, data blocks, timers, counters, retentive values, constants, setpoints, PID parameters, alarm limits and recipes, with their current value READ from the program, not estimated. And a census of which language each block is written in (KOP/LAD, FUP/FBD, AWL/STL, SCL/ST, GRAFCET/SFC): the language decides how much logic is carried over and how much is rewritten, because AWL/STL has no equivalent on most platforms.",
+    "specializes_step": "11",
+    "exit_criterion": "Complete internal memory inventory, with the current value of each timer, counter, setpoint and parameter read from the program, and a census of languages per block with its count."
+   },
+   {
+    "n": "C2",
+    "title": "Build the instruction equivalence table between the two manufacturers",
+    "detail": "Step 12 looks for obsolete instructions within a single brand; between different brands the problem is another one: each instruction of the original program needs its equivalent in the target manufacturer's set, and the one that has none is marked for reprogramming. The table is built against the official manuals of BOTH brands -the guides already recorded in the manufacturer catalog are the starting point- and each row notes its source.",
+    "specializes_step": "12",
+    "exit_criterion": "Instruction-by-instruction table with its classification closed: direct equivalent, equivalent with an adjustment -and which one-, or without an equivalent, which passes to the C3 triage. No row without a source, and no 'to be verified' without an assigned owner.",
+    "agent_note": "It is the table that the agent must NOT fill in from memory: it proposes the structure and asks for verification against the two manuals."
+   },
+   {
+    "n": "C3",
+    "title": "Separate the logic that can be carried over from the logic that has to be reprogrammed (triage)",
+    "detail": "Step 11 classifies the blocks by function; here they are also classified by what it is going to cost to take them to the other brand. It is what replaces step 21 -which does not apply between different manufacturers- and what turns accessible code into a plan. Each block of the C1 inventory is classified into three: (a) CARRY-OVER conceptually -same logic, different syntax-; (b) ADAPTABLE -needs adjustment for data types, addressing, timing or system functions-; (c) TO BE REPROGRAMMED -depends on instructions without an equivalent, on proprietary hardware or on technological functions of the source brand-. From that comes the estimate of the real effort, which is NOT that of development from scratch. The classification is provisional until C2 closes the equivalence table in step 12: every block that depends on an instruction without an equivalent then moves to 'to be reprogrammed'. Once the triage is closed, the work enters through the P1-P7 extension.",
+    "specializes_step": "11",
+    "exit_criterion": "Each block of the original program classified as carry-over, adaptable or to be reprogrammed, with the reason, and the effort estimate per category made by whoever is going to do the work. Reviewed after closing the table of step 12.",
+    "agent_note": "Carry-over does NOT mean translatable line by line: the logic is reimplemented according to the software architecture of P3, not by copying the structure of the old program."
+   },
+   {
+    "n": "C4",
+    "title": "Derive the address mapping from the original symbol table",
+    "detail": "With the source accessible, the table of step 18 is not traced in the field: the symbol or tag table of the original project is exported and cross-checked against the I/O list of step 7. It is faster and, above all, it does not lose the signals that exist only in the program and never made it to the drawings.",
+    "specializes_step": "18",
+    "exit_criterion": "Mapping table reconciled in both directions -against step 7 and against the original symbol table-, with each difference explained and resolved before writing the P1 specification."
+   },
+   {
+    "n": "C5",
+    "title": "Compare against the original program, I/O point by I/O point and sequence by sequence",
+    "detail": "Step 32 compares the old PLC against the new one. With the source available, that comparison stops being observation and becomes an equivalence test: from the original program the input sets are derived -normal conditions, limit values, interlocks and faults- and the output of the two platforms is compared, sequence by sequence.",
+    "specializes_step": "32",
+    "exit_criterion": "Test set derived from the original program and run on both platforms, with each difference classified either as deliberate -and justified- or as a defect already corrected. None is left 'to be looked at during commissioning'."
+   }
+  ],
+  "rules": [
+   {
+    "id": "la_fuente_es_especificacion_no_plantilla",
+    "rule": "The original program is the specification of what the machine does TODAY, not a template to be translated. The functional specification of P1 is written from the code AND from what is documented in step 6: the code supplies the exact numbers -timings, setpoints, limits- and step 6 supplies the intent.",
+    "affects_steps": [
+     "11",
+     "21",
+     "P1",
+     "P5"
+    ]
+   },
+   {
+    "id": "reconciliar_codigo_y_campo",
+    "rule": "Where the code and what is documented in step 6 do not agree is where what no other route finds comes to light: unrecorded patches, dead logic and changes of operation that were never documented. Each discrepancy is resolved with operations and maintenance BEFORE writing P1, and it is recorded.",
+    "affects_steps": [
+     "6",
+     "11",
+     "18"
+    ]
+   },
+   {
+    "id": "equivalencias_no_se_inventan",
+    "rule": "Neither the instructions nor the CPU models are equated from memory or by similarity of name. The C2 table is built against the manuals of the two brands and the matrix of step 14 is established on functional criteria. Whatever cannot be cited is declared pending verification, with an owner.",
+    "affects_steps": [
+     "12",
+     "13",
+     "14",
+     "23"
+    ]
+   },
+   {
+    "id": "seguridad_no_se_porta",
+    "rule": "Safety logic is NEVER carried over by analogy between brands, even if an equivalent instruction exists on the target: it is redone from the specification and recertified with the specialist of step 28.",
+    "affects_steps": [
+     "23",
+     "28"
+    ]
+   },
+   {
+    "id": "redes_y_hmi_se_rehacen",
+    "rule": "Between different brands the field network may call for conversion or a gateway, and the HMI/SCADA is re-tagged in full against the new variable list. Neither of the two is a minor adjustment: they are budgeted as work in their own right, with their time and their cost.",
+    "affects_steps": [
+     "24",
+     "25"
+    ]
+   },
+   {
+    "id": "titularidad_del_programa",
+    "rule": "Knowing the password does not grant the right to reimplement a third party's logic on another platform. If the program belongs to a machine manufacturer or to an integrator, verify ownership and the license conditions BEFORE reusing its content. The agent gives warning of this and does not help to circumvent protections or licenses.",
+    "affects_steps": [
+     "3",
+     "11",
+     "21"
+    ]
+   }
+  ],
+  "sources": [
+   {
+    "type": "procedimiento",
+    "description": "MIGRA-IA-PROC-050: steps 11, 12, 18, 21 and 32, and the program construction extension P1-P7",
+    "url": "data/procedimiento_migracion.json",
+    "note": "This route specializes the procedure; it does not replace it."
+   },
+   {
+    "type": "catalogo",
+    "description": "Official guides and manuals from each manufacturer, already recorded in the CPU catalog",
+    "url": "data/fabricantes_cpu.json",
+    "note": "They are the source against which the instruction equivalence table (C2) is built. The catalog does not publish comparable attributes per model across brands: that is why step 13 refers to the manufacturer's official selection tool."
+   }
+  ]
+ }
+}
