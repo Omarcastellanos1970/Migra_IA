@@ -1,5 +1,7 @@
 # Verificacion interna del motor MIGRA-IA
 
+**Seleccione idioma:** [Español](evaluacion_interna.md) · [English](en/internal_evaluation.md)
+
 Generado por `_evaluation.py`. Reproducible: mismas respuestas, mismos numeros, sin clave de API.
 
 Semilla Monte Carlo: `42` - muestras: `5000`.

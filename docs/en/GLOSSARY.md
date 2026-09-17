@@ -1,5 +1,7 @@
 # MIGRA-IA — ES→EN naming contract
 
+**Select language:** [Español](../GLOSARIO.md) · [English](GLOSSARY.md)
+
 This file is the **naming contract** for the bilingual repository. Every rename
 applied to code, data keys and file names comes from here, and nothing is
 renamed that is not listed here. It is written before the refactor on purpose:

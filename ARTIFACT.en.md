@@ -1,7 +1,6 @@
 # Reproducible artifact — MIGRA-IA
 
-**Español:** [ARTIFACT.md](ARTIFACT.md)
-
+**Select language:** [Español](ARTIFACT.md) · [English](ARTIFACT.en.md)
 **Authors:** Carlos Omar Castellanos · Julio Noé Castillo · Isidoro Medina · Luis Loo
 **Version:** 0.4.0 · **License:** MIT
 

@@ -99,6 +99,8 @@ def report() -> str:
     a = L.append
     a(D("ft_title"))
     a("")
+    a(config.doc_language_line("ft"))
+    a("")
     a(D("ft_intro") % (questionnaire_path().relative_to(ROOT).as_posix(),
                        D("sr_path")))
     a("")

@@ -1,7 +1,6 @@
 # Figuras preparadas para el paper — recetas listas, SIN aplicar
 
-**English:** [../en/figure_insertion_in_the_paper.md](../en/figure_insertion_in_the_paper.md)
-
+**Seleccione idioma:** [Español](insercion_en_el_paper.md) · [English](../en/figure_insertion_in_the_paper.md)
 Estado: **preparadas y no aplicadas**. El paper no se ha tocado. Estas recetas
 existen para que insertar sea un solo paso cuando se decida, y para poder
 deshacerlo igual de rápido.

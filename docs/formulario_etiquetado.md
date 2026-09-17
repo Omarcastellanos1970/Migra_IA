@@ -1,5 +1,7 @@
 # Formulario de etiquetado por juicio experto
 
+**Seleccione idioma:** [Español](formulario_etiquetado.md) · [English](en/labelling_form.md)
+
 Para: coautores del trabajo. Tiempo estimado: 20-30 minutos.
 
 Este formulario **no contiene ninguna salida del agente** ni el etiquetado

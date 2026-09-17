@@ -1,5 +1,7 @@
 # MIGRA-IA - Valoracion ciega de casos
 
+**Seleccione idioma:** [Español](plantilla_casos_ciegos.md) · [English](en/blind_cases_template.md)
+
 Gracias por ayudar con esto. Son cinco casos y toma alrededor de una hora.
 
 ## Que se le pide

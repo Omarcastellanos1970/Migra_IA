@@ -1,7 +1,6 @@
 # 🌐 Publishing MIGRA-IA on the internet (Render — free)
 
-**Español:** [DESPLIEGUE_RENDER.md](DESPLIEGUE_RENDER.md)
-
+**Select language:** [Español](DESPLIEGUE_RENDER.md) · [English](RENDER_DEPLOYMENT.md)
 A guide for putting the agent on a **public URL** that anyone can open, with nothing to install.
 We use **Render** because it has a free plan and deploys straight from GitHub.
 

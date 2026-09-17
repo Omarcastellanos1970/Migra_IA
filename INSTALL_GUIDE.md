@@ -1,7 +1,6 @@
 # 🚀 Quick guide — Install and try MIGRA-IA
 
-**Español:** [GUIA_INSTALACION.md](GUIA_INSTALACION.md)
-
+**Select language:** [Español](GUIA_INSTALACION.md) · [English](INSTALL_GUIDE.md)
 > **For:** the co-authors of the project (Julio, Isidoro).
 > **Time:** ~15 minutes.
 > ✅ **You can try it FREE**, with no key and at no cost, thanks to the **interactive demo**.

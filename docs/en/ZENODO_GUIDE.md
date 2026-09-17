@@ -1,7 +1,6 @@
 # How to publish the artifact on Zenodo and obtain a DOI
 
-**Español:** [../GUIA_ZENODO.md](../GUIA_ZENODO.md)
-
+**Select language:** [Español](../GUIA_ZENODO.md) · [English](ZENODO_GUIDE.md)
 Zenodo (from CERN) is a free repository that assigns a **citable DOI** to your
 code. It is accepted by IEEE/ACM as an artifact. There are two routes; **A** is
 the recommended one because it versions automatically.

@@ -1,5 +1,7 @@
 # PROTOCOLO — configuración experimental
 
+**Seleccione idioma:** [Español](PROTOCOLO.md) · [English](PROTOCOL.md)
+
 **Este párrafo es la sección de configuración experimental del artículo.**
 Sustituye al protocolo escrito como documento aparte: se pega casi literal en
 Overleaf, y lo que dice aquí manda sobre lo que digan los resultados después.

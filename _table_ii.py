@@ -647,6 +647,7 @@ def main():
     os.makedirs(os.path.dirname(md_path), exist_ok=True)
     with open(md_path, "w", encoding="utf-8") as fh:
         fh.write(D("t2_md") % {
+            "idioma": config.doc_language_line("t2"),
             "status": D("t2_status") % (D("t2_status_classic") if con else ""),
             "titulo_plano": plain_title,
             "n": med["n"], "k": med["k"],
@@ -665,6 +666,7 @@ def main():
     protocol_path = os.path.join(ROOT, protocol_output())
     with open(protocol_path, "w", encoding="utf-8") as fh:
         fh.write(D("t2_protocol") % {
+            "idioma": config.doc_language_line("pt"),
             "parrafo_es": parrafo_es, "parrafo_en": parrafo_en,
             "parrafo_es_plano": _plain(parrafo_es),
             "parrafo_en_plano": _plain(parrafo_en),

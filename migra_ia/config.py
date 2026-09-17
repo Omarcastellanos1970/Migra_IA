@@ -227,6 +227,24 @@ def doc_tools_in(lang: str) -> dict:
     return _doc_tools(lang)
 
 
+def doc_language_line(prefix: str) -> str:
+    """La linea de seleccion de idioma que encabeza un documento generado.
+
+    El documento se escribe ENTERO en un idioma y nombra a su espejo por su
+    ruta relativa. Ni la frase ni las rutas se escriben a mano: la frase es
+    `doc_language_line` del idioma en curso y las rutas salen de la entrada
+    `<prefijo>_path` de cada idioma, que es la misma que usa el guion para
+    decidir donde escribe.
+    """
+    import posixpath
+
+    propio = doc_tools()[prefix + "_path"]
+    base = posixpath.dirname(propio) or "."
+    rutas = tuple(posixpath.relpath(_doc_tools(lang)[prefix + "_path"], base)
+                  for lang in ("es", "en"))
+    return doc_tools()["doc_language_line"] % rutas
+
+
 def doc_tools() -> dict:
     """Texto de los guiones que ESCRIBEN documentacion.
 

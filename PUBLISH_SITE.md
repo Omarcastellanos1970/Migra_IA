@@ -1,7 +1,6 @@
 # Publishing the MIGRA-IA page as a public URL
 
-**Español:** [PUBLICAR_SITIO.md](PUBLICAR_SITIO.md)
-
+**Select language:** [Español](PUBLICAR_SITIO.md) · [English](PUBLISH_SITE.md)
 The artifact page is a self-contained HTML file. It is already in place in two locations:
 
 - `MIGRA-IA_sitio.html` and `MIGRA-IA_site.html` (root) — to send the file

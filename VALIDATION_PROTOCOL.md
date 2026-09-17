@@ -1,7 +1,6 @@
 # Validation protocol — ordinal risk and replacement priority
 
-**Español:** [PROTOCOLO_VALIDACION.md](PROTOCOLO_VALIDACION.md)
-
+**Select language:** [Español](PROTOCOLO_VALIDACION.md) · [English](VALIDATION_PROTOCOL.md)
 **Signed on 2026-09-04.** From that date the protocol rules: if a later result is
 not to our liking, it is reported all the same. Changing any of the six points
 requires writing down here what was changed, when and why, before running

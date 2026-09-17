@@ -1,7 +1,6 @@
 # Data risk
 
-**Español:** [../riesgo_de_datos.md](../riesgo_de_datos.md)
-
+**Select language:** [Español](../riesgo_de_datos.md) · [English](data_risk.md)
 **Updated on 2026-09-04.** What is missing, who gets it and by when. The facts
 are verified against the repository; the **who** and **by when** columns marked
 `TO BE DECIDED` have to be set by the team, they do not come from any file.

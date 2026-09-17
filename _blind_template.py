@@ -167,6 +167,8 @@ def generate(given_seed: int | None = None) -> None:
     L = [
         D("bc_title"),
         "",
+        config.doc_language_line("bc"),
+        "",
         D("bc_thanks"),
         "",
         D("bc_asked_header"),
@@ -373,6 +375,7 @@ def compare(rutas: list[Path], write_md: bool) -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(
             D("cc_doc_title") + "\n\n"
+            + config.doc_language_line("cc") + "\n\n"
             + D("cc_doc_intro") + "\n\n"
             + "```\n" + "\n".join(L) + "\n```\n", encoding="utf-8")
         print(D("cc_written") % target)

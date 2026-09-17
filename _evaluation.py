@@ -456,6 +456,7 @@ def main() -> None:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(
             D("ev_doc_title") + "\n\n"
+            + config.doc_language_line("ev") + "\n\n"
             + D("ev_doc_intro") + "\n\n"
             + D("ev_doc_seed") % (args.seed, args.samples) + "\n\n"
             + "```\n" + "\n".join(L) + "\n```\n",

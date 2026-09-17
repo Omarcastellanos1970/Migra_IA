@@ -1,5 +1,7 @@
 # Baseline reproducible: riesgo ordinal y prioridad de reemplazo
 
+**Seleccione idioma:** [Español](baseline_reproducible.md) · [English](en/reproducible_baseline.md)
+
 Generado por `_baseline.py`. Reproducible: misma entrada, misma salida,
 sin clave de API y sin dependencias de terceros en el calculo.
 

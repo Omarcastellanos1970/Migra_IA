@@ -1,5 +1,7 @@
 # Reglas de puntuacion de los 8 factores
 
+**Seleccione idioma:** [Español](reglas_de_puntuacion.md) · [English](en/scoring_rules.md)
+
 Extraido automaticamente de `migra_ia/interactive.py` por `_scoring_rules.py`. Si el codigo cambia, este documento cambia.
 
 Cada factor produce un valor 0-100 (mayor = mas riesgo). El riesgo total es la media ponderada de los ocho, con los pesos de la Seccion 6.

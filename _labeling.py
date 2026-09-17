@@ -187,6 +187,8 @@ def write_form() -> None:
     data = load()
     L = [D("lf_title"),
          "",
+         config.doc_language_line("lf"),
+         "",
          D("lf_for"),
          "",
          D("lf_intro"),

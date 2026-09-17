@@ -764,6 +764,7 @@ def main() -> None:
         destino.parent.mkdir(parents=True, exist_ok=True)
         destino.write_text(
             D("bl_doc_title") + "\n\n"
+            + config.doc_language_line("bl") + "\n\n"
             + D("bl_doc_intro") + "\n\n"
             + "```\n" + text + "```\n", encoding="utf-8")
         print(D("bl_written") % destino.relative_to(ROOT).as_posix())

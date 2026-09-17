@@ -1,5 +1,7 @@
 # MIGRA-IA — contrato de nombres ES→EN
 
+**Seleccione idioma:** [Español](GLOSARIO.md) · [English](en/GLOSSARY.md)
+
 Este archivo es el **contrato de nombres** del repositorio bilingüe. Todo
 renombrado que se aplique al código, a las claves de datos y a los nombres de
 archivo sale de aquí, y no se renombra nada que no esté listado. Se escribe

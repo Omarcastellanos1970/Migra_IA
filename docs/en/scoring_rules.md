@@ -1,5 +1,7 @@
 # Scoring rules of the 8 factors
 
+**Select language:** [Español](../reglas_de_puntuacion.md) · [English](scoring_rules.md)
+
 Extracted automatically from `migra_ia/interactive.py` by `_scoring_rules.py`. If the code changes, this document changes.
 
 Each factor produces a value of 0-100 (higher = more risk). The total risk is the weighted mean of the eight, with the weights of Section 6.

@@ -1,5 +1,7 @@
 # Caracteristicas de dominio
 
+**Seleccione idioma:** [Español](caracteristicas_dominio.md) · [English](en/domain_features.md)
+
 Generado por `_features.py` leyendo `data/es/questionnaire.json` y
 `docs/reglas_de_puntuacion.md`, que a su vez se extrae del arbol sintactico
 del motor. Si un factor deja de leer un codigo, este documento cambia solo.

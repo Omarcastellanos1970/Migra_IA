@@ -225,6 +225,8 @@ def main() -> None:
 
     w(D("sr_title"))
     w("")
+    w(config.doc_language_line("sr"))
+    w("")
     w(D("sr_intro1"))
     w("")
     w(D("sr_intro2"))

@@ -1,5 +1,7 @@
 # Tabla II y párrafo de configuración experimental
 
+**Seleccione idioma:** [Español](tabla_ii_y_configuracion.md) · [English](en/table_ii_and_configuration.md)
+
 Generado por `_table_ii.py`. Ningún número está escrito a mano: salen de correr
 `_baseline.py` sobre la partición congelada, y el coste de medir la inferencia
 aquí mismo.

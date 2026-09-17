@@ -1,7 +1,6 @@
 # Figures prepared for the paper — recipes ready, NOT applied
 
-**Español:** [../figuras/insercion_en_el_paper.md](../figuras/insercion_en_el_paper.md)
-
+**Select language:** [Español](../figuras/insercion_en_el_paper.md) · [English](figure_insertion_in_the_paper.md)
 Status: **prepared and not applied**. The paper has not been touched. These
 recipes exist so that inserting is a single step whenever it is decided, and so
 that it can be undone just as fast.

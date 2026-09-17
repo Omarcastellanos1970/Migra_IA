@@ -1,5 +1,7 @@
 # PROTOCOL — experimental configuration
 
+**Select language:** [Español](PROTOCOLO.md) · [English](PROTOCOL.md)
+
 **This paragraph is the experimental configuration section of the article.**
 It replaces the protocol written as a separate document: it is pasted almost
 literally into Overleaf, and what it says here rules over whatever the results

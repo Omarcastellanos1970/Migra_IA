@@ -1,7 +1,6 @@
 # Protocolo de validación — riesgo ordinal y prioridad de reemplazo
 
-**English:** [VALIDATION_PROTOCOL.md](VALIDATION_PROTOCOL.md)
-
+**Seleccione idioma:** [Español](PROTOCOLO_VALIDACION.md) · [English](VALIDATION_PROTOCOL.md)
 **Firmado el 2026-09-04.** Desde esta fecha el protocolo manda: si un resultado
 posterior no gusta, se reporta igual. Cambiar cualquiera de los seis puntos
 obliga a anotar aquí qué se cambió, cuándo y por qué, antes de volver a correr

@@ -1,5 +1,7 @@
 # Expert-judgement labelling form
 
+**Select language:** [Español](../formulario_etiquetado.md) · [English](labelling_form.md)
+
 For: the co-authors of the work. Estimated time: 20-30 minutes.
 
 This form **contains no output of the agent** and none of the provisional

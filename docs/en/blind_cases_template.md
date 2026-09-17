@@ -1,5 +1,7 @@
 # MIGRA-IA - Blind assessment of cases
 
+**Select language:** [Español](../plantilla_casos_ciegos.md) · [English](blind_cases_template.md)
+
 Thank you for helping with this. There are five cases and it takes about an hour.
 
 ## What you are asked to do

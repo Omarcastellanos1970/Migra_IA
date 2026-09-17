@@ -1,7 +1,6 @@
 # 🌐 Publicar MIGRA-IA en internet (Render — gratis)
 
-**English:** [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md)
-
+**Seleccione idioma:** [Español](DESPLIEGUE_RENDER.md) · [English](RENDER_DEPLOYMENT.md)
 Guía para poner el agente en una **URL pública** que cualquiera pueda abrir, sin instalar nada.
 Usamos **Render** porque tiene plan gratuito y despliega directo desde GitHub.
 
