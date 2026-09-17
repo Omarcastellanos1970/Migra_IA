@@ -20,7 +20,7 @@ except Exception:  # noqa: BLE001
 
 from flask import Flask, request, jsonify, render_template
 
-from migra_ia import config, interactive
+from migra_ia import config, interactive, scoring
 from migra_ia.case import Case
 from migra_ia.prompt import build_system_prompt, initial_user_message
 from migra_ia.core import run_turn, new_client
@@ -66,6 +66,23 @@ def _unset_language(_exc=None):
 _CLIENT = None
 
 
+def _shown(resumen: dict) -> dict:
+    """El expediente con lo que el panel necesita para PINTARLO.
+
+    La clasificacion se guarda con su valor canonico ---es el que va al
+    expediente y el que comparan las reglas--- asi que aqui se le anade su
+    etiqueta en el idioma de la peticion, y la pagina muestra esa.
+    """
+    if not isinstance(resumen, dict):
+        return resumen
+    riesgo = resumen.get("risk")
+    if isinstance(riesgo, dict) and riesgo.get("classification"):
+        resumen = dict(resumen)
+        resumen["risk"] = dict(riesgo)
+        resumen["risk"]["label"] = scoring.risk_label(riesgo["classification"])
+    return resumen
+
+
 def _client():
     global _CLIENT
     if _CLIENT is None:
@@ -102,7 +119,8 @@ def new_case():
             "status": apertura["status"], "lang": config.language(),
         }
         return jsonify(case_id=case.case_id, text=apertura["text"],
-                       actions=[], summary=case.summary(), interactive=True)
+                       actions=[], summary=_shown(case.summary()),
+                       interactive=True)
 
     messages: list[dict] = [{"role": "user", "content": initial_user_message()}]
     try:
@@ -115,7 +133,7 @@ def new_case():
         case_id=case.case_id,
         text=res["text"],
         actions=res["acciones"],
-        summary=res["resumen"],
+        summary=_shown(res["resumen"]),
     )
 
 
@@ -132,17 +150,24 @@ def message():
         return jsonify(error=config.ui()["err_empty_message"]), 400
 
     # Demo interactiva: cada respuesta entra al expediente y mueve el motor.
+    # Las claves se traducen aqui, en la frontera HTTP, igual que en el modo
+    # con API: dentro el motor habla de `acciones` y `resumen`, y la pagina
+    # lee `actions` y `summary`. Devolver el paso tal cual dejaba `d.summary`
+    # sin definir y el panel derecho no se actualizaba en toda la demo.
     if ses.get("interactivo"):
         step = interactive.answer(ses["case"], user_text, ses.get("status"))
         ses["status"] = step.pop("status", ses.get("status"))
-        return jsonify(**step)
+        return jsonify(text=step["text"], actions=step["acciones"],
+                       summary=_shown(step["resumen"]), fin=step["fin"],
+                       interactive=True)
 
     ses["messages"].append({"role": "user", "content": user_text})
     try:
         res = run_turn(_client(), build_system_prompt(), ses["messages"], ses["case"])
     except Exception as exc:  # noqa: BLE001
         return jsonify(error=_error_msg(exc)), 500
-    return jsonify(text=res["text"], actions=res["acciones"], summary=res["resumen"])
+    return jsonify(text=res["text"], actions=res["acciones"],
+                   summary=_shown(res["resumen"]))
 
 
 @app.get("/api/resumen/<case_id>")
