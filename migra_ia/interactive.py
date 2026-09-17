@@ -29,7 +29,7 @@ from __future__ import annotations
 from .case import Case
 from .tools import run_tool
 from .core import pending_approver
-from . import questionnaire, manufacturers, procedure, scoring
+from . import config, questionnaire, manufacturers, procedure, scoring
 
 
 def T(key: str) -> str:
@@ -104,6 +104,52 @@ def _question(code: str) -> dict | None:
     return p
 
 
+# Las opciones de si/no de una pregunta de rama, en el idioma canonico: el
+# cuestionario no las declara, las pone el codigo, asi que su version canonica
+# tambien tiene que estar aqui.
+_YES_NO_CANONICO = ("Si", "No", "No se conoce")
+
+
+def _canonical_options(code: str) -> list[str]:
+    """Opciones de la pregunta en el idioma canonico."""
+    p = questionnaire.question(code, config.CANONICAL_LANGUAGE)
+    if p is None:
+        return []
+    options = p.get("options")
+    if not options and p.get("type") not in ("numero", "text"):
+        return list(_YES_NO_CANONICO)
+    return list(options or [])
+
+
+def _canon(code: str, value):
+    """La respuesta dicha en el idioma canonico, para poder compararla.
+
+    Las reglas de puntuacion y el mapa de decision contrastan la respuesta con
+    el texto de las opciones, y ese texto cambia con el idioma. En vez de
+    duplicar cada tabla por idioma, la respuesta se lleva a su opcion hermana en
+    castellano: la posicion dentro de la lista de opciones es la misma en los
+    dos archivos. Es la misma decision que ya rige en `classify`, que devuelve
+    la clase en castellano porque es la que se guarda en el expediente. En una
+    sesion en castellano esta funcion no toca nada.
+    """
+    if value is None or config.language() == config.CANONICAL_LANGUAGE:
+        return value
+    locales = (_question(code) or {}).get("options") or []
+    canonicas = _canonical_options(code)
+    if not locales or len(canonicas) < len(locales):
+        return value
+    v = str(value).strip().lower()
+    for i, op in enumerate(locales):
+        if str(op).strip().lower() == v:
+            return canonicas[i]
+    return value
+
+
+def _canon_list(code: str, value) -> list[str]:
+    """Lo mismo, para una respuesta de opcion multiple."""
+    return [_canon(code, v) for v in _as_list(value)]
+
+
 def _pending(answers: dict) -> list[str]:
     """Codigos que faltan por preguntar, respetando las ramas adaptativas."""
     faltan = []
@@ -121,11 +167,19 @@ def _pending(answers: dict) -> list[str]:
 # --------------------------------------------------------------------------- #
 # Reglas de puntuacion, una por factor, segun la guia del mapa de decision
 # --------------------------------------------------------------------------- #
-def _span(value, escala: list[str]) -> int | None:
-    """Posicion de una respuesta dentro de una escala ordenada."""
-    v = str(value or "").strip().lower()
-    for i, op in enumerate(escala):
-        if v == op.lower():
+def _rank(code: str, value) -> int | None:
+    """Posicion de la respuesta dentro de las opciones de su pregunta.
+
+    El ORDEN de las opciones es la escala, y es el mismo en los dos idiomas, asi
+    que comparar por posicion evita repetir la lista dentro de cada regla. Un
+    "no se conoce" no ocupa lugar en la escala: devuelve None, como antes.
+    """
+    if value is None or _is_unknown(value):
+        return None
+    options = (_question(code) or {}).get("options") or []
+    v = str(value).strip().lower()
+    for i, op in enumerate(options):
+        if str(op).strip().lower() == v:
             return i
     return None
 
@@ -143,18 +197,19 @@ def _f_lifecycle(r: dict) -> dict | None:
         "Descontinuado, aun con soporte y repuestos": 75,
         "Descontinuado y sin soporte (fin de vida)": 95,
     }
-    if m01 not in tabla:
+    m01_canonico = _canon("M01", m01)
+    if m01_canonico not in tabla:
         # La guia lo dice expresamente: si M01 no se conoce, se OMITE el factor
         # y se registra el dato faltante, en lugar de suponer un estado.
         return None
-    return {"value": tabla[m01],
+    return {"value": tabla[m01_canonico],
             "justificacion": f"{T('i001')}{m01}'."}
 
 
 def _f_spare_parts(r: dict) -> dict | None:
     m04, m06, c10 = r.get("M04"), r.get("M06"), r.get("C10")
     base = {"Si, sin problema": 10, "Si, pero con plazo largo": 45,
-            "Solo por pedido especial": 65, "No": 95}.get(m04)
+            "Solo por pedido especial": 65, "No": 95}.get(_canon("M04", m04))
     if base is None and _is_unknown(m06):
         return None
     if base is None:
@@ -162,11 +217,7 @@ def _f_spare_parts(r: dict) -> dict | None:
     partes = [f"M04: '{m04}'."]
     # La guia exige contrastar el plazo de entrega con la parada tolerable: un
     # repuesto que llega despues de lo que la planta aguanta no cubre el riesgo.
-    escala_m06 = [T("i041"), T("i042"),
-                  T("i043"), T("i044"), T("i045")]
-    escala_c10 = [T("i046"), "1 a 4 horas", "4 a 12 horas",
-                  "12 a 24 horas", T("i047")]
-    rm, rc = _span(m06, escala_m06), _span(c10, escala_c10)
+    rm, rc = _rank("M06", m06), _rank("C10", c10)
     if rm is not None and rc is not None and rm >= 2:
         base = max(base, 85)
         partes.append(f"M06 '{m06}' frente a C10 '{c10}{T('i002')}")
@@ -177,13 +228,13 @@ def _f_spare_parts(r: dict) -> dict | None:
 
 def _f_support(r: dict) -> dict | None:
     m09, m07 = r.get("M09"), r.get("M07")
-    base = {"Si, vigente": 10, "Vencido": 60, "No": 85}.get(m09)
+    base = {"Si, vigente": 10, "Vencido": 60, "No": 85}.get(_canon("M09", m09))
     if base is None and _is_unknown(m07):
         return None
     if base is None:
         base = 55
     ajuste = {"Si, del fabricante": -15, "Si, de tercero certificado": -5,
-              "Si, de tercero sin certificar": 5, "No": 15}.get(m07, 0)
+              "Si, de tercero sin certificar": 5, "No": 15}.get(_canon("M07", m07), 0)
     return {"value": _cap(base + ajuste),
             "justificacion": f"{T('i003')}{m09}{T('i004')}{m07}'."}
 
@@ -195,21 +246,24 @@ def _f_software(r: dict) -> dict | None:
     value = 20.0
     partes = []
     so = {"Windows XP": 25, "Windows 7": 20, "Windows 10": 0, "Windows 11": 0,
-          "Linux": 0, "Maquina virtual sobre un equipo moderno": 0}.get(n02, 10)
+          "Linux": 0, "Maquina virtual sobre un equipo moderno": 0}.get(_canon("N02", n02), 10)
     if so:
         partes.append(f"N02 sistema operativo '{n02}'")
     value += so
     lic = {"Original con licencia vigente": 0, "Original con licencia vencida": 15,
            "Licencia flotante en servidor": 5, "Llave fisica (dongle)": 15,
-           "Version de demostracion o limitada": 20, "No se tiene licencia": 30}.get(n03, 10)
+           "Version de demostracion o limitada": 20,
+           "No se tiene licencia": 30}.get(_canon("N03", n03), 10)
     if lic:
         partes.append(f"N03 licencia '{n03}'")
     value += lic
-    ada = {"Si, ya probado con este PLC": 0, "Si, pero sin probar": 10, "No": 25}.get(n05, 10)
+    ada = {"Si, ya probado con este PLC": 0, "Si, pero sin probar": 10,
+           "No": 25}.get(_canon("N05", n05), 10)
     if ada:
         partes.append(f"N05 adaptador '{n05}'")
     value += ada
-    pwd = {"Si, todas": 0, "Parcialmente": 15, "No": 30, "No hay contrasenas": 0}.get(n06, 15)
+    pwd = {"Si, todas": 0, "Parcialmente": 15, "No": 30,
+           "No hay contrasenas": 0}.get(_canon("N06", n06), 15)
     if pwd:
         partes.append(f"N06 contrasenas '{n06}'")
     value += pwd
@@ -258,14 +312,14 @@ def _f_compatibility(r: dict) -> dict | None:
         return None
     value = 20.0
     partes = []
-    redes = [x.lower() for x in _as_list(g01)]
+    redes = [x.lower() for x in _canon_list("G01", g01)]
     if any("propietaria" in x for x in redes):
         value += 30
         partes.append(T("i061"))
     elif any(x in _REDES_LEGADO for x in redes):
         value += 15
         partes.append(f"{T('i007')}{', '.join(_as_list(g01))})")
-    languages = [x.lower() for x in _as_list(o07)]
+    languages = [x.lower() for x in _canon_list("O07", o07)]
     if any("propietarios" in x for x in languages):
         value += 20
         partes.append(T("i062"))
@@ -278,7 +332,7 @@ def _f_compatibility(r: dict) -> dict | None:
     if o08 == T("yes"):
         value += 25
         partes.append("O08 usa librerias propietarias")
-    if str(o02).strip().lower().startswith("si"):
+    if str(_canon("O02", o02)).strip().lower().startswith("si"):
         value += 20
         partes.append(T("i064"))
     if not partes:
@@ -296,9 +350,9 @@ def _external_root_cause(r: dict) -> list[str]:
     """
     causas = []
     p01 = str(r.get("P01") or "")
-    if p01 in ("Entre 40 y 50 C", "Mayor a 50 C"):
+    if _canon("P01", p01) in ("Entre 40 y 50 C", "Mayor a 50 C"):
         causas.append(f"{T('i008')}{p01}'")
-    energia = [x.lower() for x in _as_list(r.get("P04"))]
+    energia = [x.lower() for x in _canon_list("P04", r.get("P04"))]
     if any("tierra dudosa" in x or "tierra dudosa o inexistente" in x for x in energia):
         causas.append("P04 puesta a tierra dudosa o inexistente")
     if any("variaciones" in x or "armonicos" in x or "cortes" in x for x in energia):
@@ -323,7 +377,7 @@ def _f_history(r: dict) -> dict | None:
         value = 10.0 if paros == 0 else 30.0 if paros <= 2 else 50.0 if paros <= 5 else 70.0
         partes = [f"L01 {paros}{T('i009')}"]
     value += {"En aumento": 20, "Estable": 0, "En disminucion": -10,
-              "Sin fallas registradas": -15}.get(l03, 5)
+              "Sin fallas registradas": -15}.get(_canon("L03", l03), 5)
     if l03:
         partes.append(f"L03 tendencia '{l03}'")
     causas = _external_root_cause(r)
@@ -339,13 +393,13 @@ def _f_criticality(r: dict) -> dict | None:
     base = {"Baja: puede detenerse varios dias": 20,
             "Media: afecta parcialmente la produccion": 45,
             "Alta: afecta una linea importante": 70,
-            "Critica: detiene la planta o presenta riesgo de seguridad": 95}.get(c08)
+            "Critica: detiene la planta o presenta riesgo de seguridad": 95}.get(_canon("C08", c08))
     if base is None:
         return None
     value = base + {"Menos de 1 hora": 20, "1 a 4 horas": 15, "4 a 12 horas": 10,
-                    "12 a 24 horas": 5, "Mas de 24 horas": 0}.get(c10, 0)
+                    "12 a 24 horas": 5, "Mas de 24 horas": 0}.get(_canon("C10", c10), 0)
     value += {"No hay ventana disponible": 15, "En el paro anual de planta o vacaciones": 10,
-              "Fines de semana": 5}.get(q04, 0)
+              "Fines de semana": 5}.get(_canon("Q04", q04), 0)
     return {"value": _cap(value),
             "justificacion": f"C08 criticidad '{c08}'; C10 parada tolerable '{c10}{T('i010')}{q04}'."}
 
@@ -402,32 +456,37 @@ def decide(answers: dict, risk: dict) -> dict:
     los mismos codigos que el mapa cita, y devuelve el texto de la alternativa
     tal como esta publicado en `data/es/questionnaire.json`.
     """
+    # Las alternativas se nombran aqui en el idioma canonico y se emparejan por
+    # POSICION, que es la misma en los dos archivos: el codigo compara siempre
+    # contra un nombre fijo y devuelve el texto en el idioma del usuario.
     mapa = questionnaire.load()["decision_map"]["alternative_criteria"]
-    by_name = {a["alternative"]: a for a in mapa}
+    mapa_canonico = questionnaire.load_in(
+        config.CANONICAL_LANGUAGE)["decision_map"]["alternative_criteria"]
+    by_name = {canonica["alternative"]: alt
+               for canonica, alt in zip(mapa_canonico, mapa)}
 
     order: list[tuple[str, str]] = []
     causas = _external_root_cause(answers)
     if causas:
         order.append((
-            T("i084"),
+            "Correccion de causa raiz (sin cambiar el controlador)",
             T("i119")
             + "; ".join(causas) + T("i101")))
 
     if _without_backup(answers):
         order.append((
             "Migracion a plataforma moderna" if not _unrecoverable_program(answers)
-            else T("i102"),
+            else "Reconstruccion del programa",
             T("i103")
             + (T("i120")
                if _unrecoverable_program(answers)
                else T("i121"))))
 
     ciclo = answers.get("M01")
-    plazo_insuficiente = (_span(answers.get("M06"),
-                                 [T("i104"), T("i105"),
-                                  T("i106"), T("i107"), T("i108")]) or 0) >= 2
-    if ciclo in (T("i069"),
-                 T("i070")):
+    ciclo_canonico = _canon("M01", ciclo)
+    plazo_insuficiente = (_rank("M06", answers.get("M06")) or 0) >= 2
+    if ciclo_canonico in ("Descontinuado, aun con soporte y repuestos",
+                          "Descontinuado y sin soporte (fin de vida)"):
         if plazo_insuficiente:
             order.append((
                 "Migracion a plataforma moderna",
@@ -436,21 +495,23 @@ def decide(answers: dict, risk: dict) -> dict:
             order.append((
                 "Repuesto directo (mismo modelo)",
                 f"M01 '{ciclo}{T('i012')}"))
-    elif ciclo == "Anuncio de descontinuacion (phase-out)":
+    elif ciclo_canonico == "Anuncio de descontinuacion (phase-out)":
         order.append((
             "Hardware equivalente o sustitucion parcial",
             f"M01 '{ciclo}{T('i013')}"))
-    elif ciclo in ("Activo, en comercializacion", T("i109")):
+    elif ciclo_canonico in ("Activo, en comercializacion",
+                            "En madurez, ya existe un sucesor"):
         order.append((
-            T("i122"),
+            "Reparacion del equipo existente",
             f"M01 '{ciclo}{T('i014')}"))
 
-    if answers.get("Q04") == "No hay ventana disponible":
+    if _canon("Q04", answers.get("Q04")) == "No hay ventana disponible":
         order.append((
             "Operacion temporal controlada",
             T("i085")))
 
-    # Sin duplicar alternativas, conservando el orden de prioridad.
+    # Sin duplicar alternativas, conservando el orden de prioridad. `vistas`
+    # guarda los nombres canonicos; `path` lleva el texto en el idioma activo.
     vistas, path = set(), []
     for name, porque in order:
         if name in vistas or name not in by_name:
@@ -461,8 +522,8 @@ def decide(answers: dict, risk: dict) -> dict:
         "classification": risk.get("classification"),
         "puntuacion": risk.get("puntuacion"),
         "route": path,
-        "migrar": any(a["alternative"] in ("Migracion a plataforma moderna",
-                                           T("i123")) for a in path),
+        "migrar": bool(vistas & {"Migracion a plataforma moderna",
+                                 "Reconstruccion del programa"}),
         "sin_respaldo": _without_backup(answers),
         "irrecuperable": _unrecoverable_program(answers),
     }

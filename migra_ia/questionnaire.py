@@ -69,10 +69,19 @@ def _section_items(sec: dict) -> list[dict]:
     return items
 
 
-def _all_questions() -> dict[str, dict]:
+def load_in(lang: str) -> dict:
+    """El cuestionario en un idioma CONCRETO, sea cual sea el de la peticion.
+
+    Lo necesita quien compara contra el valor canonico: las reglas puntuan
+    contra las opciones en castellano aunque la sesion vaya en ingles.
+    """
+    return _load(lang)
+
+
+def _all_questions(lang: str | None = None) -> dict[str, dict]:
     """Indice {codigo: pregunta} de todo el cuestionario, con su seccion."""
     index_: dict[str, dict] = {}
-    for sec in load()["sections"]:
+    for sec in _load(lang or config.language())["sections"]:
         for item in _section_items(sec):
             code = item.get("code") or ""
             if code:
@@ -80,14 +89,14 @@ def _all_questions() -> dict[str, dict]:
     return index_
 
 
-def question(code: str) -> dict | None:
+def question(code: str, lang: str | None = None) -> dict | None:
     """Pregunta del cuestionario por su codigo (p. ej. 'M01'), con su seccion.
 
     Devuelve el item tal cual esta en `data/es/questionnaire.json`, incluidas las de
     las ramas adaptativas. Es la via para que otros modulos presenten el texto y
     las opciones REALES sin duplicarlos en el codigo.
     """
-    return _all_questions().get((code or "").strip().upper())
+    return _all_questions(lang).get((code or "").strip().upper())
 
 
 def _code_range(items: list[dict]) -> str:

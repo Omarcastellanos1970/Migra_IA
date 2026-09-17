@@ -41,6 +41,13 @@ CASES_DIR.mkdir(parents=True, exist_ok=True)
 LANGUAGES = ("es", "en")
 DEFAULT_LANGUAGE = os.environ.get("MIGRA_IA_LANG", "es").strip().lower()
 
+# Idioma CANONICO: aquel en el que el codigo COMPARA los valores ---las opciones
+# del cuestionario, las clases de riesgo, los nombres de las alternativas---.
+# Es el castellano porque es el idioma en que se guardan en el expediente y con
+# el que estan etiquetados los 188 casos: traducir el dato almacenado romperia
+# ese historial. Lo que se traduce es la presentacion, nunca la comparacion.
+CANONICAL_LANGUAGE = "es"
+
 # Los archivos que un idioma necesita para considerarse completo. El prompt del
 # sistema esta aqui a proposito: es contenido del agente, no codigo, y tenerlo
 # en data/<idioma>/ deja cada archivo escrito en una sola lengua.
