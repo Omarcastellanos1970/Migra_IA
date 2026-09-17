@@ -3,7 +3,7 @@ title MIGRA-IA - Servidor (no cerrar esta ventana mientras lo usas)
 cd /d "%~dp0"
 
 echo ============================================================
-echo   MIGRA-IA v0.3.0 - Iniciando el agente...
+echo   MIGRA-IA v0.4.0 - Iniciando el agente...
 echo ============================================================
 echo.
 

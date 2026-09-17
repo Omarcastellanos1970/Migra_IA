@@ -1,5 +1,5 @@
 ===========================================================
-  MIGRA-IA  v0.3.0
+  MIGRA-IA  v0.4.0
   Agente de asesoria en obsolescencia y migracion de hardware
   industrial (PLC, modulos de E/S, HMI, redes, variadores)
 ===========================================================
