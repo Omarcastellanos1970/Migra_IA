@@ -1004,7 +1004,7 @@ def query(tema: str, key=None, case=None) -> dict:
             return {"error": M("pr_q_needs_case") % "status"}
         return {"tema": "status", "citation": cita(), "contenido": status(case)}
 
-    if t in ("siguiente", "siguiente_paso"):
+    if t in ("siguiente", "siguiente_paso", "next", "next_step"):
         if case is None:
             return {"error": M("pr_q_needs_case") % "siguiente"}
         s = next_step(case)
@@ -1014,12 +1014,12 @@ def query(tema: str, key=None, case=None) -> dict:
         return {"tema": "siguiente", "citation": s["citation"], "contenido": s,
                 "text": step_text(s["key"], ctx)}
 
-    if t == "bloqueos":
+    if t in ("bloqueos", "blocks"):
         if case is None:
             return {"error": M("pr_q_needs_case") % "bloqueos"}
         return {"tema": "bloqueos", "citation": cita(), "contenido": blocks(case)}
 
-    if t in ("huecos", "declared_gaps"):
+    if t in ("huecos", "declared_gaps", "gaps"):
         return {"tema": "huecos", "citation": cita(), "contenido": declared_gaps()}
 
     if t in ("document", "procedure", "documento"):

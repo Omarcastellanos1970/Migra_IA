@@ -26,7 +26,7 @@
  "cs002": "Declared without a verified backup",
  "cs003": "Choice of target CPU",
  "cs004": "Progress through the procedure",
- "ag001": "(type /salir to finish, /resumen to see the state of the case)",
+ "ag001": "(type /exit to finish, /summary to see the state of the case)",
  "ag002": "\nThe Anthropic client could not be initialized: ",
  "ag003": "Your answer:",
  "ag004": "Set the environment variable ANTHROPIC_API_KEY (see .env.example).",
@@ -124,5 +124,11 @@
  "pr_variant_no_backup": "NO VERIFIED BACKUP: %s",
  "mf026": "- Brand: %s (%s)",
  "pr_q_needs_case": "Topic '%s' needs an open case.",
- "pr_q_unknown": "Topic not recognized: %s. Valid ones: paso, fase, disparadores, opciones_destino, ruta_fabricante, ruta_cambio_marca, estado, siguiente, bloqueos, huecos, documento."
+ "pr_q_unknown": "Topic not recognized: %s. Valid ones: paso, fase, disparadores, opciones_destino, ruta_fabricante, ruta_cambio_marca, estado, siguiente, bloqueos, huecos, documento.",
+ "ag006": "New case opened: ",
+ "ag007": "\nSession interrupted.",
+ "ag008": "\nCase file saved at: ",
+ "ag009": "Reports generated:",
+ "ag_cmd_exit": "/exit, /salir, /quit",
+ "ag_cmd_summary": "/summary, /resumen"
 }

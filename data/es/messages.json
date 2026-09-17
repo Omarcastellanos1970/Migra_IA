@@ -124,5 +124,11 @@
  "pr_variant_no_backup": "SIN RESPALDO VERIFICADO: %s",
  "mf026": "- Marca: %s (%s)",
  "pr_q_needs_case": "El tema '%s' necesita un caso abierto.",
- "pr_q_unknown": "Tema no reconocido: %s. Validos: paso, fase, disparadores, opciones_destino, ruta_fabricante, ruta_cambio_marca, estado, siguiente, bloqueos, huecos, documento."
+ "pr_q_unknown": "Tema no reconocido: %s. Validos: paso, fase, disparadores, opciones_destino, ruta_fabricante, ruta_cambio_marca, estado, siguiente, bloqueos, huecos, documento.",
+ "ag006": "Nuevo caso abierto: ",
+ "ag007": "\nSesion interrumpida.",
+ "ag008": "\nExpediente guardado en: ",
+ "ag009": "Informes generados:",
+ "ag_cmd_exit": "/salir, /exit, /quit",
+ "ag_cmd_summary": "/resumen, /summary"
 }

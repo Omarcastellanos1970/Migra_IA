@@ -110,7 +110,7 @@
        traducir no se ofrece, en vez de ofrecerse y fallar al elegirlo.
        Cambiar de idioma recarga la pagina y empieza un caso nuevo: una
        conversacion no cambia de lengua a mitad. -->
-  <nav class="idiomas" aria-label="Idioma">
+  <nav class="idiomas" aria-label="{{ ui.aria_language }}">
     {% for l in languages %}
     <a href="?lang={{ l }}" class="idioma {% if l == lang %}activo{% endif %}"
        {% if l == lang %}aria-current="true"{% endif %}>{{ l|upper }}</a>

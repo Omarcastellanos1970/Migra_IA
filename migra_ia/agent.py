@@ -5,8 +5,8 @@ cuestionario adaptativo paso a paso, invoca herramientas para registrar datos y
 calcular riesgo, y todo queda persistido en el expediente del caso.
 
 Uso:
-    python -m migra_ia.agente            # nuevo caso
-    python -m migra_ia.agente CAS-2026-000123   # continuar un caso existente
+    python -m migra_ia.agent            # nuevo caso
+    python -m migra_ia.agent CAS-2026-000123   # continuar un caso existente
 """
 
 from __future__ import annotations
@@ -26,6 +26,11 @@ from . import config
 from .case import Case
 from .prompt import build_system_prompt, initial_user_message
 from .tools import tools, run_tool
+
+
+def C(key: str) -> tuple:
+    """Palabras que el usuario puede teclear para un mando, en su idioma."""
+    return tuple(s.strip().lower() for s in M(key).split(","))
 
 
 def M(key: str) -> str:
@@ -91,7 +96,7 @@ def main() -> None:
     else:
         case = Case()
         case.save()
-        print(f"Nuevo caso abierto: {case.case_id}")
+        print(f"{M('ag006')}{case.case_id}")
 
     try:
         client = anthropic.Anthropic()
@@ -110,14 +115,16 @@ def main() -> None:
         try:
             entry = input(f"\n{COLOR_TENUE}{M('ag003')}{RESET} ").strip()
         except (EOFError, KeyboardInterrupt):
-            print("\nSesion interrumpida.")
+            print(M("ag007"))
             break
 
         if not entry:
             continue
-        if entry.lower() in ("/salir", "/exit", "/quit"):
+        # Los mandos se aceptan en los dos idiomas; lo que cambia es cual se
+        # documenta. Un usuario ingles no tiene por que saber que es "/salir".
+        if entry.lower() in C("ag_cmd_exit"):
             break
-        if entry.lower() == "/resumen":
+        if entry.lower() in C("ag_cmd_summary"):
             import json
 
             print(json.dumps(case.summary(), ensure_ascii=False, indent=2))
@@ -127,9 +134,9 @@ def main() -> None:
         _agent_turn(client, system, messages, case)
 
     path = case.save()
-    print(f"\nExpediente guardado en: {path}")
+    print(f"{M('ag008')}{path}")
     if case.reports:
-        print("Informes generados:")
+        print(M("ag009"))
         for inf in case.reports:
             print(f"  - {inf['route']}")
 
