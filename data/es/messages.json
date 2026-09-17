@@ -29,5 +29,20 @@
  "ag001": "(escribe /salir para terminar, /resumen para ver el estado del caso)",
  "ag002": "\nNo se pudo inicializar el cliente de Anthropic: ",
  "ag003": "Tu respuesta:",
- "ag004": "Configura la variable de entorno ANTHROPIC_API_KEY (ver .env.example)."
+ "ag004": "Configura la variable de entorno ANTHROPIC_API_KEY (ver .env.example).",
+ "rn001": "Escenario desconocido: ",
+ "rn002": ". Validos: ",
+ "rn003": "DEMO INTERACTIVA \u2014 escenario ",
+ "rn004": "Caso:  ",
+ "rn005": "Equipo:",
+ "rn006": "[apertura]",
+ "rn007": "\n!! demasiados turnos, se corta",
+ "rn008": "RESULTADO (motor real, sin modelo de lenguaje)",
+ "rn009": "riesgo    :",
+ "rn010": "respuestas:",
+ "rn011": "faltantes :",
+ "rn012": "migracion :",
+ "rn013": "no abierta",
+ "rn014": "informes  :",
+ "rn015": "entrada="
 }

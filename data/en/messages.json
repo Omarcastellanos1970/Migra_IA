@@ -22,14 +22,27 @@
  "mf021": "- The guide MIGRA-IA-GUIA-001 publishes no migration route for this brand: apply the 6-stage methodology generically and rely on the manufacturer's official documentation.",
  "mf022": "Confirm the part number against the physical nameplate and the official source before specifying.",
  "mf023": "Exact CPU model: ask for it, or ask for a photograph of the nameplate.",
-
  "cs001": " of 57",
  "cs002": "Declared without a verified backup",
  "cs003": "Choice of target CPU",
  "cs004": "Progress through the procedure",
-
  "ag001": "(type /salir to finish, /resumen to see the state of the case)",
  "ag002": "\nThe Anthropic client could not be initialized: ",
  "ag003": "Your answer:",
- "ag004": "Set the environment variable ANTHROPIC_API_KEY (see .env.example)."
+ "ag004": "Set the environment variable ANTHROPIC_API_KEY (see .env.example).",
+ "rn001": "Unknown scenario: ",
+ "rn002": ". Valid ones: ",
+ "rn003": "INTERACTIVE DEMO \u2014 scenario ",
+ "rn004": "Case:  ",
+ "rn005": "Equipment:",
+ "rn006": "[opening]",
+ "rn007": "\n!! too many turns, cutting off",
+ "rn008": "RESULT (the real engine, with no language model)",
+ "rn009": "risk      :",
+ "rn010": "answers   :",
+ "rn011": "missing   :",
+ "rn012": "migration :",
+ "rn013": "not opened",
+ "rn014": "reports   :",
+ "rn015": "input="
 }

@@ -20,7 +20,12 @@ import json
 import sys
 
 from migra_ia.case import Case
-from migra_ia import config, interactive, questionnaire
+from migra_ia import config, interactive, questionnaire, scoring
+
+
+def M(key: str) -> str:
+    """Rotulo del guion en el idioma de la sesion (data/<idioma>/messages.json)."""
+    return config.messages().get(key, key)
 
 # Respuestas por codigo. Lo que un usuario elegiria en cada escenario.
 ESCENARIOS = {
@@ -102,47 +107,50 @@ def main() -> None:
     name = sys.argv[1] if len(sys.argv) > 1 else "critico"
     esc = ESCENARIOS.get(name)
     if esc is None:
-        print(f"Escenario desconocido: {name}. Validos: {', '.join(ESCENARIOS)}")
+        print(f"{M('rn001')}{name}{M('rn002')}{', '.join(ESCENARIOS)}")
         return
 
     case = Case()
     case.save()
     print("=" * 70)
-    print(f"DEMO INTERACTIVA — escenario '{name}'")
-    print("Caso:  ", case.case_id)
-    print("Equipo:", esc["equipo"])
+    print(f"{M('rn003')}'{name}'")
+    print(M("rn004"), case.case_id)
+    print(M("rn005"), esc["equipo"])
     print("=" * 70)
 
     apertura = interactive.start()
     status = apertura["status"]
-    print("\n[apertura]", apertura["text"].splitlines()[0])
+    print("\n" + M("rn006"), apertura["text"].splitlines()[0])
 
     entradas = [esc["equipo"]]
     turn = 0
     while True:
         turn += 1
         if turn > 120:
-            print("\n!! demasiados turnos, se corta")
+            print(M("rn007"))
             break
         entry = entradas.pop(0) if entradas else _next_entry(status, esc)
         step = interactive.answer(case, entry, status)
         status = step["status"]
         cabecera = step["text"].strip().splitlines()[0]
         brand = f" -> {', '.join(step['acciones'])}" if step["acciones"] else ""
-        print(f"[{turn:>3}] entrada={entry!r:<42} {cabecera[:70]}{brand}")
+        print(f"[{turn:>3}] {M('rn015')}{entry!r:<42} {cabecera[:70]}{brand}")
         if step["fin"]:
             break
 
     print("\n" + "=" * 70)
-    print("RESULTADO (motor real, sin modelo de lenguaje)")
+    print(M("rn008"))
     print("=" * 70)
     r = case.summary()
-    print("riesgo    :", r["risk"]["puntuacion"], "-", r["risk"]["classification"])
-    print("respuestas:", len(r["respuestas_registradas"]))
-    print("faltantes :", len(r["missing_data"]))
-    print("migracion :", json.dumps(r["migration"], ensure_ascii=False)
-          if r["migration"] else "no abierta")
-    print("informes  :", r["num_informes"])
+    # La clasificacion se guarda en el idioma canonico; lo que se muestra es su
+    # etiqueta traducida, igual que en la demo.
+    print(M("rn009"), r["risk"]["puntuacion"], "-",
+          scoring.risk_label(r["risk"]["classification"]))
+    print(M("rn010"), len(r["respuestas_registradas"]))
+    print(M("rn011"), len(r["missing_data"]))
+    print(M("rn012"), json.dumps(r["migration"], ensure_ascii=False)
+          if r["migration"] else M("rn013"))
+    print(M("rn014"), r["num_informes"])
 
 
 def _dicho_en_el_idioma(code: str, value: str) -> str:
