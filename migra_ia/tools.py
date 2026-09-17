@@ -728,5 +728,12 @@ def _generate_report(case: Case, entry: dict) -> str:
         "---\n\n"
     )
     path.write_text(encabezado + entry.get("cuerpo_markdown", ""), encoding="utf-8")
-    iid = case.register_report(str(path), entry.get("resumen", ""))
-    return _ok(report_id=iid, path=str(path))
+    # La ruta se guarda RELATIVA a la raiz del proyecto: un expediente con
+    # "C:\Users\<nombre>\..." dentro no es portable y, publicado como
+    # ejemplo del artefacto, ademas expone el directorio de quien lo genero.
+    try:
+        ruta = path.relative_to(config.ROOT).as_posix()
+    except ValueError:
+        ruta = str(path)
+    iid = case.register_report(ruta, entry.get("resumen", ""))
+    return _ok(report_id=iid, path=ruta)
