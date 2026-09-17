@@ -87,7 +87,7 @@ def main() -> None:
     # Nuevo caso o continuar uno existente.
     if len(sys.argv) > 1:
         case = Case.load(sys.argv[1])
-        print(f"Caso cargado: {case.case_id}")
+        print(f"{M('ag005')}{case.case_id}")
     else:
         case = Case()
         case.save()

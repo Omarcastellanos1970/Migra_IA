@@ -485,7 +485,7 @@ def anchor(ident: dict) -> str:
     lineas = [
         M("mf016"),
         f"{M('mf004')}{ident.get('consulta', '')}'",
-        f"- Marca: {ident['brand']} ({ident.get('classification', '')})",
+        M("mf026") % (ident["brand"], ident.get("classification", "")),
     ]
     if ident.get("modelo_identificado"):
         lineas.append(
@@ -520,11 +520,9 @@ def anchor(ident: dict) -> str:
             lineas.append(
                 f"{M('mf012')}{doc_target['origen_en_guia']}'): -> {doc_target['destino']}. {doc_target['critical_aspects']}"
             )
-        lineas.append(
-            f"- Ruta metodologica ({path['citation']}): software {path['legacy_software']} -> "
-            f"{path['target_software']}; redes heredadas {path['legacy_networks']}; "
-            f"riesgo tipico: {path['typical_risk']}"
-        )
+        lineas.append(M("mf024") % (path["citation"], path["legacy_software"],
+                                    path["target_software"], path["legacy_networks"],
+                                    path["typical_risk"]))
     else:
         lineas.append(
             M("mf021")
@@ -533,7 +531,7 @@ def anchor(ident: dict) -> str:
     fuentes = ident.get("sources") or []
     if fuentes:
         cites = "; ".join(f"[{f['label']}] {f['url']}" for f in fuentes if f.get("url"))
-        lineas.append(f"- Fuentes oficiales citables: {cites}")
+        lineas.append(M("mf025") % cites)
     if ident.get("dato_faltante"):
         lineas.append(f"- DATO FALTANTE: {ident['dato_faltante']}")
     lineas.append(

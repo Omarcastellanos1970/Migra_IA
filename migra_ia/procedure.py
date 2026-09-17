@@ -37,14 +37,29 @@ from functools import lru_cache
 
 from . import config
 
-CITA = "Procedimiento MIGRA-IA-PROC-050 (50 pasos)"
+def M(key: str) -> str:
+    """Texto que el codigo escribe ALREDEDOR del procedimiento, por idioma.
 
-ROLES = {
-    "tecnico": "Tecnico de mantenimiento",
-    "ingenieria": "Ingenieria de automatizacion",
-    "safety_specialist": "Especialista en seguridad funcional",
-    "responsable": "Responsable de la instalacion",
-}
+    El contenido de los 50 pasos vive en data/<idioma>/migration_procedure.json;
+    esto son los rotulos que lo enmarcan, y por eso tambien cambian de idioma.
+    """
+    return config.messages().get(key, key)
+
+
+def cita() -> str:
+    """La cita del procedimiento, en el idioma de esta peticion."""
+    return M("pr_citation")
+
+
+def roles() -> dict:
+    """Quien ejecuta cada paso. Es funcion y no constante a proposito: leerla al
+    importar congelaria el idioma del proceso entero."""
+    return {
+        "tecnico": M("pr_role_tecnico"),
+        "ingenieria": M("pr_role_ingenieria"),
+        "safety_specialist": M("pr_role_safety_specialist"),
+        "responsable": M("pr_role_responsable"),
+    }
 
 STEP_STATUSES = ("pendiente", "en_curso", "completado", "no_aplica", "bloqueado")
 
@@ -88,13 +103,29 @@ def _key(x) -> str:
     return str(x).strip().upper() if not str(x).strip().isdigit() else str(int(str(x).strip()))
 
 
-def raw_step(key) -> dict | None:
-    """Paso tal cual esta en el JSON, sin adaptar a las variantes del caso."""
+def raw_step(key, lang: str | None = None) -> dict | None:
+    """Paso tal cual esta en el JSON, sin adaptar a las variantes del caso.
+
+    Con `lang` devuelve el paso de ESE idioma, sea cual sea el de la peticion:
+    lo necesita quien compara contra el marcador canonico.
+    """
     c = _key(key)
-    for p in load()["steps"]:
+    for p in _load(lang or config.language())["steps"]:
         if p["key"] == c:
             return p
     return None
+
+
+def _no_aplica(base: dict, campo: str) -> bool:
+    """Si la variante declara que el paso NO se ejecuta en este caso.
+
+    El marcador `NO APLICA` es un DATO del procedimiento, no una frase que cada
+    idioma reescriba a su gusto, asi que se comprueba contra el texto canonico.
+    Contra el traducido, un paso que el castellano marca como no aplicable salia
+    aplicable en ingles: eso es un cambio de comportamiento, no de idioma.
+    """
+    canonico = raw_step(base["key"], config.CANONICAL_LANGUAGE) or {}
+    return str(canonico.get(campo, "")).startswith("NO APLICA")
 
 
 def phase(key) -> dict | None:
@@ -306,22 +337,20 @@ def step(key, ctx: dict | None = None) -> dict | None:
         return None
     ctx = ctx or {}
     p = dict(base)
-    p["rol_legible"] = ROLES.get(p["role"], p["role"])
-    p["citation"] = (f"{CITA}, extension de construccion del programa, paso {p['label']}"
-                 if p.get("extension") else f"{CITA}, paso {p['label']}")
+    p["rol_legible"] = roles().get(p["role"], p["role"])
+    p["citation"] = (M("pr_cite_extension") % (cita(), p["label"])
+                     if p.get("extension") else M("pr_cite_step") % (cita(), p["label"]))
 
     aplica = True
     avisos: list[str] = []
 
     if ctx.get("cambio_marca") and base.get("brand_change_variant"):
-        text = base["brand_change_variant"]
-        avisos.append(f"CAMBIO DE MARCA: {text}")
-        if text.startswith("NO APLICA"):
+        avisos.append(M("pr_variant_brand_change") % base["brand_change_variant"])
+        if _no_aplica(base, "brand_change_variant"):
             aplica = False
     if ctx.get("sin_respaldo") and base.get("no_backup_variant"):
-        text = base["no_backup_variant"]
-        avisos.append(f"SIN RESPALDO VERIFICADO: {text}")
-        if text.startswith("NO APLICA"):
+        avisos.append(M("pr_variant_no_backup") % base["no_backup_variant"])
+        if _no_aplica(base, "no_backup_variant"):
             aplica = False
 
     p["aplica"] = aplica
@@ -334,56 +363,54 @@ def step_text(key, ctx: dict | None = None) -> str:
     """Render en Markdown de un paso, listo para mostrarselo al tecnico."""
     p = step(key, ctx)
     if p is None:
-        return f"No existe el paso {key} en el procedimiento."
+        return M("pr_no_step") % key
     f = phase(p["key"]) or {}
     try:
         position = order().index(p["key"]) + 1
     except ValueError:
         position = "?"
     lineas = [
-        f"**Paso {p['label']} ({position} de {total_steps()}) — {p['title'].rstrip('.')}**",
-        f"*Fase {f.get('name', '')} · lo ejecuta: {p['rol_legible']}*",
+        M("pr_step_header") % (p["label"], position, total_steps(),
+                               p["title"].rstrip(".")),
+        M("pr_step_phase") % (f.get("name", ""), p["rol_legible"]),
         "",
         p["detail"],
         "",]
     if p.get("extension"):
         lineas += [
-            "> **Paso de la extension de construccion del programa.** El documento "
-            "original de 50 pasos cubre convertir un programa existente, no escribirlo. "
-            f"Base metodologica: {p.get('methodological_origin', '')}.",
+            M("pr_extension_note") % p.get("methodological_origin", ""),
             "",
         ]
     lineas += [
-        f"**Se da por terminado cuando:** {p['exit_criterion']}",
-        "**Evidencia que debe quedar:**",
+        M("pr_done_when") % p["exit_criterion"],
+        M("pr_evidence"),
     ]
     lineas += [f"- {e}" for e in p["evidence"]]
     if p["prerequisites"]:
         lineas.append("")
-        lineas.append("**Antes de este paso deben estar cerrados:** "
-                      + ", ".join(f"paso {x}" for x in p["prerequisites"]))
+        lineas.append(M("pr_prereq")
+                      % ", ".join(M("pr_step_word") % x for x in p["prerequisites"]))
     if p["exigencias"]:
         etiquetas = {
-            "human_approval": "aprobacion humana registrada",
-            "machine_stopped": "maquina detenida",
-            "loto": "bloqueo y etiquetado (LOTO)",
-            "safety_specialist": "especialista en seguridad funcional presente",
+            "human_approval": M("pr_req_human_approval"),
+            "machine_stopped": M("pr_req_machine_stopped"),
+            "loto": M("pr_req_loto"),
+            "safety_specialist": M("pr_req_safety_specialist"),
         }
         lineas.append("")
-        lineas.append("⚠️ **Exige antes de ejecutarlo:** "
-                      + "; ".join(etiquetas[e] for e in p["exigencias"]) + ".")
+        lineas.append(M("pr_requires")
+                      % "; ".join(etiquetas[e] for e in p["exigencias"]))
     if p.get("blocking"):
-        lineas.append("🚧 **Paso bloqueante:** no se avanza hasta cerrarlo.")
+        lineas.append(M("pr_blocking"))
     for aviso in p["avisos"]:
         lineas.append("")
         lineas.append(f"> {aviso}")
     if p.get("agent_note"):
         lineas.append("")
-        lineas.append(f"*Nota: {p['agent_note']}*")
+        lineas.append(M("pr_note") % p["agent_note"])
     if not p["aplica"]:
         lineas.append("")
-        lineas.append("**Este paso NO aplica en este caso** por la variante indicada: "
-                      "marcalo como `no_aplica` y sigue al siguiente.")
+        lineas.append(M("pr_not_applicable"))
     lineas.append("")
     lineas.append(f"_{p['citation']}_")
     return "\n".join(lineas)
@@ -421,7 +448,8 @@ def status(case) -> dict:
         "en_curso": by_status["en_curso"],
         "bloqueados": by_status["bloqueado"],
         "siguiente": sig["label"] if sig else None,
-        "fase_actual": (phase(sig["key"]) or {}).get("name") if sig else "procedimiento completo",
+        "fase_actual": ((phase(sig["key"]) or {}).get("name") if sig
+                        else M("pr_complete")),
         "variants": {"cambio_marca": ctx["cambio_marca"],
                       "sin_respaldo": ctx["sin_respaldo"],
                       "con_codigo_fuente": ctx["con_codigo_fuente"]},
@@ -566,47 +594,45 @@ def options_text(ident: dict | None, limite_alternativas: int = 6) -> str:
     a = o["misma_marca"]
     b = o["marca_alternativa"]
     lineas = [
-        f"**Paso {o['step']} — elegir la CPU de reemplazo.** Aqui la decision es tuya. "
-        "Te presento las dos vias con sus consecuencias:",
+        M("pr_opt_header") % o["step"],
         "",
-        f"### Opcion A — seguir con {a['brand']}",
+        M("pr_opt_a") % a["brand"],
     ]
     path = a.get("ruta_publicada_para_el_origen")
     if path:
-        lineas.append(f"La guia publica una ruta para tu familia de origen "
-                      f"(**{path['origen_en_guia']}**): destino **{path['destino']}**.")
+        lineas.append(M("pr_opt_path") % (path["origen_en_guia"], path["destino"]))
         if path.get("critical_aspects"):
-            lineas.append(f"Aspectos criticos: {path['critical_aspects']}")
+            lineas.append(M("pr_opt_critical") % path["critical_aspects"])
     for fam in a["familias_actuales"]:
         fuentes = "; ".join(f["url"] for f in fam.get("sources", []) if f.get("url"))
-        lineas.append(f"- **{fam['family']}** — modelos documentados: {fam['modelos_documentados']}"
-                      + (f"\n  Fuente: {fuentes}" if fuentes else ""))
+        lineas.append(M("pr_opt_family") % (fam["family"], fam["modelos_documentados"])
+                      + (M("pr_opt_source") % fuentes if fuentes else ""))
     if a.get("target_software"):
-        lineas.append(f"- Software objetivo: **{a['target_software']}**; "
-                      f"redes heredadas: {a.get('legacy_networks')}; "
-                      f"riesgo tipico: {a.get('typical_risk')}")
+        lineas.append(M("pr_opt_software") % (a["target_software"],
+                                              a.get("legacy_networks"),
+                                              a.get("typical_risk")))
     if a.get("nota_generacion_actual"):
         lineas.append(f"- ⚠️ {a['nota_generacion_actual']}")
-    lineas.append("A favor: " + " · ".join(a["pros"]))
-    lineas.append("En contra: " + " · ".join(a["cons"]))
+    lineas.append(M("pr_pros") % " · ".join(a["pros"]))
+    lineas.append(M("pr_cons") % " · ".join(a["cons"]))
 
-    lineas += ["", "### Opcion B — cambiar de marca", b["what_it_offers"], ""]
+    lineas += ["", M("pr_opt_b"), b["what_it_offers"], ""]
     for alt in b["mostradas"]:
         fams = "; ".join(f"**{f['family']}** ({f['modelos_documentados']})"
                          for f in alt["familias_actuales"])
         lineas.append(f"- **{alt['brand']}** — {fams}")
     if b["resto_disponible"]:
-        lineas.append(f"- Y {len(b['resto_disponible'])} marcas mas del mismo tipo en el "
-                      "catalogo: " + ", ".join(b["resto_disponible"]) + ".")
+        lineas.append(M("pr_opt_more_brands") % (len(b["resto_disponible"]),
+                                                 ", ".join(b["resto_disponible"])))
     if b.get("otro_tipo_de_producto"):
         otras = ", ".join(f"{a['brand']} ({a['classification']})"
                           for a in b["otro_tipo_de_producto"][:6])
-        lineas.append(f"- De otro tipo de producto, si te interesa evaluarlo: {otras}.")
+        lineas.append(M("pr_opt_other_type") % otras)
     lineas.append("")
-    lineas.append("A favor: " + " · ".join(b["pros"]))
-    lineas.append("En contra: " + " · ".join(b["cons"]))
+    lineas.append(M("pr_pros") % " · ".join(b["pros"]))
+    lineas.append(M("pr_cons") % " · ".join(b["cons"]))
     lineas.append("")
-    lineas.append(f"⚠️ **Limite del agente:** {b['hard_limit']} {b['data_support']}")
+    lineas.append(M("pr_agent_limit") % (b["hard_limit"], b["data_support"]))
     lineas.append("")
     lineas.append(f"_{o['rule']}_")
     return "\n".join(lineas)
@@ -658,12 +684,7 @@ def manufacturer_route(brand=None, case=None, ctx: dict | None = None) -> dict |
                 "convertir y esta ruta no aplica. Se reconstruye por la extension P1-P7."
             )
         if ctx.get("cambio_marca"):
-            avisos.append(
-                "El caso va a otra marca: entre fabricantes distintos no hay herramienta "
-                "de conversion y esta ruta NO aplica. Con el programa de origen accesible "
-                "el porte se guia por la ruta de cambio de marca (tema "
-                "'ruta_cambio_marca'); sin el, se reconstruye por la extension P1-P7."
-            )
+            avisos.append(M("pr_warn_other_brand"))
         path["avisos"] = avisos
         return path
     return None
@@ -675,20 +696,16 @@ def manufacturer_route_text(brand=None, case=None, ctx: dict | None = None) -> s
     bloque = manufacturer_routes()
     r = manufacturer_route(brand, case, ctx)
     if r is None:
-        disponibles = ", ".join(x["brand"] for x in bloque.get("routes", [])) or "ninguna"
-        return (
-            f"No hay ruta de conversion publicada para '{brand or ctx.get('brand') or '?'}'. "
-            f"Marcas con ruta: {disponibles}. Para las demas rige el paso 21 generico "
-            "(usar primero las herramientas oficiales del fabricante) y la limitacion se "
-            "declara al usuario en vez de improvisar una secuencia."
-        )
+        disponibles = (", ".join(x["brand"] for x in bloque.get("routes", []))
+                       or M("pr_none"))
+        return M("pr_no_route") % (brand or ctx.get("brand") or "?", disponibles)
 
     lineas = [
-        f"**Ruta de conversion — {r['title']} ({r['brand']})**",
+        M("pr_route_title") % (r["title"], r["brand"]),
         "",
         f"> {r['principle']}",
         "",
-        f"*Especializa los pasos {', '.join(r['applies_to_steps'])} del {CITA}.*",
+        M("pr_specializes_steps") % (", ".join(r["applies_to_steps"]), cita()),
         "",
     ]
     for aviso in r.get("avisos", []):
@@ -696,30 +713,30 @@ def manufacturer_route_text(brand=None, case=None, ctx: dict | None = None) -> s
 
     ramas = r.get("branches", {})
     for p in r["steps"]:
-        cabecera = f"**{p['n']} — {p['title']}**"
+        cabecera = M("pr_route_step") % (p["n"], p["title"])
         if p.get("branch"):
-            cabecera += f"  *(solo si {ramas.get(p['branch'], p['branch'])})*"
+            cabecera += M("pr_only_if") % ramas.get(p["branch"], p["branch"])
         lineas += [
             cabecera,
-            f"*Especializa el paso {p['specializes_step']} del procedimiento.*",
+            M("pr_specializes_one") % p["specializes_step"],
             "",
             p["detail"],
             "",
-            f"**Se da por terminado cuando:** {p['exit_criterion']}",
+            M("pr_done_when") % p["exit_criterion"],
         ]
         if p.get("agent_note"):
-            lineas.append(f"*Nota: {p['agent_note']}*")
+            lineas.append(M("pr_note") % p["agent_note"])
         lineas.append("")
 
     if r.get("rules"):
-        lineas.append("**Reglas que rigen toda la ruta:**")
+        lineas.append(M("pr_route_rules"))
         lineas += [f"- {x['rule']}" for x in r["rules"]]
         lineas.append("")
 
-    lineas.append("**Fuentes:**")
+    lineas.append(M("pr_sources"))
     for f in r.get("sources", []):
         lineas.append(f"- [{f['type']}] {f['description']} — {f['url']}")
-    lineas += ["", f"_{CITA}, rutas por fabricante: {r['id']}_"]
+    lineas += ["", M("pr_cite_routes") % (cita(), r["id"])]
     return "\n".join(lineas)
 
 
@@ -742,11 +759,7 @@ def brand_change_route(case=None, ctx: dict | None = None) -> dict | None:
     path["aplica_a_origen"] = True
     avisos = []
     if ctx.get("brand") and ctx.get("marca_destino"):
-        avisos.append(
-            f"Porte de {ctx['brand']} a {ctx['marca_destino']}: la ruta describe el "
-            "metodo, no las equivalencias de ese par concreto. Las tablas se construyen "
-            "contra los manuales oficiales de las dos marcas."
-        )
+        avisos.append(M("pr_warn_port") % (ctx["brand"], ctx["marca_destino"]))
     path["avisos"] = avisos
     return path
 
@@ -757,21 +770,14 @@ def brand_change_route_text(case=None, ctx: dict | None = None) -> str:
     bloque = load().get("brand_change_route", {})
     r = brand_change_route(case, ctx)
     if r is None:
-        return (
-            "La ruta de cambio de marca no aplica a este caso: pide las dos condiciones "
-            "a la vez, destino de OTRA marca (paso 13) y programa de origen accesible y "
-            "verificado. Sin acceso al codigo el programa se reconstruye por la extension "
-            "P1-P7; dentro de la misma marca rige la ruta del fabricante (tema "
-            f"'ruta_fabricante'). Condicion de uso: {bloque.get('usage_condition', '')}"
-        )
+        return M("pr_no_brand_route") % bloque.get("usage_condition", "")
 
     lineas = [
-        f"**Ruta de cambio de marca — {r['title']}**",
+        M("pr_brand_route_title") % r["title"],
         "",
         f"> {r['principle']}",
         "",
-        f"*Especializa los pasos {', '.join(r['applies_to_steps'])} del {CITA}, y se apoya "
-        "en la extension P1-P7 para escribir el programa nuevo.*",
+        M("pr_specializes_brand") % (", ".join(r["applies_to_steps"]), cita()),
         "",
     ]
     for aviso in r.get("avisos", []):
@@ -779,25 +785,25 @@ def brand_change_route_text(case=None, ctx: dict | None = None) -> str:
 
     for x in r["steps"]:
         lineas += [
-            f"**{x['n']} — {x['title']}**",
-            f"*Especializa el paso {x['specializes_step']} del procedimiento.*",
+            M("pr_route_step") % (x["n"], x["title"]),
+            M("pr_specializes_one") % x["specializes_step"],
             "",
             x["detail"],
             "",
-            f"**Se da por terminado cuando:** {x['exit_criterion']}",
+            M("pr_done_when") % x["exit_criterion"],
         ]
         if x.get("agent_note"):
-            lineas.append(f"*Nota: {x['agent_note']}*")
+            lineas.append(M("pr_note") % x["agent_note"])
         lineas.append("")
 
     if r.get("rules"):
-        lineas.append("**Reglas que rigen toda la ruta:**")
+        lineas.append(M("pr_route_rules"))
         lineas += [f"- {x['rule']}" for x in r["rules"]]
         lineas.append("")
-    lineas += [f"**Limite duro:** {r.get('hard_limit', '')}", "", "**Fuentes:**"]
+    lineas += [M("pr_hard_limit") % r.get("hard_limit", ""), "", M("pr_sources")]
     for f in r.get("sources", []):
         lineas.append(f"- [{f['type']}] {f['description']} — {f['url']}")
-    lineas += ["", f"_{CITA}, ruta de cambio de marca: {r['id']}_"]
+    lineas += ["", M("pr_cite_brand_route") % (cita(), r["id"])]
     return "\n".join(lineas)
 
 
@@ -849,27 +855,26 @@ def route_for_step_text(key, case=None, ctx: dict | None = None) -> str:
     r, sub, rules = d["route"], d["sub_pasos"], d["rules"]
     ramas = r.get("branches", {})
 
-    regla_sola = "*Regla de la ruta que gobierna este paso.*"
+    regla_sola = M("pr_rule_only")
     if r.get("type") == "cambio_de_marca":
-        title = f"**Ruta de cambio de marca — {r['title']}**"
-        encabezado = ("*Lo que este paso significa cuando el destino es de otra marca y "
-                      "el programa de origen SI se puede leer.*" if sub else regla_sola)
+        title = M("pr_brand_route_title") % r["title"]
+        encabezado = M("pr_means_brand") if sub else regla_sola
     else:
-        title = f"**Ruta {r['brand']} — {r['title']}**"
-        encabezado = (f"*Lo que este paso significa para un "
-                      f"{', '.join(r['source_families'])}.*" if sub else regla_sola)
+        title = M("pr_route_brand_title") % (r["brand"], r["title"])
+        encabezado = (M("pr_means_family") % ", ".join(r["source_families"])
+                      if sub else regla_sola)
     lineas = ["", "---", "", title, encabezado, ""]
     for p in sub:
-        cabecera = f"**{p['n']} · {p['title']}**"
+        cabecera = M("pr_sub_header") % (p["n"], p["title"])
         if p.get("branch"):
-            cabecera += f"  *(solo si {ramas.get(p['branch'], p['branch'])})*"
+            cabecera += M("pr_only_if") % ramas.get(p["branch"], p["branch"])
         lineas += [cabecera, "", p["detail"], "",
-                   f"**Se da por terminado cuando:** {p['exit_criterion']}"]
+                   M("pr_done_when") % p["exit_criterion"]]
         if p.get("agent_note"):
-            lineas.append(f"*Nota: {p['agent_note']}*")
+            lineas.append(M("pr_note") % p["agent_note"])
         lineas.append("")
     for x in rules:
-        lineas += [f"> **Regla de la ruta:** {x['rule']}", ""]
+        lineas += [M("pr_route_rule") % x["rule"], ""]
     return "\n".join(lineas).rstrip()
 
 
@@ -883,18 +888,15 @@ def route_summary_text(case=None, ctx: dict | None = None) -> str:
     steps_with_route = sorted({_key(n) for n in r["applies_to_steps"]},
                             key=lambda x: (len(x), x))
     if r.get("type") == "cambio_de_marca":
-        cabecera = ("**El destino es de otra marca y el programa de origen si se puede "
-                    "leer: aplica la ruta de porte entre fabricantes.**")
+        cabecera = M("pr_summary_brand")
     else:
-        cabecera = (f"**Hay una ruta de conversion publicada para {r['brand']}: "
-                    f"{r['title']}.**")
+        cabecera = M("pr_summary_route") % (r["brand"], r["title"])
     lineas = [
         cabecera,
         "",
         f"> {r['principle']}",
         "",
-        "La veras desglosada al llegar a los pasos "
-        + ", ".join(steps_with_route) + " del procedimiento.",
+        M("pr_summary_steps") % ", ".join(steps_with_route),
     ]
     for aviso in r.get("avisos", []):
         lineas += ["", f"⚠️ {aviso}"]
@@ -923,7 +925,7 @@ def prompt_index() -> str:
     titulos = "; ".join(f"{p['label']}={p['title'].rstrip('.')}" for p in data["steps"])
     return L["procedure_index"].format(
         title=doc["title"], id=doc["id"], total_steps=doc["total_steps"],
-        citation=CITA, triggers=disp, phases=phases, routes=marcas, steps=titulos,
+        citation=cita(), triggers=disp, phases=phases, routes=marcas, steps=titulos,
     )
 
 
@@ -935,29 +937,29 @@ def query(tema: str, key=None, case=None) -> dict:
     t = _norm(tema)
     ctx = context(case) if case is not None else {}
 
-    if t == "step":
+    if t in ("step", "paso"):
         p = step(key, ctx) if key is not None else None
         if p is None:
-            return {"error": f"Paso no encontrado: {key}. Validos: 1 a {total_steps()}."}
+            return {"error": M("pr_q_no_step") % (key, total_steps())}
         return {"tema": "step", "citation": p["citation"], "contenido": p,
                 "text": step_text(p["n"], ctx)}
 
-    if t == "phase":
+    if t in ("phase", "fase"):
         f = phase(key)
         if f is None:
-            return {"error": f"Fase no encontrada: {key}."}
-        return {"tema": "phase", "citation": CITA, "contenido": {
+            return {"error": M("pr_q_no_phase") % key}
+        return {"tema": "phase", "citation": cita(), "contenido": {
             **f, "pasos_detalle": [{"step": str(n), "title": raw_step(n)["title"]} for n in f["steps"]]}}
 
-    if t in ("triggers", "trigger"):
+    if t in ("triggers", "trigger", "disparadores"):
         contenido = {"catalogo": triggers()}
         if case is not None:
             contenido["activos_en_el_caso"] = detect_triggers(case)
-        return {"tema": "triggers", "citation": CITA, "contenido": contenido}
+        return {"tema": "triggers", "citation": cita(), "contenido": contenido}
 
     if t in ("opciones_destino", "options", "opciones_cpu"):
         ident = key if isinstance(key, dict) else getattr(case, "equipment_identified", None)
-        return {"tema": "opciones_destino", "citation": CITA,
+        return {"tema": "opciones_destino", "citation": cita(),
                 "contenido": target_options(ident),
                 "text": options_text(ident)}
 
@@ -973,7 +975,8 @@ def query(tema: str, key=None, case=None) -> dict:
         }
         if r is None:
             contenido["acceso_al_codigo"] = accessible_code(case) if case is not None else None
-        return {"tema": "ruta_fabricante", "citation": f"{CITA}, rutas por fabricante",
+        return {"tema": "ruta_fabricante",
+                "citation": M("pr_cite_routes_short") % cita(),
                 "contenido": contenido,
                 "text": manufacturer_route_text(brand, case, ctx)}
 
@@ -992,36 +995,34 @@ def query(tema: str, key=None, case=None) -> dict:
                 "con_codigo_fuente": bool(ctx.get("con_codigo_fuente")),
                 "acceso_al_codigo": accessible_code(case) if case is not None else None,
             }
-        return {"tema": "ruta_cambio_marca", "citation": f"{CITA}, ruta de cambio de marca",
+        return {"tema": "ruta_cambio_marca", "citation": f"{cita()}, ruta de cambio de marca",
                 "contenido": contenido,
                 "text": brand_change_route_text(case, ctx)}
 
-    if t == "status":
+    if t in ("status", "estado"):
         if case is None:
-            return {"error": "El tema 'status' necesita un caso abierto."}
-        return {"tema": "status", "citation": CITA, "contenido": status(case)}
+            return {"error": M("pr_q_needs_case") % "status"}
+        return {"tema": "status", "citation": cita(), "contenido": status(case)}
 
     if t in ("siguiente", "siguiente_paso"):
         if case is None:
-            return {"error": "El tema 'siguiente' necesita un caso abierto."}
+            return {"error": M("pr_q_needs_case") % "siguiente"}
         s = next_step(case)
         if s is None:
-            return {"tema": "siguiente", "citation": CITA,
+            return {"tema": "siguiente", "citation": cita(),
                     "contenido": {"mensaje": "Los 50 pasos estan cerrados."}}
         return {"tema": "siguiente", "citation": s["citation"], "contenido": s,
                 "text": step_text(s["key"], ctx)}
 
     if t == "bloqueos":
         if case is None:
-            return {"error": "El tema 'bloqueos' necesita un caso abierto."}
-        return {"tema": "bloqueos", "citation": CITA, "contenido": blocks(case)}
+            return {"error": M("pr_q_needs_case") % "bloqueos"}
+        return {"tema": "bloqueos", "citation": cita(), "contenido": blocks(case)}
 
     if t in ("huecos", "declared_gaps"):
-        return {"tema": "huecos", "citation": CITA, "contenido": declared_gaps()}
+        return {"tema": "huecos", "citation": cita(), "contenido": declared_gaps()}
 
-    if t in ("document", "procedure"):
-        return {"tema": "document", "citation": CITA, "contenido": load()["document"]}
+    if t in ("document", "procedure", "documento"):
+        return {"tema": "document", "citation": cita(), "contenido": load()["document"]}
 
-    return {"error": f"Tema no reconocido: {tema}. Validos: paso, fase, disparadores, "
-                     "opciones_destino, ruta_fabricante, ruta_cambio_marca, estado, "
-                     "siguiente, bloqueos, huecos, documento."}
+    return {"error": M("pr_q_unknown") % tema}

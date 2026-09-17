@@ -127,9 +127,9 @@ def message():
 
     ses = SESIONES.get(cid)
     if ses is None:
-        return jsonify(error="Caso no encontrado o sesion expirada. Abre un caso nuevo."), 404
+        return jsonify(error=config.ui()["err_case_expired"]), 404
     if not user_text:
-        return jsonify(error="Mensaje vacio."), 400
+        return jsonify(error=config.ui()["err_empty_message"]), 400
 
     # Demo interactiva: cada respuesta entra al expediente y mueve el motor.
     if ses.get("interactivo"):
@@ -153,20 +153,17 @@ def summary(case_id: str):
     try:
         return jsonify(Case.load(case_id).summary())
     except Exception:  # noqa: BLE001
-        return jsonify(error="Caso no encontrado."), 404
+        return jsonify(error=config.ui()["err_case_not_found"]), 404
 
 
 def _error_msg(exc: Exception) -> str:
     name = type(exc).__name__
     if "Authentication" in name or "api_key" in str(exc).lower():
-        return (
-            "No hay credencial valida de Anthropic. Configura ANTHROPIC_API_KEY "
-            "en el archivo .env (ver .env.example)."
-        )
+        return config.ui()["err_no_credential"]
     return f"{name}: {exc}"
 
 
 if __name__ == "__main__":
     print(config.WELCOME_MESSAGE)
-    print("\nAbre http://127.0.0.1:5000 en tu navegador.\n")
+    print(config.ui()["console_open"])
     app.run(host="127.0.0.1", port=5000, debug=False)

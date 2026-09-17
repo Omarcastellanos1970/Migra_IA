@@ -150,5 +150,9 @@
  "i153": "contrasenas",
  "i154": "tendencia",
  "i155": "criticidad",
- "i156": "parada tolerable"
+ "i156": "parada tolerable",
+ "i157": "**Pregunta %s de %s** \u00b7 Seccion %s \u2014 %s  \u00b7  `%s`",
+ "i158": "Anotado \u2014 `%s`: **%s**",
+ "i159": "Destino fijado: **%s %s**.",
+ "i160": "\n\n---\n\n*Avance: %s de %s (%s%%) \u00b7 fase %s"
 }

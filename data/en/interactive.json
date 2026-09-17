@@ -150,5 +150,9 @@
  "i153": "passwords",
  "i154": "trend",
  "i155": "criticality",
- "i156": "tolerable downtime"
+ "i156": "tolerable downtime",
+ "i157": "**Question %s of %s** \u00b7 Section %s \u2014 %s  \u00b7  `%s`",
+ "i158": "Recorded \u2014 `%s`: **%s**",
+ "i159": "Target set: **%s %s**.",
+ "i160": "\n\n---\n\n*Progress: %s of %s (%s%%) \u00b7 phase %s"
 }

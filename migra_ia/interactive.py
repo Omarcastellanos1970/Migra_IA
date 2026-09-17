@@ -533,8 +533,7 @@ def decide(answers: dict, risk: dict) -> dict:
 # Presentacion y lectura de respuestas
 # --------------------------------------------------------------------------- #
 def _render_question(p: dict, n: int, total: int) -> str:
-    cabecera = (f"**Pregunta {n} de {total}** · Seccion {p['section']} — "
-                f"{p['seccion_titulo']}  ·  `{p['code']}`")
+    cabecera = T("i157") % (n, total, p["section"], p["seccion_titulo"], p["code"])
     lineas = [cabecera, "", f"**{p['text']}**", ""]
     kind = p.get("type")
     if kind == "numero":
@@ -695,7 +694,7 @@ def _phase_questions(case: Case, text: str, status: dict) -> dict:
         status["phase"] = F_RISK
         return _phase_risk(case, status, actions=["save_answers"])
     eco = ", ".join(value) if isinstance(value, list) else value
-    return _output(f"Anotado — `{code}`: **{eco}**\n\n---\n\n{next_step}",
+    return _output(f"{T('i158') % (code, eco)}\n\n---\n\n{next_step}",
                    case, status, ["save_answers"])
 
 
@@ -872,7 +871,7 @@ def _phase_target(case: Case, text: str, status: dict) -> dict:
     if route_summary:
         aviso += "\n\n" + route_summary
     return _output(
-        f"Destino fijado: **{target_brand} {target}**.\n\n{aviso}{T('i027')}",
+        f"{T('i159') % (target_brand, target)}\n\n{aviso}{T('i027')}",
         case, status, ["set_target_cpu"])
 
 
@@ -915,7 +914,8 @@ def _phase_guide(case: Case, text: str, status: dict) -> dict:
     if next_step.get("prerrequisitos_pendientes"):
         cuerpo += (T("i095")                 + ", ".join(str(x) for x in next_step["prerrequisitos_pendientes"])
                    + T("i080"))
-    pie = (f"\n\n---\n\n*Avance: {avance['cerrados']} de {avance['total_steps']} ({avance['porcentaje']}%) · fase {avance['fase_actual']}{T('i028')}")
+    pie = (T("i160") % (avance["cerrados"], avance["total_steps"],
+                        avance["porcentaje"], avance["fase_actual"]) + T("i028"))
     return _output(cuerpo + pie, case, status, ["mark_migration_step"] if actual else [])
 
 
