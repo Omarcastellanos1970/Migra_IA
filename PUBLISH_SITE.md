@@ -43,7 +43,7 @@ git config --global user.email "your-email@example.com"
 
 git init
 git add .
-git commit -m "MIGRA-IA v0.1.0 + pagina del artefacto"
+git commit -m "MIGRA-IA v0.1.0 + artifact page"
 git branch -M main
 
 gh repo create migra-ia --public --source=. --push

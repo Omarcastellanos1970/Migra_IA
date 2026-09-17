@@ -124,7 +124,7 @@
  "pr_variant_no_backup": "NO VERIFIED BACKUP: %s",
  "mf026": "- Brand: %s (%s)",
  "pr_q_needs_case": "Topic '%s' needs an open case.",
- "pr_q_unknown": "Topic not recognized: %s. Valid ones: paso, fase, disparadores, opciones_destino, ruta_fabricante, ruta_cambio_marca, estado, siguiente, bloqueos, huecos, documento.",
+ "pr_q_unknown": "Topic not recognized: %s. Valid ones: step, phase, triggers, options, route, brand_change_route, status, next, blocks, gaps, document.",
  "ag006": "New case opened: ",
  "ag007": "\nSession interrupted.",
  "ag008": "\nCase file saved at: ",
