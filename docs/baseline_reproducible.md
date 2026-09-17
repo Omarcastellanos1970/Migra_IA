@@ -236,10 +236,10 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
   que ser univariante.
 
   Fuera de esta tabla, en el banco de casos del artefacto:
-     - Los escenarios de desarrollo 'critico' y 'otra_marca' comparten las
+     - Los escenarios de desarrollo 'critical' y 'other_brand' comparten las
        mismas 24 respuestas: son 2 casos independientes, no 3.
-     - 'critico' (S7-300 -> S7-1500) reproduce la ruta del caso ciego 26.1,
-       y el destino de 'otra_marca' (Omron NX) la del caso ciego 26.5:
+     - 'critical' (S7-300 -> S7-1500) reproduce la ruta del caso ciego 26.1,
+       y el destino de 'other_brand' (Omron NX) la del caso ciego 26.5:
        el conjunto de desarrollo pisa el de prueba.
      - En modo agente con API, la herramienta query_guide alcanza
        data/<idioma>/knowledge_base.json, que contiene los cinco casos ciegos

@@ -358,6 +358,42 @@ modelo los llama por su nombre.
 > —`scoring.py`, el catálogo y la guía— sí corre sin clave y es verificable por
 > completo.
 
+## 10 bis. Valores que el modelo pasa a las herramientas
+
+Los nombres de arriba ya estaban listados; los valores no, y por eso tres listas
+se quedaron a medias: `indice` conviviendo con `section`, `buscar` con `factor`.
+Son identificadores ---el modelo los escribe, el codigo los compara---, no datos
+del conjunto, asi que se traducen con los mismos nombres que la seccion 8 ya fijo
+para las claves equivalentes.
+
+| ES | EN | ES | EN |
+|---|---|---|---|
+| `indice` | `index` | `buscar` | `search` |
+| `matriz_fabricantes` | `manufacturer_matrix` | `anexo` | `annex` |
+| `principios` | `principles` | `entregables` | `deliverables` |
+| `prioridades` | `priorities` | `opciones_destino` | `target_options` |
+| `ruta_fabricante` | `manufacturer_route` | `ruta_cambio_marca` | `brand_change_route` |
+| `siguiente` | `next_step` | `bloqueos` | `blocks` |
+| `huecos` | `gaps` | | |
+
+Y los escenarios de `_interactive_run.py`, que se nombran por la linea de ordenes
+y aparecen en los documentos de los dos idiomas:
+
+| ES | EN |
+|---|---|
+| `critico` | `critical` |
+| `sano` | `healthy` |
+| `otra_marca` | `other_brand` |
+| `otra_marca_con_codigo` | `other_brand_with_code` |
+
+**NO se traducen**, y es deliberado: los vocabularios que el motor GUARDA en el
+expediente y compara despues ---`cpu_obsoleta`, `contrasena_desconocida`,
+`sin_acceso_al_programa`, `decision_del_usuario`; `pendiente`, `en_curso`,
+`completado`, `no_aplica`, `bloqueado`; `usuario`,
+`sugerencia_del_agente_aceptada`---. Son valores canonicos, de la misma familia
+que `Riesgo critico`: viajan en castellano y se muestran con su etiqueta
+traducida. Cambiarlos rompe los expedientes ya escritos.
+
 ## 11. Verificación: números, no palabras
 
 Con el contenido en inglés, un diff de prosa no prueba nada, porque todas las

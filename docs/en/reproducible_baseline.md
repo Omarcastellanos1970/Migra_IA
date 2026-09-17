@@ -180,7 +180,7 @@ Subproblem covered: P1 (ordinal risk). For P2 see section 7.
                       instead of suggesting that it does.
   Python            : 3.14.6 (Windows)
   Dependencies of the computation: none from third parties (standard library)
-  Frozen environment: 25 packages
+  Frozen environment: 26 packages
      Flask==3.1.3
      Jinja2==3.1.6
      MarkupSafe==3.0.3
@@ -194,6 +194,7 @@ Subproblem covered: P1 (ordinal risk). For P2 see section 7.
      colorama==0.4.6
      distro==1.9.0
      docstring_parser==0.18.0
+     gunicorn==26.2.0
      h11==0.16.0
      httpcore==1.0.9
      httpx==0.28.1
@@ -242,10 +243,10 @@ Subproblem covered: P1 (ordinal risk). For P2 see section 7.
   to be univariate.
 
   Outside this table, in the case bank of the artifact:
-     - The development scenarios 'critico' and 'otra_marca' share the same
+     - The development scenarios 'critical' and 'other_brand' share the same
        24 answers: they are 2 independent cases, not 3.
-     - 'critico' (S7-300 -> S7-1500) reproduces the route of blind case 26.1,
-       and the target of 'otra_marca' (Omron NX) that of blind case 26.5:
+     - 'critical' (S7-300 -> S7-1500) reproduces the route of blind case 26.1,
+       and the target of 'other_brand' (Omron NX) that of blind case 26.5:
        the development set treads on the test set.
      - In agent mode with the API, the query_guide tool reaches
        data/<language>/knowledge_base.json, which contains the five blind

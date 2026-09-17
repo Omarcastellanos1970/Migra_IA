@@ -1755,7 +1755,7 @@
       "trigger": "obsolescencia_con_acceso_al_codigo",
       "when": "The passwords are known (N06 'Yes, all of them' or 'There are no passwords', or F16 affirmative) AND there is a copy of the program that opens and compiles (F01, F06, F07). The reason to migrate is obsolescence and the lack of spare parts (M01, M04, M06), not the loss of the program.",
       "what_changes": "It is the CHEAPEST AND SHORTEST migration scenario: the program is CONVERTED with the manufacturer's official tools instead of being rewritten. Steps 21 and 22 of the procedure apply in full and the P1-P7 extension goes in a light version. The 'no_backup_variant' variant is NOT declared.",
-      "how_it_is_executed": "With the conversion path for the brand: `query_procedure` with topic 'ruta_fabricante'. For Siemens it is STEP 5 -> S5 File Converter -> SIMATIC Manager (STEP 7) -> MigrateProject -> TIA Portal, resolving the language before moving up to TIA. If the brand has no published path, that is declared and the generic step 21 is followed."
+      "how_it_is_executed": "With the conversion path for the brand: `query_procedure` with topic 'manufacturer_route'. For Siemens it is STEP 5 -> S5 File Converter -> SIMATIC Manager (STEP 7) -> MigrateProject -> TIA Portal, resolving the language before moving up to TIA. If the brand has no published path, that is declared and the generic step 21 is followed."
      },
      {
       "id": "reconstruccion_sin_codigo",

@@ -158,9 +158,9 @@ TOOLS = [
                 "tema": {
                     "type": "string",
                     "enum": [
-                        "indice", "methodology", "stage", "chapter", "manufacturer",
-                        "matriz_fabricantes", "test", "template", "anexo", "case",
-                        "principios", "entregables", "guide",
+                        "index", "methodology", "stage", "chapter", "manufacturer",
+                        "manufacturer_matrix", "test", "template", "annex", "case",
+                        "principles", "deliverables", "guide",
                     ],
                     "description": "Parte de la guia a consultar.",
                 },
@@ -246,8 +246,8 @@ TOOLS = [
                 "tema": {
                     "type": "string",
                     "enum": [
-                        "indice", "section", "question", "decision_map",
-                        "factor", "criteria", "prioridades", "buscar",
+                        "index", "section", "question", "decision_map",
+                        "factor", "criteria", "priorities", "search",
                     ],
                     "description": "Parte del cuestionario a consultar.",
                 },
@@ -257,7 +257,7 @@ TOOLS = [
                         "Identificador dentro del tema: letra o titulo de seccion (p. ej. "
                         "'M' o 'ciclo de vida'); codigo de pregunta (p. ej. 'M06'); clave del "
                         "factor de riesgo (" + ", ".join(WEIGHTS.keys()) + "); nombre de la "
-                        "alternativa (p. ej. 'migration'); o texto libre para 'buscar'. "
+                        "alternativa (p. ej. 'migration'); o texto libre para 'search'. "
                         "Omitela para obtener el indice del tema."
                     ),
                 },
@@ -272,16 +272,16 @@ TOOLS = [
             "paso a paso que se sigue UNA VEZ QUE SE DECIDE cambiar la CPU. Cada paso trae "
             "su criterio de salida, la evidencia que debe quedar, quien lo ejecuta, sus "
             "prerrequisitos y lo que exige antes de tocar la maquina. Usa 'triggers' "
-            "para saber si el caso ya justifica abrir el modo guia; 'opciones_destino' en "
+            "para saber si el caso ya justifica abrir el modo guia; 'target_options' en "
             "el paso 13 para presentar las CPU candidatas del mismo fabricante y las "
-            "plataformas de marcas alternativas; 'ruta_fabricante' cuando el programa de "
+            "plataformas de marcas alternativas; 'manufacturer_route' cuando el programa de "
             "origen SI es accesible (contrasenas conocidas y respaldo que abre y compila) "
             "y hay que migrar igual por obsolescencia o falta de repuestos: devuelve la "
             "secuencia concreta de herramientas de esa marca, que especializa los pasos "
-            "21 a 23; 'ruta_cambio_marca' cuando el destino elegido es de OTRA marca y "
+            "21 a 23; 'brand_change_route' cuando el destino elegido es de OTRA marca y "
             "el programa de origen SI es accesible: devuelve el metodo de porte, que "
-            "especializa los pasos 11, 12, 18, 21 y 32; 'siguiente' para saber que paso "
-            "toca; 'bloqueos' antes de proponer "
+            "especializa los pasos 11, 12, 18, 21 y 32; 'next_step' para saber que paso "
+            "toca; 'blocks' antes de proponer "
             "cualquier intervencion fisica. Cita siempre el paso: 'Procedimiento "
             "MIGRA-IA-PROC-050, paso N'."
         ),
@@ -291,9 +291,9 @@ TOOLS = [
                 "tema": {
                     "type": "string",
                     "enum": [
-                        "step", "phase", "triggers", "opciones_destino",
-                        "ruta_fabricante", "ruta_cambio_marca", "status", "siguiente",
-                        "bloqueos", "huecos", "document",
+                        "step", "phase", "triggers", "target_options",
+                        "manufacturer_route", "brand_change_route", "status", "next_step",
+                        "blocks", "gaps", "document",
                     ],
                     "description": "Parte del procedimiento a consultar.",
                 },
@@ -303,7 +303,7 @@ TOOLS = [
                         "Numero de paso (1 a 50) para el tema 'step'; id de fase "
                         "(levantamiento, seleccion_e_ingenieria, conversion, fat, "
                         "corte_y_puesta_en_marcha, cierre) o numero de paso para 'phase'; "
-                        "nombre de la marca para 'ruta_fabricante' (si se omite, se toma "
+                        "nombre de la marca para 'manufacturer_route' (si se omite, se toma "
                         "la marca del equipo ya identificado en el expediente). "
                         "Omitela en los demas temas."
                     ),
@@ -349,7 +349,7 @@ TOOLS = [
         "description": (
             "Registra la CPU de reemplazo que ELIGIO EL USUARIO en el paso 13, con su "
             "justificacion y su fuente. Nunca la elijas tu: presenta antes las opciones con "
-            "`query_procedure` (tema 'opciones_destino') y espera la decision. Si la "
+            "`query_procedure` (tema 'target_options') y espera la decision. Si la "
             "marca elegida es distinta a la de origen, el procedimiento activa solo la "
             "variante de cambio de marca (los pasos 21 y 22 dejan de aplicar)."
         ),
@@ -603,7 +603,7 @@ def run_tool(case: Case, name: str, entry: dict, approver=None) -> str:
                 consecuencia = (
                     "Cambio de marca CON el programa de origen accesible: los pasos 21 y 22 "
                     "dejan de aplicar, pero el trabajo NO empieza de cero. Pide el tema "
-                    "'ruta_cambio_marca': el programa original es la especificacion y la "
+                    "'brand_change_route': el programa original es la especificacion y la "
                     "ruta especializa los pasos 11, 12, 18, 21 y 32. Revisa tambien las "
                     "variantes de los pasos 14, 19, 23, 24, 25 y 48.")
             elif cambio:

@@ -447,7 +447,7 @@ def status(case) -> dict:
         "no_aplican": by_status["no_aplica"],
         "en_curso": by_status["en_curso"],
         "bloqueados": by_status["bloqueado"],
-        "siguiente": sig["label"] if sig else None,
+        "next_step": sig["label"] if sig else None,
         "fase_actual": ((phase(sig["key"]) or {}).get("name") if sig
                         else M("pr_complete")),
         "variants": {"cambio_marca": ctx["cambio_marca"],
@@ -957,13 +957,13 @@ def query(tema: str, key=None, case=None) -> dict:
             contenido["activos_en_el_caso"] = detect_triggers(case)
         return {"tema": "triggers", "citation": cita(), "contenido": contenido}
 
-    if t in ("opciones_destino", "options", "opciones_cpu"):
+    if t in ("target_options", "options", "opciones_cpu"):
         ident = key if isinstance(key, dict) else getattr(case, "equipment_identified", None)
-        return {"tema": "opciones_destino", "citation": cita(),
+        return {"tema": "target_options", "citation": cita(),
                 "contenido": target_options(ident),
                 "text": options_text(ident)}
 
-    if t in ("ruta_fabricante", "route", "routes_by_manufacturer", "routes"):
+    if t in ("manufacturer_route", "route", "routes_by_manufacturer", "routes"):
         bloque = manufacturer_routes()
         brand = key if isinstance(key, str) else None
         r = manufacturer_route(brand, case, ctx)
@@ -975,12 +975,12 @@ def query(tema: str, key=None, case=None) -> dict:
         }
         if r is None:
             contenido["acceso_al_codigo"] = accessible_code(case) if case is not None else None
-        return {"tema": "ruta_fabricante",
+        return {"tema": "manufacturer_route",
                 "citation": M("pr_cite_routes_short") % cita(),
                 "contenido": contenido,
                 "text": manufacturer_route_text(brand, case, ctx)}
 
-    if t in ("ruta_cambio_marca", "brand_change_route", "cambio_marca"):
+    if t in ("brand_change_route", "brand_change_route", "cambio_marca"):
         bloque = load().get("brand_change_route", {})
         r = brand_change_route(case, ctx)
         contenido = {
@@ -995,7 +995,7 @@ def query(tema: str, key=None, case=None) -> dict:
                 "con_codigo_fuente": bool(ctx.get("con_codigo_fuente")),
                 "acceso_al_codigo": accessible_code(case) if case is not None else None,
             }
-        return {"tema": "ruta_cambio_marca", "citation": f"{cita()}, ruta de cambio de marca",
+        return {"tema": "brand_change_route", "citation": f"{cita()}, ruta de cambio de marca",
                 "contenido": contenido,
                 "text": brand_change_route_text(case, ctx)}
 
@@ -1004,23 +1004,23 @@ def query(tema: str, key=None, case=None) -> dict:
             return {"error": M("pr_q_needs_case") % "status"}
         return {"tema": "status", "citation": cita(), "contenido": status(case)}
 
-    if t in ("siguiente", "siguiente_paso", "next", "next_step"):
+    if t in ("next_step", "siguiente_paso", "next", "next_step"):
         if case is None:
-            return {"error": M("pr_q_needs_case") % "siguiente"}
+            return {"error": M("pr_q_needs_case") % "next_step"}
         s = next_step(case)
         if s is None:
-            return {"tema": "siguiente", "citation": cita(),
+            return {"tema": "next_step", "citation": cita(),
                     "contenido": {"mensaje": "Los 50 pasos estan cerrados."}}
-        return {"tema": "siguiente", "citation": s["citation"], "contenido": s,
+        return {"tema": "next_step", "citation": s["citation"], "contenido": s,
                 "text": step_text(s["key"], ctx)}
 
-    if t in ("bloqueos", "blocks"):
+    if t in ("blocks", "blocks"):
         if case is None:
-            return {"error": M("pr_q_needs_case") % "bloqueos"}
-        return {"tema": "bloqueos", "citation": cita(), "contenido": blocks(case)}
+            return {"error": M("pr_q_needs_case") % "blocks"}
+        return {"tema": "blocks", "citation": cita(), "contenido": blocks(case)}
 
-    if t in ("huecos", "declared_gaps", "gaps"):
-        return {"tema": "huecos", "citation": cita(), "contenido": declared_gaps()}
+    if t in ("gaps", "declared_gaps", "gaps"):
+        return {"tema": "gaps", "citation": cita(), "contenido": declared_gaps()}
 
     if t in ("document", "procedure", "documento"):
         return {"tema": "document", "citation": cita(), "contenido": load()["document"]}

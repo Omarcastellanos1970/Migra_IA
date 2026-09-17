@@ -29,7 +29,7 @@ def M(key: str) -> str:
 
 # Respuestas por codigo. Lo que un usuario elegiria en cada escenario.
 ESCENARIOS = {
-    "critico": {
+    "critical": {
         "equipo": "Siemens S7-300 CPU 315-2 DP",
         "destino": "A",
         "answers": {
@@ -59,7 +59,7 @@ ESCENARIOS = {
             "P04": "1,7",
         },
     },
-    "sano": {
+    "healthy": {
         "equipo": "Siemens S7-1500 CPU 1515-2 PN",
         "destino": "A",
         "answers": {
@@ -90,21 +90,21 @@ ESCENARIOS = {
         },
     },
 }
-ESCENARIOS["otra_marca"] = {**ESCENARIOS["critico"], "destino": "B OMRON"}
+ESCENARIOS["other_brand"] = {**ESCENARIOS["critical"], "destino": "B OMRON"}
 
 # Mismo equipo descontinuado, pero con las contrasenas y el programa en la mano, y
 # aun asi se migra a otra marca. Es el cruce que activa la ruta de cambio de marca:
 # no hay conversor entre fabricantes, pero tampoco se empieza de cero.
-ESCENARIOS["otra_marca_con_codigo"] = {
-    **ESCENARIOS["critico"],
+ESCENARIOS["other_brand_with_code"] = {
+    **ESCENARIOS["critical"],
     "destino": "B OMRON",
-    "answers": {**ESCENARIOS["critico"]["answers"],
+    "answers": {**ESCENARIOS["critical"]["answers"],
                    "F01": "Si", "F06": "Si", "F07": "Si", "N06": "Si, todas"},
 }
 
 
 def main() -> None:
-    name = sys.argv[1] if len(sys.argv) > 1 else "critico"
+    name = sys.argv[1] if len(sys.argv) > 1 else "critical"
     esc = ESCENARIOS.get(name)
     if esc is None:
         print(f"{M('rn001')}{name}{M('rn002')}{', '.join(ESCENARIOS)}")

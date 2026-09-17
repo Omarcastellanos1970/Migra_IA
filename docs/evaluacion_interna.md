@@ -14,28 +14,28 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
 
 0. ANCLAJE CONTRA ARTIFACT.md
 --------------------------------------------------------------------------
-  OK       critico        85.0  esperado 85.0  (Riesgo critico)
-  OK       sano           11.8  esperado 11.8  (Riesgo bajo)
+  OK       critical       85.0  esperado 85.0  (Riesgo critico)
+  OK       healthy        11.8  esperado 11.8  (Riesgo bajo)
 
 1. BASELINE vs PROPUESTA
 --------------------------------------------------------------------------
-  AVISO: son 3 filas pero 2 casos independientes. 'otra_marca' es 'critico'
+  AVISO: son 3 filas pero 2 casos independientes. 'other_brand' es 'critical'
   con otro destino -las mismas 24 respuestas-, asi que sus tres cifras
   coinciden por construccion y no por coincidencia. No cuenta como
   evidencia adicional.
 
   caso           B0 trivial   B1 uniforme   propuesta   decision
-  critico              75.0          83.1        85.0   migrar
-  sano                 10.0          11.9        11.8   no migrar
-  otra_marca           75.0          83.1        85.0   migrar
-  otra_marca_con_codigo         75.0          68.8        69.2   migrar
+  critical             75.0          83.1        85.0   migrar
+  healthy              10.0          11.9        11.8   no migrar
+  other_brand          75.0          83.1        85.0   migrar
+  other_brand_with_code         75.0          68.8        69.2   migrar
 
   Los pesos de la Seccion 6 SI cambian el resultado frente a pesos
-  uniformes en: critico (83.1 vs 85.0), sano (11.9 vs 11.8), otra_marca (83.1 vs 85.0), otra_marca_con_codigo (68.8 vs 69.2)
+  uniformes en: critical (83.1 vs 85.0), healthy (11.9 vs 11.8), other_brand (83.1 vs 85.0), other_brand_with_code (68.8 vs 69.2)
 
 2. SENSIBILIDAD DE LOS PESOS
 --------------------------------------------------------------------------
-  [critico]  base = 85.0 (Riesgo critico)
+  [critical]  base = 85.0 (Riesgo critico)
     estado_ciclo_vida          peso 0.20  -50%:  86.1  -20%:  85.4  +20%:  84.6  +50%:  84.1
     disponibilidad_repuestos   peso 0.15  -50%:  85.0  -20%:  85.0  +20%:  85.0  +50%:  85.0
     soporte_fabricante         peso 0.15  -50%:  84.6  -20%:  84.8  +20%:  85.1  +50%:  85.3
@@ -48,7 +48,7 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
       puntuacion 81.3 .. 88.6   media 85.0   sd 1.1
       la clasificacion se mantiene en 100.0% de las muestras
 
-  [sano]  base = 11.8 (Riesgo bajo)
+  [healthy]  base = 11.8 (Riesgo bajo)
     estado_ciclo_vida          peso 0.20  -50%:  11.9  -20%:  11.8  +20%:  11.7  +50%:  11.6
     disponibilidad_repuestos   peso 0.15  -50%:  11.9  -20%:  11.8  +20%:  11.7  +50%:  11.6
     soporte_fabricante         peso 0.15  -50%:  12.7  -20%:  12.1  +20%:  11.4  +50%:  10.9
@@ -61,7 +61,7 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
       puntuacion 9.3 .. 13.9   media 11.8   sd 0.71
       la clasificacion se mantiene en 100.0% de las muestras
 
-  [otra_marca_con_codigo]  base = 69.2 (Riesgo alto)
+  [other_brand_with_code]  base = 69.2 (Riesgo alto)
     estado_ciclo_vida          peso 0.20  -50%:  68.6  -20%:  69.0  +20%:  69.5  +50%:  69.8
     disponibilidad_repuestos   peso 0.15  -50%:  68.0  -20%:  68.8  +20%:  69.7  +50%:  70.3
     soporte_fabricante         peso 0.15  -50%:  67.6  -20%:  68.6  +20%:  69.9  +50%:  70.7
@@ -74,7 +74,7 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
       puntuacion 59.6 .. 75.9   media 69.2   sd 2.76
       la clasificacion se mantiene en 100.0% de las muestras
 
-3. INFLUENCIA DE CADA PREGUNTA (escenario 'critico')
+3. INFLUENCIA DE CADA PREGUNTA (escenario 'critical')
 --------------------------------------------------------------------------
   cod     rango     min     max  pregunta
   M01      17.0    72.0    89.0  Estado del producto declarado por el fabri
@@ -96,17 +96,17 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
 4. INFLUENCIA SOBRE LA RUTA DE DECISION
 --------------------------------------------------------------------------
   Una pregunta puede no mover el numero y aun asi cambiar la recomendacion.
-  [critico] ruta base: Correccion de causa raiz (sin cambiar el controlador) > Reconstruccion del programa > Migracion a plataforma moderna
+  [critical] ruta base: Correccion de causa raiz (sin cambiar el controlador) > Reconstruccion del programa > Migracion a plataforma moderna
     cambian la ruta: Q04 (2 rutas), M01 (4 rutas), M06 (2 rutas), F01 (2 rutas)
     no mueven ni puntuacion ni ruta: F12, F13, L03, L07, P01, P04
-  [sano] ruta base: Reparacion del equipo existente
+  [healthy] ruta base: Reparacion del equipo existente
     cambian la ruta: Q04 (2 rutas), M01 (4 rutas), F01 (2 rutas), F06 (2 rutas), F07 (2 rutas), L07 (2 rutas), P01 (2 rutas), P04 (2 rutas)
     no mueven ni puntuacion ni ruta: ninguna
-  [otra_marca_con_codigo] ruta base: Correccion de causa raiz (sin cambiar el controlador) > Migracion a plataforma moderna
+  [other_brand_with_code] ruta base: Correccion de causa raiz (sin cambiar el controlador) > Migracion a plataforma moderna
     cambian la ruta: Q04 (2 rutas), M01 (4 rutas), M06 (2 rutas), F01 (2 rutas), F06 (2 rutas), F07 (2 rutas)
     no mueven ni puntuacion ni ruta: F12, F13, L03, L07, P01, P04
 
-5. MONOTONIA SOBRE ESCALAS ORDINALES (escenario 'critico')
+5. MONOTONIA SOBRE ESCALAS ORDINALES (escenario 'critical')
 --------------------------------------------------------------------------
   [M01] riesgo debe subir
     72.0 -> 76.0 -> 81.0 -> 85.0 -> 89.0
@@ -120,10 +120,10 @@ Sin clave de API, sin datos de campo. Determinista y reproducible.
 
 6. MARGEN HASTA EL UMBRAL MAS CERCANO (20/40/60/80)
 --------------------------------------------------------------------------
-  critico        85.0 (Riesgo critico) a 5.0 puntos del umbral 80
-  sano           11.8 (Riesgo bajo) a 8.2 puntos del umbral 20
-  otra_marca     85.0 (Riesgo critico) a 5.0 puntos del umbral 80
-  otra_marca_con_codigo   69.2 (Riesgo alto) a 9.2 puntos del umbral 60
+  critical       85.0 (Riesgo critico) a 5.0 puntos del umbral 80
+  healthy        11.8 (Riesgo bajo) a 8.2 puntos del umbral 20
+  other_brand    85.0 (Riesgo critico) a 5.0 puntos del umbral 80
+  other_brand_with_code   69.2 (Riesgo alto) a 9.2 puntos del umbral 60
 
 7. RELACION ENTRE LA PUNTUACION Y LA DECISION
 --------------------------------------------------------------------------

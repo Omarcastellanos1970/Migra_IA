@@ -91,9 +91,9 @@ agente recorre el procedimiento paso a paso con la CPU destino que elija.
 
 Para obtener las cifras de referencia sin navegador y sin tener que decidir las
 respuestas, el repositorio incluye cuatro escenarios con respuestas fijas. Son
-cuatro recorridos pero **tres casos independientes**: `otra_marca` es `critico`
+cuatro recorridos pero **tres casos independientes**: `other_brand` es `critical`
 con otro destino, con las mismas 24 respuestas, así que su puntuación coincide
-por construcción y no cuenta como evidencia adicional. `otra_marca_con_codigo`
+por construcción y no cuenta como evidencia adicional. `other_brand_with_code`
 sí cambia cuatro respuestas —las del acceso al programa: contraseñas conocidas y
 respaldo que abre y compila— y por eso su puntuación es distinta.
 
@@ -108,10 +108,10 @@ python _interactive_run.py otra_marca_con_codigo   # cambio de marca con el prog
 
 | Escenario | Riesgo | Migración | Destino |
 |---|---|---|---|
-| `critico` | **85.0 → "Riesgo crítico"** | activa, 57 de 57 pasos | Siemens S7-1500 (misma marca) |
-| `sano` | **11.8 → "Riesgo bajo"** | no se abre | — |
-| `otra_marca` | **85.0 → "Riesgo crítico"** (mismas respuestas que `critico`) | activa, con `cambio_marca` | OMRON Sysmac NX |
-| `otra_marca_con_codigo` | **69.2 → "Riesgo alto"** | activa, con `cambio_marca` **y** programa de origen accesible: aplica la ruta de porte | OMRON Sysmac NX |
+| `critical` | **85.0 → "Riesgo crítico"** | activa, 57 de 57 pasos | Siemens S7-1500 (misma marca) |
+| `healthy` | **11.8 → "Riesgo bajo"** | no se abre | — |
+| `other_brand` | **85.0 → "Riesgo crítico"** (mismas respuestas que `critical`) | activa, con `cambio_marca` | OMRON Sysmac NX |
+| `other_brand_with_code` | **69.2 → "Riesgo alto"** | activa, con `cambio_marca` **y** programa de origen accesible: aplica la ruta de porte | OMRON Sysmac NX |
 
 Los cuatro cierran con **24 respuestas** registradas, **0 datos faltantes** y **1
 informe** generado en `cases/`. En la interfaz, el panel derecho debe reflejar
@@ -122,7 +122,7 @@ banderas de seguridad y las aprobaciones humanas pendientes.
 - `docs/informe_ejemplo.md` — informe técnico generado por el motor.
 - `docs/expediente_ejemplo.json` — expediente trazable con auditoría.
 
-Ambas proceden del escenario `critico` de `python _interactive_run.py`, de modo
+Ambas proceden del escenario `critical` de `python _interactive_run.py`, de modo
 que el revisor puede regenerarlas y compararlas: el informe cierra en **85.0 →
 "Riesgo crítico"** con las 24 respuestas del escenario y el detalle de los ocho
 factores, cada uno citando los códigos de pregunta que lo sustentan.

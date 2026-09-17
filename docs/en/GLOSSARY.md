@@ -350,6 +350,42 @@ model calls them by name.
 > available. The deterministic engine — `scoring.py`, catalog and guide — runs
 > without a key and is fully verifiable.
 
+## 10 bis. Values the model passes to the tools
+
+The names above were already listed; the values were not, and that is why three
+lists ended up half-translated: `indice` next to `section`, `buscar` next to
+`factor`. They are identifiers ---the model writes them, the code compares
+them---, not data of the set, so they are translated with the same names that
+section 8 already fixed for the equivalent keys.
+
+| ES | EN | ES | EN |
+|---|---|---|---|
+| `indice` | `index` | `buscar` | `search` |
+| `matriz_fabricantes` | `manufacturer_matrix` | `anexo` | `annex` |
+| `principios` | `principles` | `entregables` | `deliverables` |
+| `prioridades` | `priorities` | `opciones_destino` | `target_options` |
+| `ruta_fabricante` | `manufacturer_route` | `ruta_cambio_marca` | `brand_change_route` |
+| `siguiente` | `next_step` | `bloqueos` | `blocks` |
+| `huecos` | `gaps` | | |
+
+And the scenarios of `_interactive_run.py`, which are named on the command line
+and appear in the documents of both languages:
+
+| ES | EN |
+|---|---|
+| `critico` | `critical` |
+| `sano` | `healthy` |
+| `otra_marca` | `other_brand` |
+| `otra_marca_con_codigo` | `other_brand_with_code` |
+
+**They are NOT translated**, and that is deliberate: the vocabularies the engine
+STORES in the case file and compares afterwards ---`cpu_obsoleta`,
+`contrasena_desconocida`, `sin_acceso_al_programa`, `decision_del_usuario`;
+`pendiente`, `en_curso`, `completado`, `no_aplica`, `bloqueado`; `usuario`,
+`sugerencia_del_agente_aceptada`---. They are canonical values, of the same
+family as `Riesgo critico`: they travel in Spanish and are displayed with their
+translated label. Changing them breaks the case files already written.
+
 ## 11. Verification: numbers, not words
 
 Once the content is in English a prose diff proves nothing, because every

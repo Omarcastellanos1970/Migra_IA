@@ -14,28 +14,28 @@ No API key, no field data. Deterministic and reproducible.
 
 0. ANCHORING AGAINST ARTIFACT.en.md
 --------------------------------------------------------------------------
-  OK       critico        85.0  expected 85.0  (Critical risk)
-  OK       sano           11.8  expected 11.8  (Low risk)
+  OK       critical       85.0  expected 85.0  (Critical risk)
+  OK       healthy        11.8  expected 11.8  (Low risk)
 
 1. BASELINE vs PROPOSAL
 --------------------------------------------------------------------------
-  NOTE: they are 3 rows but 2 independent cases. 'otra_marca' is 'critico'
+  NOTE: they are 3 rows but 2 independent cases. 'other_brand' is 'critical'
   with a different target -the same 24 answers-, so its three figures
   coincide by construction and not by coincidence. It does not count as
   additional evidence.
 
   case           B0 trivial    B1 uniform    proposal   decision
-  critico              75.0          83.1        85.0   migrate
-  sano                 10.0          11.9        11.8   do not migrate
-  otra_marca           75.0          83.1        85.0   migrate
-  otra_marca_con_codigo         75.0          68.8        69.2   migrate
+  critical             75.0          83.1        85.0   migrate
+  healthy              10.0          11.9        11.8   do not migrate
+  other_brand          75.0          83.1        85.0   migrate
+  other_brand_with_code         75.0          68.8        69.2   migrate
 
   The weights of Section 6 DO change the result against uniform
-  weights in: critico (83.1 vs 85.0), sano (11.9 vs 11.8), otra_marca (83.1 vs 85.0), otra_marca_con_codigo (68.8 vs 69.2)
+  weights in: critical (83.1 vs 85.0), healthy (11.9 vs 11.8), other_brand (83.1 vs 85.0), other_brand_with_code (68.8 vs 69.2)
 
 2. SENSITIVITY OF THE WEIGHTS
 --------------------------------------------------------------------------
-  [critico]  base = 85.0 (Critical risk)
+  [critical]  base = 85.0 (Critical risk)
     estado_ciclo_vida          weight 0.20  -50%:  86.1  -20%:  85.4  +20%:  84.6  +50%:  84.1
     disponibilidad_repuestos   weight 0.15  -50%:  85.0  -20%:  85.0  +20%:  85.0  +50%:  85.0
     soporte_fabricante         weight 0.15  -50%:  84.6  -20%:  84.8  +20%:  85.1  +50%:  85.3
@@ -48,7 +48,7 @@ No API key, no field data. Deterministic and reproducible.
       score 81.3 .. 88.6   mean 85.0   sd 1.1
       the classification holds in 100.0% of the samples
 
-  [sano]  base = 11.8 (Low risk)
+  [healthy]  base = 11.8 (Low risk)
     estado_ciclo_vida          weight 0.20  -50%:  11.9  -20%:  11.8  +20%:  11.7  +50%:  11.6
     disponibilidad_repuestos   weight 0.15  -50%:  11.9  -20%:  11.8  +20%:  11.7  +50%:  11.6
     soporte_fabricante         weight 0.15  -50%:  12.7  -20%:  12.1  +20%:  11.4  +50%:  10.9
@@ -61,7 +61,7 @@ No API key, no field data. Deterministic and reproducible.
       score 9.3 .. 13.9   mean 11.8   sd 0.71
       the classification holds in 100.0% of the samples
 
-  [otra_marca_con_codigo]  base = 69.2 (High risk)
+  [other_brand_with_code]  base = 69.2 (High risk)
     estado_ciclo_vida          weight 0.20  -50%:  68.6  -20%:  69.0  +20%:  69.5  +50%:  69.8
     disponibilidad_repuestos   weight 0.15  -50%:  68.0  -20%:  68.8  +20%:  69.7  +50%:  70.3
     soporte_fabricante         weight 0.15  -50%:  67.6  -20%:  68.6  +20%:  69.9  +50%:  70.7
@@ -74,7 +74,7 @@ No API key, no field data. Deterministic and reproducible.
       score 59.6 .. 75.9   mean 69.2   sd 2.76
       the classification holds in 100.0% of the samples
 
-3. INFLUENCE OF EACH QUESTION (scenario 'critico')
+3. INFLUENCE OF EACH QUESTION (scenario 'critical')
 --------------------------------------------------------------------------
   code    range     min     max  question
   M01      17.0    72.0    89.0  Product status declared by the manufacture
@@ -96,17 +96,17 @@ No API key, no field data. Deterministic and reproducible.
 4. INFLUENCE ON THE DECISION ROUTE
 --------------------------------------------------------------------------
   A question may not move the number and still change the recommendation.
-  [critico] base route: Correction of the root cause (without changing the controller) > Rebuilding the program > Migration to a modern platform
+  [critical] base route: Correction of the root cause (without changing the controller) > Rebuilding the program > Migration to a modern platform
     change the route: Q04 (2 routes), M01 (4 routes), M06 (2 routes), F01 (2 routes)
     move neither the score nor the route: F12, F13, L03, L07, P01, P04
-  [sano] base route: Repair of the existing equipment
+  [healthy] base route: Repair of the existing equipment
     change the route: Q04 (2 routes), M01 (4 routes), F01 (2 routes), F06 (2 routes), F07 (2 routes), L07 (2 routes), P01 (2 routes), P04 (2 routes)
     move neither the score nor the route: none
-  [otra_marca_con_codigo] base route: Correction of the root cause (without changing the controller) > Migration to a modern platform
+  [other_brand_with_code] base route: Correction of the root cause (without changing the controller) > Migration to a modern platform
     change the route: Q04 (2 routes), M01 (4 routes), M06 (2 routes), F01 (2 routes), F06 (2 routes), F07 (2 routes)
     move neither the score nor the route: F12, F13, L03, L07, P01, P04
 
-5. MONOTONICITY OVER ORDINAL SCALES (scenario 'critico')
+5. MONOTONICITY OVER ORDINAL SCALES (scenario 'critical')
 --------------------------------------------------------------------------
   [M01] the risk must rise
     72.0 -> 76.0 -> 81.0 -> 85.0 -> 89.0
@@ -120,10 +120,10 @@ No API key, no field data. Deterministic and reproducible.
 
 6. MARGIN TO THE NEAREST THRESHOLD (20/40/60/80)
 --------------------------------------------------------------------------
-  critico        85.0 (Critical risk) is 5.0 points from threshold 80
-  sano           11.8 (Low risk) is 8.2 points from threshold 20
-  otra_marca     85.0 (Critical risk) is 5.0 points from threshold 80
-  otra_marca_con_codigo   69.2 (High risk) is 9.2 points from threshold 60
+  critical       85.0 (Critical risk) is 5.0 points from threshold 80
+  healthy        11.8 (Low risk) is 8.2 points from threshold 20
+  other_brand    85.0 (Critical risk) is 5.0 points from threshold 80
+  other_brand_with_code   69.2 (High risk) is 9.2 points from threshold 60
 
 7. RELATION BETWEEN THE SCORE AND THE DECISION
 --------------------------------------------------------------------------

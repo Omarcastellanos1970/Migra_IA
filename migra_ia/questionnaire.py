@@ -273,7 +273,7 @@ def query(tema: str, key=None) -> dict:
     t = _norm(tema)
 
     despacho = {
-        "indice": lambda: {"indice": prompt_index()},
+        "index": lambda: {"index": prompt_index()},
         "section": lambda: _find_section(cuest, key),
         "sections": lambda: _find_section(cuest, key),
         "question": lambda: _find_question(cuest, key),
@@ -283,8 +283,8 @@ def query(tema: str, key=None) -> dict:
         "factors": lambda: _find_factor(cuest, key),
         "criteria": lambda: _find_criterion(cuest, key),
         "alternative": lambda: _find_criterion(cuest, key),
-        "prioridades": lambda: {"priority_rules": cuest.get("decision_map", {}).get("priority_rules", [])},
-        "buscar": lambda: _find_text(cuest, key),
+        "priorities": lambda: {"priority_rules": cuest.get("decision_map", {}).get("priority_rules", [])},
+        "search": lambda: _find_text(cuest, key),
     }
 
     handler = despacho.get(t)

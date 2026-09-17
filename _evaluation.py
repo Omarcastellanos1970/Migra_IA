@@ -74,7 +74,7 @@ def L10N(clas: str) -> str:
 
 # Valores de referencia publicados en ARTIFACT.md. Si el motor deja de
 # producirlos, el informe se detiene en vez de publicar cifras que no cuadran.
-ESPERADO = {"critico": 85.0, "sano": 11.8}
+ESPERADO = {"critical": 85.0, "healthy": 11.8}
 
 
 # --------------------------------------------------------------------------- #
@@ -361,8 +361,8 @@ def main() -> None:
     w(D("ev_s2"))
     w("-" * 74)
     for name, resp in cases.items():
-        if name == "otra_marca":
-            continue  # identico a 'critico' en puntuacion; solo cambia el destino
+        if name == "other_brand":
+            continue  # identico a 'critical' en puntuacion; solo cambia el destino
         p_base, c_base, _ = score(resp)
         w(D("ev_base_line") % (name, p_base, L10N(c_base)))
         for row in individual_sensitivity(resp, c_base):
@@ -379,7 +379,7 @@ def main() -> None:
     # --- 3. Influencia ---------------------------------------------------- #
     w(D("ev_s3"))
     w("-" * 74)
-    infl = influence_by_question(cases["critico"])
+    infl = influence_by_question(cases["critical"])
     w(D("ev_s3_head") % (D("ev_col_code"), D("ev_col_range"),
                          D("ev_col_min"), D("ev_col_max")))
     for f in infl[:12]:
@@ -398,7 +398,7 @@ def main() -> None:
     w(D("ev_s4_intro"))
     inert_per_case = {}
     for name, resp in cases.items():
-        if name == "otra_marca":
+        if name == "other_brand":
             continue
         mueven, inertes = decision_influence(resp)
         inert_per_case[name] = set(inertes)
@@ -418,7 +418,7 @@ def main() -> None:
     # --- 5. Monotonia ----------------------------------------------------- #
     w(D("ev_s5"))
     w("-" * 74)
-    for f in monotonicity(cases["critico"]):
+    for f in monotonicity(cases["critical"]):
         flecha = D("ev_must_rise") if f["direccion"] == "sube" else D("ev_must_fall")
         w("  [%s] %s" % (f["code"], flecha))
         w("    " + " -> ".join(str(v) for _, v in f["serie"]))
@@ -441,7 +441,7 @@ def main() -> None:
     w(D("ev_s7"))
     w("-" * 74)
     w(D("ev_s7_intro"))
-    resp = cases["critico"]
+    resp = cases["critical"]
     p0, c0, _ = score(resp)
     for label, pp in ((D("ev_real_score"), p0), (D("ev_forced_0"), 0.0),
                          (D("ev_forced_100"), 100.0)):
