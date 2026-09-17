@@ -280,7 +280,7 @@ def evaluate(answers: dict):
 
 def compare(rutas: list[Path], write_md: bool) -> None:
     if not rutas:
-        raise SystemExit("Indique al menos un archivo de respuestas.")
+        raise SystemExit(D("cc_need_file"))
     key = json.loads(KEY.read_text(encoding="utf-8"))["mapa"] if KEY.exists() else {}
 
     L = []
@@ -292,50 +292,51 @@ def compare(rutas: list[Path], write_md: bool) -> None:
     lecturas = {}
     for path in rutas:
         if not path.exists():
-            raise SystemExit("No existe: %s" % path)
+            raise SystemExit(D("cc_no_file") % path)
         lecturas[path.stem] = read_template(path)
 
     w("=" * 74)
-    w("CONCORDANCIA ENTRE EXPERTOS - MIGRA-IA")
+    w(D("cc_title"))
     w("=" * 74)
-    w("Participantes: %s" % ", ".join(lecturas))
+    w(D("cc_participants") % ", ".join(lecturas))
     w("")
 
     numeros = sorted({n for c in lecturas.values() for n in c})
     agreement_summary = []
 
     for n in numeros:
-        w("CASO %d%s" % (n, "   (guia %s)" % key.get(str(n), "?") if key else ""))
+        w(D("cc_case") % (n, D("cc_case_guide") % key.get(str(n), "?") if key else ""))
         w("-" * 74)
         evals = {}
         for quien, cases in lecturas.items():
             resp = cases.get(n)
             if not resp:
-                w("  %-14s sin responder" % quien)
+                w(D("cc_unanswered") % quien)
                 continue
             e = evaluate(resp)
             evals[quien] = e
-            w("  %-14s %5.1f  %-18s migrar=%-5s  respondidas=%d  omitidos=%d"
-              % (quien, e["puntuacion"], e["classification"], e["migrar"],
-                 e["respondidas"], len(e["omitidos"])))
-            w("  %-14s ruta: %s" % ("", " > ".join(e["route"]) or "(vacia)"))
+            w(D("cc_eval_line")
+              % (quien, e["puntuacion"], scoring.risk_label(e["classification"]),
+                 e["migrar"], e["respondidas"], len(e["omitidos"])))
+            w(D("cc_route_line") % ("", " > ".join(e["route"]) or D("cc_route_empty")))
         if len(evals) >= 2:
             puntos = [e["puntuacion"] for e in evals.values()]
             clases = {e["classification"] for e in evals.values()}
             migrars = {e["migrar"] for e in evals.values()}
             rutas_d = {tuple(e["route"]) for e in evals.values()}
             w("")
-            w("  dispersion   : %.1f .. %.1f  (amplitud %.1f, sd %.2f)"
+            w(D("cc_dispersion")
               % (min(puntos), max(puntos), max(puntos) - min(puntos),
                  statistics.pstdev(puntos)))
-            w("  clasificacion: %s" % ("UNANIME (%s)" % list(clases)[0]
-                                       if len(clases) == 1
-                                       else "DISCREPA -> " + ", ".join(sorted(clases))))
-            w("  decision     : %s" % ("UNANIME (migrar=%s)" % list(migrars)[0]
-                                       if len(migrars) == 1
-                                       else "DISCREPA"))
-            w("  ruta         : %s" % ("unanime" if len(rutas_d) == 1
-                                       else "%d rutas distintas" % len(rutas_d)))
+            etiquetas = sorted(scoring.risk_label(c) for c in clases)
+            w(D("cc_class") % (D("cc_unanimous") % etiquetas[0]
+                               if len(clases) == 1
+                               else D("cc_disagree") % ", ".join(etiquetas)))
+            w(D("cc_decision") % (D("cc_decision_unanimous") % list(migrars)[0]
+                                  if len(migrars) == 1
+                                  else D("cc_decision_disagree")))
+            w(D("cc_route") % (D("cc_route_unanimous") if len(rutas_d) == 1
+                               else D("cc_route_n") % len(rutas_d)))
             agreement_summary.append({
                 "case": n, "amplitud": max(puntos) - min(puntos),
                 "clase_unanime": len(clases) == 1,
@@ -347,33 +348,34 @@ def compare(rutas: list[Path], write_md: bool) -> None:
 
     if agreement_summary:
         w("=" * 74)
-        w("RESUMEN")
+        w(D("cc_summary"))
         w("=" * 74)
         tot = len(agreement_summary)
-        w("  A. Concordancia entre expertos (lo que discrimina)")
-        w("     clasificacion unanime : %d de %d casos"
+        w(D("cc_a"))
+        w(D("cc_a_class")
           % (sum(r["clase_unanime"] for r in agreement_summary), tot))
-        w("     decision unanime      : %d de %d casos"
+        w(D("cc_a_decision")
           % (sum(r["decision_unanime"] for r in agreement_summary), tot))
-        w("     ruta unanime          : %d de %d casos"
+        w(D("cc_a_route")
           % (sum(r["ruta_unanime"] for r in agreement_summary), tot))
-        w("     amplitud media de puntuacion: %.1f puntos"
+        w(D("cc_a_amplitude")
           % statistics.mean(r["amplitud"] for r in agreement_summary))
         w("")
-        w("  B. Concordancia con el desenlace documentado (los 5 casos migraron)")
-        w("     el motor propone migrar para todos los expertos: %d de %d casos"
+        w(D("cc_b"))
+        w(D("cc_b_line")
           % (sum(r["migrar_todos"] for r in agreement_summary), tot))
-        w("     AVISO: los 5 casos comparten desenlace, asi que B no discrimina.")
-        w("     Un motor que dijera 'migrar' siempre sacaria el mismo resultado.")
+        w(D("cc_b_warn1"))
+        w(D("cc_b_warn2"))
         w("")
 
     if write_md:
-        target = ROOT / "docs" / "concordancia_expertos.md"
+        target = ROOT / D("cc_path")
+        target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(
-            "# Concordancia entre expertos - MIGRA-IA\n\n"
-            "Generado por `_plantilla_ciega.py comparar`.\n\n"
-            "```\n" + "\n".join(L) + "\n```\n", encoding="utf-8")
-        print("Informe escrito en %s" % target)
+            D("cc_doc_title") + "\n\n"
+            + D("cc_doc_intro") + "\n\n"
+            + "```\n" + "\n".join(L) + "\n```\n", encoding="utf-8")
+        print(D("cc_written") % target)
 
 
 # --------------------------------------------------------------------------- #
