@@ -26,6 +26,7 @@
  "err_case_expired": "Caso no encontrado o sesion expirada. Abre un caso nuevo.",
  "err_case_not_found": "Caso no encontrado.",
  "err_empty_message": "Mensaje vacio.",
+ "real_needs_key": "**El modo \u00abCaso real (API)\u00bb no est\u00e1 activo en este servidor.** Ese modo habla con el modelo de Anthropic, y eso necesita una clave de pago: esto es un trabajo acad\u00e9mico sin fines de lucro, as\u00ed que la demo p\u00fablica va sin clave y sin costo para quien la visita.\n\n**La \u00abDemo interactiva\u00bb de al lado no es un recorte.** Es el motor real ---identificaci\u00f3n contra el cat\u00e1logo, cuestionario, puntuaci\u00f3n de riesgo, mapa de decisi\u00f3n y el procedimiento de 50 pasos--- trabajando con TUS respuestas. Lo \u00fanico que no puede hacer es conversar en lenguaje libre.\n\nSi quieres el modo con IA, inst\u00e1lalo en tu PC con tu propia clave: est\u00e1 explicado en `GUIA_INSTALACION.md`, dentro del repositorio.",
  "err_no_credential": "No hay credencial valida de Anthropic. Configura ANTHROPIC_API_KEY en el archivo .env (ver .env.example).",
  "console_open": "\nAbre http://127.0.0.1:5000 en tu navegador.\n",
  "language_prompt": "Seleccione idioma:",

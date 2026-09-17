@@ -26,6 +26,7 @@
  "err_case_expired": "Case not found or session expired. Open a new case.",
  "err_case_not_found": "Case not found.",
  "err_empty_message": "Empty message.",
+ "real_needs_key": "**The \u00abReal case (API)\u00bb mode is not enabled on this server.** That mode talks to the Anthropic model, and that needs a paid API key: this is a non-profit academic project, so the public demo runs with no key and at no cost to whoever visits it.\n\n**The \u00abInteractive demo\u00bb next to it is not a cut-down version.** It is the real engine ---identification against the catalog, questionnaire, risk scoring, decision map and the 50-step procedure--- working with YOUR answers. The one thing it cannot do is hold a free-form conversation.\n\nIf you want the AI mode, install it on your own machine with your own key: it is explained in `INSTALL_GUIDE.md`, inside the repository.",
  "err_no_credential": "There is no valid Anthropic credential. Set ANTHROPIC_API_KEY in the .env file (see .env.example).",
  "console_open": "\nOpen http://127.0.0.1:5000 in your browser.\n",
  "language_prompt": "Select language:",

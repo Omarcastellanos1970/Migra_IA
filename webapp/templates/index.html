@@ -167,6 +167,8 @@
 
 <script>
 const LANG = "{{ lang }}";
+// Sin clave en el servidor, el modo real no se intenta: se explica.
+const CON_API = {{ con_api|tojson }};
   const UI = {{ ui|tojson }};
   let caseId = null;
 let ocupado = false;
@@ -338,7 +340,9 @@ async function iniciar(modo){
   }catch(e){ pensando(false); addMsg("agent",UI.error_conn); }
   finally{ ocupado=false; $("enviar").disabled=false; $("entrada").focus(); }
 }
-const nuevoCaso = () => iniciar("api");
+const nuevoCaso = () => CON_API
+  ? iniciar("api")
+  : addMsg("agent", UI.real_needs_key);
 const nuevoInteractivo = () => iniciar("interactivo");
 
 function bienvenida(){

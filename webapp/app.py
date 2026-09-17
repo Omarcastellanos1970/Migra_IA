@@ -63,6 +63,18 @@ def _unset_language(_exc=None):
     if token is not None:
         config.reset_language(token)
 
+def _hay_credencial() -> bool:
+    """Si ESTE servidor puede hablar con el modelo.
+
+    Una clave ausente no es un fallo: es la demo publica gratis, tal como la
+    describe render.yaml. Lo que no vale es ofrecer el modo real y reventar al
+    pulsarlo con un mensaje que manda editar un .env que el visitante no tiene.
+    """
+    import os
+
+    return bool((os.environ.get("ANTHROPIC_API_KEY") or "").strip())
+
+
 _CLIENT = None
 
 
@@ -99,6 +111,7 @@ def index():
         lang=config.language(),
         languages=config.available_languages(),
         ui=config.ui(),
+        con_api=_hay_credencial(),
     )
 
 
@@ -121,6 +134,10 @@ def new_case():
         return jsonify(case_id=case.case_id, text=apertura["text"],
                        actions=[], summary=_shown(case.summary()),
                        interactive=True)
+
+    if not _hay_credencial():
+        # Se dice lo que pasa, no se intenta y se falla.
+        return jsonify(error=config.ui()["real_needs_key"]), 503
 
     messages: list[dict] = [{"role": "user", "content": initial_user_message()}]
     try:
