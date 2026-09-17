@@ -10,7 +10,7 @@ and associated instrumentation).
 **Assisted** mode: it recommends, documents and guides; the final approval and
 any intervention on real equipment belong to authorized personnel.
 
-> Prototype v0.4.0 built on the Claude API (`claude-opus-4-8`).
+> Prototype v0.5.0 built on the Claude API (`claude-opus-4-8`).
 > It implements the specification of the document *MIGRA-IA — Master
 > questionnaire and functional design of the agent* and the reference guide
 > *MIGRA-IA-GUIA-001*.

@@ -11,7 +11,7 @@ from pathlib import Path
 # --- Identidad del agente (Seccion 1 del documento de diseno) ---
 AGENT_NAME = "MIGRA-IA"
 AGENT_CODE = "MIGRA-AI-001"
-AGENT_VERSION = "0.4.0"
+AGENT_VERSION = "0.5.0"
 
 # --- Modelo de Claude ---
 # Se usa Opus 4.8 con pensamiento adaptativo por ser una tarea de razonamiento

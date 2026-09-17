@@ -1,8 +1,8 @@
 # Interactive diagnosis — Siemens SIMATIC S7-300
 
-- Case: CAS-2026-046177
-- Agent: MIGRA-IA v0.4.0
-- Date: 2026-09-16T21:20:46-06:00
+- Case: CAS-2026-848376
+- Agent: MIGRA-IA v0.5.0
+- Date: 2026-09-17T14:48:48-06:00
 - Overall confidence level: medium_confidence
 - Human approval: PENDING (this report is technical assistance; it must be verified by authorized staff before any intervention).
 

@@ -1,10 +1,10 @@
 @echo off
 setlocal
-title MIGRA-IA v0.4.0 - Instalacion (una sola vez)
+title MIGRA-IA v0.5.0 - Instalacion (una sola vez)
 cd /d "%~dp0"
 
 echo ============================================================
-echo   MIGRA-IA v0.4.0 - Instalacion
+echo   MIGRA-IA v0.5.0 - Instalacion
 echo ============================================================
 echo.
 echo   Esto se hace UNA SOLA VEZ y tarda unos minutos.

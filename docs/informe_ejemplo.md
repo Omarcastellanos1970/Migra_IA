@@ -1,8 +1,8 @@
 # Diagnostico interactivo — Siemens SIMATIC S7-300
 
-- Caso: CAS-2026-242568
-- Agente: MIGRA-IA v0.4.0
-- Fecha: 2026-09-17T09:02:42-06:00
+- Caso: CAS-2026-848151
+- Agente: MIGRA-IA v0.5.0
+- Fecha: 2026-09-17T14:48:48-06:00
 - Nivel de confianza global: confianza_media
 - Aprobacion humana: PENDIENTE (este informe es una asistencia tecnica; debe ser verificado por personal autorizado antes de intervenir).
 

@@ -22,8 +22,13 @@ abstract: >-
   marca, y la de porte entre fabricantes distintos cuando el destino es de otra
   marca y el programa de origen es accesible, con el límite explícito de que el
   agente no publica equivalencias de instrucciones que no pueda citar.
-version: "0.4.0"
-date-released: "2026-09-08"
+  La versión 0.5.0 publica el artefacto en dos idiomas ---código, datos,
+  documentación, guías de instalación, interfaz y demostración en español e
+  inglés, cada documento entero en una sola lengua--- y corrige un fallo que
+  interrumpía la demostración cuando el estado de ciclo de vida del equipo se
+  declaraba desconocido.
+version: "0.5.0"
+date-released: "2026-09-17"
 license: MIT
 type: software
 keywords:

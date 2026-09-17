@@ -1,8 +1,8 @@
 {
-  "case_id": "CAS-2026-242568",
-  "agent_version": "0.4.0",
-  "created": "2026-09-17T09:02:42-06:00",
-  "updated": "2026-09-17T09:02:42-06:00",
+  "case_id": "CAS-2026-848151",
+  "agent_version": "0.5.0",
+  "created": "2026-09-17T14:48:48-06:00",
+  "updated": "2026-09-17T14:48:48-06:00",
   "answers": {
     "C08": {
       "section": "C",
@@ -10,7 +10,7 @@
       "value": "Alta: afecta una linea importante",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "C10": {
       "section": "C",
@@ -18,7 +18,7 @@
       "value": "4 a 12 horas",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "Q04": {
       "section": "Q",
@@ -26,7 +26,7 @@
       "value": "En el paro anual de planta o vacaciones",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "M01": {
       "section": "M",
@@ -34,7 +34,7 @@
       "value": "Descontinuado, aun con soporte y repuestos",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "M04": {
       "section": "M",
@@ -42,7 +42,7 @@
       "value": "Solo por pedido especial",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "M06": {
       "section": "M",
@@ -50,7 +50,7 @@
       "value": "De 2 a 8 semanas",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "M09": {
       "section": "M",
@@ -58,7 +58,7 @@
       "value": "No",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "M07": {
       "section": "M",
@@ -66,7 +66,7 @@
       "value": "Si, de tercero sin certificar",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "F01": {
       "section": "F",
@@ -74,7 +74,7 @@
       "value": "No",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "F12": {
       "section": "F",
@@ -82,7 +82,7 @@
       "value": "Si",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "F13": {
       "section": "F",
@@ -90,7 +90,7 @@
       "value": "No",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "N02": {
       "section": "N",
@@ -98,7 +98,7 @@
       "value": "Windows 7",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "N03": {
       "section": "N",
@@ -106,7 +106,7 @@
       "value": "Llave fisica (dongle)",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "N05": {
       "section": "N",
@@ -114,7 +114,7 @@
       "value": "Si, pero sin probar",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "N06": {
       "section": "N",
@@ -122,7 +122,7 @@
       "value": "No",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "G01": {
       "section": "G",
@@ -130,7 +130,7 @@
       "value": "MPI, Profibus DP",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "O07": {
       "section": "O",
@@ -138,7 +138,7 @@
       "value": "Ladder (KOP / LD), Lista de instrucciones (AWL / STL / IL)",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "O08": {
       "section": "O",
@@ -146,7 +146,7 @@
       "value": "Si",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "O02": {
       "section": "O",
@@ -154,7 +154,7 @@
       "value": "No",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "L01": {
       "section": "L",
@@ -162,7 +162,7 @@
       "value": "6",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "L03": {
       "section": "L",
@@ -170,7 +170,7 @@
       "value": "En aumento",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "L07": {
       "section": "L",
@@ -178,7 +178,7 @@
       "value": "Si",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "P01": {
       "section": "P",
@@ -186,7 +186,7 @@
       "value": "Entre 40 y 50 C",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "P04": {
       "section": "P",
@@ -194,13 +194,13 @@
       "value": "Variaciones frecuentes de tension, Puesta a tierra dudosa o inexistente",
       "confidence_level": "confianza_media",
       "source": "respuesta del usuario en la demo interactiva",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     }
   },
   "assets": [
     {
       "id": "AST-2026-000001",
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "type": "cpu",
       "description": "CPU CPU 315-2 DP",
       "manufacturer": "Siemens",
@@ -291,7 +291,7 @@
     "nota_verificacion": "Confirmar el numero de parte contra la placa fisica y la fuente oficial antes de especificar."
   },
   "risk": {
-    "ts": "2026-09-17T09:02:42-06:00",
+    "ts": "2026-09-17T14:48:48-06:00",
     "puntuacion": 85.0,
     "classification": "Riesgo critico",
     "detalle_factores": [
@@ -355,7 +355,7 @@
   },
   "migration": {
     "activa": true,
-    "abierta": "2026-09-17T09:02:42-06:00",
+    "abierta": "2026-09-17T14:48:48-06:00",
     "triggers": [
       "sin_acceso_al_programa"
     ],
@@ -367,7 +367,7 @@
       "model": "",
       "justificacion": "Continuidad de plataforma: conserva software, redes, repuestos y personal formado, y existe herramienta oficial de conversion.",
       "source": "https://www.siemens.com/en-us/products/simatic/s7-1500/",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     },
     "cambio_marca": false,
     "sin_respaldo": true,
@@ -376,343 +376,343 @@
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "2": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "3": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "4": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "5": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "6": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "7": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "8": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "9": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "10": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "11": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "12": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "13": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "14": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "15": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "16": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "17": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "18": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "19": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "20": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "P1": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "P2": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "P3": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "P4": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "P5": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "P6": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "P7": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "21": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "22": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "23": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "24": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "25": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "26": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "27": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "28": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "29": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "30": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "31": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "32": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "33": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "34": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "35": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "36": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "37": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "38": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "39": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "40": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "41": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "42": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "43": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "44": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "45": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "46": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "47": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "48": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "49": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       },
       "50": {
         "status": "completado",
         "note": "Declarado cumplido por el usuario en la demo.",
         "evidence": [],
-        "ts": "2026-09-17T09:02:42-06:00"
+        "ts": "2026-09-17T14:48:48-06:00"
       }
     }
   },
@@ -720,16 +720,16 @@
   "reports": [
     {
       "id": "INF-2026-000001",
-      "route": "cases/CAS-2026-242568_INF-2026-000001.md",
+      "route": "cases/CAS-2026-848151_INF-2026-000001.md",
       "resumen": "Riesgo critico; ruta de decision aplicada sobre las respuestas del usuario.",
-      "ts": "2026-09-17T09:02:42-06:00"
+      "ts": "2026-09-17T14:48:48-06:00"
     }
   ],
   "flags": [],
   "pending_approvals": [],
   "audit": [
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "fijar_equipo",
       "detail": {
         "brand": "Siemens",
@@ -738,7 +738,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "register_asset",
       "detail": {
         "id": "AST-2026-000001",
@@ -746,7 +746,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "fijar_equipo",
       "detail": {
         "brand": "Siemens",
@@ -755,182 +755,182 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "C08"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "C10"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "Q04"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "M01"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "M04"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "M06"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "M09"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "M07"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "F01"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "F12"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "F13"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "N02"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "N03"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "N05"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "N06"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "G01"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "O07"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "O08"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "O02"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "L01"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "L03"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "L07"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "P01"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_respuesta",
       "detail": {
         "code": "P04"
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "guardar_riesgo",
       "detail": {
         "puntuacion": 85.0
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "iniciar_migracion",
       "detail": {
         "trigger": "sin_acceso_al_programa",
@@ -938,14 +938,14 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "declarar_sin_respaldo",
       "detail": {
         "sin_respaldo": true
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "fijar_destino",
       "detail": {
         "brand": "Siemens",
@@ -954,7 +954,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "1",
@@ -962,7 +962,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "2",
@@ -970,7 +970,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "3",
@@ -978,7 +978,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "4",
@@ -986,7 +986,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "5",
@@ -994,7 +994,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "6",
@@ -1002,7 +1002,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "7",
@@ -1010,7 +1010,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "8",
@@ -1018,7 +1018,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "9",
@@ -1026,7 +1026,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "10",
@@ -1034,7 +1034,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "11",
@@ -1042,7 +1042,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "12",
@@ -1050,7 +1050,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "13",
@@ -1058,7 +1058,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "14",
@@ -1066,7 +1066,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "15",
@@ -1074,7 +1074,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "16",
@@ -1082,7 +1082,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "17",
@@ -1090,7 +1090,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "18",
@@ -1098,7 +1098,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "19",
@@ -1106,7 +1106,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "20",
@@ -1114,7 +1114,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "P1",
@@ -1122,7 +1122,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "P2",
@@ -1130,7 +1130,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "P3",
@@ -1138,7 +1138,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "P4",
@@ -1146,7 +1146,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "P5",
@@ -1154,7 +1154,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "P6",
@@ -1162,7 +1162,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "P7",
@@ -1170,7 +1170,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "21",
@@ -1178,7 +1178,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "22",
@@ -1186,7 +1186,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "23",
@@ -1194,7 +1194,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "24",
@@ -1202,7 +1202,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "25",
@@ -1210,7 +1210,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "26",
@@ -1218,7 +1218,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "27",
@@ -1226,7 +1226,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "28",
@@ -1234,7 +1234,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "29",
@@ -1242,7 +1242,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "30",
@@ -1250,7 +1250,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "31",
@@ -1258,7 +1258,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "32",
@@ -1266,7 +1266,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "33",
@@ -1274,7 +1274,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "34",
@@ -1282,7 +1282,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "35",
@@ -1290,7 +1290,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "36",
@@ -1298,7 +1298,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "37",
@@ -1306,7 +1306,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "38",
@@ -1314,7 +1314,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "39",
@@ -1322,7 +1322,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "40",
@@ -1330,7 +1330,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "41",
@@ -1338,7 +1338,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "42",
@@ -1346,7 +1346,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "43",
@@ -1354,7 +1354,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "44",
@@ -1362,7 +1362,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "45",
@@ -1370,7 +1370,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "46",
@@ -1378,7 +1378,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "47",
@@ -1386,7 +1386,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "48",
@@ -1394,7 +1394,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "49",
@@ -1402,7 +1402,7 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "marcar_paso",
       "detail": {
         "step": "50",
@@ -1410,11 +1410,11 @@
       }
     },
     {
-      "ts": "2026-09-17T09:02:42-06:00",
+      "ts": "2026-09-17T14:48:48-06:00",
       "accion": "registrar_informe",
       "detail": {
         "id": "INF-2026-000001",
-        "route": "cases/CAS-2026-242568_INF-2026-000001.md"
+        "route": "cases/CAS-2026-848151_INF-2026-000001.md"
       }
     }
   ],

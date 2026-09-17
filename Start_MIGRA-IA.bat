@@ -8,7 +8,7 @@ REM Iniciar_MIGRA-IA.bat. setlocal keeps the variable inside this window.
 set "MIGRA_IA_LANG=en"
 
 echo ============================================================
-echo   MIGRA-IA v0.4.0 - Starting the agent...
+echo   MIGRA-IA v0.5.0 - Starting the agent...
 echo ============================================================
 echo.
 

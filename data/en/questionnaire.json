@@ -1,6 +1,6 @@
 {
  "agente": "MIGRA-IA",
- "version": "0.4.0",
+ "version": "0.5.0",
  "language": "es",
  "description": "Adaptive master questionnaire for diagnosing obsolescence and migration in industrial automation systems. The agent must NOT read it rigidly: answers enable, hide or modify the questions that follow (the adaptive questionnaire principle). Sections A-K survey the system; sections L-Q supply the evidence used to decide between REPAIR and MIGRATE. The 'decision_map' block links each question to the risk factor it feeds and to the criteria for each alternative.",
  "sections": [

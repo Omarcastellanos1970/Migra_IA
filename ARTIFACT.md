@@ -2,7 +2,7 @@
 
 **Seleccione idioma:** [Español](ARTIFACT.md) · [English](ARTIFACT.en.md)
 **Autores:** Carlos Omar Castellanos · Julio Noé Castillo · Isidoro Medina · Luis Loo
-**Versión:** 0.4.0 · **Licencia:** MIT
+**Versión:** 0.5.0 · **Licencia:** MIT
 
 Este documento es la **guía de evaluación del artefacto** que acompaña al artículo.
 Está pensado para que un revisor pueda ejecutar y verificar el sistema en su
