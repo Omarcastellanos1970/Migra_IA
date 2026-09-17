@@ -1,7 +1,7 @@
 {
   "scheme": "estratificada por nivel de obsolescencia, agrupada por fabricante",
   "k": 2,
-  "k_note": "k=2 es la mayor con la que todo pliegue de prueba tiene las 2 clases. Con k mayor es imposible: solo 2 fabricantes aportan clase 4, asi que no hay con que llenar mas pliegues sin partir una marca.",
+  "k_note": "k=2 is the largest one with which every test fold has the 2 classes. A larger k is impossible: only 2 manufacturers contribute class 4, so there is nothing with which to fill more folds without splitting a brand.",
   "grouping": "manufacturer",
   "preprocessing": "ajustado dentro de cada pliegue (media y escala del entrenamiento)",
   "reference_date": "2026-09-04",

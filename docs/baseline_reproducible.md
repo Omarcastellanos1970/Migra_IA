@@ -32,48 +32,48 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
 
   Conversion de fechas (para auditar celda a celda):
      PLC-5 (1785)                       lanz 1986  antig 40  clase 4
-        Anuncio_fin_de_vida          dia primero (dia>12, sin ambiguedad)
-        Fin_comercializacion         mmm-aa (aa<50 -> 20aa)
-        Fin_repuestos_reparacion     dia primero (dia>12, sin ambiguedad)
+        end_of_life_announcement     dia primero (dia>12, sin ambiguedad)
+        end_of_manufacturing         mmm-aa (aa<50 -> 20aa)
+        end_of_spare_parts           dia primero (dia>12, sin ambiguedad)
      SLC 500                            lanz 1991  antig 35  clase 3
-        Anuncio_fin_de_vida          vacio o n.d.
-        Fin_comercializacion         dia primero (dia>12, sin ambiguedad)
-        Fin_repuestos_reparacion     vacio o n.d.
+        end_of_life_announcement     vacio o n.d.
+        end_of_manufacturing         dia primero (dia>12, sin ambiguedad)
+        end_of_spare_parts           vacio o n.d.
      S7-300 / ET 200M                   lanz 1995  antig 31  clase 3
-        Anuncio_fin_de_vida          AMBIGUA dd/mm vs mm/dd; se aplica dia primero, como el resto de la tabla
-        Fin_comercializacion         AMBIGUA dd/mm vs mm/dd; se aplica dia primero, como el resto de la tabla
-        Fin_repuestos_reparacion     AMBIGUA dd/mm vs mm/dd; se aplica dia primero, como el resto de la tabla
+        end_of_life_announcement     AMBIGUA dd/mm vs mm/dd; se aplica dia primero, como el resto de la tabla
+        end_of_manufacturing         AMBIGUA dd/mm vs mm/dd; se aplica dia primero, como el resto de la tabla
+        end_of_spare_parts           AMBIGUA dd/mm vs mm/dd; se aplica dia primero, como el resto de la tabla
      Modicon Quantum                    lanz 1994  antig 32  clase 3
-        Anuncio_fin_de_vida          mmm-aa (aa<50 -> 20aa)
-        Fin_comercializacion         dia primero (dia>12, sin ambiguedad)
-        Fin_repuestos_reparacion     vacio o n.d.
+        end_of_life_announcement     mmm-aa (aa<50 -> 20aa)
+        end_of_manufacturing         dia primero (dia>12, sin ambiguedad)
+        end_of_spare_parts           vacio o n.d.
      Modicon Premium                    lanz 1996  antig 30  clase 3
-        Anuncio_fin_de_vida          mmm-aa (aa<50 -> 20aa)
-        Fin_comercializacion         solo anio (se asume 1 de enero)
-        Fin_repuestos_reparacion     vacio o n.d.
+        end_of_life_announcement     mmm-aa (aa<50 -> 20aa)
+        end_of_manufacturing         solo anio (se asume 1 de enero)
+        end_of_spare_parts           vacio o n.d.
      MELSEC-A/QnA (tipo grande)         lanz 1985  antig 41  clase 4
-        Anuncio_fin_de_vida          vacio o n.d.
-        Fin_comercializacion         mmm-aa (aa<50 -> 20aa)
-        Fin_repuestos_reparacion     mm-aaaa
+        end_of_life_announcement     vacio o n.d.
+        end_of_manufacturing         mmm-aa (aa<50 -> 20aa)
+        end_of_spare_parts           mm-aaaa
      MELSEC AnS/QnAS                    lanz 1993  antig 33  clase 4
-        Anuncio_fin_de_vida          vacio o n.d.
-        Fin_comercializacion         mmm-aa (aa<50 -> 20aa)
-        Fin_repuestos_reparacion     mm-aaaa
+        end_of_life_announcement     vacio o n.d.
+        end_of_manufacturing         mmm-aa (aa<50 -> 20aa)
+        end_of_spare_parts           mm-aaaa
      SYSMAC CS1                         lanz 1999  antig 27  clase 3
-        Anuncio_fin_de_vida          AMBIGUA dd/mm vs mm/dd; se aplica dia primero, como el resto de la tabla
-        Fin_comercializacion         mm-aaaa (se toma la primera de dos fechas)
-        Fin_repuestos_reparacion     mmm-aa (aa<50 -> 20aa)
+        end_of_life_announcement     AMBIGUA dd/mm vs mm/dd; se aplica dia primero, como el resto de la tabla
+        end_of_manufacturing         mm-aaaa (se toma la primera de dos fechas)
+        end_of_spare_parts           mmm-aa (aa<50 -> 20aa)
      SYSMAC CJ1 (Europa)                lanz 2001  antig 25  clase 3
-        Anuncio_fin_de_vida          dia primero (dia>12, sin ambiguedad)
-        Fin_comercializacion         mmm-aa (aa<50 -> 20aa)
-        Fin_repuestos_reparacion     solo anio (se asume 1 de enero)
+        end_of_life_announcement     dia primero (dia>12, sin ambiguedad)
+        end_of_manufacturing         mmm-aa (aa<50 -> 20aa)
+        end_of_spare_parts           solo anio (se asume 1 de enero)
 
   Datos faltantes: 5 plataformas con alguna fecha ausente
-     SLC 500: Anuncio_fin_de_vida, Fin_repuestos_reparacion
-     Modicon Quantum: Fin_repuestos_reparacion
-     Modicon Premium: Fin_repuestos_reparacion
-     MELSEC-A/QnA (tipo grande): Anuncio_fin_de_vida
-     MELSEC AnS/QnAS: Anuncio_fin_de_vida
+     SLC 500: end_of_life_announcement, end_of_spare_parts
+     Modicon Quantum: end_of_spare_parts
+     Modicon Premium: end_of_spare_parts
+     MELSEC-A/QnA (tipo grande): end_of_life_announcement
+     MELSEC AnS/QnAS: end_of_life_announcement
 
 2. PARTICION
 --------------------------------------------------------------------------
@@ -121,7 +121,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
   dice la clase mayoritaria.
 
   Por pliegue:
-     pliegue                             n  exact. B0  exact. B1    F1 B0    F1 B1
+     fold                                n  exact. B0  exact. B1    F1 B0    F1 B1
      Mitsubishi + Schneider + Siemens    5      0.600      0.600    0.375    0.375
      Omron + Rockwell                    4      0.750      1.000    0.429    1.000
 
@@ -147,7 +147,7 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
      la antiguedad del propio pliegue, no en anios.
 
   Prediccion por plataforma:
-     plataforma                         marca         antig  real   B0   B1
+     platform                           brand         antig  real   B0   B1
      MELSEC-A/QnA (tipo grande)         Mitsubishi       41     4    3    3
      MELSEC AnS/QnAS                    Mitsubishi       33     4    3    3
      Modicon Quantum                    Schneider        32     3    3    3
@@ -202,28 +202,28 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
 
 6. AUDITORIA DE FUGA DE DATOS
 --------------------------------------------------------------------------
-  [EXCLUIDA] Vida_comercial_anios
-      identidad verificada en 9 de 9 filas: Vida_comercial_anios =
-      anio(fin_comercializacion) - Lanzamiento. La fecha de la que se
-      deriva es una de las que definen la etiqueta, asi que la columna es
-      la etiqueta escrita de otra forma.
-  [EXCLUIDA] Soporte_total_anios
-      identidad verificada en 6 de 6 filas: Soporte_total_anios =
-      anio(fin_repuestos) - Lanzamiento. La fecha de la que se deriva es
+  [EXCLUIDA] commercial_life_years
+      identidad verificada en 9 de 9 filas: commercial_life_years =
+      anio(end_of_manufacturing) - release. La fecha de la que se deriva
+      es una de las que definen la etiqueta, asi que la columna es la
+      etiqueta escrita de otra forma.
+  [EXCLUIDA] total_support_years
+      identidad verificada en 6 de 6 filas: total_support_years =
+      anio(end_of_spare_parts) - release. La fecha de la que se deriva es
       una de las que definen la etiqueta, asi que la columna es la
       etiqueta escrita de otra forma.
-  [EXCLUIDAS] Anuncio_fin_de_vida / Fin_comercializacion / Fin_repuestos_reparacion
+  [EXCLUIDAS] end_of_life_announcement / end_of_manufacturing / end_of_spare_parts
       son las columnas con las que se deriva la clase. Usarlas como
       variable seria predecir la etiqueta con la etiqueta.
-  [EXCLUIDA] Nivel
+  [EXCLUIDA] level
       mide cuan verificado esta el dato contra la fuente (A/B/C), no una
       propiedad del equipo. Es metadato del proceso de recoleccion: si
       entrara, el modelo aprenderia el habito documental del fabricante.
-  [EXCLUIDA como variable] Fabricante
+  [EXCLUIDA como variable] manufacturer
       es la variable de agrupamiento. En leave-one-manufacturer-out la
       marca de prueba nunca aparece en entrenamiento, asi que como
       variable no es utilizable: solo sirve para formar los pliegues.
-  [ADMITIDA] Lanzamiento -> antiguedad
+  [ADMITIDA] release -> antiguedad
       es anterior a cualquier evento de fin de vida y esta disponible en
       la placa del equipo. Unica variable que sobrevive a la auditoria.
 
@@ -239,8 +239,8 @@ Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.
        y el destino de 'otra_marca' (Omron NX) la del caso ciego 26.5:
        el conjunto de desarrollo pisa el de prueba.
      - En modo agente con API, la herramienta query_guide alcanza
-       data/es/knowledge_base.json, que contiene los cinco casos ciegos con
-       su estrategia. En modo determinista no: interactive.py no importa
+       data/<idioma>/knowledge_base.json, que contiene los cinco casos ciegos
+       con su estrategia. En modo determinista no: interactive.py no importa
        conocimiento. La fuga existe y depende del modo.
 
   CONJUNTO DE PRUEBA APARTADO: los cinco casos de estudio de la guia y las

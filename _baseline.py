@@ -54,7 +54,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "data" / "platform_lifecycle.csv"
 PARTITION = ROOT / "data" / "lifecycle_partition.json"
-MD_OUTPUT = ROOT / "docs" / "baseline_reproducible.md"
+
+
+def D(key: str) -> str:
+    """Texto del informe en el idioma de esta ejecucion."""
+    from migra_ia import config
+    return config.doc_tools().get(key, key)
+
+
+def output_path() -> Path:
+    """Donde va el informe de este idioma. La ruta la declara el idioma."""
+    return ROOT / D("bl_path")
 
 # Fecha de referencia FIJA. Las clases se derivan comparando fechas contra ella,
 # asi que usar "hoy" haria que las etiquetas cambiaran solas con el calendario y
@@ -73,7 +83,7 @@ STEP = 0.05
 L2 = 1.0
 
 # Escala ordinal de obsolescencia. Es la misma que usa el motor en M01
-# (migra_ia/interactivo.py::_f_ciclo_vida), para que el subproblema P1 y el
+# (migra_ia/interactive.py::_f_lifecycle), para que el subproblema P1 y el
 # agente hablen de las mismas clases.
 CLASES = {
     1: "Activo, en comercializacion",
@@ -99,11 +109,11 @@ def _parse_date(bruto: str) -> tuple[tuple[int, int, int] | None, str]:
     """
     s = (bruto or "").strip()
     if not s or s.lower() in {"n.d.", "nd", "n/d", "-"}:
-        return None, "vacio o n.d."
+        return None, D("bl_rule_empty")
 
     note = ""
     if "/" in s and re.search(r"\d{2}-\d{4}.*/.*\d{2}-\d{4}", s):
-        s, note = s.split("/")[0].strip(), " (se toma la primera de dos fechas)"
+        s, note = s.split("/")[0].strip(), D("bl_rule_two_dates")
 
     s = re.sub(r"\(.*?\)", "", s).replace(">=", "").strip()
 
@@ -111,25 +121,24 @@ def _parse_date(bruto: str) -> tuple[tuple[int, int, int] | None, str]:
     if m:                                          # 18/5/2015, 01-10-2023
         d, mes, a = (int(x) for x in m.groups())
         if d > 12:
-            return (a, mes, d), "dia primero (dia>12, sin ambiguedad)" + note
-        return (a, mes, d), ("AMBIGUA dd/mm vs mm/dd; se aplica dia primero"
-                             ", como el resto de la tabla") + note
+            return (a, mes, d), D("bl_rule_day_first") + note
+        return (a, mes, d), D("bl_rule_ambiguous") + note
 
     m = re.match(r"^(\d{1,2})-(\d{4})$", s)        # 09-2013
     if m:
-        return (int(m.group(2)), int(m.group(1)), 1), "mm-aaaa" + note
+        return (int(m.group(2)), int(m.group(1)), 1), D("bl_rule_mm_yyyy") + note
 
     m = re.match(r"^([a-z]{3})-(\d{2})$", s.lower())   # jun-17, mar-32
     if m and m.group(1) in MESES:
         aa = int(m.group(2))
         anio = 2000 + aa if aa < 50 else 1900 + aa
-        return (anio, MESES[m.group(1)], 1), "mmm-aa (aa<50 -> 20aa)" + note
+        return (anio, MESES[m.group(1)], 1), D("bl_rule_mmm_yy") + note
 
     m = re.match(r"^(\d{4})$", s)                  # 2022
     if m:
-        return (int(m.group(1)), 1, 1), "solo anio (se asume 1 de enero)" + note
+        return (int(m.group(1)), 1, 1), D("bl_rule_year_only") + note
 
-    return None, f"NO RECONOCIDO: {bruto!r}"
+    return None, D("bl_rule_unknown") % repr(bruto)
 
 
 @dataclass
@@ -272,15 +281,14 @@ def stratified_partition(data: list[Platform],
                     "train": [p.platform for p in data
                                       if p.platform not in set(test)],
                 })
-            note = (f"k={k} es la mayor con la que todo pliegue de prueba tiene las "
-                    f"{len(clases_totales)} clases. Con k mayor es imposible: solo "
-                    f"{sum(1 for g in groupings if any(p.class_label == minoritaria for p in groupings[g]))} "
-                    f"fabricantes aportan clase {minoritaria}, asi que no hay con que "
-                    f"llenar mas pliegues sin partir una marca.")
+            note = D("bl_k_note") % (
+                k, len(clases_totales),
+                sum(1 for g in groupings
+                    if any(p.class_label == minoritaria for p in groupings[g])),
+                minoritaria)
             return pliegues, k, note
 
-    return partition(data), len(groupings), ("no se pudo estratificar: ningun k>=2 "
-                                             "deja las dos clases en todos los pliegues")
+    return partition(data), len(groupings), D("bl_k_none")
 
 
 # --------------------------------------------------------------------------
@@ -504,32 +512,23 @@ def audit_leakage(data: list[Platform]) -> list[dict]:
             checked += 1
             matching += (fecha[0] - p.release) == value
         findings.append({
-            "columna": col, "veredicto": "EXCLUIDA",
-            "motivo": (f"identidad verificada en {matching} de {checked} filas: "
-                       f"{col} = anio({source}) - Lanzamiento. La fecha de la que se "
-                       f"deriva es una de las que definen la etiqueta, asi que la "
-                       f"columna es la etiqueta escrita de otra forma."),
+            "columna": col, "veredicto": D("bl_excluded"),
+            "motivo": D("bl_leak_identity") % (matching, checked, col, source),
         })
 
     findings += [
-        {"columna": "Anuncio_fin_de_vida / Fin_comercializacion / Fin_repuestos_reparacion",
-         "veredicto": "EXCLUIDAS",
-         "motivo": "son las columnas con las que se deriva la clase. Usarlas como "
-                   "variable seria predecir la etiqueta con la etiqueta."},
+        {"columna": D("bl_leak_dates_col"),
+         "veredicto": D("bl_excluded_pl"),
+         "motivo": D("bl_leak_dates")},
         {"columna": "level",
-         "veredicto": "EXCLUIDA",
-         "motivo": "mide cuan verificado esta el dato contra la fuente (A/B/C), no una "
-                   "propiedad del equipo. Es metadato del proceso de recoleccion: si "
-                   "entrara, el modelo aprenderia el habito documental del fabricante."},
+         "veredicto": D("bl_excluded"),
+         "motivo": D("bl_leak_level")},
         {"columna": "manufacturer",
-         "veredicto": "EXCLUIDA como variable",
-         "motivo": "es la variable de agrupamiento. En leave-one-manufacturer-out la "
-                   "marca de prueba nunca aparece en entrenamiento, asi que como "
-                   "variable no es utilizable: solo sirve para formar los pliegues."},
-        {"columna": "Lanzamiento -> antiguedad",
-         "veredicto": "ADMITIDA",
-         "motivo": "es anterior a cualquier evento de fin de vida y esta disponible en "
-                   "la placa del equipo. Unica variable que sobrevive a la auditoria."},
+         "veredicto": D("bl_excluded_var"),
+         "motivo": D("bl_leak_manufacturer")},
+        {"columna": D("bl_leak_age_col"),
+         "veredicto": D("bl_admitted"),
+         "motivo": D("bl_leak_age")},
     ]
     return findings
 
@@ -566,219 +565,164 @@ def report(data, pliegues, res, fuga, versiones, k_note="") -> str:
     ref = "%04d-%02d-%02d" % FECHA_REF
 
     a("=" * 74)
-    a("BASELINE REPRODUCIBLE: RIESGO ORDINAL Y PRIORIDAD DE REEMPLAZO")
+    a(D("bl_title"))
     a("=" * 74)
-    a(f"Fecha de referencia fija: {ref}. Semilla declarada: {SEED}.")
-    a("Subproblema cubierto: P1 (riesgo ordinal). P2 ver seccion 7.")
+    a(D("bl_ref_line") % (ref, SEED))
+    a(D("bl_covered"))
     a("")
 
     # ---- casilla 1 -------------------------------------------------------
-    a("1. CONJUNTO DE DATOS")
+    a(D("bl_s1"))
     a("-" * 74)
-    a(f"  Archivo   : {DATA.relative_to(ROOT).as_posix()}")
-    a("  Origen    : Tabla 2 de 'tabla de frecuencias' (fila agregada MEDIA excluida)")
-    a(f"  Muestras  : {len(data)} plataformas")
-    a(f"  Marcas    : {len({p.manufacturer for p in data})} fabricantes")
+    a(D("bl_file") % DATA.relative_to(ROOT).as_posix())
+    a(D("bl_origin"))
+    a(D("bl_samples") % len(data))
+    a(D("bl_brands") % len({p.manufacturer for p in data}))
     cuenta = Counter(p.class_label for p in data)
-    a(f"  Clases    : {len(cuenta)} presentes de {len(CLASES)} definidas en la escala")
+    a(D("bl_classes") % (len(cuenta), len(CLASES)))
     for c in sorted(CLASES):
         n = cuenta.get(c, 0)
-        a(f"     {c}. {CLASES[c]:<45s} n={n}" + ("" if n else "   <-- SIN NINGUNA MUESTRA"))
+        a(D("bl_class_line") % (c, D("lf_class_%d" % c), n)
+          + ("" if n else D("bl_no_samples")))
     a("")
-    a("  Balance   : " + " / ".join(f"clase {c}: {n}" for c, n in sorted(cuenta.items())))
+    a(D("bl_balance") % " / ".join(D("bl_class_n") % (c, n)
+                                   for c, n in sorted(cuenta.items())))
     a("")
-    a("  SESGO DE SELECCION, declarado: la tabla se construyo para documentar")
-    a("  descontinuaciones, asi que solo contiene plataformas ya descontinuadas.")
-    a("  No hay ni una muestra de las clases 1 y 2. Un clasificador entrenado aqui")
-    a("  no puede aprender a reconocer una plataforma vigente, y el modelo ordinal")
-    a("  degenera de hecho en binario: con dos clases solo queda un corte.")
+    a(D("bl_bias"))
     a("")
-    a("  Conversion de fechas (para auditar celda a celda):")
+    a(D("bl_dates_title"))
     for p in data:
-        a(f"     {p.platform[:34]:<34s} lanz {p.release}  antig {p.age_years:>2d}  clase {p.class_label}")
+        a(D("bl_date_line") % (p.platform[:34], p.release, p.age_years, p.class_label))
         for col, regla in p.rules.items():
             a(f"        {col:<28s} {regla}")
     faltan = [(p.platform, p.missing_datum) for p in data if p.missing_datum]
     a("")
-    a(f"  Datos faltantes: {len(faltan)} plataformas con alguna fecha ausente")
+    a(D("bl_missing") % len(faltan))
     for name, cols in faltan:
         a(f"     {name}: {', '.join(cols)}")
     a("")
 
     # ---- casilla 2 -------------------------------------------------------
-    a("2. PARTICION")
+    a(D("bl_s2"))
     a("-" * 74)
-    a("  Esquema   : estratificada por nivel de obsolescencia, agrupando por marca")
-    a("              (el esquema asignado por el rubro)")
-    a("  Agrupa por: Fabricante. El rubro dice \"caso de migracion\" porque supone")
-    a("              componentes que comparten caso; aqui cada fila es una plataforma")
-    a("              independiente y no hay casos, asi que la unidad")
-    a("              que agrupa es la marca: comparten politica de soporte.")
-    a("  Estratifica: cada pliegue de prueba contiene las dos clases presentes.")
-    a(f"  Guardada  : {PARTITION.relative_to(ROOT).as_posix()}")
-    a(f"  Pliegues  : {len(pliegues)}")
+    a(D("bl_scheme"))
+    a(D("bl_grouping"))
+    a(D("bl_strat"))
+    a(D("bl_saved") % PARTITION.relative_to(ROOT).as_posix())
+    a(D("bl_folds") % len(pliegues))
     for pl in pliegues:
-        a(f"     [{pl['fold']}] prueba = {pl['test_brands']:<28s} "
-          f"({len(pl['test'])} muestras)  entrenamiento = {len(pl['train'])}")
+        a(D("bl_fold_line") % (pl["fold"], pl["test_brands"],
+                               len(pl["test"]), len(pl["train"])))
     a("")
     for linea in _wrap("  " + k_note, 72):
         a(f"  {linea}")
     a("")
-    a("  Preprocesamiento DENTRO del pliegue: la media y la desviacion con que se")
-    a("  estandariza la antiguedad se calculan solo con el entrenamiento de cada")
-    a("  pliegue, en b1_ordinal_logistic(). No hay ningun ajuste hecho una sola")
-    a("  vez sobre las nueve filas.")
+    a(D("bl_prep"))
     a("")
-    a("  Contraste con leave-one-manufacturer-out (k=5), que agrupa pero NO")
-    a("  estratifica: alli el pliegue de Mitsubishi queda puro -sus dos plataformas")
-    a("  son clase 4- y los dos modelos sacan 0.000 en el. Esa es exactamente la")
-    a("  distorsion que la estratificacion evita.")
+    a(D("bl_loo"))
     a("")
 
     # ---- casillas 3 y 4 --------------------------------------------------
-    a("3 y 4. BASELINES, MISMA PARTICION Y MISMAS METRICAS")
+    a(D("bl_s34"))
     a("-" * 74)
-    a("  B0 trivial : clase mayoritaria del pliegue de entrenamiento. Sin variables.")
-    a("  B1 clasico : regresion logistica ordinal (probabilidades proporcionales)")
-    a("               sobre antiguedad, el modelo asignado por el rubro.")
-    a(f"               L2={L2}, paso={STEP}, iteraciones={ITERATIONS}, inicio en ceros.")
+    a(D("bl_b0"))
+    a(D("bl_b1"))
+    a(D("bl_b1_params") % (L2, STEP, ITERATIONS))
     a("")
-    a(f"  RESULTADO DE LA VALIDACION CRUZADA "
-      f"(media +- desviacion de los {len(pliegues)} pliegues)")
-    a(f"  {'':<12s} {'exactitud':>16s} {'F1 macro':>16s} {'err. ordinal':>16s}")
-    for label, key in (("B0 trivial", "b0"), ("B1 clasico", "b1")):
+    a(D("bl_cv_title") % len(pliegues))
+    a(D("bl_cv_head") % ("", D("bl_col_acc"), D("bl_col_f1"), D("bl_col_err")))
+    for label, key in ((D("bl_b0_label"), "b0"), (D("bl_b1_label"), "b1")):
         c = res["cv"][key]
         a(f"  {label:<12s} "
           f"{c['exactitud'][0]:>9.3f} +-{c['exactitud'][1]:<5.3f} "
           f"{c['f1_macro'][0]:>9.3f} +-{c['f1_macro'][1]:<5.3f} "
           f"{c['error_ordinal_medio'][0]:>9.3f} +-{c['error_ordinal_medio'][1]:<5.3f}")
     a("")
-    a("  METRICA PRINCIPAL, congelada por PROTOCOLO_VALIDACION.md punto 3: F1 macro.")
-    a("  Es la que decide. La exactitud y el error ordinal explican, no deciden: con")
-    a("  6 muestras de clase 3 y 3 de clase 4, la exactitud premia al que siempre")
-    a("  dice la clase mayoritaria.")
+    a(D("bl_main_metric"))
     a("")
-    a("  Por pliegue:")
-    a(f"     {'fold':<34s} {'n':>2s} {'exact. B0':>10s} {'exact. B1':>10s} "
-      f"{'F1 B0':>8s} {'F1 B1':>8s}")
+    a(D("bl_per_fold"))
+    a(D("bl_fold_head") % (D("bl_col_fold"), D("bl_col_n"), D("bl_col_acc_b0"),
+                           D("bl_col_acc_b1"), D("bl_col_f1_b0"), D("bl_col_f1_b1")))
     for f in res["por_pliegue"]:
         a(f"     {f['brand']:<34s} {f['n']:>2d} "
           f"{f['b0']['exactitud']:>10.3f} {f['b1']['exactitud']:>10.3f} "
           f"{f['b0']['f1_macro']:>8.3f} {f['b1']['f1_macro']:>8.3f}")
     a("")
-    a("  La desviacion sigue siendo grande, y tiene que estarlo: con nueve filas")
-    a("  repartidas en pocos pliegues, un acierto o un fallo mueve la cifra de un")
-    a("  pliegue entero. Reportar la media sin la desviacion esconderia eso.")
+    a(D("bl_dispersion"))
     a("")
-    a("  Agrupando las 9 predicciones en una sola bolsa (micro), para contraste:")
-    a(f"  {'':<12s} {'exactitud':>10s} {'F1 macro':>10s} {'err. ordinal':>14s}")
-    for label, key in (("B0 trivial", "b0"), ("B1 clasico", "b1")):
+    a(D("bl_micro_title"))
+    a(D("bl_micro_head") % ("", D("bl_col_acc"), D("bl_col_f1"), D("bl_col_err")))
+    for label, key in ((D("bl_b0_label"), "b0"), (D("bl_b1_label"), "b1")):
         m = res[key]
         a(f"  {label:<12s} {m['exactitud']:>10.3f} {m['f1_macro']:>10.3f} "
           f"{m['error_ordinal_medio']:>14.3f}")
-    a("  Difiere de la media de pliegues porque los pliegues no son del mismo")
-    a("  tamano. La cifra que se reporta es la de arriba, media +- desviacion;")
-    a("  esta va solo como contraste.")
+    a(D("bl_micro_note"))
     a("")
-    a("  Coeficientes por pliegue (esto es lo que un ingeniero puede auditar):")
-    a(f"     {'pliegue de prueba':<34s} {'beta':>8s}   cortes")
+    a(D("bl_coef_title"))
+    a(D("bl_coef_head") % (D("bl_col_testfold"), "beta"))
     for m in res["models"]:
         a(f"     {m['brand']:<34s} {m['beta']:>8.3f}   {m['cortes']}")
     a("")
-    a("     beta positivo = mas antiguedad empuja hacia clases mas altas, que es el")
-    a("     sentido esperado. La pendiente esta en unidades de desviacion tipica de")
-    a("     la antiguedad del propio pliegue, no en anios.")
+    a(D("bl_beta_note"))
     a("")
-    a("  Prediccion por plataforma:")
-    a(f"     {'platform':<34s} {'brand':<12s} {'antig':>6s} {'real':>5s} {'B0':>4s} {'B1':>4s}")
+    a(D("bl_pred_title"))
+    a(D("bl_pred_head") % (D("bl_col_platform"), D("bl_col_brand"), D("bl_col_age"),
+                           D("bl_col_real"), "B0", "B1"))
     for d in res["detail"]:
         a(f"     {d['platform'][:34]:<34s} {d['brand']:<12s} {d['age_years']:>6d} "
           f"{d['real']:>5d} {d['b0']:>4d} {d['b1']:>4d}")
     a("")
     if res["cv"]["b1"]["exactitud"][0] <= res["cv"]["b0"]["exactitud"][0]:
-        a("  LECTURA: el clasico NO le gana al trivial. Con una sola variable y nueve")
-        a("  filas es un resultado esperable, y es el que hay que publicar: dice que a")
-        a("  este tamano la antiguedad por si sola no separa las clases mejor que")
-        a("  contar cual es mas frecuente.")
+        a(D("bl_reading_lose"))
     else:
-        a("  LECTURA: el clasico supera al trivial EN MEDIA. La diferencia NO es")
-        a("  estadisticamente sostenible: con pliegues de 1 y 2 muestras la desviacion")
-        a("  entre pliegues es del orden de la propia diferencia, de modo que el")
-        a("  intervalo de uno cubre la media del otro. Sirve como indicio de que la")
-        a("  antiguedad lleva senal, no como evidencia de que el modelo funcione.")
+        a(D("bl_reading_win"))
     a("")
 
     # ---- casilla 5 -------------------------------------------------------
-    a("5. SEMILLA Y VERSIONES")
+    a(D("bl_s5"))
     a("-" * 74)
-    a(f"  Semilla declarada : {SEED}")
-    a("  Uso real          : NINGUNO. No hay paso estocastico: el ajuste arranca en")
-    a("                      ceros, el paso y las iteraciones son fijos y no hay")
-    a("                      barajado ni muestreo. La reproducibilidad no depende de")
-    a("                      la semilla, y por eso se dice en vez de sugerir que si.")
-    a(f"  Python            : {platform.python_version()} ({platform.system()})")
-    a("  Dependencias del calculo: ninguna de terceros (biblioteca estandar)")
-    a(f"  Entorno congelado : {len(versiones)} paquetes")
+    a(D("bl_seed") % SEED)
+    a(D("bl_seed_use"))
+    a(D("bl_python") % (platform.python_version(), platform.system()))
+    a(D("bl_deps"))
+    a(D("bl_frozen") % len(versiones))
     for v in versiones:
         a(f"     {v}")
     a("")
 
     # ---- casilla 6 -------------------------------------------------------
-    a("6. AUDITORIA DE FUGA DE DATOS")
+    a(D("bl_s6"))
     a("-" * 74)
     for h in fuga:
         a(f"  [{h['veredicto']}] {h['columna']}")
         for linea in _wrap(h["motivo"], 68):
             a(f"      {linea}")
-    admitidas = [h for h in fuga if h["veredicto"].startswith("ADMITIDA")]
+    admitidas = [h for h in fuga if h["veredicto"] == D("bl_admitted")]
     a("")
-    a(f"  RESULTADO: de las columnas disponibles sobrevive {len(admitidas)}.")
-    a("  El conjunto admite exactamente una variable no contaminada. Ese es el")
-    a("  hallazgo, y condiciona todo lo anterior: el clasico no tuvo mas remedio")
-    a("  que ser univariante.")
+    a(D("bl_leak_result") % len(admitidas))
+    a(D("bl_leak_tail"))
     a("")
-    a("  Fuera de esta tabla, en el banco de casos del artefacto:")
-    a("     - Los escenarios de desarrollo 'critico' y 'otra_marca' comparten las")
-    a("       mismas 24 respuestas: son 2 casos independientes, no 3.")
-    a("     - 'critico' (S7-300 -> S7-1500) reproduce la ruta del caso ciego 26.1,")
-    a("       y el destino de 'otra_marca' (Omron NX) la del caso ciego 26.5:")
-    a("       el conjunto de desarrollo pisa el de prueba.")
-    a("     - En modo agente con API, la herramienta query_guide alcanza")
-    a("       data/es/knowledge_base.json, que contiene los cinco casos ciegos con")
-    a("       su estrategia. En modo determinista no: interactivo.py no importa")
-    a("       conocimiento. La fuga existe y depende del modo.")
+    a(D("bl_bank"))
     a("")
 
     # ---- P2 --------------------------------------------------------------
-    a("  CONJUNTO DE PRUEBA APARTADO: los cinco casos de estudio de la guia y las")
-    a("  etiquetas del panel de expertos siguen SIN ABRIR. Todo lo anterior ocurre")
-    a(f"  dentro del lazo de desarrollo: son {len(pliegues)} pliegues de validacion sobre")
-    a("  las nueve plataformas, no una medida sobre datos apartados.")
+    a(D("bl_holdout") % len(pliegues))
     a("")
-    a("7. P2 PRIORIDAD DE REEMPLAZO - NO EVALUABLE TODAVIA")
+    a(D("bl_s7"))
     a("-" * 74)
-    a("  El clasico asignado a P2 es gradient boosting en modo ranking. No se")
-    a("  ejecuta, y la razon no es tecnica sino de datos: un modelo de ranking")
-    a("  necesita un orden de referencia -que plataforma debe reemplazarse antes")
-    a("  que cual- y ese orden no existe en ninguna fuente del proyecto.")
+    a(D("bl_p2"))
     a("")
-    a("  Derivarlo de la puntuacion del propio motor seria circular: el modelo")
-    a("  aprenderia a reproducir la formula que se pretende evaluar.")
+    a(D("bl_p2_circular"))
     a("")
-    a("  Lo que hace falta para desbloquearlo, en orden de coste:")
-    a("     1. Un orden de prioridad por juicio experto sobre estas 9 plataformas,")
-    a("        emitido por los coautores sin ver la salida del motor. Es el mismo")
-    a("        procedimiento de _plantilla_ciega.py y se puede pedir en una sesion.")
-    a("     2. Ampliar la tabla de ciclo de vida a las 130 generaciones del")
-    a("        catalogo, que es lo que daria un conjunto donde el boosting tenga")
-    a("        sentido. Trabajo de extraccion y verificacion en fuentes oficiales.")
+    a(D("bl_p2_todo"))
     a("")
     return "\n".join(L)
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="Baseline reproducible del proyecto.")
-    ap.add_argument("--md", action="store_true", help="escribe docs/baseline_reproducible.md")
+    ap.add_argument("--md", action="store_true",
+                    help="escribe el documento del idioma activo")
     args = ap.parse_args()
 
     data = load()
@@ -803,12 +747,13 @@ def main() -> None:
     print(text)
 
     if args.md:
-        MD_OUTPUT.write_text(
-            "# Baseline reproducible: riesgo ordinal y prioridad de reemplazo\n\n"
-            "Generado por `_baseline.py`. Reproducible: misma entrada, misma salida,\n"
-            "sin clave de API y sin dependencias de terceros en el calculo.\n\n"
-            "```\n" + text + "```\n", encoding="utf-8")
-        print(f"\nEscrito {MD_OUTPUT.relative_to(ROOT).as_posix()}")
+        destino = output_path()
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        destino.write_text(
+            D("bl_doc_title") + "\n\n"
+            + D("bl_doc_intro") + "\n\n"
+            + "```\n" + text + "```\n", encoding="utf-8")
+        print(D("bl_written") % destino.relative_to(ROOT).as_posix())
 
 
 if __name__ == "__main__":
