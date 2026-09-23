@@ -2,3 +2,4 @@ anthropic>=0.116.0
 flask>=3.0.0
 python-dotenv>=1.0.0
 gunicorn>=21.2.0  # servidor de produccion (usado al desplegar en la nube; no se usa en Windows local)
+matplotlib>=3.8  # solo para results/fig1.pdf y fig_perdida.pdf (python _reproduce.py)
