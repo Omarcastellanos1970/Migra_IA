@@ -1,0 +1,11 @@
+{
+  "descripcion": "Politica de repuestos declarada por cada fabricante: anios de repuestos y reparacion que garantiza DESPUES del fin de fabricacion. Es un dato de FABRICANTE, no de plataforma: no contiene ninguna fecha de ninguna plataforma. Lo consulta la funcion 'recuperar' del metodo propuesto (_reproduce.py).",
+  "origen": "Anotaciones de politica de la columna end_of_spare_parts de data/platform_lifecycle.csv (Tabla 2 de 'tabla de frecuencias', con su nivel de verificacion A/B/C). Donde el fabricante no la declara se deja null: el agente no la supone.",
+  "anios_repuestos_tras_fin_fabricacion": {
+    "Mitsubishi": 7,
+    "Omron": 7,
+    "Siemens": 10,
+    "Rockwell": null,
+    "Schneider": null
+  }
+}

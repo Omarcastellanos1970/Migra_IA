@@ -26,6 +26,36 @@ intervención sobre equipos reales corresponde a personal autorizado.
 
 ---
 
+## Reproducir los números (entrega del taller)
+
+Comando exacto, desde la raíz del repositorio y con el entorno instalado
+(ver *Instalación*; la única dependencia que usa es `matplotlib`, fijada en
+`requirements-freeze.txt`):
+
+```
+python _reproduce.py
+```
+
+Tarda ~7 s y regenera desde cero `results/tabla2.json` (valores por semilla y
+por pliegue), `results/tabla2.tex`, `results/fig1.pdf`,
+`results/fig_perdida.pdf`, `results/resultados.md`, `results/errores/`
+(matrices de confusión y los cinco peores casos) y `logs/decisiones.jsonl`
+(una línea por decisión del método propuesto y de su ablación). Subproblema
+P1, partición congelada `data/lifecycle_partition.json`, semillas 42, 7 y 2026.
+Protocolo, Tabla II y párrafo experimental: [`PROTOCOLO.md`](PROTOCOLO.md);
+resultados completos y sus límites: [`results/resultados.md`](results/resultados.md).
+
+**Máquina:** Intel Core i5-12500H (12 núcleos), 31,7 GB de RAM, Windows 11 Pro
+(build 26200), Python 3.14.6.
+
+**Declaración de uso de IA:** el código, los scripts de evaluación y la
+redacción de la documentación se escribieron con asistencia de Claude
+(Anthropic) mediante Claude Code. Los autores definieron el problema, los
+datos, la partición y la métrica, revisaron el código y verificaron cada
+número ejecutándolo. La responsabilidad sobre el contenido es de los autores.
+
+---
+
 ## Qué hace
 
 - Conduce el **cuestionario adaptativo** (secciones A–K): las respuestas activan,

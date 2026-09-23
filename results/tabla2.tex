@@ -1,0 +1,17 @@
+\begin{table}[!t]
+\centering
+\caption{P1: F1 macro (media $\pm$ desv. entre pliegues, promedio de 3 semillas)}
+\label{tab:tabla2}
+\begin{tabular}{lccc}
+\hline
+Modelo & F1 macro & Exactitud & sd entre semillas \\
+\hline
+Trivial (clase mayoritaria) & $0{,}402 \pm 0{,}038$ & 0,675 & 0,000 \\
+Clasico 1: logistica ordinal & $0{,}688 \pm 0{,}442$ & 0,800 & 0,000 \\
+Clasico 2: arbol de profundidad 1 & $0{,}748 \pm 0{,}021$ & 0,775 & 0,000 \\
+Profundo: MLP 1-8-1 & $0{,}748 \pm 0{,}021$ & 0,775 & 0,000 \\
+Propuesto: agente en lazo & $0{,}900 \pm 0{,}141$ & 0,900 & 0,000 \\
+Ablacion: lazo sin 'recuperar' & $0{,}881 \pm 0{,}168$ & 0,900 & 0,000 \\
+\hline
+\end{tabular}
+\end{table}

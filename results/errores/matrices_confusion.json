@@ -1,0 +1,302 @@
+{
+  "trivial": {
+    "42": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "7": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    },
+    "2026": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          3,
+          0
+        ]
+      ]
+    }
+  },
+  "logistica": {
+    "42": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    "7": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    "2026": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    }
+  },
+  "arbol": {
+    "42": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "7": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "2026": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    }
+  },
+  "mlp": {
+    "42": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "7": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "2026": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    }
+  },
+  "propuesto": {
+    "42": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    "7": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    "2026": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          5,
+          1
+        ],
+        [
+          0,
+          3
+        ]
+      ]
+    }
+  },
+  "ablacion": {
+    "42": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "7": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    "2026": {
+      "clases": [
+        3,
+        4
+      ],
+      "filas_real_columnas_predicha": [
+        [
+          6,
+          0
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    }
+  }
+}

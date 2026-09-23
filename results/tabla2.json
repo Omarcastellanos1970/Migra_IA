@@ -1,0 +1,432 @@
+{
+  "subproblema": "P1 - clase ordinal de obsolescencia",
+  "metrica_principal": "F1 macro",
+  "particion": "data/lifecycle_partition.json (2 pliegues agrupados por fabricante)",
+  "semillas": [
+    42,
+    7,
+    2026
+  ],
+  "entorno": {
+    "python": "3.14.6",
+    "sistema": "Windows 11",
+    "procesador": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+    "matplotlib": "3.10.9"
+  },
+  "modelos": {
+    "trivial": {
+      "nombre": "Trivial (clase mayoritaria)",
+      "42": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.6,
+            "f1_macro": 0.375,
+            "error_ordinal_medio": 0.4
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.429,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.402,
+        "f1_macro_sd": 0.038,
+        "exactitud_media": 0.675,
+        "exactitud_sd": 0.106
+      },
+      "7": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.6,
+            "f1_macro": 0.375,
+            "error_ordinal_medio": 0.4
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.429,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.402,
+        "f1_macro_sd": 0.038,
+        "exactitud_media": 0.675,
+        "exactitud_sd": 0.106
+      },
+      "2026": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.6,
+            "f1_macro": 0.375,
+            "error_ordinal_medio": 0.4
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.429,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.402,
+        "f1_macro_sd": 0.038,
+        "exactitud_media": 0.675,
+        "exactitud_sd": 0.106
+      },
+      "agregado": {
+        "f1_macro_media": 0.402,
+        "f1_macro_sd_entre_pliegues": 0.038,
+        "f1_macro_sd_entre_semillas": 0.0,
+        "exactitud_media": 0.675
+      }
+    },
+    "logistica": {
+      "nombre": "Clasico 1: logistica ordinal",
+      "42": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.6,
+            "f1_macro": 0.375,
+            "error_ordinal_medio": 0.4
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.688,
+        "f1_macro_sd": 0.442,
+        "exactitud_media": 0.8,
+        "exactitud_sd": 0.283
+      },
+      "7": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.6,
+            "f1_macro": 0.375,
+            "error_ordinal_medio": 0.4
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.688,
+        "f1_macro_sd": 0.442,
+        "exactitud_media": 0.8,
+        "exactitud_sd": 0.283
+      },
+      "2026": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.6,
+            "f1_macro": 0.375,
+            "error_ordinal_medio": 0.4
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.688,
+        "f1_macro_sd": 0.442,
+        "exactitud_media": 0.8,
+        "exactitud_sd": 0.283
+      },
+      "agregado": {
+        "f1_macro_media": 0.688,
+        "f1_macro_sd_entre_pliegues": 0.442,
+        "f1_macro_sd_entre_semillas": 0.0,
+        "exactitud_media": 0.8
+      }
+    },
+    "arbol": {
+      "nombre": "Clasico 2: arbol de profundidad 1",
+      "42": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.733,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.748,
+        "f1_macro_sd": 0.021,
+        "exactitud_media": 0.775,
+        "exactitud_sd": 0.035
+      },
+      "7": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.733,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.748,
+        "f1_macro_sd": 0.021,
+        "exactitud_media": 0.775,
+        "exactitud_sd": 0.035
+      },
+      "2026": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.733,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.748,
+        "f1_macro_sd": 0.021,
+        "exactitud_media": 0.775,
+        "exactitud_sd": 0.035
+      },
+      "agregado": {
+        "f1_macro_media": 0.748,
+        "f1_macro_sd_entre_pliegues": 0.021,
+        "f1_macro_sd_entre_semillas": 0.0,
+        "exactitud_media": 0.775
+      }
+    },
+    "mlp": {
+      "nombre": "Profundo: MLP 1-8-1",
+      "42": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.733,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.748,
+        "f1_macro_sd": 0.021,
+        "exactitud_media": 0.775,
+        "exactitud_sd": 0.035
+      },
+      "7": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.733,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.748,
+        "f1_macro_sd": 0.021,
+        "exactitud_media": 0.775,
+        "exactitud_sd": 0.035
+      },
+      "2026": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 0.75,
+            "f1_macro": 0.733,
+            "error_ordinal_medio": 0.25
+          }
+        ],
+        "f1_macro_media": 0.748,
+        "f1_macro_sd": 0.021,
+        "exactitud_media": 0.775,
+        "exactitud_sd": 0.035
+      },
+      "agregado": {
+        "f1_macro_media": 0.748,
+        "f1_macro_sd_entre_pliegues": 0.021,
+        "f1_macro_sd_entre_semillas": 0.0,
+        "exactitud_media": 0.775
+      }
+    },
+    "propuesto": {
+      "nombre": "Propuesto: agente en lazo",
+      "42": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.8,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.9,
+        "f1_macro_sd": 0.141,
+        "exactitud_media": 0.9,
+        "exactitud_sd": 0.141
+      },
+      "7": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.8,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.9,
+        "f1_macro_sd": 0.141,
+        "exactitud_media": 0.9,
+        "exactitud_sd": 0.141
+      },
+      "2026": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.8,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.9,
+        "f1_macro_sd": 0.141,
+        "exactitud_media": 0.9,
+        "exactitud_sd": 0.141
+      },
+      "agregado": {
+        "f1_macro_media": 0.9,
+        "f1_macro_sd_entre_pliegues": 0.141,
+        "f1_macro_sd_entre_semillas": 0.0,
+        "exactitud_media": 0.9
+      }
+    },
+    "ablacion": {
+      "nombre": "Ablacion: lazo sin 'recuperar'",
+      "42": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.881,
+        "f1_macro_sd": 0.168,
+        "exactitud_media": 0.9,
+        "exactitud_sd": 0.141
+      },
+      "7": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.881,
+        "f1_macro_sd": 0.168,
+        "exactitud_media": 0.9,
+        "exactitud_sd": 0.141
+      },
+      "2026": {
+        "pliegues": [
+          {
+            "pliegue": 0,
+            "exactitud": 0.8,
+            "f1_macro": 0.762,
+            "error_ordinal_medio": 0.2
+          },
+          {
+            "pliegue": 1,
+            "exactitud": 1.0,
+            "f1_macro": 1.0,
+            "error_ordinal_medio": 0.0
+          }
+        ],
+        "f1_macro_media": 0.881,
+        "f1_macro_sd": 0.168,
+        "exactitud_media": 0.9,
+        "exactitud_sd": 0.141
+      },
+      "agregado": {
+        "f1_macro_media": 0.881,
+        "f1_macro_sd_entre_pliegues": 0.168,
+        "f1_macro_sd_entre_semillas": 0.0,
+        "exactitud_media": 0.9
+      }
+    }
+  }
+}

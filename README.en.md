@@ -27,6 +27,36 @@ any intervention on real equipment belong to authorized personnel.
 
 ---
 
+## Reproducing the numbers (workshop deliverable)
+
+Exact command, from the repository root with the environment installed (see
+*Installation*; its only dependency is `matplotlib`, pinned in
+`requirements-freeze.txt`):
+
+```
+python _reproduce.py
+```
+
+It takes ~7 s and regenerates from scratch `results/tabla2.json` (values per
+seed and per fold), `results/tabla2.tex`, `results/fig1.pdf`,
+`results/fig_perdida.pdf`, `results/resultados.md`, `results/errores/`
+(confusion matrices and the five worst cases) and `logs/decisiones.jsonl` (one
+line per decision of the proposed method and of its ablation). Subproblem P1,
+frozen partition `data/lifecycle_partition.json`, seeds 42, 7 and 2026. The
+generated result files are in Spanish. Protocol, Table II and experimental
+paragraph: [`PROTOCOL.md`](PROTOCOL.md).
+
+**Machine:** Intel Core i5-12500H (12 cores), 31.7 GB RAM, Windows 11 Pro
+(build 26200), Python 3.14.6.
+
+**Declaration of AI use:** the code, the evaluation scripts and the wording of
+the documentation were written with the assistance of Claude (Anthropic)
+through Claude Code. The authors defined the problem, the data, the partition
+and the metric, reviewed the code and verified every number by running it.
+Responsibility for the content lies with the authors.
+
+---
+
 ## What it does
 
 - It conducts the **adaptive questionnaire** (sections A-K): the answers enable,
