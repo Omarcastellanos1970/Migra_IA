@@ -58,3 +58,42 @@ Aquel documento es el contrato de validación de los seis puntos, firmado el
 es la configuración experimental que va al artículo. No se contradicen, pero si
 alguna cifra difiere, **manda la de aquí**, porque esta se regenera desde el
 código en cada ejecución.
+
+---
+
+## Entrega `v1.0-st2` — manda sobre el párrafo anterior
+
+El párrafo de siete frases de arriba describe la etapa de líneas base (tres
+modelos, agente sin ejecutar). Para la entrega `v1.0-st2` rige esta sección.
+Los números salen de `python _reproduce.py` y se pueden cotejar en
+[`results/tabla2.json`](results/tabla2.json).
+
+### Las seis piezas del protocolo
+
+Congeladas el 2026-09-04 en [`PROTOCOLO_VALIDACION.md`](PROTOCOLO_VALIDACION.md):
+
+1. **Partición:** 2 pliegues, estratificada por nivel y agrupada por fabricante, guardada en `data/lifecycle_partition.json`; unidad de observación, la plataforma.
+2. **Esquema de validación:** validación cruzada agrupada con *k* = 2.
+3. **Métricas:** F1 macro como principal; exactitud y error ordinal medio como secundarias.
+4. **Búsqueda permitida:** ninguna; hiperparámetros fijados de antemano, el mismo esfuerzo (cero puntos) para todos los modelos.
+5. **Forma de reporte:** media ± desviación típica muestral entre pliegues.
+6. **Regla del conjunto de prueba:** ninguna marca aparece a la vez en entrenamiento y en prueba; la prueba no interviene en ningún ajuste.
+
+### Tabla II
+
+| Modelo | F1 macro | Exactitud |
+|---|---|---|
+| Trivial (clase mayoritaria) | 0,402 ± 0,038 | 0,675 |
+| Clásico 1: logística ordinal | 0,688 ± 0,442 | 0,800 |
+| Clásico 2: árbol de profundidad 1 | 0,748 ± 0,021 | 0,775 |
+| Profundo: MLP 1-8-1 | 0,748 ± 0,021 | 0,775 |
+| **Propuesto: agente en lazo** | **0,900 ± 0,141** | 0,900 |
+| Ablación: lazo sin «recuperar» | 0,881 ± 0,168 | 0,900 |
+
+Media ± desviación muestral entre los 2 pliegues, promediada sobre las semillas 42, 7 y 2026 (la desviación entre semillas es 0,000 en los seis modelos).
+
+### Párrafo experimental (7 frases)
+
+El conjunto de datos procede de la tabla de ciclo de vida de plataformas de automatización del repositorio, reúne 9 plataformas de 5 fabricantes etiquetadas en los niveles 3 y 4 de la escala ordinal de obsolescencia, y su unidad de observación es la plataforma. La partición es una validación cruzada de 2 pliegues, estratificada por nivel y agrupada por fabricante, guardada en disco con semilla 42, de modo que ninguna marca aparece a la vez en entrenamiento y en prueba. La única característica es la antigüedad de la plataforma (2026 menos el año de lanzamiento), la única que sobrevivió a la auditoría de fuga, estandarizada con la media y la escala del entrenamiento dentro de cada pliegue. Se comparan seis modelos: una línea base trivial, dos clásicos (regresión logística ordinal y árbol de decisión de profundidad 1), un modelo profundo (MLP 1-8-1 con tanh, entropía cruzada, 3000 épocas y paso 0,1), el agente propuesto —un lazo de cuatro funciones, percibir, recuperar, decidir y verificar, cuyos cortes de 7,0, 17,5 y 35,0 años salen de medias ya publicadas y no se ajustan a estos datos— y su ablación, idéntica salvo por la función «recuperar» desactivada. No hay búsqueda de hiperparámetros: todos se fijaron de antemano, el mismo esfuerzo para todos los modelos. La validación se repite con las semillas 42, 7 y 2026 en los seis modelos —solo el MLP tiene un paso aleatorio, la inicialización de pesos— y reporta la media y la desviación típica muestral entre pliegues del F1 macro como métrica principal, con la exactitud como secundaria. Todo corre en CPU en un Intel Core i5-12500H con 31,7 GB de memoria y Windows 11 Pro (compilación 26200); la corrida completa tarda unos 7 s con `python _reproduce.py`, y el código, los datos y las salidas están en https://github.com/Omarcastellanos1970/Migra_IA.
+
+**Desviación del protocolo, declarada:** la regla de la función «verificar» (una clase 3 pasa a 4 si la antigüedad supera 35 menos los años de repuestos del fabricante) se formuló después de ver el único fallo de la ablación, MELSEC AnS/QnAS, así que no estaba congelada y el 0,900 del método propuesto es optimista. Límites completos en [`results/resultados.md`](results/resultados.md).

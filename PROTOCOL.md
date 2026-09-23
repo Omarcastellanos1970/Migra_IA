@@ -59,3 +59,42 @@ That document is the validation contract of the six points, signed on
 opened. This one is the experimental configuration that goes into the article.
 They do not contradict each other, but if any figure differs, **the one here
 rules**, because this one is regenerated from the code on every run.
+
+---
+
+## Deliverable `v1.0-st2` — supersedes the paragraph above
+
+The seven-sentence paragraph above describes the baseline stage (three models,
+agent not executed). For the `v1.0-st2` deliverable this section applies. The
+numbers come from `python _reproduce.py` and can be checked in
+[`results/tabla2.json`](results/tabla2.json).
+
+### The six pieces of the protocol
+
+Frozen on 2026-09-04 in [`VALIDATION_PROTOCOL.md`](VALIDATION_PROTOCOL.md):
+
+1. **Split:** 2 folds, stratified by level and grouped by manufacturer, stored in `data/lifecycle_partition.json`; unit of observation, the platform.
+2. **Validation scheme:** grouped cross-validation with *k* = 2.
+3. **Metrics:** macro F1 as the primary one; accuracy and mean ordinal error as secondary ones.
+4. **Allowed search:** none; hyperparameters fixed in advance, the same effort (zero points) for every model.
+5. **Form of the report:** mean ± sample standard deviation across folds.
+6. **Test-set rule:** no brand appears in training and test at the same time; the test set takes part in no fitting.
+
+### Table II
+
+| Model | Macro F1 | Accuracy |
+|---|---|---|
+| Trivial (majority class) | 0.402 ± 0.038 | 0.675 |
+| Classic 1: ordinal logistic | 0.688 ± 0.442 | 0.800 |
+| Classic 2: depth-1 decision tree | 0.748 ± 0.021 | 0.775 |
+| Deep: MLP 1-8-1 | 0.748 ± 0.021 | 0.775 |
+| **Proposed: agent in a loop** | **0.900 ± 0.141** | 0.900 |
+| Ablation: loop without "retrieve" | 0.881 ± 0.168 | 0.900 |
+
+Mean ± sample standard deviation across the 2 folds, averaged over seeds 42, 7 and 2026 (the standard deviation across seeds is 0.000 for all six models).
+
+### Experimental paragraph (7 sentences)
+
+The dataset comes from the automation platform life-cycle table of the repository, gathers 9 platforms from 5 manufacturers labelled in levels 3 and 4 of the ordinal obsolescence scale, and its unit of observation is the platform. The partition is a 2-fold cross-validation, stratified by level and grouped by manufacturer, stored on disk with seed 42, so that no brand appears in training and test at the same time. The only feature is platform age (2026 minus the release year), the only one that survived the leakage audit, standardized with the training mean and scale inside each fold. Six models are compared: a trivial baseline, two classic ones (ordinal logistic regression and a depth-1 decision tree), a deep model (MLP 1-8-1 with tanh, cross-entropy, 3000 epochs and step 0.1), the proposed agent —a loop of four functions, perceive, retrieve, decide and verify, whose cut-offs of 7.0, 17.5 and 35.0 years come from already published means and are not fitted to these data— and its ablation, identical except for the "retrieve" function being switched off. There is no hyperparameter search: all were fixed in advance, the same effort for every model. Validation is repeated with seeds 42, 7 and 2026 for all six models —only the MLP has a random step, the weight initialization— and it reports the mean and sample standard deviation across folds of macro F1 as the primary metric, with accuracy as a secondary one. Everything runs on CPU on an Intel Core i5-12500H with 31.7 GB of memory and Windows 11 Pro (build 26200); the complete run takes about 7 s with `python _reproduce.py`, and code, data and outputs are at https://github.com/Omarcastellanos1970/Migra_IA.
+
+**Declared deviation from the protocol:** the rule of the "verify" function (a class 3 becomes 4 if the age exceeds 35 minus the manufacturer's years of spare parts) was formulated after seeing the only failure of the ablation, MELSEC AnS/QnAS, so it was not frozen and the 0.900 of the proposed method is optimistic. Full limits (in Spanish) in [`results/resultados.md`](results/resultados.md).
