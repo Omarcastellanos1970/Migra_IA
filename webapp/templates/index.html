@@ -366,6 +366,8 @@ function activarClaude(){
 function abrirEnClaude(pedido){
   const msg = UI.claude_prompt_header + pedido + UI.claude_prompt_footer;
   if(msg.length > CLAUDE_MAX){ addMsg("agent", UI.claude_too_long); return false; }
+  // Copia de respaldo: si Claude se abre con el cuadro vacio, basta Ctrl+V y Enter.
+  try{ navigator.clipboard && navigator.clipboard.writeText(msg).catch(()=>{}); }catch(e){}
   window.open("https://claude.ai/new?q=" + encodeURIComponent(msg), "_blank", "noopener");
   addMsg("agent", UI.claude_opened);
   return true;
