@@ -173,6 +173,10 @@ const CON_API = {{ con_api|tojson }};
   let caseId = null;
 let ocupado = false;
 let esInteractivo = false;
+// Modo API sin clave en el servidor: el pedido se abre en Claude (app o web)
+// con la suscripcion del propio tecnico. No hay llamada de pago desde aqui.
+let modoClaude = false;
+const CLAUDE_MAX = 1800;
 const $ = (id) => document.getElementById(id);
 
 function escapar(t){ const d=document.createElement("div"); d.textContent=t; return d.innerHTML; }
@@ -319,6 +323,7 @@ async function iniciar(modo){
   ocupado = true; $("enviar").disabled = true;
   $("msgs").innerHTML = ""; pensando(true);
   const inter = modo === "interactivo";
+  modoClaude = false;
   try{
     const r = await fetch("/api/nuevo", {
       method:"POST", headers:{"Content-Type":"application/json"},
@@ -342,7 +347,29 @@ async function iniciar(modo){
 }
 const nuevoCaso = () => CON_API
   ? iniciar("api")
-  : addMsg("agent", UI.real_needs_key);
+  : activarClaude();
+
+// Sin clave: el boton "Caso real (API)" pasa el pedido a Claude.
+function activarClaude(){
+  if(ocupado) return;
+  modoClaude = true; esInteractivo = false; caseId = null;
+  $("msgs").innerHTML = "";
+  const b = $("badge");
+  b.textContent = UI.badge_claude;
+  b.className = "badge demo";
+  $("entrada").placeholder = UI.placeholder_claude;
+  $("enviar").disabled = false;
+  addMsg("agent", UI.claude_mode_intro);
+  $("entrada").focus();
+}
+
+function abrirEnClaude(pedido){
+  const msg = UI.claude_prompt_header + pedido + UI.claude_prompt_footer;
+  if(msg.length > CLAUDE_MAX){ addMsg("agent", UI.claude_too_long); return false; }
+  window.open("https://claude.ai/new?q=" + encodeURIComponent(msg), "_blank", "noopener");
+  addMsg("agent", UI.claude_opened);
+  return true;
+}
 const nuevoInteractivo = () => iniciar("interactivo");
 
 function bienvenida(){
@@ -351,6 +378,12 @@ function bienvenida(){
 
 async function enviar(){
   const escrito = $("entrada").value.trim();
+  if(modoClaude){
+    if(!escrito) return;
+    addMsg("user", escrito);
+    if(abrirEnClaude(escrito)) $("entrada").value = "";
+    return;
+  }
   if(ocupado || !caseId) return;
   // La demo interactiva avanza paso a paso y le dice al usuario "pulsa
   // Enviar". Sin esto, hacerlo con la caja vacia no producia nada: el envio
