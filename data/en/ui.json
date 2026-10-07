@@ -35,7 +35,7 @@
  "placeholder_claude": "E.g.: CPU S7-1200 1214C, TIA Portal V19. Program a star-delta starter in LAD for a 20 HP motor...",
  "claude_prompt_header": "Migra IA API mode. Take control of my PC and solve the following in TIA Portal.\nTechnician's request: ",
  "claude_prompt_footer": "\nCompile with no errors, test in PLCSIM if applicable and give me a summary.",
- "claude_opened": "Done: Claude opened in a new tab with your request. If it did not open, check that the browser did not block the pop-up and press **Send** again.",
+ "claude_opened": "Done: Claude opened in a new tab with your request **and it was also copied to the clipboard**.\n\n\u2022 If you see your request typed in Claude, just press **Enter**.\n\u2022 If Claude opens empty, click the text box, press **Ctrl+V** and then **Enter**.\n\nIf no tab opened, check that the browser did not block the pop-up and press **Send** again.",
  "claude_too_long": "The request is too long to send through a link (about 1,800 characters max). Shorten it and try again.",
  "badge_claude": "API MODE \u00b7 CLAUDE"
 }
