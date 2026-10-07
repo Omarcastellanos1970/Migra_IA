@@ -35,7 +35,7 @@
  "placeholder_claude": "Ej.: CPU S7-1200 1214C, TIA Portal V19. Programa en KOP un arranque estrella-tri\u00e1ngulo para un motor de 20 HP...",
  "claude_prompt_header": "Migra IA modo API. Toma el control de mi PC y resuelve lo siguiente en TIA Portal.\nPedido del t\u00e9cnico: ",
  "claude_prompt_footer": "\nCompila sin errores, prueba en PLCSIM si aplica y entr\u00e9game un resumen.",
- "claude_opened": "Listo: abr\u00ed Claude en una pesta\u00f1a nueva con tu pedido. Si no se abri\u00f3, revisa que el navegador no haya bloqueado la ventana emergente y vuelve a pulsar **Enviar**.",
+ "claude_opened": "Listo: abr\u00ed Claude en una pesta\u00f1a nueva con tu pedido **y adem\u00e1s lo copi\u00e9 al portapapeles**.\n\n\u2022 Si en Claude ves tu pedido escrito, solo pulsa **Enter**.\n\u2022 Si Claude aparece vac\u00edo (\"\u00bfQu\u00e9 quieres hoy?\"), haz clic en el cuadro de texto, pulsa **Ctrl+V** y luego **Enter**.\n\nSi no se abri\u00f3 ninguna pesta\u00f1a, revisa que el navegador no haya bloqueado la ventana emergente y vuelve a pulsar **Enviar**.",
  "claude_too_long": "El pedido es demasiado largo para enviarlo por enlace (m\u00e1ximo unos 1 800 caracteres). Res\u00famelo y vuelve a intentarlo.",
  "badge_claude": "MODO API \u00b7 CLAUDE"
 }
