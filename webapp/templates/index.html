@@ -37,6 +37,8 @@
                   padding:8px 14px; font-weight:600; cursor:pointer; margin-left:8px; }
   header button:hover { filter:brightness(1.1); }
   header button.sec { background:transparent; color:var(--tx2); border:1px solid var(--line); }
+  /* Modo API · Claude: siempre en naranja. */
+  header button#btn-nuevo { background:#f59e0b; color:#111; border:1px solid #f59e0b; }
   header .idiomas { display:flex; gap:2px; margin-left:0; }
   /* La frase se DICE, no se deduce del par ES|EN. En pantalla angosta se
      esconde y quedan los codigos, que caben y siguen entendiendose. */
@@ -349,14 +351,12 @@ const nuevoCaso = () => CON_API
   ? iniciar("api")
   : activarClaude();
 
-// Sin clave: el boton "Caso real (API)" pasa el pedido a Claude.
+// Sin clave: el boton "Modo API · Claude" pasa el pedido a Claude.
 function activarClaude(){
   if(ocupado) return;
   modoClaude = true; esInteractivo = false; caseId = null;
   $("msgs").innerHTML = "";
-  const b = $("badge");
-  b.textContent = UI.badge_claude;
-  b.className = "badge demo";
+  // La etiqueta de version no cambia: sigue mostrando v0.5.0.
   $("entrada").placeholder = UI.placeholder_claude;
   $("enviar").disabled = false;
   addMsg("agent", UI.claude_mode_intro);
