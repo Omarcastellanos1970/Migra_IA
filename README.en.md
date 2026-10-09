@@ -79,6 +79,10 @@ Responsibility for the content lies with the authors.
   route if the same brand is kept, and with the **porting route between
   manufacturers** when the target is from another brand and the source program is
   accessible.
+- In **API mode · Claude**, it hands the technician's request to Claude under
+  the user's own subscription, which can **program in TIA Portal**, compile and
+  test in PLCSIM. That code is accepted only if it compiles and works in
+  simulation; its evaluation (P3) is pending.
 - It marks **missing data** and **functional safety flags**.
 - It generates a **traceable technical report** in Markdown with the standard
   structure of Section 9.

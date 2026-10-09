@@ -71,7 +71,7 @@
 
 
 -----------------------------------------------------------
-  OPTIONAL - "Real case (API)" mode
+  OPTIONAL - "API mode · Claude"
 -----------------------------------------------------------
 
   The interactive demo already shows the complete engine. If on top
@@ -85,7 +85,7 @@
         and rename the copy to   .env
      3. Open it with Notepad and paste your key where it says
         sk-ant-...
-     4. Start it again and choose "Real case (API)".
+     4. Start it again and choose "API mode · Claude".
 
 
 -----------------------------------------------------------
