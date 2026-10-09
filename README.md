@@ -78,6 +78,10 @@ número ejecutándolo. La responsabilidad sobre el contenido es de los autores.
   CPU, y lo **especializa** según el caso: con la ruta del fabricante si se sigue
   en la misma marca, y con la **ruta de porte entre fabricantes** cuando el destino
   es de otra marca y el programa de origen es accesible.
+- En **Modo API · Claude**, pasa el pedido del técnico a Claude con la
+  suscripción del propio usuario, que puede **programar en TIA Portal**,
+  compilar y probar en PLCSIM. Ese código se acepta solo si compila y funciona
+  en simulación; su evaluación (P3) está pendiente.
 - Marca **datos faltantes** y **banderas de seguridad funcional**.
 - Genera un **informe técnico trazable** en Markdown con la estructura estándar
   de la Sección 9.

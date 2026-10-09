@@ -71,7 +71,7 @@
 
 
 -----------------------------------------------------------
-  OPCIONAL - Modo "Caso real (API)"
+  OPCIONAL - Modo "Modo API · Claude"
 -----------------------------------------------------------
 
   La demo interactiva ya muestra el motor completo. Si ademas quieres
@@ -85,7 +85,7 @@
         y renombra la copia a   .env
      3. Abrelo con el Bloc de notas y pega tu clave donde dice
         sk-ant-...
-     4. Inicia de nuevo y elige "Caso real (API)".
+     4. Inicia de nuevo y elige "Modo API · Claude".
 
 
 -----------------------------------------------------------

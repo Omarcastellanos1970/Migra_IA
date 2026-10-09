@@ -48,7 +48,7 @@ La demo interactiva ya muestra todo el motor. Si quieres el **agente conversacio
 1. Consigue una clave de API en https://console.anthropic.com/settings/keys *(servicio de pago de Anthropic; cada quien usa la suya)*.
 2. En la carpeta del proyecto, **copia** el archivo `.env.example` y **renómbralo** a `.env`.
 3. Ábrelo con el **Bloc de notas** y reemplaza `sk-ant-...` por tu clave.
-4. Vuelve a ejecutar y elige **"Caso real (API)"**.
+4. Vuelve a ejecutar y elige **"Modo API · Claude"**.
 
 ---
 

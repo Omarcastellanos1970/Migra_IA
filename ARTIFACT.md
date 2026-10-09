@@ -137,17 +137,25 @@ python -c "from migra_ia.scoring import compute_risk; r=compute_risk({'estado_ci
 
 ---
 
-## 5. Evaluación CON clave de API (opcional — agente real)
+## 5. Modo API · Claude (opcional)
 
-Para probar el agente conversacional completo (razonamiento adaptativo con Claude):
+El segundo botón de la pantalla de inicio, **«Modo API · Claude»**, cambia según
+el servidor:
 
-1. Copie `.env.example` a `.env` y coloque una `ANTHROPIC_API_KEY` válida
-   (servicio de pago de Anthropic; no requerido para evaluar el artefacto).
-2. `python -m webapp.app` → **"Caso real (API)"**, o consola: `python -m migra_ia.agent`.
+- **Sin clave de API (como la demostración pública):** el pedido del técnico se
+  abre en Claude (web o app de escritorio) con la suscripción del propio
+  usuario, sin costo para el servidor. Con *Computer use* activado en la app de
+  escritorio, Claude puede programar directamente en la PC del técnico, por
+  ejemplo en TIA Portal, compilar y probar en PLCSIM.
+- **Con una `ANTHROPIC_API_KEY` en `.env`:** el mismo botón abre el agente
+  conversacional completo dentro de la aplicación. Copie `.env.example` a
+  `.env`, coloque la clave y ejecute `python -m webapp.app` (o, en consola,
+  `python -m migra_ia.agent`).
 
-La demo interactiva es suficiente para verificar todas las afirmaciones
-estructurales; la clave solo habilita el razonamiento en lenguaje natural sobre
-datos arbitrarios.
+En los dos casos, el código que se produzca solo se acepta si compila sin
+errores y funciona en simulación (fase 5); su evaluación corresponde a P3,
+todavía pendiente. La demo interactiva basta para verificar todas las
+afirmaciones estructurales del artefacto.
 
 ---
 

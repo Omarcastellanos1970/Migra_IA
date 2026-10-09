@@ -48,7 +48,7 @@ The interactive demo already shows the whole engine. If you want the **complete 
 1. Get an API key at https://console.anthropic.com/settings/keys *(a paid Anthropic service; everyone uses their own)*.
 2. In the project folder, **copy** the file `.env.example` and **rename it** to `.env`.
 3. Open it with **Notepad** and replace `sk-ant-...` with your key.
-4. Run it again and choose **"Real case (API)"**.
+4. Run it again and choose **"API mode · Claude"**.
 
 ---
 
