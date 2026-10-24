@@ -386,6 +386,14 @@ async function enviar(){
     if(abrirEnClaude(escrito)) $("entrada").value = "";
     return;
   }
+  // "claude: ..." en cualquier momento (p. ej. el paso P2, secuencia o red de
+  // Petri) abre Modo API · Claude con ese pedido sin cerrar el caso actual.
+  const mc = escrito.match(/^claude\s*:\s*([\s\S]+)$/i);
+  if(mc){
+    addMsg("user", escrito);
+    if(abrirEnClaude(mc[1].trim())) $("entrada").value = "";
+    return;
+  }
   if(ocupado || !caseId) return;
   // La demo interactiva avanza paso a paso y le dice al usuario "pulsa
   // Enviar". Sin esto, hacerlo con la caja vacia no producia nada: el envio
