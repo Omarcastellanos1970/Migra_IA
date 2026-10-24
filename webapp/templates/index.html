@@ -388,10 +388,19 @@ async function enviar(){
   }
   // "claude: ..." en cualquier momento (p. ej. el paso P2, secuencia o red de
   // Petri) abre Modo API · Claude con ese pedido sin cerrar el caso actual.
-  const mc = escrito.match(/^claude\s*:\s*([\s\S]+)$/i);
+  // Vale con o sin dos puntos ("claude: ...", "claude ...", "Claude, ...").
+  const mc = escrito.match(/^claude\b[\s:,.;-]*([\s\S]*)$/i);
   if(mc){
     addMsg("user", escrito);
-    if(abrirEnClaude(mc[1].trim())) $("entrada").value = "";
+    const pedido = mc[1].trim();
+    if(!pedido){
+      addMsg("agent", LANG === "en"
+        ? "Type your request after **claude**, for example: *claude: CPU S7-1200 1214C, TIA V19, LAD, filling sequence…*"
+        : "Escribe tu pedido después de **claude**, por ejemplo: *claude: CPU S7-1200 1214C, TIA V19, KOP, secuencia de llenado…*");
+      $("entrada").value = "claude: ";
+      return;
+    }
+    if(abrirEnClaude(pedido)) $("entrada").value = "";
     return;
   }
   if(ocupado || !caseId) return;
