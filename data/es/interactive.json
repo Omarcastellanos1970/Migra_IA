@@ -156,5 +156,7 @@
  "i159": "Destino fijado: **%s %s**.",
  "i160": "\n\n---\n\n*Avance: %s de %s (%s%%) \u00b7 fase %s",
  "i161": "sin dato",
- "i162": "Sin datos suficientes (no incluido en el calculo)."
+ "i162": "Sin datos suficientes (no incluido en el calculo).",
+ "i163": "\n\n> \ud83d\udca1 **\u00bfQuieres que el c\u00f3digo se genere solo?** Cuando tengas la **secuencia del proceso** o la **red de Petri**, escr\u00edbela en el cuadro de abajo empezando con **claude:** y pulsa **Enviar**. Se abrir\u00e1 **Modo API \u00b7 Claude** con tu pedido: Claude genera el programa en TIA Portal, lo compila y lo prueba en PLCSIM. Incluye la CPU, la versi\u00f3n de TIA Portal y el lenguaje (KOP, FUP o SCL). Este caso no se pierde: al terminar, vuelve aqu\u00ed y escribe *hecho* para cerrar el paso.\n> Ej.: *claude: CPU S7-1200 1214C, TIA V19, KOP. Al pulsar inicio arranca la banda; al llegar la botella al sensor 1 se detiene 3 s y se abre la v\u00e1lvula de llenado\u2026*",
+ "i164": "\n\n> \ud83d\udca1 **Este paso genera c\u00f3digo: te recomiendo pasar a Modo API \u00b7 Claude.** En la demo interactiva yo no escribo programas. Escribe en el cuadro de abajo **claude:** seguido de la CPU, la versi\u00f3n de TIA Portal, el lenguaje (KOP, FUP o SCL) y la secuencia, la red de Petri o lo que hay que corregir, y pulsa **Enviar**. Claude genera el c\u00f3digo en TIA Portal, lo compila y lo prueba en PLCSIM. Este caso no se pierde: al terminar, vuelve aqu\u00ed y escribe *hecho* para cerrar el paso."
 }
