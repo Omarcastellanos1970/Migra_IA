@@ -156,5 +156,7 @@
  "i159": "Target set: **%s %s**.",
  "i160": "\n\n---\n\n*Progress: %s of %s (%s%%) \u00b7 phase %s",
  "i161": "no data",
- "i162": "Not enough data (not included in the calculation)."
+ "i162": "Not enough data (not included in the calculation).",
+ "i163": "\n\n> \ud83d\udca1 **Want the code generated for you?** Once you have the **process sequence** or the **Petri net**, type it in the box below starting with **claude:** and press **Send**. **API mode \u00b7 Claude** will open with your request: Claude writes the program in TIA Portal, compiles it and tests it in PLCSIM. Include the CPU, the TIA Portal version and the language (LAD, FBD or SCL). This case is not lost: when done, come back here and type *done* to close the step.\n> E.g.: *claude: CPU S7-1200 1214C, TIA V19, LAD. Pressing start runs the conveyor; when the bottle reaches sensor 1 it stops for 3 s and the filling valve opens\u2026*",
+ "i164": "\n\n> \ud83d\udca1 **This step produces code: I recommend switching to API mode \u00b7 Claude.** In the interactive demo I do not write programs. In the box below, type **claude:** followed by the CPU, the TIA Portal version, the language (LAD, FBD or SCL) and the sequence, the Petri net or what needs fixing, then press **Send**. Claude writes the code in TIA Portal, compiles it and tests it in PLCSIM. This case is not lost: when done, come back here and type *done* to close the step."
 }
