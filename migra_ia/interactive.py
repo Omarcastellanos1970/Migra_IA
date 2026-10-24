@@ -915,6 +915,13 @@ def _phase_guide(case: Case, text: str, status: dict) -> dict:
     # concretos: 13, 20, 21, 22 y 23 con la ruta Siemens; 11, 12, 18, 21 y 32 con la
     # ruta de cambio de marca. El resto queda igual que siempre.
     cuerpo += procedure.route_for_step_text(next_step["key"], case, ctx)
+    # Pasos donde se genera codigo: la demo no programa, asi que pide pasar a
+    # Modo API · Claude ("claude: ..." en el cuadro, sin cerrar este caso).
+    # P2 pide la secuencia / red de Petri; P5 escribe el programa; 23 corrige.
+    if next_step["key"] == "P2":
+        cuerpo += T("i163")
+    elif str(next_step["key"]) in ("P5", "23"):
+        cuerpo += T("i164")
     if next_step.get("prerrequisitos_pendientes"):
         cuerpo += (T("i095")                 + ", ".join(str(x) for x in next_step["prerrequisitos_pendientes"])
                    + T("i080"))
